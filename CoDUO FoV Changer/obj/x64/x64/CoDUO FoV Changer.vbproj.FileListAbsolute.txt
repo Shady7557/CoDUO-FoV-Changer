@@ -1,0 +1,11 @@
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\bin\x64\x64\CoDUO FoV Changer.exe.config
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\bin\x64\x64\CoDUO FoV Changer.exe
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\x64\CoDUO_FoV_Changer.Form1.resources
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\x64\CoDUO_FoV_Changer.Form3.resources
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\x64\CoDUO_FoV_Changer.Form4.resources
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\x64\CoDUO_FoV_Changer.Form5.resources
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\x64\CoDUO_FoV_Changer.Form6.resources
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\x64\CoDUO_FoV_Changer.Form7.resources
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\x64\CoDUO_FoV_Changer.Resources.resources
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\x64\CoDUO FoV Changer.vbproj.GenerateResource.Cache
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\x64\CoDUO FoV Changer.exe

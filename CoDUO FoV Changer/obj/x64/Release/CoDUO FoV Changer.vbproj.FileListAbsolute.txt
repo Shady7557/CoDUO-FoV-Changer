@@ -1,0 +1,34 @@
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Previewwww\CoDUO FoV Changer\bin\x64\Release\CoDUO FoV Changer.exe.config
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Previewwww\CoDUO FoV Changer\obj\x64\Release\CoDUO FoV Changer.exe
+C:\CoDUO FoV Changer Preview\CoDUO FoV Changer\bin\x64\Release\CoDUO FoV Changer.exe.config
+C:\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO FoV Changer.exe
+C:\CoDUO FoV Changer Preview\CoDUO FoV Changer\bin\x64\Release\CoDUO FoV Changer.exe
+C:\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO_FoV_Changer.Form1.resources
+C:\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO_FoV_Changer.Form3.resources
+C:\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO_FoV_Changer.Form4.resources
+C:\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO_FoV_Changer.Form5.resources
+C:\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO_FoV_Changer.Form8.resources
+C:\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO_FoV_Changer.Resources.resources
+C:\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO FoV Changer.vbproj.GenerateResource.Cache
+D:\Users\Matt\Downloads\CoDUO FoV Changer Preview\CoDUO FoV Changer\bin\x64\Release\CoDUO FoV Changer.exe.config
+D:\Users\Matt\Downloads\CoDUO FoV Changer Preview\CoDUO FoV Changer\bin\x64\Release\CoDUO FoV Changer.exe
+D:\Users\Matt\Downloads\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO_FoV_Changer.Form1.resources
+D:\Users\Matt\Downloads\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO_FoV_Changer.Form3.resources
+D:\Users\Matt\Downloads\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO_FoV_Changer.Form4.resources
+D:\Users\Matt\Downloads\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO_FoV_Changer.Form5.resources
+D:\Users\Matt\Downloads\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO_FoV_Changer.Form8.resources
+D:\Users\Matt\Downloads\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO_FoV_Changer.Resources.resources
+D:\Users\Matt\Downloads\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO FoV Changer.vbproj.GenerateResource.Cache
+D:\Users\Matt\Downloads\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO FoV Changer.exe
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\bin\x64\Release\CoDUO FoV Changer.exe.config
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\bin\x64\Release\CoDUO FoV Changer.exe
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\bin\x64\Release\MahApps.Metro.dll
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\bin\x64\Release\System.Windows.Interactivity.dll
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\bin\x64\Release\MahApps.Metro.xml
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO_FoV_Changer.Form1.resources
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO_FoV_Changer.Form3.resources
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO_FoV_Changer.Form5.resources
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO_FoV_Changer.Form8.resources
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO_FoV_Changer.Resources.resources
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO FoV Changer.vbproj.GenerateResource.Cache
+D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x64\Release\CoDUO FoV Changer.exe
