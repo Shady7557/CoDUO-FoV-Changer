@@ -34,7 +34,7 @@ Public Class Form1
     Dim disableupdatetimer As String = ini.ReadValue("Tweaks", "DisableUpdateTimer")
     Dim sleep As String = ini.ReadValue("Tweaks", "Sleep")
     Dim installpath As String = ini.ReadValue("Main", "InstallPath")
-    Dim hotfix As String = "5.9"
+    Dim hotfix As String = "6.0"
     Dim hotfixini As String = ini.ReadValue("Main", "Hotfix")
     Dim progvers As String = Application.ProductVersion
     Dim progversini As String = ini.ReadValue("Main", "AppVersion")
@@ -875,6 +875,14 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
         End If
 
+        Try
+            If startline.Contains("-launch") Then
+                ini.WriteValue("Extras", "StartCommandLine", startline.Replace("-launch", ""))
+            End If
+        Catch ex As Exception
+            Log.WriteLine("!! ERROR !! " & ex.Message)
+        End Try
+
         CheckBox4.Visible = False
         For Each arguement As String In My.Application.CommandLineArgs
             Dim splitStr() As String
@@ -963,11 +971,15 @@ My.Computer.FileSystem.GetFileInfo(filename)
             ' MessageBox.Show("is there a return")
 
             '  End If
+
             If arguement = ("-launch") Then 'Automatically launches the game, probably useful if you're not running a command line and don't know the autorun .ini value exists, one of the codes can be removed.
                 'Button3.PerformClick()
 
                 Try
-                    ini.WriteValue("Extras", "StartCommandLine", arguement)
+                    If startline.Contains("-launch") Then
+                        ini.WriteValue("Extras", "StartCommandLine", startline.Replace("-launch", ""))
+                    End If
+                    '   ini.WriteValue("Extras", "StartCommandLine", arguement)
                     Dim startInfo = New ProcessStartInfo()
                     startInfo.WorkingDirectory = installpath
                     If Not TextBox4.Text = "" And Not TextBox4 Is Nothing Then
