@@ -14,3 +14,20 @@ D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\Co
 D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x86\x86rel\CoDUO FoV Changer.exe
 D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x86\x86rel\CoDUO FoV Changer.xml
 D:\Users\Matt\Documents\Visual Studio 2012\Projects\CoDUO FoV Changer Preview\CoDUO FoV Changer\obj\x86\x86rel\CoDUO FoV Changer.pdb
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\bin\x86\x86rel\CoDUO FoV Changer.exe.config
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\bin\x86\x86rel\CoDUO FoV Changer.exe
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\bin\x86\x86rel\CoDUO FoV Changer.pdb
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\bin\x86\x86rel\CoDUO FoV Changer.xml
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\bin\x86\x86rel\MahApps.Metro.dll
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\bin\x86\x86rel\System.Windows.Interactivity.dll
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\bin\x86\x86rel\MahApps.Metro.xml
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO_FoV_Changer.Form1.resources
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO_FoV_Changer.Form3.resources
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO_FoV_Changer.Form5.resources
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO_FoV_Changer.Form8.resources
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO_FoV_Changer.Form6.resources
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO_FoV_Changer.Resources.resources
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO FoV Changer.vbproj.GenerateResource.Cache
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO FoV Changer.exe
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO FoV Changer.xml
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO FoV Changer.pdb

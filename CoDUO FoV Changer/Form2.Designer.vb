@@ -42,6 +42,7 @@ Partial Class Form3
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
         Me.Button7 = New System.Windows.Forms.Button()
         Me.Button3 = New System.Windows.Forms.Button()
+        Me.Button6 = New System.Windows.Forms.Button()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
@@ -212,6 +213,16 @@ Partial Class Form3
         Me.ToolTip1.SetToolTip(Me.Button3, "Open an explorer window where CoD is installed.")
         Me.Button3.UseVisualStyleBackColor = True
         '
+        'Button6
+        '
+        Me.Button6.Location = New System.Drawing.Point(12, 314)
+        Me.Button6.Name = "Button6"
+        Me.Button6.Size = New System.Drawing.Size(150, 23)
+        Me.Button6.TabIndex = 65
+        Me.Button6.Text = "Select Process for FoV"
+        Me.ToolTip1.SetToolTip(Me.Button6, "Open an explorer window where CoD is installed.")
+        Me.Button6.UseVisualStyleBackColor = True
+        '
         'Label4
         '
         Me.Label4.AutoSize = True
@@ -226,8 +237,9 @@ Partial Class Form3
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(188, 313)
+        Me.ClientSize = New System.Drawing.Size(187, 341)
         Me.ControlBox = False
+        Me.Controls.Add(Me.Button6)
         Me.Controls.Add(Me.Button3)
         Me.Controls.Add(Me.Button7)
         Me.Controls.Add(Me.Label4)
@@ -274,4 +286,5 @@ End Sub
     Friend WithEvents Label4 As System.Windows.Forms.Label
     Friend WithEvents Button7 As System.Windows.Forms.Button
     Friend WithEvents Button3 As System.Windows.Forms.Button
+    Friend WithEvents Button6 As System.Windows.Forms.Button
 End Class

@@ -239,6 +239,7 @@ Public Class Form3
             Button5.BackColor = Color.DarkGray
             Button7.BackColor = Color.DarkGray
             TextBox1.BackColor = Color.DarkGray
+            Button6.BackColor = Color.DarkGray
             '    TextBox2.BackColor = Color.DarkGray
             ComboBox2.BackColor = Color.DarkGray
             Form1.MenuStrip1.BackColor = Color.DarkGray
@@ -286,4 +287,7 @@ Public Class Form3
         Process.Start(installpath)
     End Sub
 
+    Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click
+        Form6.Show()
+    End Sub
 End Class

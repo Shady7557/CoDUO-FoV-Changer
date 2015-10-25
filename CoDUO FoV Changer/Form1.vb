@@ -34,7 +34,10 @@ Public Class Form1
     Dim disableupdatetimer As String = ini.ReadValue("Tweaks", "DisableUpdateTimer")
     Dim sleep As String = ini.ReadValue("Tweaks", "Sleep")
     Dim installpath As String = ini.ReadValue("Main", "InstallPath")
-    Dim hotfix As String = "5.7"
+    Dim hotfix As String = "5.8"
+    Dim hotfixini As String = ini.ReadValue("Main", "Hotfix")
+    Dim progvers As String = Application.ProductVersion
+    Dim progversini As String = ini.ReadValue("Main", "AppVersion")
     Public hidekey As String = ini.ReadValue("Extras", "HideKey")
     Dim startline As String = ini.ReadValue("Extras", "StartCommandLine")
     Dim fovinterval As String = ini.ReadValue("FoV", "FoVUpdateTime")
@@ -82,6 +85,8 @@ Public Class Form1
     Dim didFS As Boolean = False
     Dim logname As String
     Dim restartneededpath As Boolean = False
+    Dim appname As String = Application.ProductName & " (" & Application.ProductVersion & ", HF" & hotfix & ")"
+    Public pid As Integer = 0
     'Dim audio As New AudioFile(temp & "\beep.mp3")
     'Dim audion As New AudioFile(temp & "\beepnegative.mp3")
     Dim thread As System.Threading.Thread
@@ -738,6 +743,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         '   getW = New Thread(AddressOf Me.getWav)
         '   getW.IsBackground = True
         '   getW.Start()
+       
 
 
 
@@ -1293,6 +1299,41 @@ My.Computer.FileSystem.GetFileInfo(filename)
         If TimeSpent.TotalMilliseconds >= 100 Or Debugger.IsAttached = True Then
             Log.WriteLine("program startup took: " & TimeSpent.TotalMilliseconds)
         End If
+
+        Dim versmod As String = Application.ProductVersion.Substring(0, 3)
+        MessageBox.Show(versmod)
+
+        If Not progversini = "" Then
+            If progversini < progvers Then
+                If progversini.Substring(0, 3) < progvers.Substring(0, 3) Then
+                    MessageBox.Show(Application.ProductName & " has been updated from " & progversini & " to " & progvers & " (" & "HF" & hotfix & "), be sure to check the changelog to see what's different!", appname, MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Return
+                End If
+            End If
+        End If
+
+        If progversini = "" Then
+            progversini = progvers
+            ini.WriteValue("Main", "AppVersion", progvers)
+            '  If progvers = "" Then
+            '   progvers = "Unknown"
+            MessageBox.Show(Application.ProductName & " has been updated from Unknown to " & progvers.Substring(0, 3) & " (" & "HF" & hotfix & "), be sure to check the changelog to see what's different!", appname, MessageBoxButtons.OK, MessageBoxIcon.Information)
+            progversini = progvers
+            Return
+        End If
+        ' End If
+
+
+        If hotfixini = "" Or hotfixini < hotfix Then
+            ini.WriteValue("Main", "Hotfix", hotfix)
+            If hotfixini = "" Then
+                MessageBox.Show(Application.ProductName & " has been updated to HF" & hotfix & ", be sure to check the changelog to see what's different!", appname, MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Else
+                MessageBox.Show(Application.ProductName & " has been updated from HF" & hotfixini & " to HF" & hotfix & ", be sure to check the changelog to see what's different!", appname, MessageBoxButtons.OK, MessageBoxIcon.Information)
+            End If
+            hotfixini = hotfix
+        End If
+
         '    MessageBox.Show(TimeSpent.TotalMilliseconds)
         '   If nolog = True Then MessageBox.Show(TimeSpent.TotalSeconds)
 
@@ -1340,10 +1381,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
     Private Sub Form1_Close(sender As Object, e As EventArgs) Handles MyBase.FormClosing
         Dim TimerStart As DateTime
         TimerStart = Now
-        Try
-            WriteFloat("CoDUOMP", &H3052F7C8, 80)
-        Catch ex As Exception
-        End Try
         Try
             WriteFloat("CoDUOMP", &H3052F7C8, 80)
         Catch ex As Exception
@@ -1422,29 +1459,35 @@ My.Computer.FileSystem.GetFileInfo(filename)
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
         Try
             If CheckBox3.Checked = False Then
-                WriteFloat("CoDUOMP", &H3052F7C8, TextBox1.Text)
+                If pid = 0 Then
+                    WriteFloat("CoDUOMP", &H3052F7C8, TextBox1.Text)
+                Else
+                    WriteFloatpid(pid, &H3052F7C8, TextBox1.Text)
+                End If
             Else
                 WriteFloat("CoDMP", &H3029CA28, TextBox1.Text)
             End If
-            Dim MyP As Process() = Process.GetProcessesByName("CoDUOMP")
-            If MyP.Length = 0 Then
-                Label2.Text = ("Status: not found or failed to write to memory!")
-                If isminimal = "Dark" Then
-                    Label2.ForeColor = Color.DarkRed
+            If pid = 0 Then
+                Dim MyP As Process() = Process.GetProcessesByName("CoDUOMP")
+                If MyP.Length = 0 Then
+                    Label2.Text = ("Status: not found or failed to write to memory!")
+                    If isminimal = "Dark" Then
+                        Label2.ForeColor = Color.DarkRed
+                    Else
+                        Label2.ForeColor = Color.Red
+                    End If
+                    If Not CheckBox3.Checked = True Then
+                        Button3.Enabled = True
+                    Else
+                        Button3.Enabled = False
+                    End If
+
+                    Exit Sub
                 Else
-                    Label2.ForeColor = Color.Red
-                End If
-                If Not CheckBox3.Checked = True Then
-                    Button3.Enabled = True
-                Else
+                    Label2.Text = ("Status: UO found and wrote to memory!")
+                    Label2.ForeColor = Color.Green
                     Button3.Enabled = False
                 End If
-
-                Exit Sub
-            Else
-                Label2.Text = ("Status: UO found and wrote to memory!")
-                Label2.ForeColor = Color.Green
-                Button3.Enabled = False
             End If
         Catch ex As Exception
             Timer1.Stop()
@@ -1557,7 +1600,11 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 '    hasPlayed = True
                 'End If
                 If CheckBox3.Checked = False Then
-                    WriteFloat("CoDUOMP", &H3052F7C8, TextBox1.Text)
+                        If pid = 0 Then
+                            WriteFloat("CoDUOMP", &H3052F7C8, TextBox1.Text)
+                        Else
+                            WriteFloatpid(pid, &H3052F7C8, TextBox1.Text)
+                        End If
                 Else
                     WriteFloat("CoDMP", &H3029CA28, TextBox1.Text)
                 End If
@@ -1576,7 +1623,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 'End If
 
                 If CheckBox3.Checked = False Then
-                    WriteFloat("CoDUOMP", &H3052F7C8, TextBox1.Text)
+
+                    If pid = 0 Then
+                        WriteFloat("CoDUOMP", &H3052F7C8, TextBox1.Text)
+                    Else
+                        WriteFloatpid(pid, &H3052F7C8, TextBox1.Text)
+                    End If
                 Else
                     WriteFloat("CoDMP", &H3029CA28, TextBox1.Text)
                 End If
@@ -2043,14 +2095,15 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub HelpToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles HelpToolStripMenuItem.Click
-        MessageBox.Show("Hi, thanks for using my FoV Changer for Call of Duty and Call of Duty United Offensive. This is how to use it properly: " & Environment.NewLine & Environment.NewLine & "1. Start your game and type: r_mode -1 (yes, that's minus 1), r_customwidth " & CStr(My.Computer.Screen.Bounds.Width) & " (your monitor's estimated width), r_customheight " & CStr(My.Computer.Screen.Bounds.Height) & " (your monitor's estimated height)" & Environment.NewLine & Environment.NewLine & "2. Join a server and tab out, or use numpad + and numpad - to adjust your field of view to your liking." & Environment.NewLine & Environment.NewLine & "3. Enjoy playing UO at your monitor's native resolution, with proper Field of View." & Environment.NewLine & Environment.NewLine & "Program developed by:" & Environment.NewLine & "Shady, with the help of CurtDog's logging module, ""CurtLog"".", Application.ProductName & " (" & Application.ProductVersion & ")", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
     End Sub
     Private Sub HelpToolStripMenuItem_Hover(sender As Object, e As EventArgs) Handles HelpToolStripMenuItem.MouseHover
-        HelpToolStripMenuItem.ShowDropDown()
+        '    HelpToolStripMenuItem.ShowDropDown()
         'not sure why but I had to do this, where as on "Tools", I didn't have to.
     End Sub
 
     Private Sub InfoToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles InfoToolStripMenuItem.Click
-        MessageBox.Show("Here's some general information on the program: " & Environment.NewLine & Environment.NewLine & "• All config settings and logs are stored in " & appdata & "CoDUO FoV Changer")
+        MessageBox.Show("Hi, thanks for using my FoV Changer for Call of Duty and Call of Duty United Offensive. This is how to use it properly: " & Environment.NewLine & Environment.NewLine & "1. Start your game and type: r_mode -1 (yes, that's minus 1), r_customwidth " & CStr(My.Computer.Screen.Bounds.Width) & " (your monitor's estimated width), r_customheight " & CStr(My.Computer.Screen.Bounds.Height) & " (your monitor's estimated height)" & Environment.NewLine & Environment.NewLine & "2. Join a server and tab out, or use numpad + and numpad - to adjust your field of view to your liking." & Environment.NewLine & Environment.NewLine & "3. Enjoy playing UO at your monitor's native resolution, with proper Field of View." & Environment.NewLine & Environment.NewLine & "Program developed by:" & Environment.NewLine & "Shady, with the help of CurtDog's logging module, ""CurtLog"".", Application.ProductName & " (" & Application.ProductVersion & ")", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        '  MessageBox.Show("Here's some general information on the program: " & Environment.NewLine & Environment.NewLine & "• All config settings and logs are stored in " & appdata & "CoDUO FoV Changer")
     End Sub
 End Class

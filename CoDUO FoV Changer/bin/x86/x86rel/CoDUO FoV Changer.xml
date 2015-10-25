@@ -1,0 +1,50 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+CoDUOFoVChanger
+</name>
+</assembly>
+<members>
+<member name="M:CoDUO_FoV_Changer.Module1.IniFile.#ctor(System.String)">
+	<summary>
+ IniFile Constructor
+ </summary>
+	<param name="IniPath">The path to the INI file.</param>
+</member><member name="M:CoDUO_FoV_Changer.Module1.IniFile.ReadValue(System.String,System.String)">
+	<summary>
+ Read value from INI file
+ </summary>
+	<param name="section">The section of the file to look in</param>
+	<param name="key">The key in the section to look for</param>
+</member><member name="M:CoDUO_FoV_Changer.Module1.IniFile.WriteValue(System.String,System.String,System.String)">
+	<summary>
+ Write value to INI file
+ </summary>
+	<param name="section">The section of the file to write in</param>
+	<param name="key">The key in the section to write</param>
+	<param name="value">The value to write for the key</param>
+</member><member name="P:CoDUO_FoV_Changer.My.Resources.Resources.ResourceManager">
+	<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member><member name="P:CoDUO_FoV_Changer.My.Resources.Resources.Culture">
+	<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member><member name="P:CoDUO_FoV_Changer.My.Resources.Resources.CoDUO_FoV_Changer_Updater">
+	<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member><member name="P:CoDUO_FoV_Changer.My.Resources.Resources.Loading">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="T:CoDUO_FoV_Changer.My.Resources.Resources">
+	<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member>
+</members>
+</doc>
