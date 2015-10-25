@@ -34,7 +34,7 @@ Public Class Form1
     Dim disableupdatetimer As String = ini.ReadValue("Tweaks", "DisableUpdateTimer")
     Dim sleep As String = ini.ReadValue("Tweaks", "Sleep")
     Dim installpath As String = ini.ReadValue("Main", "InstallPath")
-    Dim hotfix As String = "5.8"
+    Dim hotfix As String = "5.9"
     Dim hotfixini As String = ini.ReadValue("Main", "Hotfix")
     Dim progvers As String = Application.ProductVersion
     Dim progversini As String = ini.ReadValue("Main", "AppVersion")
@@ -1231,7 +1231,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Else
                 Label11.Text = ("CoD:UO Version: " & readvalue2) 'Sets the label to read the games version via registry key above.
             End If
-            Label10.Text = "Application Branch: " & "2.1" 'Sets the label's text to contain the application branch.
+            Label10.Text = "Application Branch: " & "2.2" 'Sets the label's text to contain the application branch.
             Dim testString As String = "Application Version: " & Application.ProductVersion
             Label4.Text = testString
 
@@ -1301,31 +1301,43 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
 
         Dim versmod As String = Application.ProductVersion.Substring(0, 3)
-        MessageBox.Show(versmod)
+        ' MessageBox.Show(versmod)
+        Dim showmsgbox As Boolean = True
+        Dim pv1 As Boolean = False
 
         If Not progversini = "" Then
             If progversini < progvers Then
                 If progversini.Substring(0, 3) < progvers.Substring(0, 3) Then
+                    showmsgbox = False
+                    pv1 = True
                     MessageBox.Show(Application.ProductName & " has been updated from " & progversini & " to " & progvers & " (" & "HF" & hotfix & "), be sure to check the changelog to see what's different!", appname, MessageBoxButtons.OK, MessageBoxIcon.Information)
-                    Return
+                    progversini = progvers
+                    ini.WriteValue("Main", "AppVersion", progvers)
+                    '  Return
                 End If
             End If
         End If
 
-        If progversini = "" Then
+        If progversini = "" And Not pv1 = True Then
             progversini = progvers
             ini.WriteValue("Main", "AppVersion", progvers)
             '  If progvers = "" Then
             '   progvers = "Unknown"
-            MessageBox.Show(Application.ProductName & " has been updated from Unknown to " & progvers.Substring(0, 3) & " (" & "HF" & hotfix & "), be sure to check the changelog to see what's different!", appname, MessageBoxButtons.OK, MessageBoxIcon.Information)
+            showmsgbox = False
+            MessageBox.Show(Application.ProductName & " has been updated from Unknown to " & progvers & " (" & "HF" & hotfix & "), be sure to check the changelog to see what's different!", appname, MessageBoxButtons.OK, MessageBoxIcon.Information)
             progversini = progvers
-            Return
+            '     Return
         End If
         ' End If
 
 
+
         If hotfixini = "" Or hotfixini < hotfix Then
             ini.WriteValue("Main", "Hotfix", hotfix)
+            If showmsgbox = False Then
+                hotfixini = hotfix
+                Return
+            End If
             If hotfixini = "" Then
                 MessageBox.Show(Application.ProductName & " has been updated to HF" & hotfix & ", be sure to check the changelog to see what's different!", appname, MessageBoxButtons.OK, MessageBoxIcon.Information)
             Else
@@ -1956,7 +1968,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
             CheckBox1.Enabled = False
             CheckBox1.Text = "Fog (UO only!)"
             Me.Text = "CoDUO FoV Changer (in CoD1 Mode)"
-            Me.Width = 637
+            Form3.ToolTip1.SetToolTip(Button6, "Select the process for the FoV changer to write to.")
+            '  Me.Width = 637
             If My.Computer.FileSystem.FileExists(cacheloc & "\cache6.cache") Then
                 Dim iscorrupt As String = corruptCheck(cacheloc & "\cache6.cache", 8606)
                 If iscorrupt <= 8605 Or iscorrupt >= 8607 Then
@@ -1985,7 +1998,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             CheckBox1.Enabled = True
             CheckBox1.Text = "Fog"
             Me.Text = "CoDUO FoV Changer"
-            Me.Width = 624
+            'Me.Width = 624
             If My.Computer.FileSystem.FileExists(cacheloc & "\cache5.cache") Then
                 Dim iscorrupt As String = corruptCheck(cacheloc & "\cache5.cache", 11846)
                 If iscorrupt <= 11845 Or iscorrupt >= 11847 Then

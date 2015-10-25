@@ -141,6 +141,10 @@ Public Class Form3
             ' TextBox2.BackColor = Color.DarkGray
             ComboBox2.BackColor = Color.DarkGray
         End If
+        If Form1.CheckBox3.Checked = True Then
+            '   Button6.Enabled = False
+            ToolTip1.SetToolTip(Button6, "This only supports CoDUO!")
+        End If
         Dim readvalue2 As String = ""
         '    If Form1.ostype = "64" Then
         '        readvalue2 = My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Version", 1.51) 'If the registry key is not found, it may report an error.
@@ -148,7 +152,7 @@ Public Class Form3
         '        readvalue2 = My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "Version", 1.51) 'If the registry key is not found, it may report an error.
         '    End If
 
-        Label11.Text = Form1.Label11.Text 'Sets the label to read the games version via registry key above.
+        Label11.Text = Form1.Label11.Text 'Sets the label to read the games version from form1
         Label10.Text = Form1.Label10.Text 'Sets the label's text to contain the application branch.
         Dim testString As String = "Application Version: " & Application.ProductVersion
         Label7.Text = testString
@@ -288,6 +292,12 @@ Public Class Form3
     End Sub
 
     Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click
+        If Form1.CheckBox3.Checked = True Then
+            '       Button6.Enabled = False
+            ToolTip1.SetToolTip(Button6, "This only supports CoDUO!")
+            MessageBox.Show("This only supports CoDUO!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Return
+        End If
         Form6.Show()
     End Sub
 End Class

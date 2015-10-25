@@ -220,7 +220,7 @@ Partial Class Form3
         Me.Button6.Size = New System.Drawing.Size(150, 23)
         Me.Button6.TabIndex = 65
         Me.Button6.Text = "Select Process for FoV"
-        Me.ToolTip1.SetToolTip(Me.Button6, "Open an explorer window where CoD is installed.")
+        Me.ToolTip1.SetToolTip(Me.Button6, "Select the process for the FoV changer to write to.")
         Me.Button6.UseVisualStyleBackColor = True
         '
         'Label4
@@ -237,7 +237,7 @@ Partial Class Form3
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(187, 341)
+        Me.ClientSize = New System.Drawing.Size(190, 340)
         Me.ControlBox = False
         Me.Controls.Add(Me.Button6)
         Me.Controls.Add(Me.Button3)
