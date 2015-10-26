@@ -237,7 +237,7 @@ Partial Class Form3
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(190, 340)
+        Me.ClientSize = New System.Drawing.Size(189, 342)
         Me.ControlBox = False
         Me.Controls.Add(Me.Button6)
         Me.Controls.Add(Me.Button3)

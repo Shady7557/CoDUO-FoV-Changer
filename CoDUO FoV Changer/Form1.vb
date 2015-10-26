@@ -34,7 +34,7 @@ Public Class Form1
     Dim disableupdatetimer As String = ini.ReadValue("Tweaks", "DisableUpdateTimer")
     Dim sleep As String = ini.ReadValue("Tweaks", "Sleep")
     Dim installpath As String = ini.ReadValue("Main", "InstallPath")
-    Dim hotfix As String = "6.0"
+    Dim hotfix As String = "6.1"
     Dim hotfixini As String = ini.ReadValue("Main", "Hotfix")
     Dim progvers As String = Application.ProductVersion
     Dim progversini As String = ini.ReadValue("Main", "AppVersion")
