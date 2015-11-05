@@ -101,6 +101,28 @@ Public Class Form3
     End Sub
 
     Private Sub Form3_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ComboBox1.DropDownStyle = ComboBoxStyle.DropDownList
+        Dim splitStrr() As String
+        If Form1.fovbox.Contains(",") Then
+            splitStrr = Form1.fovbox.Split(",")
+            For Each word In splitStrr
+                If Not word = "" Then
+                    '               MessageBox.Show(word)
+                    If Not CInt(word) >= 121 Then
+                        ComboBox1.Items.Add(word)
+                    Else
+                        '   Log.WriteLine(word & " is higher than 120 fov (max) will not add to combobox")
+                    End If
+                End If
+            Next
+        End If
+        Dim itemlist As Integer = 0
+        For Each item In ComboBox1.Items
+            itemlist = itemlist + 1
+        Next
+        If itemlist >= 0 Then
+            ComboBox1.SelectedIndex = 0
+        End If
         '  Me.CenterToParent()
         'If Not Debugger.IsAttached = True Then
         'RadioButton1.Visible = False
@@ -140,6 +162,9 @@ Public Class Form3
             TextBox1.BackColor = Color.DarkGray
             ' TextBox2.BackColor = Color.DarkGray
             ComboBox2.BackColor = Color.DarkGray
+            Button8.BackColor = Color.DarkGray
+            Button9.BackColor = Color.DarkGray
+            Button10.BackColor = Color.DarkGray
         End If
         If Form1.CheckBox3.Checked = True Then
             '   Button6.Enabled = False
@@ -247,6 +272,9 @@ Public Class Form3
             '    TextBox2.BackColor = Color.DarkGray
             ComboBox2.BackColor = Color.DarkGray
             Form1.MenuStrip1.BackColor = Color.DarkGray
+            Button8.BackColor = Color.DarkGray
+            Button9.BackColor = Color.DarkGray
+            Button10.BackColor = Color.DarkGray
             ini.WriteValue("Extras", "Style", "Dark")
         End If
 
@@ -299,5 +327,33 @@ Public Class Form3
             Return
         End If
         Form6.Show()
+    End Sub
+
+    Private Sub Button8_Click(sender As Object, e As EventArgs) Handles Button8.Click
+        If Not ComboBox1.Items.Contains(Form1.TextBox1.Text) Then
+            ComboBox1.Items.Add(Form1.TextBox1.Text)
+            ComboBox1.SelectedItem = Form1.TextBox1.Text
+        End If
+    End Sub
+
+    Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button9.Click
+        If Not ComboBox1.SelectedIndex < 0 Then
+            Dim replace As String
+            replace = Form1.fovbox.Replace(ComboBox1.SelectedItem.ToString & ",", "")
+            ComboBox1.Items.Remove(ComboBox1.SelectedItem)
+            ComboBox1.Text = ""
+            ini.WriteValue("Main", "ComboBoxFoV", replace)
+        End If
+        If Not ComboBox1.Items.Count <= 0 Then
+            ComboBox1.SelectedIndex = 0
+        End If
+    End Sub
+
+    Private Sub ComboBox1_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ComboBox1.SelectedIndexChanged
+        TextBox1.Text = ComboBox1.SelectedItem.ToString
+        If Not Form1.ComboBox2.Items.Count <= 0 Then
+            Form1.ComboBox2.SelectedIndex = ComboBox1.SelectedIndex
+        End If
+
     End Sub
 End Class

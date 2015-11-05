@@ -67,6 +67,8 @@ Partial Class Form1
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer9 = New System.Windows.Forms.Timer(Me.components)
+        Me.ComboBox1 = New System.Windows.Forms.ComboBox()
+        Me.ComboBox2 = New System.Windows.Forms.ComboBox()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.MenuStrip1.SuspendLayout()
         Me.SuspendLayout()
@@ -123,7 +125,7 @@ Partial Class Form1
         '
         'debugb
         '
-        Me.debugb.Location = New System.Drawing.Point(315, 146)
+        Me.debugb.Location = New System.Drawing.Point(315, 142)
         Me.debugb.Name = "debugb"
         Me.debugb.Size = New System.Drawing.Size(86, 22)
         Me.debugb.TabIndex = 6
@@ -186,7 +188,7 @@ Partial Class Form1
         '
         Me.Label10.AutoSize = True
         Me.Label10.BackColor = System.Drawing.Color.Transparent
-        Me.Label10.Location = New System.Drawing.Point(1, 158)
+        Me.Label10.Location = New System.Drawing.Point(2, 261)
         Me.Label10.Name = "Label10"
         Me.Label10.Size = New System.Drawing.Size(126, 13)
         Me.Label10.TabIndex = 26
@@ -196,7 +198,7 @@ Partial Class Form1
         '
         Me.Label11.AutoSize = True
         Me.Label11.BackColor = System.Drawing.Color.Transparent
-        Me.Label11.Location = New System.Drawing.Point(1, 184)
+        Me.Label11.Location = New System.Drawing.Point(12, 306)
         Me.Label11.Name = "Label11"
         Me.Label11.Size = New System.Drawing.Size(112, 13)
         Me.Label11.TabIndex = 27
@@ -275,7 +277,7 @@ Partial Class Form1
         '
         Me.Label4.AutoSize = True
         Me.Label4.BackColor = System.Drawing.Color.Transparent
-        Me.Label4.Location = New System.Drawing.Point(1, 171)
+        Me.Label4.Location = New System.Drawing.Point(12, 293)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(127, 13)
         Me.Label4.TabIndex = 48
@@ -339,7 +341,7 @@ Partial Class Form1
         Me.MenuStrip1.BackColor = System.Drawing.SystemColors.Control
         Me.MenuStrip1.Dock = System.Windows.Forms.DockStyle.Bottom
         Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.HelpToolStripMenuItem, Me.ToolStripMenuItem1, Me.ExitToolStripMenuItem})
-        Me.MenuStrip1.Location = New System.Drawing.Point(0, 203)
+        Me.MenuStrip1.Location = New System.Drawing.Point(0, 179)
         Me.MenuStrip1.Name = "MenuStrip1"
         Me.MenuStrip1.Size = New System.Drawing.Size(608, 24)
         Me.MenuStrip1.TabIndex = 54
@@ -355,7 +357,7 @@ Partial Class Form1
         'InfoToolStripMenuItem
         '
         Me.InfoToolStripMenuItem.Name = "InfoToolStripMenuItem"
-        Me.InfoToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.InfoToolStripMenuItem.Size = New System.Drawing.Size(107, 22)
         Me.InfoToolStripMenuItem.Text = "About"
         '
         'ToolStripMenuItem1
@@ -392,12 +394,31 @@ Partial Class Form1
         '
         Me.Timer9.Interval = 2650
         '
+        'ComboBox1
+        '
+        Me.ComboBox1.FormattingEnabled = True
+        Me.ComboBox1.Location = New System.Drawing.Point(85, 762)
+        Me.ComboBox1.Name = "ComboBox1"
+        Me.ComboBox1.Size = New System.Drawing.Size(121, 21)
+        Me.ComboBox1.TabIndex = 55
+        '
+        'ComboBox2
+        '
+        Me.ComboBox2.FormattingEnabled = True
+        Me.ComboBox2.Location = New System.Drawing.Point(12, 160)
+        Me.ComboBox2.Name = "ComboBox2"
+        Me.ComboBox2.Size = New System.Drawing.Size(121, 21)
+        Me.ComboBox2.TabIndex = 56
+        Me.ComboBox2.Visible = False
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
-        Me.ClientSize = New System.Drawing.Size(608, 227)
+        Me.ClientSize = New System.Drawing.Size(608, 203)
+        Me.Controls.Add(Me.ComboBox2)
+        Me.Controls.Add(Me.ComboBox1)
         Me.Controls.Add(Me.MenuStrip1)
         Me.Controls.Add(Me.PictureBox1)
         Me.Controls.Add(Me.CheckBox4)
@@ -479,5 +500,7 @@ End Sub
     Friend WithEvents Timer9 As System.Windows.Forms.Timer
     Friend WithEvents HelpToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents InfoToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ComboBox1 As System.Windows.Forms.ComboBox
+    Friend WithEvents ComboBox2 As System.Windows.Forms.ComboBox
 
 End Class

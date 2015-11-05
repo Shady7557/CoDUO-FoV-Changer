@@ -46,6 +46,7 @@ Public Class Form1
     Dim isminimal As String = ini.ReadValue("Extras", "Style")
     Dim gamevers As String = ini.ReadValue("Main", "GameVersion")
     Dim watchdoge As String = ini.ReadValue("Main", "Watchdog")
+    Public fovbox As String = ini.ReadValue("Main", "ComboBoxFoV")
     Dim iniLocation As String = appdata & "CoDUO FoV Changer\settings.ini"
     Dim oldoptions As String = appdata & "CoD UO FoV Changer\options.ini"
     Dim lastExe As String
@@ -56,6 +57,8 @@ Public Class Form1
     Public banned As Boolean
     Public num1fix As Integer = 0
     Public num2fix As Integer = 0
+    Public hotkeyup As Integer = 0
+    Public hotkeydown As Integer = 0
     Dim hasPlayed As Boolean = False
     Dim neg As Boolean
     Dim gamev As String = ini.ReadValue("Main", "Game")
@@ -743,8 +746,23 @@ My.Computer.FileSystem.GetFileInfo(filename)
         '   getW = New Thread(AddressOf Me.getWav)
         '   getW.IsBackground = True
         '   getW.Start()
-       
 
+
+
+        Dim splitStrr() As String
+        If fovbox.Contains(",") Then
+            splitStrr = fovbox.Split(",")
+            For Each word In splitStrr
+                If Not word = "" Then
+                    '               MessageBox.Show(word)
+                    If Not CInt(word) >= 121 Then
+                        ComboBox2.Items.Add(word)
+                    Else
+                        Log.WriteLine(word & " is higher than 120 fov (max) will not add to combobox")
+                    End If
+                End If
+            Next
+        End If
 
 
         If Not My.Computer.FileSystem.DirectoryExists(cacheloc) Then
@@ -1358,6 +1376,21 @@ My.Computer.FileSystem.GetFileInfo(filename)
             hotfixini = hotfix
         End If
 
+        Dim itemlist As Integer = 0
+        For Each item In ComboBox2.Items
+            itemlist = itemlist + 1
+        Next
+        If itemlist >= 0 Then
+            ComboBox2.SelectedIndex = 0
+        End If
+
+        If Not ini.ReadValue("Extras", "HotKeyUp") = "" And Not ini.ReadValue("Extras", "HotKeyUp") = Nothing Then
+            hotkeyup = ini.ReadValue("Extras", "HotKeyUp")
+        End If
+        If Not ini.ReadValue("Extras", "HotKeyDown") = "" And Not ini.ReadValue("Extras", "HotKeyDown") = Nothing Then
+            hotkeydown = ini.ReadValue("Extras", "HotKeyDown")
+        End If
+
         '    MessageBox.Show(TimeSpent.TotalMilliseconds)
         '   If nolog = True Then MessageBox.Show(TimeSpent.TotalSeconds)
 
@@ -1658,6 +1691,40 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 End If
             End If
         End If
+        Dim hotkeydownn As Boolean
+        Dim hotkeyupp As Boolean
+        hotkeydownn = GetAsyncKeyState(hotkeydown)
+        hotkeyupp = GetAsyncKeyState(hotkeyup)
+        Dim down1 As Integer = 0
+        Dim up1 As Integer = 0
+        Dim itemlist As Integer = 0
+        For Each item In ComboBox2.Items
+            itemlist = itemlist + 1
+        Next
+
+        down1 = ComboBox2.SelectedIndex - 1
+        up1 = ComboBox2.SelectedIndex + 1
+        If hotkeydownn = True Then
+            '   MessageBox.Show(itemlist & " <-- list")
+            '      MessageBox.Show(down1 & " <-- down 1" & Environment.NewLine & "selectedindex: " & ComboBox2.SelectedIndex)
+            If Not down1 < 0 Then
+                ComboBox2.SelectedIndex = down1
+
+            End If
+        ElseIf hotkeyupp = True Then
+            ' MessageBox.Show(itemlist & " <-- list")
+            '  MessageBox.Show(up1 & " <-- UP 1" & Environment.NewLine & "selectedindex: " & ComboBox2.SelectedIndex)
+            '  If Not up1 > itemlist Then
+            Try
+
+                ComboBox2.SelectedIndex = ComboBox2.SelectedIndex + 1
+            Catch ex As Exception
+                'silent try until I get this figured out
+            End Try
+
+            '   End If
+        End If
+
 
     End Sub
     Private Sub Button6_Click_1(sender As Object, e As EventArgs) Handles Button6.Click
@@ -2130,5 +2197,62 @@ My.Computer.FileSystem.GetFileInfo(filename)
     Private Sub InfoToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles InfoToolStripMenuItem.Click
         MessageBox.Show("Hi, thanks for using my FoV Changer for Call of Duty and Call of Duty United Offensive. This is how to use it properly: " & Environment.NewLine & Environment.NewLine & "1. Start your game and type: r_mode -1 (yes, that's minus 1), r_customwidth " & CStr(My.Computer.Screen.Bounds.Width) & " (your monitor's estimated width), r_customheight " & CStr(My.Computer.Screen.Bounds.Height) & " (your monitor's estimated height)" & Environment.NewLine & Environment.NewLine & "2. Join a server and tab out, or use numpad + and numpad - to adjust your field of view to your liking." & Environment.NewLine & Environment.NewLine & "3. Enjoy playing UO at your monitor's native resolution, with proper Field of View." & Environment.NewLine & Environment.NewLine & "Program developed by:" & Environment.NewLine & "Shady, with the help of CurtDog's logging module, ""CurtLog"".", Application.ProductName & " (" & Application.ProductVersion & ")", MessageBoxButtons.OK, MessageBoxIcon.Information)
         '  MessageBox.Show("Here's some general information on the program: " & Environment.NewLine & Environment.NewLine & "• All config settings and logs are stored in " & appdata & "CoDUO FoV Changer")
+    End Sub
+
+    Private Sub ComboBox2_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ComboBox2.SelectedIndexChanged
+        Dim itemlist1 As Integer = 0
+        If Not fovbox.Contains(ComboBox2.SelectedItem.ToString) Then
+            If fovbox = "" Then
+                ini.WriteValue("Main", "ComboBoxFoV", ComboBox2.SelectedItem.ToString & ",")
+                fovbox = ComboBox2.SelectedItem.ToString & ","
+                Return
+            End If
+
+            ini.WriteValue("Main", "ComboBoxFoV", fovbox & ComboBox2.SelectedItem.ToString & ",")
+            fovbox = fovbox & ComboBox2.SelectedItem.ToString & ","
+            TextBox1.Text = ComboBox2.SelectedItem.ToString
+        End If
+        If CInt(ComboBox2.SelectedItem) > 120 Then
+            Dim replace As String
+            replace = fovbox.Replace(ComboBox2.SelectedItem.ToString & ",", "")
+            ini.WriteValue("Main", "ComboBoxFoV", replace)
+            ComboBox2.Items.Remove(ComboBox2.SelectedItem)
+            If Not ComboBox2.Items.Count <= 0 Then
+                ComboBox2.SelectedIndex = 0
+            End If
+        End If
+        '  For Each itemm In Form3.ComboBox2.Items
+        '       itemlist1 = itemlist1 + 1
+        '    Next
+        If Form3.ComboBox1.Items.Count >= 1 Then
+            Form3.ComboBox1.SelectedIndex = ComboBox2.SelectedIndex
+        End If
+
+        TextBox1.Text = ComboBox2.SelectedItem.ToString
+    End Sub
+
+    Private Sub Button1_Click(sender As Object, e As EventArgs)
+        If Not ComboBox2.Items.Contains(TextBox1.Text) Then
+            ComboBox2.Items.Add(TextBox1.Text)
+            ComboBox2.SelectedItem = TextBox1.Text
+        End If
+    End Sub
+
+    Private Sub Button2_Click(sender As Object, e As EventArgs)
+        '       MessageBox.Show(ComboBox2.SelectedIndex)
+        If Not ComboBox2.SelectedIndex < 0 Then
+            Dim replace As String
+            replace = fovbox.Replace(ComboBox2.SelectedItem.ToString & ",", "")
+            ComboBox2.Items.Remove(ComboBox2.SelectedItem)
+            ComboBox2.Text = ""
+            ini.WriteValue("Main", "ComboBoxFoV", replace)
+        End If
+        If Not ComboBox2.Items.Count <= 0 Then
+            ComboBox2.SelectedIndex = 0
+        End If
+    End Sub
+
+    Private Sub Button4_Click(sender As Object, e As EventArgs)
+        Form7.Show()
     End Sub
 End Class
