@@ -197,41 +197,41 @@
   <ItemGroup>
     <Compile Include="ApplicationEvents.vb" />
     <Compile Include="Class1.vb" />
-    <Compile Include="Form1.vb">
+    <Compile Include="MainFoV.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.vb">
-      <DependentUpon>Form1.vb</DependentUpon>
+    <Compile Include="MainFoV.Designer.vb">
+      <DependentUpon>MainFoV.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form2.Designer.vb">
-      <DependentUpon>Form2.vb</DependentUpon>
+    <Compile Include="SettingsForm.Designer.vb">
+      <DependentUpon>SettingsForm.vb</DependentUpon>
     </Compile>
-    <Compile Include="Form2.vb">
+    <Compile Include="SettingsForm.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form4.Designer.vb">
-      <DependentUpon>Form4.vb</DependentUpon>
+    <Compile Include="CancelButton.Designer.vb">
+      <DependentUpon>CancelButton.vb</DependentUpon>
     </Compile>
-    <Compile Include="Form4.vb">
+    <Compile Include="CancelButton.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form5.Designer.vb">
-      <DependentUpon>Form5.vb</DependentUpon>
+    <Compile Include="PicturesForm.Designer.vb">
+      <DependentUpon>PicturesForm.vb</DependentUpon>
     </Compile>
-    <Compile Include="Form5.vb">
+    <Compile Include="PicturesForm.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form6.Designer.vb">
-      <DependentUpon>Form6.vb</DependentUpon>
+    <Compile Include="CoDPIDForm.Designer.vb">
+      <DependentUpon>CoDPIDForm.vb</DependentUpon>
     </Compile>
-    <Compile Include="Form6.vb">
+    <Compile Include="CoDPIDForm.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form7.Designer.vb">
-      <DependentUpon>Form7.vb</DependentUpon>
+    <Compile Include="ChangeHotKeyForm.Designer.vb">
+      <DependentUpon>ChangeHotKeyForm.vb</DependentUpon>
     </Compile>
-    <Compile Include="Form7.vb">
+    <Compile Include="ChangeHotKeyForm.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Module1.vb" />
@@ -253,23 +253,23 @@
     <Compile Include="ReadWritingMemory.vb" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.vb</DependentUpon>
+    <EmbeddedResource Include="MainFoV.resx">
+      <DependentUpon>MainFoV.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form2.resx">
-      <DependentUpon>Form2.vb</DependentUpon>
+    <EmbeddedResource Include="SettingsForm.resx">
+      <DependentUpon>SettingsForm.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form4.resx">
-      <DependentUpon>Form4.vb</DependentUpon>
+    <EmbeddedResource Include="CancelButton.resx">
+      <DependentUpon>CancelButton.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form5.resx">
-      <DependentUpon>Form5.vb</DependentUpon>
+    <EmbeddedResource Include="PicturesForm.resx">
+      <DependentUpon>PicturesForm.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form6.resx">
-      <DependentUpon>Form6.vb</DependentUpon>
+    <EmbeddedResource Include="CoDPIDForm.resx">
+      <DependentUpon>CoDPIDForm.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form7.resx">
-      <DependentUpon>Form7.vb</DependentUpon>
+    <EmbeddedResource Include="ChangeHotKeyForm.resx">
+      <DependentUpon>ChangeHotKeyForm.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>

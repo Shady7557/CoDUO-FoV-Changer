@@ -32,8 +32,8 @@
         End If
         Dim MyP As Process() = Process.GetProcessesByName(ProcessName)
         If MyP.Length = 0 Then
-            Form1.Label2.Text = (ProcessName & " Status: not found or failed to write to memory!")
-            Form1.Label2.ForeColor = Color.Red
+            MainFoV.StatusLabel.Text = (ProcessName & " Status: not found or failed to write to memory!")
+            MainFoV.StatusLabel.ForeColor = Color.Red
             Exit Sub
         End If
         Dim hProcess As IntPtr = OpenProcess(PROCESS_ALL_ACCESS, 0, MyP(0).Id)

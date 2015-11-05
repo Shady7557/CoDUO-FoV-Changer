@@ -32,7 +32,7 @@ Namespace My
         
         <Global.System.Diagnostics.DebuggerStepThroughAttribute()>  _
         Protected Overrides Sub OnCreateMainForm()
-            Me.MainForm = Global.CoDUO_FoV_Changer.Form1
+            Me.MainForm = Global.CoDUO_FoV_Changer.MainFoV
         End Sub
     End Class
 End Namespace
