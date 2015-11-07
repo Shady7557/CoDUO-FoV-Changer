@@ -26,11 +26,11 @@ Partial Class AdvSettingsForm
         Me.SaveRestartAppButton = New System.Windows.Forms.Button()
         Me.FirstRunCheckBox = New System.Windows.Forms.CheckBox()
         Me.DisableUpdateTimerCheck = New System.Windows.Forms.CheckBox()
-        Me.CancelButton = New System.Windows.Forms.Button()
+        Me.CancelCloseButton = New System.Windows.Forms.Button()
         Me.OpenConfigButton = New System.Windows.Forms.Button()
         Me.Button2 = New System.Windows.Forms.Button()
         Me.TextBox1 = New System.Windows.Forms.TextBox()
-        Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
+        Me.ToolTipHandler = New System.Windows.Forms.ToolTip(Me.components)
         Me.SuspendLayout()
         '
         'SaveRestartAppButton
@@ -50,7 +50,7 @@ Partial Class AdvSettingsForm
         Me.FirstRunCheckBox.Size = New System.Drawing.Size(68, 17)
         Me.FirstRunCheckBox.TabIndex = 3
         Me.FirstRunCheckBox.Text = "First Run"
-        Me.ToolTip1.SetToolTip(Me.FirstRunCheckBox, "Tell the program to act as if the user has never ran" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "this program before.")
+        Me.ToolTipHandler.SetToolTip(Me.FirstRunCheckBox, "Tell the program to act as if the user has never ran" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "this program before.")
         Me.FirstRunCheckBox.UseVisualStyleBackColor = True
         '
         'DisableUpdateTimerCheck
@@ -61,18 +61,18 @@ Partial Class AdvSettingsForm
         Me.DisableUpdateTimerCheck.Size = New System.Drawing.Size(128, 17)
         Me.DisableUpdateTimerCheck.TabIndex = 4
         Me.DisableUpdateTimerCheck.Text = "Disable Update Timer"
-        Me.ToolTip1.SetToolTip(Me.DisableUpdateTimerCheck, "Disables periodically checking for updates every few minutes " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "while the program " & _
+        Me.ToolTipHandler.SetToolTip(Me.DisableUpdateTimerCheck, "Disables periodically checking for updates every few minutes " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "while the program " & _
         "is running.")
         Me.DisableUpdateTimerCheck.UseVisualStyleBackColor = True
         '
-        'CancelButton
+        'CancelCloseButton
         '
-        Me.CancelButton.Location = New System.Drawing.Point(12, 116)
-        Me.CancelButton.Name = "CancelButton"
-        Me.CancelButton.Size = New System.Drawing.Size(107, 22)
-        Me.CancelButton.TabIndex = 11
-        Me.CancelButton.Text = "Cancel"
-        Me.CancelButton.UseVisualStyleBackColor = True
+        Me.CancelCloseButton.Location = New System.Drawing.Point(12, 116)
+        Me.CancelCloseButton.Name = "CancelCloseButton"
+        Me.CancelCloseButton.Size = New System.Drawing.Size(107, 22)
+        Me.CancelCloseButton.TabIndex = 11
+        Me.CancelCloseButton.Text = "Cancel"
+        Me.CancelCloseButton.UseVisualStyleBackColor = True
         '
         'OpenConfigButton
         '
@@ -104,12 +104,12 @@ Partial Class AdvSettingsForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(135, 144)
+        Me.ClientSize = New System.Drawing.Size(140, 142)
         Me.ControlBox = False
         Me.Controls.Add(Me.TextBox1)
         Me.Controls.Add(Me.Button2)
         Me.Controls.Add(Me.OpenConfigButton)
-        Me.Controls.Add(Me.CancelButton)
+        Me.Controls.Add(Me.CancelCloseButton)
         Me.Controls.Add(Me.DisableUpdateTimerCheck)
         Me.Controls.Add(Me.FirstRunCheckBox)
         Me.Controls.Add(Me.SaveRestartAppButton)
@@ -124,9 +124,9 @@ Partial Class AdvSettingsForm
     Friend WithEvents SaveRestartAppButton As System.Windows.Forms.Button
     Friend WithEvents FirstRunCheckBox As System.Windows.Forms.CheckBox
     Friend WithEvents DisableUpdateTimerCheck As System.Windows.Forms.CheckBox
-    Friend WithEvents CancelButton As System.Windows.Forms.Button
+    Friend WithEvents CancelCloseButton As System.Windows.Forms.Button
     Friend WithEvents OpenConfigButton As System.Windows.Forms.Button
     Friend WithEvents Button2 As System.Windows.Forms.Button
     Friend WithEvents TextBox1 As System.Windows.Forms.TextBox
-    Friend WithEvents ToolTip1 As System.Windows.Forms.ToolTip
+    Friend WithEvents ToolTipHandler As System.Windows.Forms.ToolTip
 End Class

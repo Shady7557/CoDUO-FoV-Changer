@@ -213,7 +213,7 @@ Public Class MainFoV
         '   Button3.Enabled = False
         '   debugb.Enabled = False
         '   Button11.Enabled = False
-        Button6.Visible = True
+        UpdateButton.Visible = True
         '  TextBox1.ReadOnly = True
         '  Timer1.Stop()
         '  Timer4.Stop()
@@ -630,7 +630,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End Try
 
         If isDev = True Then
-            errorOccured = True
+            '     errorOccured = True
         End If
 
         Dim nolog As Boolean = False
@@ -693,23 +693,18 @@ My.Computer.FileSystem.GetFileInfo(filename)
         getmonthT.IsBackground = True
         getmonthT.Start()
         If isminimal = "Minimal" Then
-            Label10.Visible = False
-            Label11.Visible = False
-            Label4.Visible = False
+            HackyAppBranchLB.Visible = False
+            HackyGameVersLB.Visible = False
+            HackyAppVersLB.Visible = False
             Me.Height = 220
             'Label2.Location = New Point(0, 162)
-        End If
-
-
-        If watchdoge = "Enable" Then
-            '  Process.Start("watchdog")
         End If
 
         If isminimal = "Dark" Then
             Me.BackColor = Color.DimGray
             FoVTextBox.BackColor = Color.DarkGray
             LaunchParametersTB.BackColor = Color.DarkGray
-            Button6.BackColor = Color.DarkGray
+            UpdateButton.BackColor = Color.DarkGray
             StartGameButton.BackColor = Color.DarkGray
             ChangeLogButton.BackColor = Color.DarkGray
             SettingsButton.BackColor = Color.DarkGray
@@ -717,11 +712,10 @@ My.Computer.FileSystem.GetFileInfo(filename)
             If StatusLabel.ForeColor = Color.Red Then
                 StatusLabel.ForeColor = Color.DarkRed
             End If
-            ' Label2.ForeColor = Color.DarkRed
         End If
 
         If month = 12 And DateTime.Now.Day = 25 Then
-
+            MessageBox.Show("wow christmas & stuff", "pls snow", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
 
         If month = 10 And DateTime.Now.Day = 31 Then
@@ -835,13 +829,10 @@ My.Computer.FileSystem.GetFileInfo(filename)
             MessageBox.Show("Your .ini file has been moved, it is recommended your restart the program, and as such, most of the program has been disabled until you do so.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk)
             restartNeeded = False
             FoVTextBox.ReadOnly = True
-            Timer1.Enabled = False
+            FoVTimer.Enabled = False
             StartGameButton.Enabled = False
             ChangeLogButton.Enabled = False
             SettingsButton.Enabled = False
-            ' Button12.Enabled = False
-            '  Button14.Enabled = False
-            Button15.Enabled = False
         End If
 
 
@@ -873,23 +864,18 @@ My.Computer.FileSystem.GetFileInfo(filename)
             ini.WriteValue("Extras", "Fog", "Enabled")
         End If
 
-        '  If fog = "Disabled" Then         'this code is also used somewhere else and trying to fix this stupid fog issue is annoying
-        '      CheckBox1.Checked = False
-        '  Else
-        '      CheckBox1.Checked = True
-        '  End If
 
         If fog = "Enabled" Then 'Checks if fog is enabled in the .ini
             FogCheckBox.Checked = True
             WriteInteger("CoDUOMP", &H9885F0, 1)
-            Timer11.Stop()
-            Log.WriteLine("Stopping Timer 11, turning fog on, checking Checkbox 1.")
+            FogTimer.Stop()
+            Log.WriteLine("Stopping Fog Timer, turning fog on, checking Fog CheckBox.")
         ElseIf fog = "Disabled" Then
             If Not didFS = True Then
                 FogCheckBox.Checked = False
                 WriteInteger("CoDUOMP", &H9885F0, 0)
-                Timer11.Start()
-                Log.WriteLine("Starting Timer 11, turning fog off, unchecking Checkbox 1.")
+                FogTimer.Start()
+                Log.WriteLine("Starting Fog Timer, turning fog off, unchecking Fog CheckBox")
             End If
         End If
 
@@ -944,7 +930,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     If splitStr(1).StartsWith(0) Or splitStr(1).StartsWith(1) Then
                         If splitStr(1) = 1 Then
                             FogCheckBox.Checked = True
-                            Timer11.Stop()
+                            FogTimer.Stop()
                             ini.WriteValue("Extras", "FogMSG", "Ask")
                             ini.WriteValue("Extras", "Fog", "Enabled")
                         ElseIf splitStr(1) = 0 Then
@@ -952,7 +938,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                             ini.WriteValue("Extras", "FogMSG", "DoNotAsk")
                             ini.WriteValue("Extras", "Fog", "Disabled")
                             FogCheckBox.Checked = False
-                            Timer11.Start()
+                            FogTimer.Start()
                         End If
                         Log.WriteLine("Launched fov changer with -fog=" & splitStr(1))
                     End If
@@ -1067,12 +1053,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     splitStr(1) = CInt(1)
                     DvarsCheckBox.Visible = True
                     DvarsCheckBox.Checked = True
-                    Timer9.Start()
+                    DvarUnlockerTimer.Start()
                 End If
                 If CInt(splitStr(1)) <= 0 Then
                     splitStr(1) = CInt(0)
                     DvarsCheckBox.Visible = True
-                    Timer9.Stop()
+                    DvarUnlockerTimer.Stop()
                 End If
                 Log.WriteLine("Started fov changer with -unlock=" & splitStr(1))
             End If
@@ -1085,9 +1071,9 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
         If Not fovinterval = "" Then 'Checks the .ini for the user specified timer interval, if one exists
-            Timer1.Interval = CInt(fovinterval)
+            FoVTimer.Interval = CInt(fovinterval)
         Else
-            Timer1.Interval = 1500
+            FoVTimer.Interval = 1500
         End If
 
 
@@ -1096,9 +1082,9 @@ My.Computer.FileSystem.GetFileInfo(filename)
             If disableupdatetimer = "" Then
                 ini.WriteValue("Tweaks", "DisableUpdateTimer", "No")
             ElseIf disableupdatetimer = "Yes" Then
-                Timer6.Stop()
+                UpdateCheckTimer.Stop()
             ElseIf disableupdatetimer = "No" Or disableupdatetimer = "" Or disableupdatetimer Is Nothing Then
-                Timer6.Start()
+                UpdateCheckTimer.Start()
             End If
         Catch ex As Exception
             MessageBox.Show("ERROR: " & ex.Message)
@@ -1256,14 +1242,14 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 End If
             End If
             If Not gamevers Is Nothing And Not gamevers = "" Then
-                Label11.Text = ("CoD:UO Version: " & gamevers)
+                HackyGameVersLB.Text = ("CoD:UO Version: " & gamevers)
                 readvalue2 = gamevers 'lazy code
             Else
-                Label11.Text = ("CoD:UO Version: " & readvalue2) 'Sets the label to read the games version via registry key above.
+                HackyGameVersLB.Text = ("CoD:UO Version: " & readvalue2) 'Sets the label to read the games version via registry key above.
             End If
-            Label10.Text = "Application Branch: " & "2.2" 'Sets the label's text to contain the application branch.
+            HackyAppBranchLB.Text = "Application Branch: " & "2.2" 'Sets the label's text to contain the application branch.
             Dim testString As String = "Application Version: " & Application.ProductVersion
-            Label4.Text = testString
+            HackyAppVersLB.Text = testString
 
         Catch ex As Exception
             MessageBox.Show("An error has occured while attempting to read registry and set program labels: " & ex.Message & " this should not prevent the program from functioning normally.")
@@ -1278,14 +1264,14 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         If Not readvalue2 Is Nothing And Not readvalue2 = "" Then
             If CInt(readvalue2) < 1.51 Then
-                Timer1.Stop()
+                FoVTimer.Stop()
                 FoVTextBox.ReadOnly = True
                 MsgBox("Your Call of Duty Version is not the correct version for this program, the FoV Changer only works on 1.51, if you're sure you have 1.51, then check UO registry, and set it through that.", MsgBoxStyle.Information)
             End If
         End If
 
         If hidekey = "" Then 'Checks if the user want's their CD-key not to be shown on the label.
-            Button15.Text = ("Show CD-Key")
+            '     Button15.Text = ("Show CD-Key")
             showkey()
             ini.WriteValue("Extras", "HideKey", "Yes")
         End If
@@ -1514,7 +1500,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     End Sub
 
-    Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
+    Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles FoVTimer.Tick
         Try
             If CoD1CheckBox.Checked = False Then
                 If pid = 0 Then
@@ -1548,7 +1534,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 End If
             End If
         Catch ex As Exception
-            Timer1.Stop()
+            FoVTimer.Stop()
             '   MsgBox(ex.Message)
             Log.WriteLine("ERROR !!:  " & ex.Message)
             errorOccured = True
@@ -1580,13 +1566,13 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End Try
     End Sub
 
-    Private Sub Timer3_Tick(sender As Object, e As EventArgs) Handles Timer3.Tick
+    Private Sub Timer3_Tick(sender As Object, e As EventArgs) Handles TextBoxTimer.Tick
         Try
             If FoVTextBox.Text > 120 Then
                 FoVTextBox.Text = 120
             End If
         Catch ex As Exception
-            Timer3.Stop()
+            TextBoxTimer.Stop()
             Log.WriteLine("ERROR !!:  " & ex.Message)
             errorOccured = True
             Dim timesoccured As String = ""
@@ -1594,7 +1580,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 timesoccured = (+1)
             End If
             If Not timesoccured = 3 & isDev = True Then
-                Timer3.Start()
+                TextBoxTimer.Start()
             End If
         End Try
     End Sub
@@ -1607,12 +1593,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Me.Height = (454)
         MsgBox("This is a debug button.", MsgBoxStyle.Information)
         MsgBox(fov)
-        MsgBox(fovinterval & " " & Timer1.Interval)
+        MsgBox(fovinterval & " " & FoVTimer.Interval)
         MsgBox(installpath)
-        MsgBox(Label10.Text)
+        MsgBox(HackyAppBranchLB.Text)
         MsgBox("hotfix: " & hotfix)
         MsgBox("app version: " & Application.ProductVersion)
-        Button6.Visible = True
+        UpdateButton.Visible = True
     End Sub
     'Private Sub playpos()
     '    If neg = True Then
@@ -1622,7 +1608,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
     '    End If
     'End Sub
 
-    Private Sub Timer4_Tick(sender As Object, e As EventArgs) Handles Timer4.Tick
+    Private Sub Timer4_Tick(sender As Object, e As EventArgs) Handles HotKeyHandler.Tick
         If hidden = ("Yes") Then
             Try
                 Dim hotkey As Boolean
@@ -1728,7 +1714,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
     End Sub
-    Private Sub Button6_Click_1(sender As Object, e As EventArgs) Handles Button6.Click
+    Private Sub Button6_Click_1(sender As Object, e As EventArgs) Handles UpdateButton.Click
 
         Const quote As String = """"
 
@@ -1796,7 +1782,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Dim ask5 As MsgBoxResult
 
         If didFS = True Then
-            Timer11.Start()
+            FogTimer.Start()
             WriteInteger("CoDUOMP", &H9885F0, 0)
             '   CheckBox1.Checked = False
             ini.WriteValue("Extras", "FogMSG", "DoNotAsk")
@@ -1805,7 +1791,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
 
         If FogCheckBox.Checked = True Then
-            Timer11.Stop()
+            FogTimer.Stop()
             WriteInteger("CoDUOMP", &H9885F0, 1)
         End If
         If FogCheckBox.Checked = False Then
@@ -1814,14 +1800,14 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
             Log.WriteLine("Gave warning about Fog.")
             If ask5 = MsgBoxResult.No And didFS = False Then
-                Timer11.Stop()
+                FogTimer.Stop()
                 WriteInteger("CoDUOMP", &H9885F0, 1)
                 ' CheckBox1.Checked = True
                 ini.WriteValue("Extras", "FogMSG", "Ask")
                 ini.WriteValue("Extras", "Fog", "Enabled")
                 Log.WriteLine("User did not continue.")
             ElseIf ask5 = MsgBoxResult.Yes And didFS = False Then
-                Timer11.Start()
+                FogTimer.Start()
                 WriteInteger("CoDUOMP", &H9885F0, 0)
                 '   CheckBox1.Checked = False
                 ini.WriteValue("Extras", "FogMSG", "DoNotAsk")
@@ -1855,7 +1841,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End Try
     End Sub
 
-    Private Sub Timer11_Tick(sender As Object, e As EventArgs) Handles Timer11.Tick
+    Private Sub Timer11_Tick(sender As Object, e As EventArgs) Handles FogTimer.Tick
         Try
             If FogCheckBox.Checked = True Then
                 WriteInteger("CoDUOMP", &H9885F0, 1)
@@ -1863,7 +1849,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 WriteInteger("CoDUOMP", &H9885F0, 0)
             End If
         Catch ex As Exception
-            Timer11.Stop()
+            FogTimer.Stop()
             MsgBox("Failed to write to memory!" & ex.Message)
             Log.WriteLine("!! ERROR !! Failed to write to memory." & ex.Message)
             errorOccured = True
@@ -1875,7 +1861,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub Button11_Click_1(sender As Object, e As EventArgs) Handles SettingsButton.Click
         SettingsForm.Show()
-        Log.WriteLine("Showing Form2 (aka 3).")
+        Log.WriteLine("Showing Settings Form")
     End Sub
 
     Private Sub Button5_Click_1(sender As Object, e As EventArgs)
@@ -1895,7 +1881,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         AdvSettingsForm.Show()
     End Sub
 
-    Private Sub Timer7_Tick(sender As Object, e As EventArgs) Handles Timer7.Tick
+    Private Sub Timer7_Tick(sender As Object, e As EventArgs) Handles FoVFixTimer.Tick
         '     If TextBox4.Height = 50 Then
         '        Label9.Location = New Point(0, 126)
         ' Label8.Location = New Point(0, 138)
@@ -1942,11 +1928,11 @@ My.Computer.FileSystem.GetFileInfo(filename)
             If Me.WindowState = FormWindowState.Minimized Then
                 If MinimizeCheckBox.Checked = True Then
                     Me.Visible = False
-                    NotifyIcon1.Visible = True
-                    NotifyIcon1.BalloonTipIcon = ToolTipIcon.Info
-                    NotifyIcon1.BalloonTipText = Application.ProductName & " is minimized. Double click to restore full-size."
-                    NotifyIcon1.BalloonTipTitle = "Minimized to Tray"
-                    NotifyIcon1.ShowBalloonTip(4300, "Minimized to Tray", Application.ProductName & " is minimized. Double click to restore full-size.", ToolTipIcon.Info)
+                    MinimizeIcon.Visible = True
+                    MinimizeIcon.BalloonTipIcon = ToolTipIcon.Info
+                    MinimizeIcon.BalloonTipText = Application.ProductName & " is minimized. Double click to restore full-size."
+                    MinimizeIcon.BalloonTipTitle = "Minimized to Tray"
+                    MinimizeIcon.ShowBalloonTip(4300, "Minimized to Tray", Application.ProductName & " is minimized. Double click to restore full-size.", ToolTipIcon.Info)
                 End If
             End If
         Catch ex As Exception
@@ -1959,11 +1945,11 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End Try
     End Sub
 
-    Private Sub NotifyIcon1_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles NotifyIcon1.MouseDoubleClick
+    Private Sub NotifyIcon1_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles MinimizeIcon.MouseDoubleClick
         Try
             Me.Visible = True
             Me.WindowState = FormWindowState.Normal
-            NotifyIcon1.Visible = False
+            MinimizeIcon.Visible = False
         Catch ex As Exception
             MsgBox(ex.Message)
             Log.WriteLine("!! ERROR !! " & ex.Message)
@@ -1985,7 +1971,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
     Private Sub ToolStripMenuItem1_Click(sender As Object, e As EventArgs)
         Me.Visible = True
         Me.WindowState = FormWindowState.Normal
-        NotifyIcon1.Visible = False
+        MinimizeIcon.Visible = False
     End Sub
 
     Private Sub ToolStripMenuItem2_Click(sender As Object, e As EventArgs)
@@ -1996,7 +1982,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     End Sub
 
-    Private Sub Timer5_Tick(sender As Object, e As EventArgs) Handles Timer5.Tick
+    Private Sub Timer5_Tick(sender As Object, e As EventArgs) Handles ABITWTimer.Tick
         If LaunchParametersTB.Text.Contains("wedontneedno") Then
             LaunchParametersLB.Location = New Point(0, 126)
             LaunchParametersTB.Height = 80
@@ -2012,28 +1998,18 @@ My.Computer.FileSystem.GetFileInfo(filename)
             LaunchParametersTB.AppendText(Environment.NewLine & "Hey! Teacher, leave them kids alone.")
             System.Threading.Thread.Sleep(700)
             LaunchParametersTB.AppendText(Environment.NewLine & "All in all you're just another brick in the wall.")
-            Timer5.Stop()
+            ABITWTimer.Stop()
         End If
         If LaunchParametersTB.Text.Contains("The Endless River") Then
-            Timer5.Stop()
+            ABITWTimer.Stop()
             MessageBox.Show("Forever and ever...", "The Endless River", MessageBoxButtons.OK, MessageBoxIcon.Information)
             LaunchParametersTB.Text = LaunchParametersTB.Text.Replace("The Endless River", "")
-            Timer5.Start()
+            ABITWTimer.Start()
         End If
 
-    End Sub
-
-    Private Sub Timer8_Tick(sender As Object, e As EventArgs)
-        If PicturesForm.Visible = False Then
-            PicturesForm.Close()
-        End If
     End Sub
 
     Private Sub SendButton_Click(sender As Object, e As EventArgs)
-
-    End Sub
-
-    Private Sub Button15_Click(sender As Object, e As EventArgs) Handles Button15.Click
 
     End Sub
     Private Sub CheckBox3_CheckedChanged(sender As Object, e As EventArgs) Handles CoD1CheckBox.CheckedChanged
@@ -2048,7 +2024,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             FogCheckBox.Enabled = False
             FogCheckBox.Text = "Fog (UO only!)"
             Me.Text = "CoDUO FoV Changer (in CoD1 Mode)"
-            SettingsForm.ToolTip1.SetToolTip(Button6, "Select the process for the FoV changer to write to.")
+            SettingsForm.ToolTipHandler.SetToolTip(UpdateButton, "Select the process for the FoV changer to write to.")
             '  Me.Width = 637
             If My.Computer.FileSystem.FileExists(cacheloc & "\cache6.cache") Then
                 Dim iscorrupt As String = corruptCheck(cacheloc & "\cache6.cache", 8606)
@@ -2119,7 +2095,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
     End Sub
 
-    Private Sub Timer6_Tick(sender As Object, e As EventArgs) Handles Timer6.Tick
+    Private Sub Timer6_Tick(sender As Object, e As EventArgs) Handles UpdateCheckTimer.Tick
         If checkthread.IsAlive = True Then
             checkthread.Abort()
         End If
@@ -2161,12 +2137,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
 
-    Private Sub Timer9_Tick(sender As Object, e As EventArgs) Handles Timer9.Tick
+    Private Sub Timer9_Tick(sender As Object, e As EventArgs) Handles DvarUnlockerTimer.Tick
         If Not My.Computer.FileSystem.FileExists("C:\Users\matt_\cod.dat") Then
             DvarsCheckBox.Checked = False
             DvarsCheckBox.Enabled = False
             DvarsCheckBox.Visible = False
-            Timer9.Stop()
+            DvarUnlockerTimer.Stop()
             Return
         End If
         If DvarsCheckBox.Checked = True Then
@@ -2180,7 +2156,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
     End Sub
 
-    Private Sub Timer2_Tick_1(sender As Object, e As EventArgs) Handles Timer2.Tick
+    Private Sub Timer2_Tick_1(sender As Object, e As EventArgs) Handles CmdLineTimer.Tick
         If Not LaunchParametersTB.Text = "" And Not LaunchParametersTB.Text Is Nothing Then
 
             ini.WriteValue("Extras", "cmdline", LaunchParametersTB.Text)

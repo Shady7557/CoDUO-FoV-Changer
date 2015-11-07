@@ -24,13 +24,13 @@ Public Class SettingsForm
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles GamePathButton.Click
         'Dim shouldContinue As Boolean = False
         Try
-            FolderBrowserDialog1.Description = ("Select your game path.")
-            If FolderBrowserDialog1.ShowDialog = Windows.Forms.DialogResult.OK Then
+            SetGamePathDialog.Description = ("Select your game path.")
+            If SetGamePathDialog.ShowDialog = Windows.Forms.DialogResult.OK Then
                 'shouldContinue = True
             Else
                 Return
             End If
-            TextBox1.Text = FolderBrowserDialog1.SelectedPath
+            TextBox1.Text = SetGamePathDialog.SelectedPath
 
 
             Dim readvalue As String
@@ -155,8 +155,7 @@ Public Class SettingsForm
             Me.BackColor = Color.DimGray
             GamePathButton.BackColor = Color.DarkGray
             CloseSettingsButton.BackColor = Color.DarkGray
-            ButtonBroweGameFiles.BackColor = Color.DarkGray
-            PictureButton.BackColor = Color.DarkGray
+            ButtonBrowseGameFiles.BackColor = Color.DarkGray
             ButtonSettingsAdvanced.BackColor = Color.DarkGray
             RestartAppButton.BackColor = Color.DarkGray
             TextBox1.BackColor = Color.DarkGray
@@ -168,7 +167,7 @@ Public Class SettingsForm
         End If
         If MainFoV.CoD1CheckBox.Checked = True Then
             '   Button6.Enabled = False
-            ToolTip1.SetToolTip(ButtonSelectGamePID, "This only supports CoDUO!")
+            ToolTipHandler.SetToolTip(ButtonSelectGamePID, "This only supports CoDUO!")
         End If
         Dim readvalue2 As String = ""
         '    If Form1.ostype = "64" Then
@@ -177,8 +176,8 @@ Public Class SettingsForm
         '        readvalue2 = My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "Version", 1.51) 'If the registry key is not found, it may report an error.
         '    End If
 
-        GameVersLabel.Text = MainFoV.Label11.Text 'Sets the label to read the games version from form1
-        AppBranchLabel.Text = MainFoV.Label10.Text 'Sets the label's text to contain the application branch.
+        GameVersLabel.Text = MainFoV.HackyGameVersLB.Text 'Sets the label to read the games version from form1
+        AppBranchLabel.Text = MainFoV.HackyAppBranchLB.Text 'Sets the label's text to contain the application branch.
         Dim testString As String = "Application Version: " & Application.ProductVersion
         AppVersLabel.Text = testString
         Dim keyfind As String
@@ -213,22 +212,11 @@ Public Class SettingsForm
         End If
     End Sub
 
-    Private Sub Button4_Click(sender As Object, e As EventArgs) Handles PictureButton.Click
-        '   Form8.Show()
-        If PicturesForm.Visible = False Then
-            PicturesForm.Visible = True
-            '   Form1.Timer8.Start()
-        Else
-            PicturesForm.Show()
-            '     Form1.Timer8.Start()
-        End If
-    End Sub
-
     Private Sub ComboBox2_SelectedIndexChanged(sender As Object, e As EventArgs) Handles StyleCBox.SelectedIndexChanged
         If StyleCBox.SelectedItem = "Minimal" Then
-            MainFoV.Label10.Visible = False
-            MainFoV.Label4.Visible = False
-            MainFoV.Label11.Visible = False
+            MainFoV.HackyAppBranchLB.Visible = False
+            MainFoV.HackyAppVersLB.Visible = False
+            MainFoV.HackyGameVersLB.Visible = False
             AppBranchLabel.Visible = True
             GameVersLabel.Visible = True
             AppVersLabel.Visible = True
@@ -238,20 +226,19 @@ Public Class SettingsForm
             ini.WriteValue("Extras", "Style", "Minimal")
         ElseIf StyleCBox.SelectedItem = "Default" Then
             ini.WriteValue("Extras", "Style", "Default")
-            MainFoV.Label10.Visible = True
-            MainFoV.Label4.Visible = True
-            MainFoV.Label11.Visible = True
+            MainFoV.HackyAppBranchLB.Visible = True
+            MainFoV.HackyAppVersLB.Visible = True
+            MainFoV.HackyGameVersLB.Visible = True
             AppBranchLabel.Visible = False
             GameVersLabel.Visible = False
             AppVersLabel.Visible = False
             CDKeyLabel.Visible = False
-            MainFoV.Height = 260
+            MainFoV.Height = 249
             MainFoV.BackColor = MainFoV.DefaultBackColor
             Me.BackColor = DefaultBackColor
             GamePathButton.BackColor = DefaultBackColor
             CloseSettingsButton.BackColor = DefaultBackColor
-            ButtonBroweGameFiles.BackColor = DefaultBackColor
-            PictureButton.BackColor = DefaultBackColor
+            ButtonBrowseGameFiles.BackColor = DefaultBackColor
             ButtonSettingsAdvanced.BackColor = DefaultBackColor
             RestartAppButton.BackColor = DefaultBackColor
             TextBox1.BackColor = DefaultBackColor
@@ -263,8 +250,7 @@ Public Class SettingsForm
             Me.BackColor = Color.DimGray
             GamePathButton.BackColor = Color.DarkGray
             CloseSettingsButton.BackColor = Color.DarkGray
-            ButtonBroweGameFiles.BackColor = Color.DarkGray
-            PictureButton.BackColor = Color.DarkGray
+            ButtonBrowseGameFiles.BackColor = Color.DarkGray
             ButtonSettingsAdvanced.BackColor = Color.DarkGray
             RestartAppButton.BackColor = Color.DarkGray
             TextBox1.BackColor = Color.DarkGray
@@ -311,18 +297,18 @@ Public Class SettingsForm
         Application.Restart()
     End Sub
 
-    Private Sub ToolTip1_Popup(sender As Object, e As PopupEventArgs) Handles ToolTip1.Popup
+    Private Sub ToolTip1_Popup(sender As Object, e As PopupEventArgs) Handles ToolTipHandler.Popup
 
     End Sub
 
-    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles ButtonBroweGameFiles.Click
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles ButtonBrowseGameFiles.Click
         Process.Start(installpath)
     End Sub
 
     Private Sub Button6_Click(sender As Object, e As EventArgs) Handles ButtonSelectGamePID.Click
         If MainFoV.CoD1CheckBox.Checked = True Then
             '       Button6.Enabled = False
-            ToolTip1.SetToolTip(ButtonSelectGamePID, "This only supports CoDUO!")
+            ToolTipHandler.SetToolTip(ButtonSelectGamePID, "This only supports CoDUO!")
             MessageBox.Show("This only supports CoDUO!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
             Return
         End If
@@ -356,4 +342,5 @@ Public Class SettingsForm
         End If
 
     End Sub
+
 End Class

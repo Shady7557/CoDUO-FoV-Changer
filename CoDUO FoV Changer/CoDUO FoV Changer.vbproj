@@ -216,12 +216,6 @@
     <Compile Include="AdvSettingsForm.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PicturesForm.Designer.vb">
-      <DependentUpon>PicturesForm.vb</DependentUpon>
-    </Compile>
-    <Compile Include="PicturesForm.vb">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="CoDPIDForm.Designer.vb">
       <DependentUpon>CoDPIDForm.vb</DependentUpon>
     </Compile>
@@ -261,9 +255,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="AdvSettingsForm.resx">
       <DependentUpon>AdvSettingsForm.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="PicturesForm.resx">
-      <DependentUpon>PicturesForm.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="CoDPIDForm.resx">
       <DependentUpon>CoDPIDForm.vb</DependentUpon>

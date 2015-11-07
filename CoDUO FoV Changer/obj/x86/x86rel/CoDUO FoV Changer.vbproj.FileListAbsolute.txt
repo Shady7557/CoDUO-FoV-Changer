@@ -25,7 +25,6 @@ D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\bin\x8
 D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO_FoV_Changer.MainFoV.resources
 D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO_FoV_Changer.SettingsForm.resources
 D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO_FoV_Changer.AdvSettingsForm.resources
-D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO_FoV_Changer.PicturesForm.resources
 D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO_FoV_Changer.CoDPIDForm.resources
 D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO_FoV_Changer.ChangeHotKeyForm.resources
 D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO_FoV_Changer.Resources.resources

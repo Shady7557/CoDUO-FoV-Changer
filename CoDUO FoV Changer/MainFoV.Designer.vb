@@ -26,36 +26,35 @@ Partial Class MainFoV
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(MainFoV))
         Me.FoVTextBox = New System.Windows.Forms.TextBox()
         Me.FoVLabel = New System.Windows.Forms.Label()
-        Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
+        Me.FoVTimer = New System.Windows.Forms.Timer(Me.components)
         Me.StatusLabel = New System.Windows.Forms.Label()
         Me.StartGameButton = New System.Windows.Forms.Button()
-        Me.Timer3 = New System.Windows.Forms.Timer(Me.components)
+        Me.TextBoxTimer = New System.Windows.Forms.Timer(Me.components)
         Me.debugb = New System.Windows.Forms.Button()
-        Me.Timer4 = New System.Windows.Forms.Timer(Me.components)
-        Me.Button6 = New System.Windows.Forms.Button()
+        Me.HotKeyHandler = New System.Windows.Forms.Timer(Me.components)
+        Me.UpdateButton = New System.Windows.Forms.Button()
         Me.CheckUpdatesLabel = New System.Windows.Forms.Label()
-        Me.Timer6 = New System.Windows.Forms.Timer(Me.components)
+        Me.UpdateCheckTimer = New System.Windows.Forms.Timer(Me.components)
         Me.LaunchParametersLB = New System.Windows.Forms.Label()
         Me.LaunchParametersTB = New System.Windows.Forms.TextBox()
-        Me.Label10 = New System.Windows.Forms.Label()
-        Me.Label11 = New System.Windows.Forms.Label()
+        Me.HackyAppBranchLB = New System.Windows.Forms.Label()
+        Me.HackyGameVersLB = New System.Windows.Forms.Label()
         Me.FogCheckBox = New System.Windows.Forms.CheckBox()
         Me.ChangeLogButton = New System.Windows.Forms.Button()
-        Me.Timer11 = New System.Windows.Forms.Timer(Me.components)
+        Me.FogTimer = New System.Windows.Forms.Timer(Me.components)
         Me.SettingsButton = New System.Windows.Forms.Button()
         Me.FolderBrowserDialog1 = New System.Windows.Forms.FolderBrowserDialog()
-        Me.Timer7 = New System.Windows.Forms.Timer(Me.components)
-        Me.Button15 = New System.Windows.Forms.Button()
+        Me.FoVFixTimer = New System.Windows.Forms.Timer(Me.components)
         Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog()
-        Me.NotifyIcon1 = New System.Windows.Forms.NotifyIcon(Me.components)
+        Me.MinimizeIcon = New System.Windows.Forms.NotifyIcon(Me.components)
         Me.MinimizeCheckBox = New System.Windows.Forms.CheckBox()
-        Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
-        Me.Label4 = New System.Windows.Forms.Label()
-        Me.Timer5 = New System.Windows.Forms.Timer(Me.components)
+        Me.ToolTipHandler = New System.Windows.Forms.ToolTip(Me.components)
+        Me.HackyAppVersLB = New System.Windows.Forms.Label()
+        Me.ABITWTimer = New System.Windows.Forms.Timer(Me.components)
         Me.CoD1CheckBox = New System.Windows.Forms.CheckBox()
         Me.FileSizeLabel = New System.Windows.Forms.Label()
         Me.FileSizeLabel2 = New System.Windows.Forms.Label()
-        Me.ToolTip2 = New System.Windows.Forms.ToolTip(Me.components)
+        Me.ToolTipHandler2 = New System.Windows.Forms.ToolTip(Me.components)
         Me.DvarsCheckBox = New System.Windows.Forms.CheckBox()
         Me.CoDPictureBox = New System.Windows.Forms.PictureBox()
         Me.FoVMenuStrip = New System.Windows.Forms.MenuStrip()
@@ -65,8 +64,8 @@ Partial Class MainFoV
         Me.SettingsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AdvancedSettingsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
-        Me.Timer9 = New System.Windows.Forms.Timer(Me.components)
+        Me.CmdLineTimer = New System.Windows.Forms.Timer(Me.components)
+        Me.DvarUnlockerTimer = New System.Windows.Forms.Timer(Me.components)
         Me.ComboBox1 = New System.Windows.Forms.ComboBox()
         Me.HackyFoVComboBox = New System.Windows.Forms.ComboBox()
         CType(Me.CoDPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -90,10 +89,10 @@ Partial Class MainFoV
         Me.FoVLabel.TabIndex = 2
         Me.FoVLabel.Text = "Field of View:"
         '
-        'Timer1
+        'FoVTimer
         '
-        Me.Timer1.Enabled = True
-        Me.Timer1.Interval = 1500
+        Me.FoVTimer.Enabled = True
+        Me.FoVTimer.Interval = 1500
         '
         'StatusLabel
         '
@@ -105,7 +104,7 @@ Partial Class MainFoV
         Me.StatusLabel.Size = New System.Drawing.Size(307, 18)
         Me.StatusLabel.TabIndex = 3
         Me.StatusLabel.Text = "Status: not found or failed to write to memory!"
-        Me.ToolTip1.SetToolTip(Me.StatusLabel, "The status of the FoV Changer. " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "If it is not found or failed to write to memory," & _
+        Me.ToolTipHandler.SetToolTip(Me.StatusLabel, "The status of the FoV Changer. " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "If it is not found or failed to write to memory," & _
         " start the game." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "If this fails, you probably have com_hunkmegs set above 128." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & _
         "Change it to 128. It CANNOT be higher.")
         '
@@ -118,10 +117,10 @@ Partial Class MainFoV
         Me.StartGameButton.Text = "Start Game"
         Me.StartGameButton.UseVisualStyleBackColor = True
         '
-        'Timer3
+        'TextBoxTimer
         '
-        Me.Timer3.Enabled = True
-        Me.Timer3.Interval = 200
+        Me.TextBoxTimer.Enabled = True
+        Me.TextBoxTimer.Interval = 200
         '
         'debugb
         '
@@ -133,19 +132,19 @@ Partial Class MainFoV
         Me.debugb.UseVisualStyleBackColor = True
         Me.debugb.Visible = False
         '
-        'Timer4
+        'HotKeyHandler
         '
-        Me.Timer4.Enabled = True
+        Me.HotKeyHandler.Enabled = True
         '
-        'Button6
+        'UpdateButton
         '
-        Me.Button6.Location = New System.Drawing.Point(281, 25)
-        Me.Button6.Name = "Button6"
-        Me.Button6.Size = New System.Drawing.Size(114, 25)
-        Me.Button6.TabIndex = 11
-        Me.Button6.Text = "Update"
-        Me.Button6.UseVisualStyleBackColor = True
-        Me.Button6.Visible = False
+        Me.UpdateButton.Location = New System.Drawing.Point(281, 25)
+        Me.UpdateButton.Name = "UpdateButton"
+        Me.UpdateButton.Size = New System.Drawing.Size(114, 25)
+        Me.UpdateButton.TabIndex = 11
+        Me.UpdateButton.Text = "Update"
+        Me.UpdateButton.UseVisualStyleBackColor = True
+        Me.UpdateButton.Visible = False
         '
         'CheckUpdatesLabel
         '
@@ -157,10 +156,10 @@ Partial Class MainFoV
         Me.CheckUpdatesLabel.TabIndex = 12
         Me.CheckUpdatesLabel.Text = "Checking for updates..."
         '
-        'Timer6
+        'UpdateCheckTimer
         '
-        Me.Timer6.Enabled = True
-        Me.Timer6.Interval = 45000
+        Me.UpdateCheckTimer.Enabled = True
+        Me.UpdateCheckTimer.Interval = 45000
         '
         'LaunchParametersLB
         '
@@ -171,7 +170,7 @@ Partial Class MainFoV
         Me.LaunchParametersLB.Size = New System.Drawing.Size(102, 13)
         Me.LaunchParametersLB.TabIndex = 24
         Me.LaunchParametersLB.Text = "Launch Parameters:"
-        Me.ToolTip1.SetToolTip(Me.LaunchParametersLB, "Start the game with these launch parameters." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(Formerly known as ""Command Line""" & _
+        Me.ToolTipHandler.SetToolTip(Me.LaunchParametersLB, "Start the game with these launch parameters." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(Formerly known as ""Command Line""" & _
         ")" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10))
         '
         'LaunchParametersTB
@@ -181,28 +180,28 @@ Partial Class MainFoV
         Me.LaunchParametersTB.Name = "LaunchParametersTB"
         Me.LaunchParametersTB.Size = New System.Drawing.Size(270, 20)
         Me.LaunchParametersTB.TabIndex = 25
-        Me.ToolTip1.SetToolTip(Me.LaunchParametersTB, "Start the game with these launch parameters." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(Formerly known as ""Command Line""" & _
+        Me.ToolTipHandler.SetToolTip(Me.LaunchParametersTB, "Start the game with these launch parameters." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(Formerly known as ""Command Line""" & _
         ")" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10))
         '
-        'Label10
+        'HackyAppBranchLB
         '
-        Me.Label10.AutoSize = True
-        Me.Label10.BackColor = System.Drawing.Color.Transparent
-        Me.Label10.Location = New System.Drawing.Point(2, 261)
-        Me.Label10.Name = "Label10"
-        Me.Label10.Size = New System.Drawing.Size(126, 13)
-        Me.Label10.TabIndex = 26
-        Me.Label10.Text = "Application Branch: 0000"
+        Me.HackyAppBranchLB.AutoSize = True
+        Me.HackyAppBranchLB.BackColor = System.Drawing.Color.Transparent
+        Me.HackyAppBranchLB.Location = New System.Drawing.Point(2, 261)
+        Me.HackyAppBranchLB.Name = "HackyAppBranchLB"
+        Me.HackyAppBranchLB.Size = New System.Drawing.Size(126, 13)
+        Me.HackyAppBranchLB.TabIndex = 26
+        Me.HackyAppBranchLB.Text = "Application Branch: 0000"
         '
-        'Label11
+        'HackyGameVersLB
         '
-        Me.Label11.AutoSize = True
-        Me.Label11.BackColor = System.Drawing.Color.Transparent
-        Me.Label11.Location = New System.Drawing.Point(12, 306)
-        Me.Label11.Name = "Label11"
-        Me.Label11.Size = New System.Drawing.Size(112, 13)
-        Me.Label11.TabIndex = 27
-        Me.Label11.Text = "CoDUO Version: 0000"
+        Me.HackyGameVersLB.AutoSize = True
+        Me.HackyGameVersLB.BackColor = System.Drawing.Color.Transparent
+        Me.HackyGameVersLB.Location = New System.Drawing.Point(12, 306)
+        Me.HackyGameVersLB.Name = "HackyGameVersLB"
+        Me.HackyGameVersLB.Size = New System.Drawing.Size(112, 13)
+        Me.HackyGameVersLB.TabIndex = 27
+        Me.HackyGameVersLB.Text = "CoDUO Version: 0000"
         '
         'FogCheckBox
         '
@@ -223,9 +222,9 @@ Partial Class MainFoV
         Me.ChangeLogButton.Text = "Changelog"
         Me.ChangeLogButton.UseVisualStyleBackColor = True
         '
-        'Timer11
+        'FogTimer
         '
-        Me.Timer11.Interval = 2000
+        Me.FogTimer.Interval = 2000
         '
         'SettingsButton
         '
@@ -240,28 +239,18 @@ Partial Class MainFoV
         '
         Me.FolderBrowserDialog1.Description = "Select your UO installation path."
         '
-        'Timer7
+        'FoVFixTimer
         '
-        Me.Timer7.Enabled = True
-        '
-        'Button15
-        '
-        Me.Button15.Location = New System.Drawing.Point(304, 252)
-        Me.Button15.Name = "Button15"
-        Me.Button15.Size = New System.Drawing.Size(86, 22)
-        Me.Button15.TabIndex = 44
-        Me.Button15.Text = "Show CD-Key"
-        Me.Button15.UseVisualStyleBackColor = True
-        Me.Button15.Visible = False
+        Me.FoVFixTimer.Enabled = True
         '
         'OpenFileDialog1
         '
         Me.OpenFileDialog1.FileName = "OpenFileDialog1"
         '
-        'NotifyIcon1
+        'MinimizeIcon
         '
-        Me.NotifyIcon1.Icon = CType(resources.GetObject("NotifyIcon1.Icon"), System.Drawing.Icon)
-        Me.NotifyIcon1.Text = "CoDUO FoV Changer"
+        Me.MinimizeIcon.Icon = CType(resources.GetObject("MinimizeIcon.Icon"), System.Drawing.Icon)
+        Me.MinimizeIcon.Text = "CoDUO FoV Changer"
         '
         'MinimizeCheckBox
         '
@@ -273,20 +262,20 @@ Partial Class MainFoV
         Me.MinimizeCheckBox.Text = "Minimize to tray"
         Me.MinimizeCheckBox.UseVisualStyleBackColor = True
         '
-        'Label4
+        'HackyAppVersLB
         '
-        Me.Label4.AutoSize = True
-        Me.Label4.BackColor = System.Drawing.Color.Transparent
-        Me.Label4.Location = New System.Drawing.Point(12, 293)
-        Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(127, 13)
-        Me.Label4.TabIndex = 48
-        Me.Label4.Text = "Application Version: 0000"
+        Me.HackyAppVersLB.AutoSize = True
+        Me.HackyAppVersLB.BackColor = System.Drawing.Color.Transparent
+        Me.HackyAppVersLB.Location = New System.Drawing.Point(12, 293)
+        Me.HackyAppVersLB.Name = "HackyAppVersLB"
+        Me.HackyAppVersLB.Size = New System.Drawing.Size(127, 13)
+        Me.HackyAppVersLB.TabIndex = 48
+        Me.HackyAppVersLB.Text = "Application Version: 0000"
         '
-        'Timer5
+        'ABITWTimer
         '
-        Me.Timer5.Enabled = True
-        Me.Timer5.Interval = 1200
+        Me.ABITWTimer.Enabled = True
+        Me.ABITWTimer.Interval = 1200
         '
         'CoD1CheckBox
         '
@@ -341,7 +330,7 @@ Partial Class MainFoV
         Me.FoVMenuStrip.BackColor = System.Drawing.SystemColors.Control
         Me.FoVMenuStrip.Dock = System.Windows.Forms.DockStyle.Bottom
         Me.FoVMenuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.HelpToolStripMenuItem, Me.ToolStripMenuItem1, Me.ExitToolStripMenuItem})
-        Me.FoVMenuStrip.Location = New System.Drawing.Point(0, 179)
+        Me.FoVMenuStrip.Location = New System.Drawing.Point(0, 186)
         Me.FoVMenuStrip.Name = "FoVMenuStrip"
         Me.FoVMenuStrip.Size = New System.Drawing.Size(608, 24)
         Me.FoVMenuStrip.TabIndex = 54
@@ -385,14 +374,14 @@ Partial Class MainFoV
         Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(37, 20)
         Me.ExitToolStripMenuItem.Text = "Exit"
         '
-        'Timer2
+        'CmdLineTimer
         '
-        Me.Timer2.Enabled = True
-        Me.Timer2.Interval = 10000
+        Me.CmdLineTimer.Enabled = True
+        Me.CmdLineTimer.Interval = 10000
         '
-        'Timer9
+        'DvarUnlockerTimer
         '
-        Me.Timer9.Interval = 2650
+        Me.DvarUnlockerTimer.Interval = 2650
         '
         'ComboBox1
         '
@@ -416,7 +405,7 @@ Partial Class MainFoV
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
-        Me.ClientSize = New System.Drawing.Size(608, 203)
+        Me.ClientSize = New System.Drawing.Size(608, 210)
         Me.Controls.Add(Me.HackyFoVComboBox)
         Me.Controls.Add(Me.ComboBox1)
         Me.Controls.Add(Me.FoVMenuStrip)
@@ -425,18 +414,17 @@ Partial Class MainFoV
         Me.Controls.Add(Me.FileSizeLabel2)
         Me.Controls.Add(Me.FileSizeLabel)
         Me.Controls.Add(Me.CoD1CheckBox)
-        Me.Controls.Add(Me.Label4)
+        Me.Controls.Add(Me.HackyAppVersLB)
         Me.Controls.Add(Me.MinimizeCheckBox)
-        Me.Controls.Add(Me.Button15)
         Me.Controls.Add(Me.SettingsButton)
         Me.Controls.Add(Me.ChangeLogButton)
         Me.Controls.Add(Me.FogCheckBox)
-        Me.Controls.Add(Me.Label11)
-        Me.Controls.Add(Me.Label10)
+        Me.Controls.Add(Me.HackyGameVersLB)
+        Me.Controls.Add(Me.HackyAppBranchLB)
         Me.Controls.Add(Me.LaunchParametersTB)
         Me.Controls.Add(Me.LaunchParametersLB)
         Me.Controls.Add(Me.CheckUpdatesLabel)
-        Me.Controls.Add(Me.Button6)
+        Me.Controls.Add(Me.UpdateButton)
         Me.Controls.Add(Me.debugb)
         Me.Controls.Add(Me.StartGameButton)
         Me.Controls.Add(Me.StatusLabel)
@@ -459,36 +447,35 @@ Partial Class MainFoV
     End Sub
     Friend WithEvents FoVTextBox As System.Windows.Forms.TextBox
     Friend WithEvents FoVLabel As System.Windows.Forms.Label
-    Friend WithEvents Timer1 As System.Windows.Forms.Timer
+    Friend WithEvents FoVTimer As System.Windows.Forms.Timer
     Friend WithEvents StatusLabel As System.Windows.Forms.Label
     Friend WithEvents StartGameButton As System.Windows.Forms.Button
-    Friend WithEvents Timer3 As System.Windows.Forms.Timer
+    Friend WithEvents TextBoxTimer As System.Windows.Forms.Timer
     Friend WithEvents debugb As System.Windows.Forms.Button
-    Friend WithEvents Timer4 As System.Windows.Forms.Timer
-    Friend WithEvents Button6 As System.Windows.Forms.Button
+    Friend WithEvents HotKeyHandler As System.Windows.Forms.Timer
+    Friend WithEvents UpdateButton As System.Windows.Forms.Button
     Friend WithEvents CheckUpdatesLabel As System.Windows.Forms.Label
-    Friend WithEvents Timer6 As System.Windows.Forms.Timer
+    Friend WithEvents UpdateCheckTimer As System.Windows.Forms.Timer
     Friend WithEvents LaunchParametersLB As System.Windows.Forms.Label
     Friend WithEvents LaunchParametersTB As System.Windows.Forms.TextBox
-    Friend WithEvents Label10 As System.Windows.Forms.Label
-    Friend WithEvents Label11 As System.Windows.Forms.Label
+    Friend WithEvents HackyAppBranchLB As System.Windows.Forms.Label
+    Friend WithEvents HackyGameVersLB As System.Windows.Forms.Label
     Friend WithEvents FogCheckBox As System.Windows.Forms.CheckBox
     Friend WithEvents ChangeLogButton As System.Windows.Forms.Button
-    Friend WithEvents Timer11 As System.Windows.Forms.Timer
+    Friend WithEvents FogTimer As System.Windows.Forms.Timer
     Friend WithEvents SettingsButton As System.Windows.Forms.Button
     Friend WithEvents FolderBrowserDialog1 As System.Windows.Forms.FolderBrowserDialog
-    Friend WithEvents Timer7 As System.Windows.Forms.Timer
-    Friend WithEvents Button15 As System.Windows.Forms.Button
+    Friend WithEvents FoVFixTimer As System.Windows.Forms.Timer
     Friend WithEvents OpenFileDialog1 As System.Windows.Forms.OpenFileDialog
-    Private WithEvents NotifyIcon1 As System.Windows.Forms.NotifyIcon
+    Private WithEvents MinimizeIcon As System.Windows.Forms.NotifyIcon
     Friend WithEvents MinimizeCheckBox As System.Windows.Forms.CheckBox
-    Friend WithEvents ToolTip1 As System.Windows.Forms.ToolTip
-    Friend WithEvents Label4 As System.Windows.Forms.Label
-    Friend WithEvents Timer5 As System.Windows.Forms.Timer
+    Friend WithEvents ToolTipHandler As System.Windows.Forms.ToolTip
+    Friend WithEvents HackyAppVersLB As System.Windows.Forms.Label
+    Friend WithEvents ABITWTimer As System.Windows.Forms.Timer
     Friend WithEvents CoD1CheckBox As System.Windows.Forms.CheckBox
     Friend WithEvents FileSizeLabel As System.Windows.Forms.Label
     Friend WithEvents FileSizeLabel2 As System.Windows.Forms.Label
-    Friend WithEvents ToolTip2 As System.Windows.Forms.ToolTip
+    Friend WithEvents ToolTipHandler2 As System.Windows.Forms.ToolTip
     Friend WithEvents DvarsCheckBox As System.Windows.Forms.CheckBox
     Friend WithEvents CoDPictureBox As System.Windows.Forms.PictureBox
     Friend WithEvents FoVMenuStrip As System.Windows.Forms.MenuStrip
@@ -496,8 +483,8 @@ Partial Class MainFoV
     Friend WithEvents SettingsToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ExitToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents AdvancedSettingsToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
-    Friend WithEvents Timer2 As System.Windows.Forms.Timer
-    Friend WithEvents Timer9 As System.Windows.Forms.Timer
+    Friend WithEvents CmdLineTimer As System.Windows.Forms.Timer
+    Friend WithEvents DvarUnlockerTimer As System.Windows.Forms.Timer
     Friend WithEvents HelpToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents InfoToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ComboBox1 As System.Windows.Forms.ComboBox

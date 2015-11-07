@@ -84,7 +84,7 @@
 
     End Sub
 
-    Private Sub Button3_Click_1(sender As Object, e As EventArgs) Handles CancelButton.Click
+    Private Sub Button3_Click_1(sender As Object, e As EventArgs) Handles CancelCloseButton.Click
         If iscontext = False Then
             SettingsForm.Visible = True
             Me.Visible = False
@@ -97,181 +97,181 @@
     Private Sub Button4_Click(sender As Object, e As EventArgs) Handles OpenConfigButton.Click
         Process.Start(appdata & "CoDUO FoV Changer")
     End Sub
-    Private Function searchuo4() As Boolean
-        Dim i As Integer = 0
+    'Private Function searchuo4() As Boolean
+    '    Dim i As Integer = 0
 
-        'Target Directory
-        Dim directory = "D:\"
+    '    'Target Directory
+    '    Dim directory = "D:\"
 
-        'Searches directory and it's subdirectories for all files, which "*" stands for
-        'Say for example you only want to search for jpeg files... then change "*" to "*.jpg"  
-        For Each filename As String In IO.Directory.GetFiles(directory, "*", IO.SearchOption.AllDirectories)
+    '    'Searches directory and it's subdirectories for all files, which "*" stands for
+    '    'Say for example you only want to search for jpeg files... then change "*" to "*.jpg"  
+    '    For Each filename As String In IO.Directory.GetFiles(directory, "*", IO.SearchOption.AllDirectories)
 
-            'The next line of code gets only file extensions from searched directories and subdirectories
-            Dim fName As String = IO.Path.GetExtension(filename)
+    '        'The next line of code gets only file extensions from searched directories and subdirectories
+    '        Dim fName As String = IO.Path.GetExtension(filename)
 
-            If fName = ".suo" Then
+    '        If fName = ".suo" Then
 
-                'Skips to next iteration of Loop, ignoring files with .suo extension 
-                Continue For
+    '            'Skips to next iteration of Loop, ignoring files with .suo extension 
+    '            Continue For
 
-            Else
-                If fName = ".ini" Then
+    '        Else
+    '            If fName = ".ini" Then
 
-                    'Skips to next iteration of Loop, ignoring files with .ini extension
-                    Continue For
+    '                'Skips to next iteration of Loop, ignoring files with .ini extension
+    '                Continue For
 
-                Else
+    '            Else
 
-                    'Your code here above count function
-                    'The below counter only displays the final count after all files have been processed
-                    If filename.Contains("CoDUOMP") Then
-                        MessageBox.Show("success")
-                        MessageBox.Show(filename)
-                        uoDirS = filename
-                        Return True
-                    End If
+    '                'Your code here above count function
+    '                'The below counter only displays the final count after all files have been processed
+    '                If filename.Contains("CoDUOMP") Then
+    '                    MessageBox.Show("success")
+    '                    MessageBox.Show(filename)
+    '                    uoDirS = filename
+    '                    Return True
+    '                End If
 
-                    i = i + 1
-                    ' TextBox1.Text = Convert.ToString(i)
-
-
-                End If
-            End If
-        Next
-    End Function
-    Private Function searchuo3() As Boolean
-        Dim i As Integer = 0
-
-        'Target Directory
-        Dim directory = "C:\"
-
-        'Searches directory and it's subdirectories for all files, which "*" stands for
-        'Say for example you only want to search for jpeg files... then change "*" to "*.jpg"  
-        For Each filename As String In IO.Directory.GetFiles(directory, "*", IO.SearchOption.AllDirectories)
-
-            'The next line of code gets only file extensions from searched directories and subdirectories
-            Dim fName As String = IO.Path.GetExtension(filename)
-
-            If fName = ".suo" Then
-
-                'Skips to next iteration of Loop, ignoring files with .suo extension 
-                Continue For
-
-            Else
-                If fName = ".ini" Then
-
-                    'Skips to next iteration of Loop, ignoring files with .ini extension
-                    Continue For
-
-                Else
-
-                    'Your code here above count function
-                    'The below counter only displays the final count after all files have been processed
-                    If filename.Contains("CoDUOMP") Then
-                        MessageBox.Show("success")
-                        MessageBox.Show(filename)
-                        uoDirS = filename
-                        Return True
-                    End If
-
-                    i = i + 1
-                    ' TextBox1.Text = Convert.ToString(i)
+    '                i = i + 1
+    '                ' TextBox1.Text = Convert.ToString(i)
 
 
-                End If
-            End If
-        Next
-    End Function
-    Private Function searchuo2() As Boolean
-        Dim i As Integer = 0
+    '            End If
+    '        End If
+    '    Next
+    'End Function
+    'Private Function searchuo3() As Boolean
+    '    Dim i As Integer = 0
 
-        'Target Directory
-        Dim directory = "C:\Program Files"
+    '    'Target Directory
+    '    Dim directory = "C:\"
 
-        'Searches directory and it's subdirectories for all files, which "*" stands for
-        'Say for example you only want to search for jpeg files... then change "*" to "*.jpg"  
-        For Each filename As String In IO.Directory.GetFiles(directory, "*", IO.SearchOption.AllDirectories)
+    '    'Searches directory and it's subdirectories for all files, which "*" stands for
+    '    'Say for example you only want to search for jpeg files... then change "*" to "*.jpg"  
+    '    For Each filename As String In IO.Directory.GetFiles(directory, "*", IO.SearchOption.AllDirectories)
 
-            'The next line of code gets only file extensions from searched directories and subdirectories
-            Dim fName As String = IO.Path.GetExtension(filename)
+    '        'The next line of code gets only file extensions from searched directories and subdirectories
+    '        Dim fName As String = IO.Path.GetExtension(filename)
 
-            If fName = ".suo" Then
+    '        If fName = ".suo" Then
 
-                'Skips to next iteration of Loop, ignoring files with .suo extension 
-                Continue For
+    '            'Skips to next iteration of Loop, ignoring files with .suo extension 
+    '            Continue For
 
-            Else
-                If fName = ".ini" Then
+    '        Else
+    '            If fName = ".ini" Then
 
-                    'Skips to next iteration of Loop, ignoring files with .ini extension
-                    Continue For
+    '                'Skips to next iteration of Loop, ignoring files with .ini extension
+    '                Continue For
 
-                Else
+    '            Else
 
-                    'Your code here above count function
-                    'The below counter only displays the final count after all files have been processed
-                    If filename.Contains("CoDUOMP") Then
-                        MessageBox.Show("success")
-                        MessageBox.Show(filename)
-                        uoDirS = filename
-                        Return True
-                    End If
+    '                'Your code here above count function
+    '                'The below counter only displays the final count after all files have been processed
+    '                If filename.Contains("CoDUOMP") Then
+    '                    MessageBox.Show("success")
+    '                    MessageBox.Show(filename)
+    '                    uoDirS = filename
+    '                    Return True
+    '                End If
 
-                    i = i + 1
-                    ' TextBox1.Text = Convert.ToString(i)
-
-
-                End If
-            End If
-        Next
-    End Function
-    Private Function searchuo() As Boolean
-        Dim i As Integer = 0
+    '                i = i + 1
+    '                ' TextBox1.Text = Convert.ToString(i)
 
 
-        Dim directory = "C:\Program Files (x86)"
-        Dim directory2 = "C:\Program Files"
-        Dim directory3 = Nothing
+    '            End If
+    '        End If
+    '    Next
+    'End Function
+    'Private Function searchuo2() As Boolean
+    '    Dim i As Integer = 0
+
+    '    'Target Directory
+    '    Dim directory = "C:\Program Files"
+
+    '    'Searches directory and it's subdirectories for all files, which "*" stands for
+    '    'Say for example you only want to search for jpeg files... then change "*" to "*.jpg"  
+    '    For Each filename As String In IO.Directory.GetFiles(directory, "*", IO.SearchOption.AllDirectories)
+
+    '        'The next line of code gets only file extensions from searched directories and subdirectories
+    '        Dim fName As String = IO.Path.GetExtension(filename)
+
+    '        If fName = ".suo" Then
+
+    '            'Skips to next iteration of Loop, ignoring files with .suo extension 
+    '            Continue For
+
+    '        Else
+    '            If fName = ".ini" Then
+
+    '                'Skips to next iteration of Loop, ignoring files with .ini extension
+    '                Continue For
+
+    '            Else
+
+    '                'Your code here above count function
+    '                'The below counter only displays the final count after all files have been processed
+    '                If filename.Contains("CoDUOMP") Then
+    '                    MessageBox.Show("success")
+    '                    MessageBox.Show(filename)
+    '                    uoDirS = filename
+    '                    Return True
+    '                End If
+
+    '                i = i + 1
+    '                ' TextBox1.Text = Convert.ToString(i)
 
 
-        For Each filename As String In IO.Directory.GetFiles(directory, "*", IO.SearchOption.AllDirectories)
+    '            End If
+    '        End If
+    '    Next
+    'End Function
+    'Private Function searchuo() As Boolean
+    '    Dim i As Integer = 0
 
 
-            Dim fName As String = IO.Path.GetExtension(filename)
-
-            If fName = ".a" Then
-
-                'test code
-                Continue For
-
-            Else
-
-                If filename.Contains("CoDUOMP") And fName.Contains(".exe") Then
-                    MessageBox.Show("success")
-                    MessageBox.Show(filename)
-                    uoDirS = filename
-                    Return True
-                End If
-
-                i = i + 1
-                ' TextBox1.Text = Convert.ToString(i)
+    '    Dim directory = "C:\Program Files (x86)"
+    '    Dim directory2 = "C:\Program Files"
+    '    Dim directory3 = Nothing
 
 
-            End If
-        Next
-    End Function
-    Private Sub Checkconnection()
-        If searchuo() = False Then
-            foundUO = False
-        Else
-            foundUO = True
-        End If
-        '      If isathread = True And isDev = True Then
-        '    MsgBox("THREADED")
-        'End If
-        AccessLabel()
-    End Sub
+    '    For Each filename As String In IO.Directory.GetFiles(directory, "*", IO.SearchOption.AllDirectories)
+
+
+    '        Dim fName As String = IO.Path.GetExtension(filename)
+
+    '        If fName = ".a" Then
+
+    '            'test code
+    '            Continue For
+
+    '        Else
+
+    '            If filename.Contains("CoDUOMP") And fName.Contains(".exe") Then
+    '                MessageBox.Show("success")
+    '                MessageBox.Show(filename)
+    '                uoDirS = filename
+    '                Return True
+    '            End If
+
+    '            i = i + 1
+    '            ' TextBox1.Text = Convert.ToString(i)
+
+
+    '        End If
+    '    Next
+    'End Function
+    'Private Sub Checkconnection()
+    '    If searchuo() = False Then
+    '        foundUO = False
+    '    Else
+    '        foundUO = True
+    '    End If
+    '    '      If isathread = True And isDev = True Then
+    '    '    MsgBox("THREADED")
+    '    'End If
+    '    AccessLabel()
+    ' End Sub
     Private Sub AccessLabel()
         Try
             If Me.InvokeRequired Then
@@ -298,8 +298,8 @@
             MessageBox.Show("debugger not attached, returning...")
             Return
         End If
-        search = New Threading.Thread(AddressOf Me.Checkconnection)
-        search.Start()
+        '  search = New Threading.Thread(AddressOf Me.Checkconnection)
+        ' search.Start()
     End Sub
 
     Private Sub CheckBox5_CheckedChanged(sender As Object, e As EventArgs)
