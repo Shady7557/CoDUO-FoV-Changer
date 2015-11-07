@@ -73,6 +73,7 @@
         MainFoV.hotkeydown = key2
         ini.WriteValue("Extras", "HotKeyUp", key)
         ini.WriteValue("Extras", "HotKeyDown", key2)
+        FoVHotKeyForm.Show()
         Me.Close()
     End Sub
 

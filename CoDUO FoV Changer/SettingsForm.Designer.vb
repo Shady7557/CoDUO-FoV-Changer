@@ -42,10 +42,7 @@ Partial Class SettingsForm
         Me.RestartAppButton = New System.Windows.Forms.Button()
         Me.ButtonBrowseGameFiles = New System.Windows.Forms.Button()
         Me.ButtonSelectGamePID = New System.Windows.Forms.Button()
-        Me.ButtonAddFoVCB = New System.Windows.Forms.Button()
-        Me.CBBoxFoV = New System.Windows.Forms.ComboBox()
-        Me.RemoveFoVCBBox = New System.Windows.Forms.Button()
-        Me.FoVHotKeyShowForm = New System.Windows.Forms.Button()
+        Me.SetupKeysButton = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'GamePathButton
@@ -100,7 +97,7 @@ Partial Class SettingsForm
         '
         Me.InformationLabel.AutoSize = True
         Me.InformationLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.InformationLabel.Location = New System.Drawing.Point(12, 361)
+        Me.InformationLabel.Location = New System.Drawing.Point(12, 256)
         Me.InformationLabel.Name = "InformationLabel"
         Me.InformationLabel.Size = New System.Drawing.Size(152, 15)
         Me.InformationLabel.TabIndex = 18
@@ -110,7 +107,7 @@ Partial Class SettingsForm
         '
         Me.CustomizationLabel.AutoSize = True
         Me.CustomizationLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CustomizationLabel.Location = New System.Drawing.Point(24, 309)
+        Me.CustomizationLabel.Location = New System.Drawing.Point(12, 210)
         Me.CustomizationLabel.Name = "CustomizationLabel"
         Me.CustomizationLabel.Size = New System.Drawing.Size(161, 16)
         Me.CustomizationLabel.TabIndex = 23
@@ -119,7 +116,7 @@ Partial Class SettingsForm
         'StyleLabel
         '
         Me.StyleLabel.AutoSize = True
-        Me.StyleLabel.Location = New System.Drawing.Point(12, 331)
+        Me.StyleLabel.Location = New System.Drawing.Point(12, 235)
         Me.StyleLabel.Name = "StyleLabel"
         Me.StyleLabel.Size = New System.Drawing.Size(33, 13)
         Me.StyleLabel.TabIndex = 24
@@ -129,7 +126,7 @@ Partial Class SettingsForm
         '
         Me.StyleCBox.FormattingEnabled = True
         Me.StyleCBox.Items.AddRange(New Object() {"Default", "Minimal", "Dark"})
-        Me.StyleCBox.Location = New System.Drawing.Point(51, 328)
+        Me.StyleCBox.Location = New System.Drawing.Point(50, 232)
         Me.StyleCBox.Name = "StyleCBox"
         Me.StyleCBox.Size = New System.Drawing.Size(114, 21)
         Me.StyleCBox.TabIndex = 25
@@ -138,7 +135,7 @@ Partial Class SettingsForm
         '
         Me.AppBranchLabel.AutoSize = True
         Me.AppBranchLabel.BackColor = System.Drawing.Color.Transparent
-        Me.AppBranchLabel.Location = New System.Drawing.Point(12, 376)
+        Me.AppBranchLabel.Location = New System.Drawing.Point(12, 271)
         Me.AppBranchLabel.Name = "AppBranchLabel"
         Me.AppBranchLabel.Size = New System.Drawing.Size(126, 13)
         Me.AppBranchLabel.TabIndex = 27
@@ -148,7 +145,7 @@ Partial Class SettingsForm
         '
         Me.AppVersLabel.AutoSize = True
         Me.AppVersLabel.BackColor = System.Drawing.Color.Transparent
-        Me.AppVersLabel.Location = New System.Drawing.Point(12, 389)
+        Me.AppVersLabel.Location = New System.Drawing.Point(12, 284)
         Me.AppVersLabel.Name = "AppVersLabel"
         Me.AppVersLabel.Size = New System.Drawing.Size(127, 13)
         Me.AppVersLabel.TabIndex = 49
@@ -158,7 +155,7 @@ Partial Class SettingsForm
         '
         Me.GameVersLabel.AutoSize = True
         Me.GameVersLabel.BackColor = System.Drawing.Color.Transparent
-        Me.GameVersLabel.Location = New System.Drawing.Point(12, 402)
+        Me.GameVersLabel.Location = New System.Drawing.Point(12, 297)
         Me.GameVersLabel.Name = "GameVersLabel"
         Me.GameVersLabel.Size = New System.Drawing.Size(115, 13)
         Me.GameVersLabel.TabIndex = 50
@@ -168,7 +165,7 @@ Partial Class SettingsForm
         '
         Me.CDKeyLabel.AutoSize = True
         Me.CDKeyLabel.BackColor = System.Drawing.Color.Transparent
-        Me.CDKeyLabel.Location = New System.Drawing.Point(12, 415)
+        Me.CDKeyLabel.Location = New System.Drawing.Point(12, 310)
         Me.CDKeyLabel.Name = "CDKeyLabel"
         Me.CDKeyLabel.Size = New System.Drawing.Size(46, 13)
         Me.CDKeyLabel.TabIndex = 51
@@ -176,7 +173,7 @@ Partial Class SettingsForm
         '
         'ButtonSettingsAdvanced
         '
-        Me.ButtonSettingsAdvanced.Location = New System.Drawing.Point(12, 284)
+        Me.ButtonSettingsAdvanced.Location = New System.Drawing.Point(12, 185)
         Me.ButtonSettingsAdvanced.Name = "ButtonSettingsAdvanced"
         Me.ButtonSettingsAdvanced.Size = New System.Drawing.Size(173, 22)
         Me.ButtonSettingsAdvanced.TabIndex = 59
@@ -217,51 +214,23 @@ Partial Class SettingsForm
         Me.ToolTipHandler.SetToolTip(Me.ButtonSelectGamePID, "Select the process for the FoV changer to write to.")
         Me.ButtonSelectGamePID.UseVisualStyleBackColor = True
         '
-        'ButtonAddFoVCB
+        'SetupKeysButton
         '
-        Me.ButtonAddFoVCB.Location = New System.Drawing.Point(12, 156)
-        Me.ButtonAddFoVCB.Name = "ButtonAddFoVCB"
-        Me.ButtonAddFoVCB.Size = New System.Drawing.Size(173, 37)
-        Me.ButtonAddFoVCB.TabIndex = 66
-        Me.ButtonAddFoVCB.Text = "Add current FoV to hotkey ComboBox"
-        Me.ButtonAddFoVCB.UseVisualStyleBackColor = True
-        '
-        'CBBoxFoV
-        '
-        Me.CBBoxFoV.FormattingEnabled = True
-        Me.CBBoxFoV.Location = New System.Drawing.Point(12, 199)
-        Me.CBBoxFoV.Name = "CBBoxFoV"
-        Me.CBBoxFoV.Size = New System.Drawing.Size(173, 21)
-        Me.CBBoxFoV.TabIndex = 67
-        '
-        'RemoveFoVCBBox
-        '
-        Me.RemoveFoVCBBox.Location = New System.Drawing.Point(12, 226)
-        Me.RemoveFoVCBBox.Name = "RemoveFoVCBBox"
-        Me.RemoveFoVCBBox.Size = New System.Drawing.Size(173, 23)
-        Me.RemoveFoVCBBox.TabIndex = 68
-        Me.RemoveFoVCBBox.Text = "Remove selected FoV"
-        Me.RemoveFoVCBBox.UseVisualStyleBackColor = True
-        '
-        'FoVHotKeyShowForm
-        '
-        Me.FoVHotKeyShowForm.Location = New System.Drawing.Point(12, 255)
-        Me.FoVHotKeyShowForm.Name = "FoVHotKeyShowForm"
-        Me.FoVHotKeyShowForm.Size = New System.Drawing.Size(173, 23)
-        Me.FoVHotKeyShowForm.TabIndex = 69
-        Me.FoVHotKeyShowForm.Text = "Select FoV Hotkey"
-        Me.FoVHotKeyShowForm.UseVisualStyleBackColor = True
+        Me.SetupKeysButton.Location = New System.Drawing.Point(12, 156)
+        Me.SetupKeysButton.Name = "SetupKeysButton"
+        Me.SetupKeysButton.Size = New System.Drawing.Size(173, 23)
+        Me.SetupKeysButton.TabIndex = 66
+        Me.SetupKeysButton.Text = "Setup FoV Hot Keys"
+        Me.ToolTipHandler.SetToolTip(Me.SetupKeysButton, "Setup hotkeys to quickly change your fov between presets")
+        Me.SetupKeysButton.UseVisualStyleBackColor = True
         '
         'SettingsForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(192, 438)
+        Me.ClientSize = New System.Drawing.Size(188, 334)
         Me.ControlBox = False
-        Me.Controls.Add(Me.FoVHotKeyShowForm)
-        Me.Controls.Add(Me.RemoveFoVCBBox)
-        Me.Controls.Add(Me.CBBoxFoV)
-        Me.Controls.Add(Me.ButtonAddFoVCB)
+        Me.Controls.Add(Me.SetupKeysButton)
         Me.Controls.Add(Me.ButtonSelectGamePID)
         Me.Controls.Add(Me.ButtonBrowseGameFiles)
         Me.Controls.Add(Me.RestartAppButton)
@@ -306,8 +275,5 @@ Partial Class SettingsForm
     Friend WithEvents RestartAppButton As System.Windows.Forms.Button
     Friend WithEvents ButtonBrowseGameFiles As System.Windows.Forms.Button
     Friend WithEvents ButtonSelectGamePID As System.Windows.Forms.Button
-    Friend WithEvents ButtonAddFoVCB As System.Windows.Forms.Button
-    Friend WithEvents CBBoxFoV As System.Windows.Forms.ComboBox
-    Friend WithEvents RemoveFoVCBBox As System.Windows.Forms.Button
-    Friend WithEvents FoVHotKeyShowForm As System.Windows.Forms.Button
+    Friend WithEvents SetupKeysButton As System.Windows.Forms.Button
 End Class

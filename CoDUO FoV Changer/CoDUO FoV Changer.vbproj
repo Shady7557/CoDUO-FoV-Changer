@@ -196,6 +196,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AudioClass.vb" />
+    <Compile Include="FoVHotKeyForm.Designer.vb">
+      <DependentUpon>FoVHotKeyForm.vb</DependentUpon>
+    </Compile>
+    <Compile Include="FoVHotKeyForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="MainFoV.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -246,6 +252,9 @@
     <Compile Include="ReadWritingMemory.vb" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="FoVHotKeyForm.resx">
+      <DependentUpon>FoVHotKeyForm.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainFoV.resx">
       <DependentUpon>MainFoV.vb</DependentUpon>
     </EmbeddedResource>

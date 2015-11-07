@@ -1369,7 +1369,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         For Each item In HackyFoVComboBox.Items
             itemlist = itemlist + 1
         Next
-        If itemlist >= 0 Then
+        If itemlist >= 1 Then
             HackyFoVComboBox.SelectedIndex = 0
         End If
 
@@ -1589,10 +1589,13 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub dbg_Click(sender As Object, e As EventArgs) Handles debugb.Click
-        If Not Debugger.IsAttached = True Then
-            MessageBox.Show("debugger not attached, returning...")
-            Return
-        End If
+        '        If Not Debugger.IsAttached = True Then
+        ' MessageBox.Show("debugger not attached, returning...")
+        ' Return
+        ' End If
+        For Each item In HackyFoVComboBox.Items
+            MessageBox.Show(item.ToString)
+        Next
         Me.Height = (454)
         MsgBox("This is a debug button.", MsgBoxStyle.Information)
         MsgBox(fov)
@@ -2204,8 +2207,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
         '  For Each itemm In Form3.ComboBox2.Items
         '       itemlist1 = itemlist1 + 1
         '    Next
-        If SettingsForm.CBBoxFoV.Items.Count >= 1 Then
-            SettingsForm.CBBoxFoV.SelectedIndex = HackyFoVComboBox.SelectedIndex
+        If FoVHotKeyForm.CBBoxFoV.Items.Count >= 1 Then
+            FoVHotKeyForm.CBBoxFoV.SelectedIndex = HackyFoVComboBox.SelectedIndex
         End If
 
         FoVTextBox.Text = HackyFoVComboBox.SelectedItem.ToString

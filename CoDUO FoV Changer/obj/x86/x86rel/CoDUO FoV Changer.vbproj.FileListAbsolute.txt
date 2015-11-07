@@ -22,6 +22,7 @@ D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\bin\x8
 D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\bin\x86\x86rel\MahApps.Metro.dll
 D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\bin\x86\x86rel\System.Windows.Interactivity.dll
 D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\bin\x86\x86rel\MahApps.Metro.xml
+D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO_FoV_Changer.FoVHotKeyForm.resources
 D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO_FoV_Changer.MainFoV.resources
 D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO_FoV_Changer.SettingsForm.resources
 D:\Programs\TortoiseSVN\bin\CoDUO-FoV-Changer.git\trunk\CoDUO FoV Changer\obj\x86\x86rel\CoDUO_FoV_Changer.AdvSettingsForm.resources

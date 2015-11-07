@@ -101,28 +101,7 @@ Public Class SettingsForm
     End Sub
 
     Private Sub Form3_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        CBBoxFoV.DropDownStyle = ComboBoxStyle.DropDownList
-        Dim splitStrr() As String
-        If MainFoV.fovbox.Contains(",") Then
-            splitStrr = MainFoV.fovbox.Split(",")
-            For Each word In splitStrr
-                If Not word = "" Then
-                    '               MessageBox.Show(word)
-                    If Not CInt(word) >= 121 Then
-                        CBBoxFoV.Items.Add(word)
-                    Else
-                        '   Log.WriteLine(word & " is higher than 120 fov (max) will not add to combobox")
-                    End If
-                End If
-            Next
-        End If
-        Dim itemlist As Integer = 0
-        For Each item In CBBoxFoV.Items
-            itemlist = itemlist + 1
-        Next
-        If itemlist >= 0 Then
-            CBBoxFoV.SelectedIndex = 0
-        End If
+   
         '  Me.CenterToParent()
         'If Not Debugger.IsAttached = True Then
         'RadioButton1.Visible = False
@@ -161,9 +140,7 @@ Public Class SettingsForm
             TextBox1.BackColor = Color.DarkGray
             ' TextBox2.BackColor = Color.DarkGray
             StyleCBox.BackColor = Color.DarkGray
-            ButtonAddFoVCB.BackColor = Color.DarkGray
-            RemoveFoVCBBox.BackColor = Color.DarkGray
-            FoVHotKeyShowForm.BackColor = Color.DarkGray
+            SetupKeysButton.BackColor = Color.DarkGray
         End If
         If MainFoV.CoD1CheckBox.Checked = True Then
             '   Button6.Enabled = False
@@ -250,9 +227,7 @@ Public Class SettingsForm
             '    TextBox2.BackColor = Color.DarkGray
             StyleCBox.BackColor = Color.DarkGray
             MainFoV.FoVMenuStrip.BackColor = Color.DarkGray
-            ButtonAddFoVCB.BackColor = Color.DarkGray
-            RemoveFoVCBBox.BackColor = Color.DarkGray
-            FoVHotKeyShowForm.BackColor = Color.DarkGray
+            SetupKeysButton.BackColor = Color.DarkGray
             ini.WriteValue("Extras", "Style", "Dark")
         End If
 
@@ -307,35 +282,7 @@ Public Class SettingsForm
         CoDPIDForm.Show()
     End Sub
 
-    Private Sub Button8_Click(sender As Object, e As EventArgs) Handles ButtonAddFoVCB.Click
-        If Not CBBoxFoV.Items.Contains(MainFoV.FoVTextBox.Text) Then
-            CBBoxFoV.Items.Add(MainFoV.FoVTextBox.Text)
-            CBBoxFoV.SelectedItem = MainFoV.FoVTextBox.Text
-        End If
-    End Sub
-
-    Private Sub Button9_Click(sender As Object, e As EventArgs) Handles RemoveFoVCBBox.Click
-        If Not CBBoxFoV.SelectedIndex < 0 Then
-            Dim replace As String
-            replace = MainFoV.fovbox.Replace(CBBoxFoV.SelectedItem.ToString & ",", "")
-            CBBoxFoV.Items.Remove(CBBoxFoV.SelectedItem)
-            CBBoxFoV.Text = ""
-            ini.WriteValue("Main", "ComboBoxFoV", replace)
-        End If
-        If Not CBBoxFoV.Items.Count <= 0 Then
-            CBBoxFoV.SelectedIndex = 0
-        End If
-    End Sub
-
-    Private Sub ComboBox1_SelectedIndexChanged(sender As Object, e As EventArgs) Handles CBBoxFoV.SelectedIndexChanged
-        TextBox1.Text = CBBoxFoV.SelectedItem.ToString
-        If Not MainFoV.HackyFoVComboBox.Items.Count <= 0 Then
-            MainFoV.HackyFoVComboBox.SelectedIndex = CBBoxFoV.SelectedIndex
-        End If
-
-    End Sub
-
-    Private Sub FoVHotKeyShowForm_Click(sender As Object, e As EventArgs) Handles FoVHotKeyShowForm.Click
-        ChangeHotKeyForm.Show()
+    Private Sub SetupKeysButton_Click(sender As Object, e As EventArgs) Handles SetupKeysButton.Click
+        FoVHotKeyForm.Show()
     End Sub
 End Class
