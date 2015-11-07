@@ -101,7 +101,10 @@ Public Class SettingsForm
     End Sub
 
     Private Sub Form3_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-   
+
+        If Not StyleCBox.SelectedItem Then
+            StyleCBox.SelectedItem = "Default"
+        End If
         '  Me.CenterToParent()
         'If Not Debugger.IsAttached = True Then
         'RadioButton1.Visible = False
@@ -177,10 +180,10 @@ Public Class SettingsForm
 
     Private Sub ComboBox2_SelectedIndexChanged(sender As Object, e As EventArgs) Handles StyleCBox.SelectedIndexChanged
         If Not StyleCBox.SelectedItem.ToString = stylet Then
-            Dim ask As MsgBoxResult = MessageBox.Show("The program must be restarted to (fully) change your style, would you like to restart it now?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Information)
-            If ask = MsgBoxResult.Yes Then
-                Application.Restart()
-            End If
+                Dim ask As MsgBoxResult = MessageBox.Show("The program must be restarted to (fully) change your style, would you like to restart it now?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Information)
+                If ask = MsgBoxResult.Yes Then
+                    Application.Restart()
+                End If
         End If
         If StyleCBox.SelectedItem = "Minimal" Then
             MainFoV.HackyAppBranchLB.Visible = False
@@ -213,6 +216,8 @@ Public Class SettingsForm
             TextBox1.BackColor = DefaultBackColor
             ' TextBox2.BackColor = DefaultBackColor
             StyleCBox.BackColor = DefaultBackColor
+            ButtonSelectGamePID.BackColor = DefaultBackColor
+            SetupKeysButton.BackColor = DefaultBackColor
             ' Form1.Label2.Location = New Point(0, 162)
         ElseIf StyleCBox.SelectedItem = "Dark" Then
             MainFoV.BackColor = Color.DimGray
@@ -284,5 +289,6 @@ Public Class SettingsForm
 
     Private Sub SetupKeysButton_Click(sender As Object, e As EventArgs) Handles SetupKeysButton.Click
         FoVHotKeyForm.Show()
+        Me.Hide()
     End Sub
 End Class

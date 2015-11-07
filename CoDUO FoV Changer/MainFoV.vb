@@ -34,7 +34,7 @@ Public Class MainFoV
     Dim disableupdatetimer As String = ini.ReadValue("Tweaks", "DisableUpdateTimer")
     Dim sleep As String = ini.ReadValue("Tweaks", "Sleep")
     Dim installpath As String = ini.ReadValue("Main", "InstallPath")
-    Dim hotfix As String = "6.1"
+    Dim hotfix As String = "6.2"
     Dim hotfixini As String = ini.ReadValue("Main", "Hotfix")
     Dim progvers As String = Application.ProductVersion
     Dim progversini As String = ini.ReadValue("Main", "AppVersion")
@@ -387,7 +387,7 @@ Public Class MainFoV
                 If updates = True Then
                     CheckUpdatesLabel.Text = ("No Updates found. Click to check again.")
                 Else
-                    CheckUpdatesLabel.Text = ("Hotfix/Update Available! Please install these as soon as possible!")
+                    CheckUpdatesLabel.Text = ("Hotfix/Update Available!")
                     CheckUpdatesLabel.Font = New Font("Microsoft Sans Serif", 10, FontStyle.Bold)
                     disableUI()
                 End If
@@ -645,6 +645,9 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         Next
 
+        If isminimal = "" Or isminimal Is Nothing Then
+            ini.WriteValue("Extras", "Style", "Default")
+        End If
 
 
         Try
@@ -915,39 +918,39 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 End If
                 '   MessageBox.Show(splitStr(1))
             End If
-            If My.Computer.FileSystem.FileExists("C:\users\matt_\cod.dat") Then
-                If arguement.Contains("-fog=") Then
-                    '   If Not arguement.StartsWith("-") Then
-                    splitStr = arguement.Split("=")
-                    'MessageBox.Show(splitStr(1))
-                    If splitStr(1) = Nothing Or splitStr(1) = "" Then
-                        Return
-                    End If
-
-                    If CInt(splitStr(1) < 0) Then
-                        splitStr(1) = 0
-                    End If
-                    If CInt(splitStr(1) >= 2) Then
-                        splitStr(1) = 1
-                    End If
-                    If splitStr(1).StartsWith(0) Or splitStr(1).StartsWith(1) Then
-                        If splitStr(1) = 1 Then
-                            FogCheckBox.Checked = True
-                            FogTimer.Stop()
-                            ini.WriteValue("Extras", "FogMSG", "Ask")
-                            ini.WriteValue("Extras", "Fog", "Enabled")
-                        ElseIf splitStr(1) = 0 Then
-                            didFS = True
-                            ini.WriteValue("Extras", "FogMSG", "DoNotAsk")
-                            ini.WriteValue("Extras", "Fog", "Disabled")
-                            FogCheckBox.Checked = False
-                            FogTimer.Start()
-                        End If
-                        Log.WriteLine("Launched fov changer with -fog=" & splitStr(1))
-                    End If
-                    '   MessageBox.Show(splitStr(1))
+            '   If My.Computer.FileSystem.FileExists("C:\users\matt_\cod.dat") Then
+            If arguement.Contains("-fog=") Then
+                '   If Not arguement.StartsWith("-") Then
+                splitStr = arguement.Split("=")
+                'MessageBox.Show(splitStr(1))
+                If splitStr(1) = Nothing Or splitStr(1) = "" Then
+                    Return
                 End If
+
+                If CInt(splitStr(1) < 0) Then
+                    splitStr(1) = 0
+                End If
+                If CInt(splitStr(1) >= 2) Then
+                    splitStr(1) = 1
+                End If
+                If splitStr(1).StartsWith(0) Or splitStr(1).StartsWith(1) Then
+                    If splitStr(1) = 1 Then
+                        FogCheckBox.Checked = True
+                        FogTimer.Stop()
+                        ini.WriteValue("Extras", "FogMSG", "Ask")
+                        ini.WriteValue("Extras", "Fog", "Enabled")
+                    ElseIf splitStr(1) = 0 Then
+                        didFS = True
+                        ini.WriteValue("Extras", "FogMSG", "DoNotAsk")
+                        ini.WriteValue("Extras", "Fog", "Disabled")
+                        FogCheckBox.Checked = False
+                        FogTimer.Start()
+                    End If
+                    Log.WriteLine("Launched fov changer with -fog=" & splitStr(1))
+                End If
+                '   MessageBox.Show(splitStr(1))
             End If
+            '   End If
 
             If arguement.Contains("-menustrip=") Then
                 '   If Not arguement.StartsWith("-") Then
@@ -1273,10 +1276,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
         End If
 
-        If hidekey = "" Then 'Checks if the user want's their CD-key not to be shown on the label.
+
+        If hidekey = "" Or hidekey = Nothing Then 'Checks if the user want's their CD-key not to be shown on the label.
             '     Button15.Text = ("Show CD-Key")
             showkey()
             ini.WriteValue("Extras", "HideKey", "Yes")
+            hidekey = "Yes"
         End If
 
         If dorestart = True Then
@@ -1301,11 +1306,11 @@ My.Computer.FileSystem.GetFileInfo(filename)
         sendreportl2.IsBackground = True
         sendreportl2.Priority = ThreadPriority.AboveNormal
 
-        If Not My.Computer.FileSystem.FileExists("C:\Users\matt_\cod.dat") Then
-            FogCheckBox.Checked = True
-            FogCheckBox.Enabled = False
-            FogCheckBox.Visible = False
-        End If
+        '  If Not My.Computer.FileSystem.FileExists("C:\Users\matt_\cod.dat") Then
+        'FogCheckBox.Checked = True
+        '    FogCheckBox.Enabled = False
+        '  FogCheckBox.Visible = False
+        'End If
 
 
         StartGameButton.Select()
@@ -1776,13 +1781,13 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles FogCheckBox.CheckedChanged
 
-        If Not My.Computer.FileSystem.FileExists("C:\Users\matt_\cod.dat") Then
-            FogCheckBox.Checked = True
-            FogCheckBox.Enabled = False
-            FogCheckBox.Visible = False
-            WriteInteger("CoDUOMP", &H9885F0, 1)
-            Return
-        End If
+        'If Not My.Computer.FileSystem.FileExists("C:\Users\matt_\cod.dat") Then
+        '    FogCheckBox.Checked = True
+        '    FogCheckBox.Enabled = False
+        '    FogCheckBox.Visible = False
+        '    WriteInteger("CoDUOMP", &H9885F0, 1)
+        '    Return
+        'End If
 
 
         Dim ask5 As MsgBoxResult
@@ -2084,12 +2089,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub CheckBox4_CheckedChanged(sender As Object, e As EventArgs) Handles DvarsCheckBox.CheckedChanged
-        If Not My.Computer.FileSystem.FileExists("C:\Users\matt_\cod.dat") Then
-            DvarsCheckBox.Checked = False
-            DvarsCheckBox.Enabled = False
-            DvarsCheckBox.Visible = False
-            Return
-        End If
+        'If Not My.Computer.FileSystem.FileExists("C:\Users\matt_\cod.dat") Then
+        '    DvarsCheckBox.Checked = False
+        '    DvarsCheckBox.Enabled = False
+        '    DvarsCheckBox.Visible = False
+        '    Return
+        'End If
         If DvarsCheckBox.Checked = True Then
             WriteInteger("CoDUOMP", &H43DD86, 235, nsize:=1)
             WriteInteger("CoDUOMP", &H43DDA3, 235, nsize:=1)
@@ -2144,13 +2149,13 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
     Private Sub Timer9_Tick(sender As Object, e As EventArgs) Handles DvarUnlockerTimer.Tick
-        If Not My.Computer.FileSystem.FileExists("C:\Users\matt_\cod.dat") Then
-            DvarsCheckBox.Checked = False
-            DvarsCheckBox.Enabled = False
-            DvarsCheckBox.Visible = False
-            DvarUnlockerTimer.Stop()
-            Return
-        End If
+        'If Not My.Computer.FileSystem.FileExists("C:\Users\matt_\cod.dat") Then
+        '    DvarsCheckBox.Checked = False
+        '    DvarsCheckBox.Enabled = False
+        '    DvarsCheckBox.Visible = False
+        '    DvarUnlockerTimer.Stop()
+        '    Return
+        'End If
         If DvarsCheckBox.Checked = True Then
             WriteInteger("CoDUOMP", &H43DD86, 235, nsize:=1)
             WriteInteger("CoDUOMP", &H43DDA3, 235, nsize:=1)

@@ -10,13 +10,16 @@
     '   Public iscontext As Boolean = False
     Private Sub Form5_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         '  MessageBox.Show(SettingsForm.StyleCBox.SelectedItem.ToString)
-
-        If SettingsForm.StyleCBox.SelectedItem.ToString = "Dark" Then
-            Me.BackColor = Color.DimGray
-            SaveRestartAppButton.BackColor = Color.DarkGray
-            OpenConfigButton.BackColor = Color.DarkGray
-            CancelCloseButton.BackColor = Color.DarkGray
-        End If
+        Try
+            If SettingsForm.StyleCBox.SelectedItem.ToString = "Dark" Then
+                Me.BackColor = Color.DimGray
+                SaveRestartAppButton.BackColor = Color.DarkGray
+                OpenConfigButton.BackColor = Color.DarkGray
+                CancelCloseButton.BackColor = Color.DarkGray
+            End If
+        Catch ex As Exception
+            MessageBox.Show(ex.Message, MainFoV.appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles SaveRestartAppButton.Click
