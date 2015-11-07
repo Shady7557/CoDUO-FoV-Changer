@@ -11,10 +11,10 @@ Imports System.Runtime.InteropServices
 ' Review the values of the assembly attributes
 
 <Assembly: AssemblyTitle("CoDUO FoV Changer")> 
-<Assembly: AssemblyDescription("FoV Changer for Call of Duty: United Offensive")> 
+<Assembly: AssemblyDescription("FoV Changer for Call of Duty 1 and Call of Duty: United Offensive")> 
 <Assembly: AssemblyCompany("Shady's Shit")> 
 <Assembly: AssemblyProduct("CoDUO FoV Changer")> 
-<Assembly: AssemblyCopyright("Copyright ©  2015")> 
+<Assembly: AssemblyCopyright("Copyright ©  2016")> 
 <Assembly: AssemblyTrademark("")> 
 
 <Assembly: ComVisible(False)> 
@@ -33,6 +33,6 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("2.7.*")> 
+<Assembly: AssemblyVersion("2.8.*")> 
 
 <Assembly: NeutralResourcesLanguageAttribute("")> 

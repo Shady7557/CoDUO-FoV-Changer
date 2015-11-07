@@ -42,7 +42,6 @@ Partial Class SettingsForm
         Me.RestartAppButton = New System.Windows.Forms.Button()
         Me.ButtonBrowseGameFiles = New System.Windows.Forms.Button()
         Me.ButtonSelectGamePID = New System.Windows.Forms.Button()
-        Me.IsNet451Label = New System.Windows.Forms.Label()
         Me.ButtonAddFoVCB = New System.Windows.Forms.Button()
         Me.CBBoxFoV = New System.Windows.Forms.ComboBox()
         Me.RemoveFoVCBBox = New System.Windows.Forms.Button()
@@ -218,16 +217,6 @@ Partial Class SettingsForm
         Me.ToolTipHandler.SetToolTip(Me.ButtonSelectGamePID, "Select the process for the FoV changer to write to.")
         Me.ButtonSelectGamePID.UseVisualStyleBackColor = True
         '
-        'IsNet451Label
-        '
-        Me.IsNet451Label.AutoSize = True
-        Me.IsNet451Label.BackColor = System.Drawing.Color.Transparent
-        Me.IsNet451Label.Location = New System.Drawing.Point(12, 428)
-        Me.IsNet451Label.Name = "IsNet451Label"
-        Me.IsNet451Label.Size = New System.Drawing.Size(85, 13)
-        Me.IsNet451Label.TabIndex = 61
-        Me.IsNet451Label.Text = "Using .net 4.5.1:"
-        '
         'ButtonAddFoVCB
         '
         Me.ButtonAddFoVCB.Location = New System.Drawing.Point(12, 156)
@@ -267,7 +256,7 @@ Partial Class SettingsForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(196, 448)
+        Me.ClientSize = New System.Drawing.Size(192, 438)
         Me.ControlBox = False
         Me.Controls.Add(Me.FoVHotKeyShowForm)
         Me.Controls.Add(Me.RemoveFoVCBBox)
@@ -276,7 +265,6 @@ Partial Class SettingsForm
         Me.Controls.Add(Me.ButtonSelectGamePID)
         Me.Controls.Add(Me.ButtonBrowseGameFiles)
         Me.Controls.Add(Me.RestartAppButton)
-        Me.Controls.Add(Me.IsNet451Label)
         Me.Controls.Add(Me.ButtonSettingsAdvanced)
         Me.Controls.Add(Me.CDKeyLabel)
         Me.Controls.Add(Me.GameVersLabel)
@@ -315,7 +303,6 @@ Partial Class SettingsForm
     Friend WithEvents CDKeyLabel As System.Windows.Forms.Label
     Friend WithEvents ButtonSettingsAdvanced As System.Windows.Forms.Button
     Friend WithEvents ToolTipHandler As System.Windows.Forms.ToolTip
-    Friend WithEvents IsNet451Label As System.Windows.Forms.Label
     Friend WithEvents RestartAppButton As System.Windows.Forms.Button
     Friend WithEvents ButtonBrowseGameFiles As System.Windows.Forms.Button
     Friend WithEvents ButtonSelectGamePID As System.Windows.Forms.Button

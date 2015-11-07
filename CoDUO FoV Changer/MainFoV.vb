@@ -45,10 +45,11 @@ Public Class MainFoV
     Dim lastlogname As String = ini.ReadValue("Logging", "LastLogName")
     Dim isminimal As String = ini.ReadValue("Extras", "Style")
     Dim gamevers As String = ini.ReadValue("Main", "GameVersion")
-    Dim watchdoge As String = ini.ReadValue("Main", "Watchdog")
     Public fovbox As String = ini.ReadValue("Main", "ComboBoxFoV")
     Dim iniLocation As String = appdata & "CoDUO FoV Changer\settings.ini"
     Dim oldoptions As String = appdata & "CoD UO FoV Changer\options.ini"
+    Public appnamevers As String = Application.ProductName & " (" & Application.ProductVersion & ", HF" & hotfix & ")"
+    Public appname As String = Application.ProductName
     Dim lastExe As String
     Public restartNeeded As Boolean = False
     Dim testingaa As String = iniold.ReadValue("FoV", "FoV Value")
@@ -88,8 +89,9 @@ Public Class MainFoV
     Dim didFS As Boolean = False
     Dim logname As String
     Dim restartneededpath As Boolean = False
-    Dim appname As String = Application.ProductName & " (" & Application.ProductVersion & ", HF" & hotfix & ")"
     Public pid As Integer = 0
+    Public newline As String = Environment.NewLine
+    Public iscontext As Boolean = False
     'Dim audio As New AudioFile(temp & "\beep.mp3")
     'Dim audion As New AudioFile(temp & "\beepnegative.mp3")
     Dim thread As System.Threading.Thread
@@ -143,7 +145,7 @@ Public Class MainFoV
             If Not ex.Message.Contains("Could not establish trust relationship for the SSL/TLS secure channel") Then
                 MsgBox("Unable to Fetch Updates! " & ex.Message, MsgBoxStyle.Critical)
             Else
-                MsgBox("Unable to Fetch Updates! " & ex.Message & Environment.NewLine & "This error is likely caused by your time being out of sync. (System time)", MsgBoxStyle.Critical)
+                MsgBox("Unable to Fetch Updates! " & ex.Message & newline & "This error is likely caused by your time being out of sync. (System time)", MsgBoxStyle.Critical)
             End If
             Return True
             '   Application.Exit()
@@ -165,7 +167,7 @@ Public Class MainFoV
                 End If
             End If
         Catch ex As Exception
-            MsgBox("Unable to fetch changelog! " & Environment.NewLine & ex.Message, MsgBoxStyle.Critical)
+            MsgBox("Unable to fetch changelog! " & newline & ex.Message, MsgBoxStyle.Critical)
         End Try
 
 
@@ -206,7 +208,7 @@ Public Class MainFoV
 
 
         Catch ex As Exception
-            MsgBox("Unable to fetch changelog! " & Environment.NewLine & ex.Message, MsgBoxStyle.Critical)
+            MsgBox("Unable to fetch changelog! " & newline & ex.Message, MsgBoxStyle.Critical)
         End Try
     End Sub
     Private Sub disableUI()
@@ -317,7 +319,7 @@ Public Class MainFoV
             Log.WriteLine("Sent E-Mail: " & mail.Body)
         Catch ex As Exception
             '  MsgBox(ex.Message, MsgBoxStyle.Critical)
-            Log.WriteLine("!! ERROR !!" & ex.Message & Environment.NewLine & " This shouldn't be treated as an actual error, considering I've only seen it happen whilst restarting after an upgrade, some type of error occurs, it attempts to E-Mail it, restart stops it, error occurs.")
+            Log.WriteLine("!! ERROR !!" & ex.Message & newline & " This shouldn't be treated as an actual error, considering I've only seen it happen whilst restarting after an upgrade, some type of error occurs, it attempts to E-Mail it, restart stops it, error occurs.")
         End Try
     End Sub
     Private Sub sendreportlog(ByVal dick As String)
@@ -357,7 +359,7 @@ Public Class MainFoV
             mail.To.Add("shady7557@gmail.com")
             mail.To.Add("fovchangerreports@gmail.com")
             mail.Subject = "CoDUO FoV Changer Error Log"
-            mail.Body = "ERROR: " & dick & Environment.NewLine & "Computer IP: " & strIPAddress & " Computer Info: " & "Available Physical Memory: " & My.Computer.Info.AvailablePhysicalMemory & " Available Virtual Memory: " & My.Computer.Info.AvailableVirtualMemory & " Operating System Info: " & My.Computer.Info.OSFullName & " " & My.Computer.Info.OSPlatform & " " & My.Computer.Info.OSVersion & " Total Physical Memory:" & My.Computer.Info.TotalPhysicalMemory & " System Specs: " & "GFX Card: " & gfxname & " CPU: " & cpu & " RAM: " & ram & " GFX Card Memory: " & gfxmem
+            mail.Body = "ERROR: " & dick & newline & "Computer IP: " & strIPAddress & " Computer Info: " & "Available Physical Memory: " & My.Computer.Info.AvailablePhysicalMemory & " Available Virtual Memory: " & My.Computer.Info.AvailableVirtualMemory & " Operating System Info: " & My.Computer.Info.OSFullName & " " & My.Computer.Info.OSPlatform & " " & My.Computer.Info.OSVersion & " Total Physical Memory:" & My.Computer.Info.TotalPhysicalMemory & " System Specs: " & "GFX Card: " & gfxname & " CPU: " & cpu & " RAM: " & ram & " GFX Card Memory: " & gfxmem
             smtpServer.Send(mail)
             MsgBox(mail.Body)
             Log.WriteLine("Sent E-Mail: " & mail.Body)
@@ -386,6 +388,7 @@ Public Class MainFoV
                     CheckUpdatesLabel.Text = ("No Updates found. Click to check again.")
                 Else
                     CheckUpdatesLabel.Text = ("Hotfix/Update Available! Please install these as soon as possible!")
+                    CheckUpdatesLabel.Font = New Font("Microsoft Sans Serif", 10, FontStyle.Bold)
                     disableUI()
                 End If
                 If isDev = True Then
@@ -585,7 +588,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             If Not ex.Message.Contains("Could not establish trust relationship for the SSL/TLS secure channel") Then
                 MsgBox("Unable to download an image! " & ex.Message, MsgBoxStyle.Critical)
             Else
-                MsgBox("Unable to download an image! " & ex.Message & Environment.NewLine & "This error is likely caused by your time being out of sync. (System time)", MsgBoxStyle.Critical)
+                MsgBox("Unable to download an image! " & ex.Message & newline & "This error is likely caused by your time being out of sync. (System time)", MsgBoxStyle.Critical)
             End If
             '   Application.Exit()
         End Try
@@ -799,7 +802,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 End If
             End If
         Catch ex As Exception
-            MessageBox.Show("An error has occured while attempting to cache files, this could be a result of no write permissions or not having an internet connection: " & ex.Message & Environment.NewLine & " this should not prevent the program from otherwise running normally.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("An error has occured while attempting to cache files, this could be a result of no write permissions or not having an internet connection: " & ex.Message & newline & " this should not prevent the program from otherwise running normally.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error)
             Log.WriteLine("Unable to retrieve or cache pictures: " & ex.Message)
             CoDPictureBox.Image = My.Resources.Loading
         End Try
@@ -1190,7 +1193,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 End Try
             End If
         Catch ex As Exception
-            MessageBox.Show("An error has occurred while attempting to read/write registry: " & ex.Message & Environment.NewLine & "this may prevent the program from functioning normally.")
+            MessageBox.Show("An error has occurred while attempting to read/write registry: " & ex.Message & newline & "this may prevent the program from functioning normally.")
             errorOccured = True
             Log.WriteLine("!! ERROR !! " & ex.Message)
             '
@@ -1991,13 +1994,13 @@ My.Computer.FileSystem.GetFileInfo(filename)
             System.Threading.Thread.Sleep(200)
             LaunchParametersTB.AppendText("We don't need no education.")
             System.Threading.Thread.Sleep(700)
-            LaunchParametersTB.AppendText(Environment.NewLine & "We don't need no thought control.")
+            LaunchParametersTB.AppendText(newline & "We don't need no thought control.")
             System.Threading.Thread.Sleep(700)
-            LaunchParametersTB.AppendText(Environment.NewLine & "No dark sarcasm in the classroom.")
+            LaunchParametersTB.AppendText(newline & "No dark sarcasm in the classroom.")
             System.Threading.Thread.Sleep(650)
-            LaunchParametersTB.AppendText(Environment.NewLine & "Hey! Teacher, leave them kids alone.")
+            LaunchParametersTB.AppendText(newline & "Hey! Teacher, leave them kids alone.")
             System.Threading.Thread.Sleep(700)
-            LaunchParametersTB.AppendText(Environment.NewLine & "All in all you're just another brick in the wall.")
+            LaunchParametersTB.AppendText(newline & "All in all you're just another brick in the wall.")
             ABITWTimer.Stop()
         End If
         If LaunchParametersTB.Text.Contains("The Endless River") Then
@@ -2123,9 +2126,9 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Application.Exit()
     End Sub
 
-    Private Sub AdvancedSettingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AdvancedSettingsToolStripMenuItem.Click
+    Private Sub AdvancedSettingsToolStripMenuItem_Click(sender As Object, e As EventArgs)
         AdvSettingsForm.Show()
-        AdvSettingsForm.iscontext = True
+        iscontext = True
     End Sub
 
     Private Sub Timer2_Tick(sender As Object, e As EventArgs)
@@ -2172,7 +2175,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub InfoToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles InfoToolStripMenuItem.Click
-        MessageBox.Show("Hi, thanks for using my FoV Changer for Call of Duty and Call of Duty United Offensive. This is how to use it properly: " & Environment.NewLine & Environment.NewLine & "1. Start your game and type: r_mode -1 (yes, that's minus 1), r_customwidth " & CStr(My.Computer.Screen.Bounds.Width) & " (your monitor's estimated width), r_customheight " & CStr(My.Computer.Screen.Bounds.Height) & " (your monitor's estimated height)" & Environment.NewLine & Environment.NewLine & "2. Join a server and tab out, or use numpad + and numpad - to adjust your field of view to your liking." & Environment.NewLine & Environment.NewLine & "3. Enjoy playing UO at your monitor's native resolution, with proper Field of View." & Environment.NewLine & Environment.NewLine & "Program developed by:" & Environment.NewLine & "Shady, with the help of CurtDog's logging module, ""CurtLog"".", Application.ProductName & " (" & Application.ProductVersion & ")", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        MessageBox.Show("Hi, thanks for using my FoV Changer for Call of Duty and Call of Duty United Offensive. This is how to use it properly: " & newline & newline & "1. Start your game and type: r_mode -1 (yes, that's minus 1), r_customwidth " & CStr(My.Computer.Screen.Bounds.Width) & " (your monitor's estimated width), r_customheight " & CStr(My.Computer.Screen.Bounds.Height) & " (your monitor's estimated height)" & newline & newline & "2. Join a server and tab out, or use numpad + and numpad - to adjust your field of view to your liking." & newline & newline & "3. Enjoy playing UO at your monitor's native resolution, with proper Field of View." & newline & newline & "Program developed by:" & newline & "Shady, with the help of CurtDog's logging module, ""CurtLog"".", Application.ProductName & " (" & Application.ProductVersion & ")", MessageBoxButtons.OK, MessageBoxIcon.Information)
         '  MessageBox.Show("Here's some general information on the program: " & Environment.NewLine & Environment.NewLine & "• All config settings and logs are stored in " & appdata & "CoDUO FoV Changer")
     End Sub
 

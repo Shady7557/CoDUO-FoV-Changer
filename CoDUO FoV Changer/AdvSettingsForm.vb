@@ -7,37 +7,16 @@
     Dim search As System.Threading.Thread
     Dim foundUO As Boolean = False
     Dim uoDirS As String
-    Public iscontext As Boolean = False
-    Private Sub getConf()
-
-        Try
-            If Not My.Computer.FileSystem.FileExists(Application.StartupPath & "\CoDUO FoV Changer.exe.config") Then
-                Dim request3 As System.Net.HttpWebRequest = System.Net.HttpWebRequest.Create("https://docs.google.com/uc?export=download&id=0B0nCag_Hp76zOUp3MnBrRXd6M0U")
-                Dim response3 As System.Net.HttpWebResponse = request3.GetResponse()
-
-                Dim sr3 As System.IO.StreamReader = New System.IO.StreamReader(response3.GetResponseStream())
-
-                Dim read As String = sr3.ReadToEnd()
-
-                '  Dim rn As New Random
-                whatami = read
-                My.Computer.FileSystem.WriteAllText(Application.StartupPath & "\CoDUO FoV Changer.exe.config", whatami, False)
-            Else
-                Dim srr As New System.IO.StreamReader(Application.StartupPath & "\CoDUO FoV Changer.exe.config")
-                whatami = srr.ReadToEnd
-                srr.Close()
-            End If
-
-
-
-        Catch ex As Exception
-            MsgBox("Unable to fetch exe.config! " & vbNewLine & ex.Message, MsgBoxStyle.Critical)
-        End Try
-    End Sub
+    '   Public iscontext As Boolean = False
     Private Sub Form5_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        conf = New Threading.Thread(AddressOf getConf)
-        conf.Start()
+        '  MessageBox.Show(SettingsForm.StyleCBox.SelectedItem.ToString)
 
+        If SettingsForm.StyleCBox.SelectedItem.ToString = "Dark" Then
+            Me.BackColor = Color.DimGray
+            SaveRestartAppButton.BackColor = Color.DarkGray
+            OpenConfigButton.BackColor = Color.DarkGray
+            CancelCloseButton.BackColor = Color.DarkGray
+        End If
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles SaveRestartAppButton.Click
@@ -72,20 +51,8 @@
 
     End Sub
 
-    Private Sub Button2_Click(sender As Object, e As EventArgs)
-        Me.Close()
-    End Sub
-
-    Private Sub Label2_Click(sender As Object, e As EventArgs)
-        MsgBox("Disabled, may not work... this bug is being fixed. In the mean time if you care enough you can manually set it. It seems to work 50% of the time.", MsgBoxStyle.Information)
-    End Sub
-
-    Private Sub CheckBox4_CheckedChanged(sender As Object, e As EventArgs)
-
-    End Sub
-
     Private Sub Button3_Click_1(sender As Object, e As EventArgs) Handles CancelCloseButton.Click
-        If iscontext = False Then
+        If MainFoV.iscontext = False Then
             SettingsForm.Visible = True
             Me.Visible = False
         Else

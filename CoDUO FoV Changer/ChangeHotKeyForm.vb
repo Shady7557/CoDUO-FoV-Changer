@@ -10,6 +10,10 @@
     Private Shared Function GetAsyncKeyState(ByVal vkey As System.Windows.Forms.Keys) As Short
     End Function
     Private Sub Form7_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        If SettingsForm.StyleCBox.SelectedItem.ToString = "Dark" Then
+            Me.BackColor = Color.DimGray
+            CloseHotKeyFormButton.BackColor = Color.DarkGray
+        End If
         UpHotKeyRB.Checked = True
         DownHotKeyRB.Checked = False
         If Not keyupini = "" And Not keyupini = Nothing Then

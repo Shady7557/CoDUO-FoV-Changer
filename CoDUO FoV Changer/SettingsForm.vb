@@ -11,7 +11,7 @@ Public Class SettingsForm
     Dim installpath = ini.ReadValue("Main", "InstallPath")
     ' Dim appversion = ini.ReadValue("Main", "AppType")
     '  Dim appversion As String = "x86"
-    Dim isminimal = ini.ReadValue("Extras", "Style")
+    Dim stylet = ini.ReadValue("Extras", "Style")
     Dim modern As Boolean
     Dim hide2 As Boolean
     Dim reso = ini.ReadValue("Extras", "Resolution")
@@ -138,19 +138,19 @@ Public Class SettingsForm
         '   RadioButton1.Checked = True
         '  End If
 
-        If isminimal = "Minimal" Then
-            AppBranchLabel.Visible = True
-            GameVersLabel.Visible = True
-            CDKeyLabel.Visible = True
-            AppVersLabel.Visible = True
+        If stylet = "Minimal" Then
+            'AppBranchLabel.Visible = True
+            'GameVersLabel.Visible = True
+            'CDKeyLabel.Visible = True
+            'AppVersLabel.Visible = True
             StyleCBox.SelectedItem = "Minimal"
-        ElseIf isminimal = "Default" Then
-            GameVersLabel.Visible = False
-            AppBranchLabel.Visible = False
-            CDKeyLabel.Visible = False
-            AppVersLabel.Visible = False
+        ElseIf stylet = "Default" Then
+            'GameVersLabel.Visible = False
+            'AppBranchLabel.Visible = False
+            'CDKeyLabel.Visible = False
+            'AppVersLabel.Visible = False
             StyleCBox.SelectedItem = "Default"
-        ElseIf isminimal = "Dark" Then
+        ElseIf stylet = "Dark" Then
             StyleCBox.SelectedItem = "Dark"
             Me.BackColor = Color.DimGray
             GamePathButton.BackColor = Color.DarkGray
@@ -196,31 +196,23 @@ Public Class SettingsForm
         If MainFoV.hidekey = "Yes" Then
             CDKeyLabel.Text = "CD-Key: Hidden" & " (Click to show)"
         End If
-
-        If My.Computer.FileSystem.FileExists(Application.StartupPath & "\CoDUO FoV Changer.exe.config") Then
-            Dim srr As New System.IO.StreamReader(Application.StartupPath & "\CoDUO FoV Changer.exe.config")
-            Dim whatami As String
-            whatami = srr.ReadToEnd
-            srr.Close()
-            If whatami.Contains("4.5.1") Then
-                IsNet451Label.Text = IsNet451Label.Text & " True"
-            Else
-                IsNet451Label.Text = IsNet451Label.Text & " False"
-            End If
-        Else
-            IsNet451Label.Text = IsNet451Label.Text & " False"
-        End If
     End Sub
 
     Private Sub ComboBox2_SelectedIndexChanged(sender As Object, e As EventArgs) Handles StyleCBox.SelectedIndexChanged
+        If Not StyleCBox.SelectedItem.ToString = stylet Then
+            Dim ask As MsgBoxResult = MessageBox.Show("The program must be restarted to (fully) change your style, would you like to restart it now?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Information)
+            If ask = MsgBoxResult.Yes Then
+                Application.Restart()
+            End If
+        End If
         If StyleCBox.SelectedItem = "Minimal" Then
             MainFoV.HackyAppBranchLB.Visible = False
             MainFoV.HackyAppVersLB.Visible = False
             MainFoV.HackyGameVersLB.Visible = False
-            AppBranchLabel.Visible = True
-            GameVersLabel.Visible = True
-            AppVersLabel.Visible = True
-            CDKeyLabel.Visible = True
+            'AppBranchLabel.Visible = True
+            'GameVersLabel.Visible = True
+            'AppVersLabel.Visible = True
+            'CDKeyLabel.Visible = True
             ' Form1.Label2.Location = New Point(0, 201)
             MainFoV.Height = 220
             ini.WriteValue("Extras", "Style", "Minimal")
@@ -229,10 +221,10 @@ Public Class SettingsForm
             MainFoV.HackyAppBranchLB.Visible = True
             MainFoV.HackyAppVersLB.Visible = True
             MainFoV.HackyGameVersLB.Visible = True
-            AppBranchLabel.Visible = False
-            GameVersLabel.Visible = False
-            AppVersLabel.Visible = False
-            CDKeyLabel.Visible = False
+            'AppBranchLabel.Visible = False
+            'GameVersLabel.Visible = False
+            'AppVersLabel.Visible = False
+            'CDKeyLabel.Visible = False
             MainFoV.Height = 249
             MainFoV.BackColor = MainFoV.DefaultBackColor
             Me.BackColor = DefaultBackColor
@@ -343,4 +335,7 @@ Public Class SettingsForm
 
     End Sub
 
+    Private Sub FoVHotKeyShowForm_Click(sender As Object, e As EventArgs) Handles FoVHotKeyShowForm.Click
+        ChangeHotKeyForm.Show()
+    End Sub
 End Class

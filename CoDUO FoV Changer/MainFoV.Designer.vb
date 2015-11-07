@@ -62,7 +62,6 @@ Partial Class MainFoV
         Me.InfoToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
         Me.SettingsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.AdvancedSettingsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.CmdLineTimer = New System.Windows.Forms.Timer(Me.components)
         Me.DvarUnlockerTimer = New System.Windows.Forms.Timer(Me.components)
@@ -74,16 +73,16 @@ Partial Class MainFoV
         '
         'FoVTextBox
         '
-        Me.FoVTextBox.Location = New System.Drawing.Point(85, 9)
+        Me.FoVTextBox.Location = New System.Drawing.Point(77, 13)
         Me.FoVTextBox.Name = "FoVTextBox"
-        Me.FoVTextBox.Size = New System.Drawing.Size(187, 20)
+        Me.FoVTextBox.Size = New System.Drawing.Size(42, 20)
         Me.FoVTextBox.TabIndex = 0
         Me.FoVTextBox.Text = "80"
         '
         'FoVLabel
         '
         Me.FoVLabel.AutoSize = True
-        Me.FoVLabel.Location = New System.Drawing.Point(9, 9)
+        Me.FoVLabel.Location = New System.Drawing.Point(1, 16)
         Me.FoVLabel.Name = "FoVLabel"
         Me.FoVLabel.Size = New System.Drawing.Size(70, 13)
         Me.FoVLabel.TabIndex = 2
@@ -99,7 +98,7 @@ Partial Class MainFoV
         Me.StatusLabel.AutoSize = True
         Me.StatusLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.StatusLabel.ForeColor = System.Drawing.Color.Red
-        Me.StatusLabel.Location = New System.Drawing.Point(1, 139)
+        Me.StatusLabel.Location = New System.Drawing.Point(1, 135)
         Me.StatusLabel.Name = "StatusLabel"
         Me.StatusLabel.Size = New System.Drawing.Size(307, 18)
         Me.StatusLabel.TabIndex = 3
@@ -110,9 +109,9 @@ Partial Class MainFoV
         '
         'StartGameButton
         '
-        Me.StartGameButton.Location = New System.Drawing.Point(2, 35)
+        Me.StartGameButton.Location = New System.Drawing.Point(4, 38)
         Me.StartGameButton.Name = "StartGameButton"
-        Me.StartGameButton.Size = New System.Drawing.Size(270, 31)
+        Me.StartGameButton.Size = New System.Drawing.Size(161, 25)
         Me.StartGameButton.TabIndex = 5
         Me.StartGameButton.Text = "Start Game"
         Me.StartGameButton.UseVisualStyleBackColor = True
@@ -138,9 +137,9 @@ Partial Class MainFoV
         '
         'UpdateButton
         '
-        Me.UpdateButton.Location = New System.Drawing.Point(281, 25)
+        Me.UpdateButton.Location = New System.Drawing.Point(171, 38)
         Me.UpdateButton.Name = "UpdateButton"
-        Me.UpdateButton.Size = New System.Drawing.Size(114, 25)
+        Me.UpdateButton.Size = New System.Drawing.Size(133, 25)
         Me.UpdateButton.TabIndex = 11
         Me.UpdateButton.Text = "Update"
         Me.UpdateButton.UseVisualStyleBackColor = True
@@ -150,7 +149,7 @@ Partial Class MainFoV
         '
         Me.CheckUpdatesLabel.AutoSize = True
         Me.CheckUpdatesLabel.BackColor = System.Drawing.Color.Transparent
-        Me.CheckUpdatesLabel.Location = New System.Drawing.Point(278, 9)
+        Me.CheckUpdatesLabel.Location = New System.Drawing.Point(164, 9)
         Me.CheckUpdatesLabel.Name = "CheckUpdatesLabel"
         Me.CheckUpdatesLabel.Size = New System.Drawing.Size(117, 13)
         Me.CheckUpdatesLabel.TabIndex = 12
@@ -206,7 +205,7 @@ Partial Class MainFoV
         'FogCheckBox
         '
         Me.FogCheckBox.AutoSize = True
-        Me.FogCheckBox.Location = New System.Drawing.Point(532, 78)
+        Me.FogCheckBox.Location = New System.Drawing.Point(500, 78)
         Me.FogCheckBox.Name = "FogCheckBox"
         Me.FogCheckBox.Size = New System.Drawing.Size(44, 17)
         Me.FogCheckBox.TabIndex = 30
@@ -215,7 +214,7 @@ Partial Class MainFoV
         '
         'ChangeLogButton
         '
-        Me.ChangeLogButton.Location = New System.Drawing.Point(428, 107)
+        Me.ChangeLogButton.Location = New System.Drawing.Point(396, 107)
         Me.ChangeLogButton.Name = "ChangeLogButton"
         Me.ChangeLogButton.Size = New System.Drawing.Size(86, 22)
         Me.ChangeLogButton.TabIndex = 31
@@ -228,7 +227,7 @@ Partial Class MainFoV
         '
         'SettingsButton
         '
-        Me.SettingsButton.Location = New System.Drawing.Point(520, 107)
+        Me.SettingsButton.Location = New System.Drawing.Point(490, 107)
         Me.SettingsButton.Name = "SettingsButton"
         Me.SettingsButton.Size = New System.Drawing.Size(86, 22)
         Me.SettingsButton.TabIndex = 36
@@ -255,7 +254,7 @@ Partial Class MainFoV
         'MinimizeCheckBox
         '
         Me.MinimizeCheckBox.AutoSize = True
-        Me.MinimizeCheckBox.Location = New System.Drawing.Point(428, 78)
+        Me.MinimizeCheckBox.Location = New System.Drawing.Point(396, 78)
         Me.MinimizeCheckBox.Name = "MinimizeCheckBox"
         Me.MinimizeCheckBox.Size = New System.Drawing.Size(98, 17)
         Me.MinimizeCheckBox.TabIndex = 45
@@ -280,7 +279,7 @@ Partial Class MainFoV
         'CoD1CheckBox
         '
         Me.CoD1CheckBox.AutoSize = True
-        Me.CoD1CheckBox.Location = New System.Drawing.Point(428, 55)
+        Me.CoD1CheckBox.Location = New System.Drawing.Point(396, 55)
         Me.CoD1CheckBox.Name = "CoD1CheckBox"
         Me.CoD1CheckBox.Size = New System.Drawing.Size(71, 17)
         Me.CoD1CheckBox.TabIndex = 49
@@ -310,7 +309,7 @@ Partial Class MainFoV
         'DvarsCheckBox
         '
         Me.DvarsCheckBox.AutoSize = True
-        Me.DvarsCheckBox.Location = New System.Drawing.Point(428, 30)
+        Me.DvarsCheckBox.Location = New System.Drawing.Point(394, 32)
         Me.DvarsCheckBox.Name = "DvarsCheckBox"
         Me.DvarsCheckBox.Size = New System.Drawing.Size(105, 17)
         Me.DvarsCheckBox.TabIndex = 52
@@ -319,7 +318,7 @@ Partial Class MainFoV
         '
         'CoDPictureBox
         '
-        Me.CoDPictureBox.Location = New System.Drawing.Point(308, 56)
+        Me.CoDPictureBox.Location = New System.Drawing.Point(310, 49)
         Me.CoDPictureBox.Name = "CoDPictureBox"
         Me.CoDPictureBox.Size = New System.Drawing.Size(80, 80)
         Me.CoDPictureBox.TabIndex = 53
@@ -332,7 +331,7 @@ Partial Class MainFoV
         Me.FoVMenuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.HelpToolStripMenuItem, Me.ToolStripMenuItem1, Me.ExitToolStripMenuItem})
         Me.FoVMenuStrip.Location = New System.Drawing.Point(0, 186)
         Me.FoVMenuStrip.Name = "FoVMenuStrip"
-        Me.FoVMenuStrip.Size = New System.Drawing.Size(608, 24)
+        Me.FoVMenuStrip.Size = New System.Drawing.Size(583, 24)
         Me.FoVMenuStrip.TabIndex = 54
         Me.FoVMenuStrip.Text = "MenuStrip1"
         '
@@ -351,7 +350,7 @@ Partial Class MainFoV
         '
         'ToolStripMenuItem1
         '
-        Me.ToolStripMenuItem1.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SettingsToolStripMenuItem, Me.AdvancedSettingsToolStripMenuItem})
+        Me.ToolStripMenuItem1.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SettingsToolStripMenuItem})
         Me.ToolStripMenuItem1.Name = "ToolStripMenuItem1"
         Me.ToolStripMenuItem1.Size = New System.Drawing.Size(47, 20)
         Me.ToolStripMenuItem1.Text = "Tools"
@@ -359,14 +358,8 @@ Partial Class MainFoV
         'SettingsToolStripMenuItem
         '
         Me.SettingsToolStripMenuItem.Name = "SettingsToolStripMenuItem"
-        Me.SettingsToolStripMenuItem.Size = New System.Drawing.Size(172, 22)
+        Me.SettingsToolStripMenuItem.Size = New System.Drawing.Size(116, 22)
         Me.SettingsToolStripMenuItem.Text = "Settings"
-        '
-        'AdvancedSettingsToolStripMenuItem
-        '
-        Me.AdvancedSettingsToolStripMenuItem.Name = "AdvancedSettingsToolStripMenuItem"
-        Me.AdvancedSettingsToolStripMenuItem.Size = New System.Drawing.Size(172, 22)
-        Me.AdvancedSettingsToolStripMenuItem.Text = "Advanced Settings"
         '
         'ExitToolStripMenuItem
         '
@@ -405,7 +398,7 @@ Partial Class MainFoV
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
-        Me.ClientSize = New System.Drawing.Size(608, 210)
+        Me.ClientSize = New System.Drawing.Size(583, 210)
         Me.Controls.Add(Me.HackyFoVComboBox)
         Me.Controls.Add(Me.ComboBox1)
         Me.Controls.Add(Me.FoVMenuStrip)
@@ -482,7 +475,6 @@ Partial Class MainFoV
     Friend WithEvents ToolStripMenuItem1 As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents SettingsToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ExitToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
-    Friend WithEvents AdvancedSettingsToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents CmdLineTimer As System.Windows.Forms.Timer
     Friend WithEvents DvarUnlockerTimer As System.Windows.Forms.Timer
     Friend WithEvents HelpToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem

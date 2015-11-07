@@ -35,6 +35,10 @@
         Catch ex As Exception
             MessageBox.Show("Failed to get process list, reason: " & ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
         End Try
+        If PIDListBox.Items.Count <= 0 Then
+            MessageBox.Show("CoDUO is not running or the process could not be found! (process must contain or equal ""CoDUOMP"")", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Me.Close()
+        End If
     End Sub
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles ClosePIDListButton.Click

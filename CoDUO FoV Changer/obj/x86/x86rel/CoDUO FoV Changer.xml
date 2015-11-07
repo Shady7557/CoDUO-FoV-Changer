@@ -6,18 +6,18 @@ CoDUOFoVChanger
 </name>
 </assembly>
 <members>
-<member name="M:CoDUO_FoV_Changer.Module1.IniFile.#ctor(System.String)">
+<member name="M:CoDUO_FoV_Changer.LoggingModule.IniFile.#ctor(System.String)">
 	<summary>
  IniFile Constructor
  </summary>
 	<param name="IniPath">The path to the INI file.</param>
-</member><member name="M:CoDUO_FoV_Changer.Module1.IniFile.ReadValue(System.String,System.String)">
+</member><member name="M:CoDUO_FoV_Changer.LoggingModule.IniFile.ReadValue(System.String,System.String)">
 	<summary>
  Read value from INI file
  </summary>
 	<param name="section">The section of the file to look in</param>
 	<param name="key">The key in the section to look for</param>
-</member><member name="M:CoDUO_FoV_Changer.Module1.IniFile.WriteValue(System.String,System.String,System.String)">
+</member><member name="M:CoDUO_FoV_Changer.LoggingModule.IniFile.WriteValue(System.String,System.String,System.String)">
 	<summary>
  Write value to INI file
  </summary>
