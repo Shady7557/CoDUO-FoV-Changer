@@ -102,9 +102,9 @@ Public Class SettingsForm
 
     Private Sub Form3_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
-        If Not StyleCBox.SelectedItem Then
-            StyleCBox.SelectedItem = "Default"
-        End If
+        '    If Not StyleCBox.SelectedItem Then
+        '         StyleCBox.SelectedItem = "Default"
+        '      End If
         '  Me.CenterToParent()
         'If Not Debugger.IsAttached = True Then
         'RadioButton1.Visible = False
