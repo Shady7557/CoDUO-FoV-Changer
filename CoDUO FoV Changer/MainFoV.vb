@@ -45,7 +45,11 @@ Public Class MainFoV
     Dim lastlogname As String = ini.ReadValue("Logging", "LastLogName")
     Dim isminimal As String = ini.ReadValue("Extras", "Style")
     Dim gamevers As String = ini.ReadValue("Main", "GameVersion")
+    Dim lastcboxfov As String = ini.ReadValue("Main", "LastComboBoxFoV")
     Public fovbox As String = ini.ReadValue("Main", "ComboBoxFoV")
+    Dim lastwindowposX As String = ini.ReadValue("Extras", "LastWindowPosX")
+    Dim lastwindowposY As String = ini.ReadValue("Extras", "LastWindowPosY")
+    Public saveapplocation As String = ini.ReadValue("Extras", "SaveAppLocation")
     Dim iniLocation As String = appdata & "CoDUO FoV Changer\settings.ini"
     Dim oldoptions As String = appdata & "CoD UO FoV Changer\options.ini"
     Public appnamevers As String = Application.ProductName & " (" & Application.ProductVersion & ", HF" & hotfix & ")"
@@ -647,6 +651,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         If isminimal = "" Or isminimal Is Nothing Then
             ini.WriteValue("Extras", "Style", "Default")
+        End If
+
+        If saveapplocation.ToLower = "true" Then
+            If Not lastwindowposX = "" And Not lastwindowposX Is Nothing And Not lastwindowposY = "" And Not lastwindowposY Is Nothing Then
+                Me.Location = New Point(CInt(lastwindowposX), CInt(lastwindowposY))
+            End If
         End If
 
 
@@ -1385,6 +1395,15 @@ My.Computer.FileSystem.GetFileInfo(filename)
             hotkeydown = ini.ReadValue("Extras", "HotKeyDown")
         End If
 
+        If Not HackyFoVComboBox.Items.Count <= 0 Then
+            For Each itemstring In HackyFoVComboBox.Items
+                If itemstring.ToString.Contains(lastcboxfov) And Not lastcboxfov = "" And Not lastcboxfov Is Nothing Then
+                    HackyFoVComboBox.SelectedItem = lastcboxfov
+                End If
+            Next
+        End If
+
+
         '    MessageBox.Show(TimeSpent.TotalMilliseconds)
         '   If nolog = True Then MessageBox.Show(TimeSpent.TotalSeconds)
 
@@ -1499,6 +1518,13 @@ My.Computer.FileSystem.GetFileInfo(filename)
         If My.Computer.FileSystem.DirectoryExists(appdata & "CoDUO FoV Changer\Logs") Then
             '         Log.FlushBuffer()
         End If
+
+        If saveapplocation.ToLower = "true" And Not lastwindowposX = CStr(Me.Location.X) And Not lastwindowposY = CStr(Me.Location.Y) Then
+            ini.WriteValue("Extras", "LastWindowPosX", CStr(Me.Location.X))
+            ini.WriteValue("Extras", "LastWindowPosY", CStr(Me.Location.Y))
+            Log.WriteLine("Saved App Location: " & CStr(Me.Location.X) & " " & CStr(Me.Location.Y))
+        End If
+
 
         Dim TimeSpent As System.TimeSpan
         TimeSpent = Now.Subtract(TimerStart)
@@ -2215,8 +2241,56 @@ My.Computer.FileSystem.GetFileInfo(filename)
         If FoVHotKeyForm.CBBoxFoV.Items.Count >= 1 Then
             FoVHotKeyForm.CBBoxFoV.SelectedIndex = HackyFoVComboBox.SelectedIndex
         End If
+        Try
+            FoVTextBox.Text = HackyFoVComboBox.SelectedItem.ToString
+        Catch ex As Exception
+            Log.WriteLine("!! ERROR !! " & ex.Message)
+            Return
+        End Try
 
-        FoVTextBox.Text = HackyFoVComboBox.SelectedItem.ToString
+        Try
+            If CoD1CheckBox.Checked = False Then
+                If pid = 0 Then
+                    WriteFloat("CoDUOMP", &H3052F7C8, FoVTextBox.Text)
+                Else
+                    WriteFloatpid(pid, &H3052F7C8, FoVTextBox.Text)
+                End If
+            Else
+                WriteFloat("CoDMP", &H3029CA28, FoVTextBox.Text)
+            End If
+            If pid = 0 Then
+                Dim MyP As Process() = Process.GetProcessesByName("CoDUOMP")
+                If MyP.Length = 0 Then
+                    StatusLabel.Text = ("Status: not found or failed to write to memory!")
+                    If isminimal = "Dark" Then
+                        StatusLabel.ForeColor = Color.DarkRed
+                    Else
+                        StatusLabel.ForeColor = Color.Red
+                    End If
+                    If Not CoD1CheckBox.Checked = True Then
+                        StartGameButton.Enabled = True
+                    Else
+                        StartGameButton.Enabled = False
+                    End If
+
+                    Exit Sub
+                Else
+                    StatusLabel.Text = ("Status: UO found and wrote to memory!")
+                    StatusLabel.ForeColor = Color.Green
+                    StartGameButton.Enabled = False
+                End If
+            End If
+        Catch ex As Exception
+            '   MsgBox(ex.Message)
+            Log.WriteLine("ERROR !!:  " & ex.Message)
+            errorOccured = True
+            '
+
+
+        End Try
+
+        ini.WriteValue("Main", "LastComboBoxFoV", FoVTextBox.Text)
+
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs)

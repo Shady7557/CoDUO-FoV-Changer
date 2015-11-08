@@ -134,6 +134,7 @@ Partial Class MainFoV
         'HotKeyHandler
         '
         Me.HotKeyHandler.Enabled = True
+        Me.HotKeyHandler.Interval = 80
         '
         'UpdateButton
         '

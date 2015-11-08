@@ -1,7 +1,10 @@
 ﻿Public Class AdvSettingsForm
     Public userpth As String = System.Environment.GetEnvironmentVariable("userprofile")
     Public appdata As String = System.Environment.GetEnvironmentVariable("appdata") & "\"
-    Dim ini As New IniFile(appdata & "CoD UO FoV Changer\options.ini")
+    Dim ini As New IniFile(appdata & "CoDUO FoV Changer\settings.ini")
+    Dim firstrunini As String = ini.ReadValue("Extras", "FirstRun")
+    Dim disableupdatetimerini As String = ini.ReadValue("Tweaks", "DisableUpdateTimer")
+    Dim saveapplocini As String = ini.ReadValue("Extras", "SaveAppLocation")
     Dim whatami As String
     Dim conf As System.Threading.Thread
     Dim search As System.Threading.Thread
@@ -17,6 +20,21 @@
                 OpenConfigButton.BackColor = Color.DarkGray
                 CancelCloseButton.BackColor = Color.DarkGray
             End If
+            If firstrunini = "Yes" Then
+                FirstRunCheckBox.Checked = True
+            Else
+                FirstRunCheckBox.Checked = False
+            End If
+            If disableupdatetimerini = "Yes" Then
+                DisableUpdateTimerCheck.Checked = True
+            Else
+                DisableUpdateTimerCheck.Checked = False
+            End If
+            If saveapplocini.ToLower = "true" Then
+                SaveWindowPosCBox.Checked = True
+            Else
+                SaveWindowPosCBox.Checked = False
+            End If
         Catch ex As Exception
             MessageBox.Show(ex.Message, MainFoV.appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
@@ -24,10 +42,9 @@
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles SaveRestartAppButton.Click
         Try
-            Dim fog As String = ""
-            'Dim hotkeys As String
             Dim disableupdatetimer As String = ""
             Dim firstrun As String = ""
+            Dim saveapploc As String = ""
 
             If FirstRunCheckBox.Checked = True Then
                 firstrun = "Yes"
@@ -42,14 +59,20 @@
                 disableupdatetimer = "No"
             End If
 
+            If SaveWindowPosCBox.Checked = True Then
+                saveapploc = "True"
+            Else
+                saveapploc = "False"
+            End If
+
             '  ini.WriteValue("HotKeys", "Enabled", hotkeys)
-            ini.WriteValue("Extras", "Fog", fog)
             ini.WriteValue("Tweaks", "DisableUpdateTimer", disableupdatetimer)
             ini.WriteValue("Extras", "FirstRun", firstrun)
+            ini.WriteValue("Extras", "SaveAppLocation", saveapploc)
 
             Application.Restart()
         Catch ex As Exception
-            MsgBox("Failed to set config! Reason: " & ex.Message, MsgBoxStyle.Critical)
+            MsgBox("Failed to set config! Error: " & ex.Message, MsgBoxStyle.Critical)
         End Try
 
     End Sub
