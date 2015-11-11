@@ -1571,7 +1571,11 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     Exit Sub
                 Else
                     StatusLabel.Text = ("Status: UO found and wrote to memory!")
-                    StatusLabel.ForeColor = Color.Green
+                    If isminimal = "Dark" Then
+                        StatusLabel.ForeColor = Color.DarkGreen
+                    Else
+                        StatusLabel.ForeColor = Color.Green
+                    End If
                     StartGameButton.Enabled = False
                 End If
             End If
@@ -1877,23 +1881,23 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         If FogCheckBox.Checked = True Then
             FogTimer.Stop()
-            WriteInteger("CoDUOMP", &H9885F0, 1)
+            WriteInteger("CoDUOMP", &H98861C, 1)
         End If
         If FogCheckBox.Checked = False Then
             If didFS = False Then
-                ask5 = MsgBox("Please note, you may be banned if you are caught using this, example: making a video and putting it on your clans site, or YouTube, PunkBuster also bans for this, do you want to continue?", MsgBoxStyle.YesNo, "WARNING!")
+                ask5 = MessageBox.Show("Please note, you may be banned if you are caught using this, example: making a video and putting it on your clans site, or YouTube, PunkBuster also bans for this, do you want to continue?", "WARNING!", MessageBoxButtons.YesNo, MessageBoxIcon.Information)
             End If
             Log.WriteLine("Gave warning about Fog.")
             If ask5 = MsgBoxResult.No And didFS = False Then
                 FogTimer.Stop()
-                WriteInteger("CoDUOMP", &H9885F0, 1)
+                WriteInteger("CoDUOMP", &H98861C, 1)
                 ' CheckBox1.Checked = True
                 ini.WriteValue("Extras", "FogMSG", "Ask")
                 ini.WriteValue("Extras", "Fog", "Enabled")
                 Log.WriteLine("User did not continue.")
             ElseIf ask5 = MsgBoxResult.Yes And didFS = False Then
                 FogTimer.Start()
-                WriteInteger("CoDUOMP", &H9885F0, 0)
+                WriteInteger("CoDUOMP", &H98861C, 0)
                 '   CheckBox1.Checked = False
                 ini.WriteValue("Extras", "FogMSG", "DoNotAsk")
                 ini.WriteValue("Extras", "Fog", "Disabled")
