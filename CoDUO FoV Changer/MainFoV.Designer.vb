@@ -150,7 +150,7 @@ Partial Class MainFoV
         '
         Me.CheckUpdatesLabel.AutoSize = True
         Me.CheckUpdatesLabel.BackColor = System.Drawing.Color.Transparent
-        Me.CheckUpdatesLabel.Location = New System.Drawing.Point(164, 9)
+        Me.CheckUpdatesLabel.Location = New System.Drawing.Point(141, 9)
         Me.CheckUpdatesLabel.Name = "CheckUpdatesLabel"
         Me.CheckUpdatesLabel.Size = New System.Drawing.Size(117, 13)
         Me.CheckUpdatesLabel.TabIndex = 12

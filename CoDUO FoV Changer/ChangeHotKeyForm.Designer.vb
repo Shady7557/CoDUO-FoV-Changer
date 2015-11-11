@@ -27,15 +27,18 @@ Partial Class ChangeHotKeyForm
         Me.PressAnyKeyLabel = New System.Windows.Forms.Label()
         Me.UpHotKeyLabel = New System.Windows.Forms.Label()
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
-        Me.KeyComboLabel = New System.Windows.Forms.Label()
         Me.DownHotKeyLabel = New System.Windows.Forms.Label()
         Me.UpHotKeyRB = New System.Windows.Forms.RadioButton()
         Me.DownHotKeyRB = New System.Windows.Forms.RadioButton()
+        Me.MiscRBUp = New System.Windows.Forms.RadioButton()
+        Me.MiscRBDown = New System.Windows.Forms.RadioButton()
+        Me.ClearComboKeys = New System.Windows.Forms.Button()
+        Me.ClearHotKeys = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'CloseHotKeyFormButton
         '
-        Me.CloseHotKeyFormButton.Location = New System.Drawing.Point(12, 146)
+        Me.CloseHotKeyFormButton.Location = New System.Drawing.Point(12, 220)
         Me.CloseHotKeyFormButton.Name = "CloseHotKeyFormButton"
         Me.CloseHotKeyFormButton.Size = New System.Drawing.Size(260, 23)
         Me.CloseHotKeyFormButton.TabIndex = 0
@@ -65,15 +68,6 @@ Partial Class ChangeHotKeyForm
         Me.Timer1.Enabled = True
         Me.Timer1.Interval = 130
         '
-        'KeyComboLabel
-        '
-        Me.KeyComboLabel.AutoSize = True
-        Me.KeyComboLabel.Location = New System.Drawing.Point(12, 117)
-        Me.KeyComboLabel.Name = "KeyComboLabel"
-        Me.KeyComboLabel.Size = New System.Drawing.Size(273, 26)
-        Me.KeyComboLabel.TabIndex = 3
-        Me.KeyComboLabel.Text = "Please note this does not currently support key combos. " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(e.g, shift+K)"
-        '
         'DownHotKeyLabel
         '
         Me.DownHotKeyLabel.AutoSize = True
@@ -86,7 +80,7 @@ Partial Class ChangeHotKeyForm
         'UpHotKeyRB
         '
         Me.UpHotKeyRB.AutoSize = True
-        Me.UpHotKeyRB.Location = New System.Drawing.Point(12, 97)
+        Me.UpHotKeyRB.Location = New System.Drawing.Point(12, 103)
         Me.UpHotKeyRB.Name = "UpHotKeyRB"
         Me.UpHotKeyRB.Size = New System.Drawing.Size(80, 17)
         Me.UpHotKeyRB.TabIndex = 5
@@ -97,7 +91,7 @@ Partial Class ChangeHotKeyForm
         'DownHotKeyRB
         '
         Me.DownHotKeyRB.AutoSize = True
-        Me.DownHotKeyRB.Location = New System.Drawing.Point(178, 97)
+        Me.DownHotKeyRB.Location = New System.Drawing.Point(175, 103)
         Me.DownHotKeyRB.Name = "DownHotKeyRB"
         Me.DownHotKeyRB.Size = New System.Drawing.Size(94, 17)
         Me.DownHotKeyRB.TabIndex = 6
@@ -105,15 +99,58 @@ Partial Class ChangeHotKeyForm
         Me.DownHotKeyRB.Text = "Down Hot Key"
         Me.DownHotKeyRB.UseVisualStyleBackColor = True
         '
+        'MiscRBUp
+        '
+        Me.MiscRBUp.AutoSize = True
+        Me.MiscRBUp.Location = New System.Drawing.Point(12, 126)
+        Me.MiscRBUp.Name = "MiscRBUp"
+        Me.MiscRBUp.Size = New System.Drawing.Size(96, 17)
+        Me.MiscRBUp.TabIndex = 8
+        Me.MiscRBUp.TabStop = True
+        Me.MiscRBUp.Text = "Key Combo Up"
+        Me.MiscRBUp.UseVisualStyleBackColor = True
+        '
+        'MiscRBDown
+        '
+        Me.MiscRBDown.AutoSize = True
+        Me.MiscRBDown.Location = New System.Drawing.Point(175, 126)
+        Me.MiscRBDown.Name = "MiscRBDown"
+        Me.MiscRBDown.Size = New System.Drawing.Size(110, 17)
+        Me.MiscRBDown.TabIndex = 9
+        Me.MiscRBDown.TabStop = True
+        Me.MiscRBDown.Text = "Key Combo Down"
+        Me.MiscRBDown.UseVisualStyleBackColor = True
+        '
+        'ClearComboKeys
+        '
+        Me.ClearComboKeys.Location = New System.Drawing.Point(12, 191)
+        Me.ClearComboKeys.Name = "ClearComboKeys"
+        Me.ClearComboKeys.Size = New System.Drawing.Size(260, 23)
+        Me.ClearComboKeys.TabIndex = 10
+        Me.ClearComboKeys.Text = "Clear Combo Keys"
+        Me.ClearComboKeys.UseVisualStyleBackColor = True
+        '
+        'ClearHotKeys
+        '
+        Me.ClearHotKeys.Location = New System.Drawing.Point(12, 162)
+        Me.ClearHotKeys.Name = "ClearHotKeys"
+        Me.ClearHotKeys.Size = New System.Drawing.Size(260, 23)
+        Me.ClearHotKeys.TabIndex = 11
+        Me.ClearHotKeys.Text = "Clear Hot Keys"
+        Me.ClearHotKeys.UseVisualStyleBackColor = True
+        '
         'ChangeHotKeyForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(284, 175)
+        Me.ClientSize = New System.Drawing.Size(284, 251)
+        Me.Controls.Add(Me.ClearHotKeys)
+        Me.Controls.Add(Me.ClearComboKeys)
+        Me.Controls.Add(Me.MiscRBDown)
+        Me.Controls.Add(Me.MiscRBUp)
         Me.Controls.Add(Me.DownHotKeyRB)
         Me.Controls.Add(Me.UpHotKeyRB)
         Me.Controls.Add(Me.DownHotKeyLabel)
-        Me.Controls.Add(Me.KeyComboLabel)
         Me.Controls.Add(Me.UpHotKeyLabel)
         Me.Controls.Add(Me.PressAnyKeyLabel)
         Me.Controls.Add(Me.CloseHotKeyFormButton)
@@ -130,8 +167,11 @@ Partial Class ChangeHotKeyForm
     Friend WithEvents PressAnyKeyLabel As System.Windows.Forms.Label
     Friend WithEvents UpHotKeyLabel As System.Windows.Forms.Label
     Friend WithEvents Timer1 As System.Windows.Forms.Timer
-    Friend WithEvents KeyComboLabel As System.Windows.Forms.Label
     Friend WithEvents DownHotKeyLabel As System.Windows.Forms.Label
     Friend WithEvents UpHotKeyRB As System.Windows.Forms.RadioButton
     Friend WithEvents DownHotKeyRB As System.Windows.Forms.RadioButton
+    Friend WithEvents MiscRBUp As System.Windows.Forms.RadioButton
+    Friend WithEvents MiscRBDown As System.Windows.Forms.RadioButton
+    Friend WithEvents ClearComboKeys As System.Windows.Forms.Button
+    Friend WithEvents ClearHotKeys As System.Windows.Forms.Button
 End Class

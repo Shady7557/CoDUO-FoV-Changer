@@ -64,6 +64,8 @@ Public Class MainFoV
     Public num2fix As Integer = 0
     Public hotkeyup As Integer = 0
     Public hotkeydown As Integer = 0
+    Public hotkeycomboup As Integer = 0
+    Public hotkeycombodown As Integer = 0
     Dim hasPlayed As Boolean = False
     Dim neg As Boolean
     Dim gamev As String = ini.ReadValue("Main", "Game")
@@ -1389,10 +1391,16 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
 
         If Not ini.ReadValue("Extras", "HotKeyUp") = "" And Not ini.ReadValue("Extras", "HotKeyUp") = Nothing Then
-            hotkeyup = ini.ReadValue("Extras", "HotKeyUp")
+            hotkeyup = CInt(ini.ReadValue("Extras", "HotKeyUp"))
         End If
         If Not ini.ReadValue("Extras", "HotKeyDown") = "" And Not ini.ReadValue("Extras", "HotKeyDown") = Nothing Then
-            hotkeydown = ini.ReadValue("Extras", "HotKeyDown")
+            hotkeydown = CInt(ini.ReadValue("Extras", "HotKeyDown"))
+        End If
+        If Not ini.ReadValue("Extras", "HotKeyUpCombo") = "" And Not ini.ReadValue("Extras", "HotKeyUpCombo") = Nothing Then
+            hotkeycomboup = CInt(ini.ReadValue("Extras", "HotKeyUpCombo"))
+        End If
+        If Not ini.ReadValue("Extras", "HotKeyDownCombo") = "" And Not ini.ReadValue("Extras", "HotKeyDownCombo") = Nothing Then
+            hotkeycombodown = CInt(ini.ReadValue("Extras", "HotKeyDownCombo"))
         End If
 
         If Not HackyFoVComboBox.Items.Count <= 0 Then
@@ -1715,10 +1723,30 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 End If
             End If
         End If
+
+        If ChangeHotKeyForm.Visible = True Then Return
+        If hotkeyup = 0 Or hotkeyup = Nothing Then Return
+        If hotkeydown = 0 Or hotkeydown = Nothing Then Return
+
         Dim hotkeydownn As Boolean
         Dim hotkeyupp As Boolean
+        Dim hotkeycombodownn As Boolean
+        Dim hotkeycomboupp As Boolean
+        Dim ishotkeydown As Boolean = False
+        Dim ishotkeyup As Boolean = False
         hotkeydownn = GetAsyncKeyState(hotkeydown)
         hotkeyupp = GetAsyncKeyState(hotkeyup)
+
+        If Not hotkeycomboup = 0 And Not hotkeycomboup = Nothing Then
+            hotkeycomboupp = GetAsyncKeyState(hotkeycomboup)
+            ishotkeyup = True
+        End If
+        If Not hotkeycombodown = 0 And Not hotkeycombodown = Nothing Then
+            hotkeycombodownn = GetAsyncKeyState(hotkeycombodown)
+            ishotkeydown = True
+        End If
+
+
         Dim down1 As Integer = 0
         Dim up1 As Integer = 0
         Dim itemlist As Integer = 0
@@ -1728,25 +1756,45 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         down1 = HackyFoVComboBox.SelectedIndex - 1
         up1 = HackyFoVComboBox.SelectedIndex + 1
-        If hotkeydownn = True Then
-            '   MessageBox.Show(itemlist & " <-- list")
-            '      MessageBox.Show(down1 & " <-- down 1" & Environment.NewLine & "selectedindex: " & ComboBox2.SelectedIndex)
-            If Not down1 < 0 Then
-                HackyFoVComboBox.SelectedIndex = down1
+        If ishotkeydown = False Then
+            If hotkeydownn = True Then
+
+
+                If Not down1 < 0 Then
+                    HackyFoVComboBox.SelectedIndex = down1
+
+                End If
+            End If
+        ElseIf ishotkeydown = True Then
+            If hotkeydownn = True And hotkeycombodownn = True Then
+
+
+                If Not down1 < 0 Then
+                    HackyFoVComboBox.SelectedIndex = down1
+
+                End If
+            End If
+        End If
+        If ishotkeyup = False Then
+            If hotkeyupp = True Then
+
+                Try
+
+                    HackyFoVComboBox.SelectedIndex = HackyFoVComboBox.SelectedIndex + 1
+                Catch ex As Exception
+                    'silent try until I get this figured out
+                End Try
 
             End If
-        ElseIf hotkeyupp = True Then
-            ' MessageBox.Show(itemlist & " <-- list")
-            '  MessageBox.Show(up1 & " <-- UP 1" & Environment.NewLine & "selectedindex: " & ComboBox2.SelectedIndex)
-            '  If Not up1 > itemlist Then
-            Try
+        ElseIf ishotkeyup = True Then
+            If hotkeyupp = True And hotkeycomboupp = True Then
+                Try
 
-                HackyFoVComboBox.SelectedIndex = HackyFoVComboBox.SelectedIndex + 1
-            Catch ex As Exception
-                'silent try until I get this figured out
-            End Try
-
-            '   End If
+                    HackyFoVComboBox.SelectedIndex = HackyFoVComboBox.SelectedIndex + 1
+                Catch ex As Exception
+                    'silent try until I get this figured out
+                End Try
+            End If
         End If
 
 
