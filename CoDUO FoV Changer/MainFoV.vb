@@ -34,7 +34,7 @@ Public Class MainFoV
     Dim disableupdatetimer As String = ini.ReadValue("Tweaks", "DisableUpdateTimer")
     Dim sleep As String = ini.ReadValue("Tweaks", "Sleep")
     Dim installpath As String = ini.ReadValue("Main", "InstallPath")
-    Dim hotfix As String = "6.4"
+    Dim hotfix As String = "6.5"
     Dim hotfixini As String = ini.ReadValue("Main", "Hotfix")
     Dim progvers As String = Application.ProductVersion
     Dim progversini As String = ini.ReadValue("Main", "AppVersion")
@@ -885,13 +885,13 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         If fog = "Enabled" Then 'Checks if fog is enabled in the .ini
             FogCheckBox.Checked = True
-            WriteInteger("CoDUOMP", &H9885F0, 1)
+            WriteInteger("CoDUOMP", &H98861C, 1)
             FogTimer.Stop()
             Log.WriteLine("Stopping Fog Timer, turning fog on, checking Fog CheckBox.")
         ElseIf fog = "Disabled" Then
             If Not didFS = True Then
                 FogCheckBox.Checked = False
-                WriteInteger("CoDUOMP", &H9885F0, 0)
+                WriteInteger("CoDUOMP", &H98861C, 0)
                 FogTimer.Start()
                 Log.WriteLine("Starting Fog Timer, turning fog off, unchecking Fog CheckBox")
             End If
@@ -1872,7 +1872,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         If didFS = True Then
             FogTimer.Start()
-            WriteInteger("CoDUOMP", &H9885F0, 0)
+            WriteInteger("CoDUOMP", &H98861C, 0)
             '   CheckBox1.Checked = False
             ini.WriteValue("Extras", "FogMSG", "DoNotAsk")
             ini.WriteValue("Extras", "Fog", "Disabled")
@@ -1933,9 +1933,9 @@ My.Computer.FileSystem.GetFileInfo(filename)
     Private Sub Timer11_Tick(sender As Object, e As EventArgs) Handles FogTimer.Tick
         Try
             If FogCheckBox.Checked = True Then
-                WriteInteger("CoDUOMP", &H9885F0, 1)
+                WriteInteger("CoDUOMP", &H98861C, 1)
             Else
-                WriteInteger("CoDUOMP", &H9885F0, 0)
+                WriteInteger("CoDUOMP", &H98861C, 0)
             End If
         Catch ex As Exception
             FogTimer.Stop()
