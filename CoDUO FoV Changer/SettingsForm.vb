@@ -90,7 +90,7 @@ Public Class SettingsForm
         End If
 
         If CDKeyLabel.Text.Contains("Hidden") Then
-            Me.Width = 205
+            Me.Width = 203
         Else
             Me.Width = 215
         End If

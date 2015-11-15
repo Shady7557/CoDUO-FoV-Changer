@@ -768,7 +768,11 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 If Not word = "" Then
                     '               MessageBox.Show(word)
                     If Not CInt(word) >= 121 Then
-                        HackyFoVComboBox.Items.Add(word)
+                        If Not HackyFoVComboBox.Items.Count + 1 >= 13 Then
+                            HackyFoVComboBox.Items.Add(word)
+                        Else
+                            Log.WriteLine("FoV values in hacky fov combo box exceed 12. Not adding item: " & word)
+                        End If
                     Else
                         Log.WriteLine(word & " is higher than 120 fov (max) will not add to combobox")
                     End If
@@ -1410,6 +1414,41 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 End If
             Next
         End If
+
+        Dim di As New DirectoryInfo(appdata & "CoDUO FoV Changer\Logs")
+        Dim fiArr As FileInfo() = di.GetFiles
+        Dim fri As FileInfo
+        For Each fri In fiArr
+            If Not fri.FullName = logname Then
+                If fri.FullName.EndsWith(".log") Then
+                    Dim currmonth As String = DateAndTime.Now.Month.ToString
+                    Dim currday As String = DateAndTime.Now.Day.ToString
+                    Dim curryear As String = DateAndTime.Now.Year.ToString
+                    Dim lastmonth As String = fri.LastWriteTime.Month.ToString
+                    Dim lastday As String = fri.LastWriteTime.Day.ToString
+                    Dim lastyear As String = fri.LastWriteTime.Year.ToString
+                    If Not curryear = lastyear Then
+                        Log.WriteLine("Log: " & fri.ToString & " hasn't been modified for 1 year or longer. - Deleting log.")
+                        IO.File.Delete(fri.FullName)
+                    End If
+                    If Not lastmonth = currmonth And curryear = lastyear Then
+                        Log.WriteLine("Log: " & fri.ToString & " hasn't been modified for 1 month or longer. - Deleting log.")
+                        IO.File.Delete(fri.FullName)
+                    End If
+                    Dim count As Integer = 0
+
+                    If currmonth = lastmonth And Not lastday = currday Then
+                        For count = CInt(lastday) To CInt(currday)
+                            MessageBox.Show("count: " & CStr(count))
+                            If count >= 14 Then
+                                Log.WriteLine("Log: " & fri.ToString & " is " & Math.Floor(count - 1) & " days old, maximum is 14. - Deleting log.")
+                                IO.File.Delete(fri.FullName)
+                            End If
+                        Next
+                    End If
+                End If
+            End If
+        Next
 
 
         '    MessageBox.Show(TimeSpent.TotalMilliseconds)
