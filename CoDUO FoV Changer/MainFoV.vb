@@ -52,6 +52,8 @@ Public Class MainFoV
     Public saveapplocation As String = ini.ReadValue("Extras", "SaveAppLocation")
     Dim iniLocation As String = appdata & "CoDUO FoV Changer\settings.ini"
     Dim oldoptions As String = appdata & "CoD UO FoV Changer\options.ini"
+    Dim exename As String = "CoDUOMP"
+    Dim ismohaa As String = ini.ReadValue("Main", "GameExe")
     Public appnamevers As String = Application.ProductName & " (" & Application.ProductVersion & ", HF" & hotfix & ")"
     Public appname As String = Application.ProductName
     Dim lastExe As String
@@ -611,6 +613,54 @@ My.Computer.FileSystem.GetFileInfo(filename)
         AccessLabel()
     End Sub
 
+    Private Sub ChangeFoV()
+        Try
+            If CoD1CheckBox.Checked = False Then
+                If pid = 0 Then
+                    WriteFloat(exename, &H3052F7C8, FoVTextBox.Text)
+                Else
+                    WriteFloatpid(pid, &H3052F7C8, FoVTextBox.Text)
+                End If
+            Else
+                WriteFloat("CoDMP", &H3029CA28, FoVTextBox.Text)
+            End If
+            If pid = 0 Then
+                Dim MyP As Process() = Process.GetProcessesByName(exename)
+                If MyP.Length = 0 Then
+                    StatusLabel.Text = ("Status: not found or failed to write to memory!")
+                    If isminimal = "Dark" Then
+                        StatusLabel.ForeColor = Color.DarkRed
+                    Else
+                        StatusLabel.ForeColor = Color.Red
+                    End If
+                    If Not CoD1CheckBox.Checked = True Then
+                        StartGameButton.Enabled = True
+                    Else
+                        StartGameButton.Enabled = False
+                    End If
+
+                    Exit Sub
+                Else
+                    StatusLabel.Text = ("Status: UO found and wrote to memory!")
+                    If isminimal = "Dark" Then
+                        StatusLabel.ForeColor = Color.DarkGreen
+                    Else
+                        StatusLabel.ForeColor = Color.Green
+                    End If
+                    StartGameButton.Enabled = False
+                End If
+            End If
+        Catch ex As Exception
+            FoVTimer.Stop()
+            '   MsgBox(ex.Message)
+            Log.WriteLine("ERROR !!:  " & ex.Message)
+            errorOccured = True
+            '
+
+
+        End Try
+    End Sub
+
 
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -637,6 +687,23 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Application.Exit()
             Exit Sub
         End Try
+
+        If Not ismohaa = "" And Not ismohaa Is Nothing Then
+            exename = ismohaa
+        ElseIf ismohaa = "" Or ismohaa Is Nothing Then
+            ini.WriteValue("Main", "GameExe", "CoDUOMP")
+            exename = "CoDUOMP"
+        End If
+
+        If ismohaa.Contains(".exe") Then
+            ismohaa = ismohaa.Replace(".exe", "")
+            exename = ismohaa
+            ini.WriteValue("Main", "GameExe", exename)
+        End If
+        If exename.Contains(".exe") Then
+            exename = exename.Replace(".exe", "")
+            ini.WriteValue("Main", "GameExe", exename)
+        End If
 
         If isDev = True Then
             '     errorOccured = True
@@ -889,13 +956,13 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         If fog = "Enabled" Then 'Checks if fog is enabled in the .ini
             FogCheckBox.Checked = True
-            WriteInteger("CoDUOMP", &H98861C, 1)
+            WriteInteger(exename, &H98861C, 1)
             FogTimer.Stop()
             Log.WriteLine("Stopping Fog Timer, turning fog on, checking Fog CheckBox.")
         ElseIf fog = "Disabled" Then
             If Not didFS = True Then
                 FogCheckBox.Checked = False
-                WriteInteger("CoDUOMP", &H98861C, 0)
+                WriteInteger(exename, &H98861C, 0)
                 FogTimer.Start()
                 Log.WriteLine("Starting Fog Timer, turning fog off, unchecking Fog CheckBox")
             End If
@@ -1149,6 +1216,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Dim donotcheck As Boolean
         Dim dorestart As Boolean
         Dim donotcheckk As Boolean = False
+        Dim doesnotcontain As Boolean = False
         donotcheck = False
         dorestart = False
 
@@ -1161,9 +1229,14 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         Try
             If readvalue.Contains("Call of Duty") Or readvalue.Contains("CoD") And Not donotcheckk = True Then
-                ini.WriteValue("Extras", "FirstRun", "No")
-                ini.WriteValue("Main", "InstallPath", readvalue)
-            Else
+                If File.Exists(readvalue & "\CoDUOMP.exe") Or File.Exists(readvalue & "\mohaa.exe") Then
+                    ini.WriteValue("Extras", "FirstRun", "No")
+                    ini.WriteValue("Main", "InstallPath", readvalue)
+                Else
+                    doesnotcontain = True
+                End If
+            End If
+            If doesnotcontain = True Then
                 donotcheck = True
                 dorestart = True
                 MsgBox("Hello! We see that this is your first time using this program, and we could also not automatically find your game directory. We highly recommend you set your game path properly if it wasn't already set. We'll only ask you to do this once, that way everytime you update your FoV changer it will always be placed in your UO folder.", MsgBoxStyle.Information)
@@ -1177,8 +1250,11 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
                     If Not readvalue = "" Then
                         If readvalue = uoinstall Or uoinstall = readvalue Then 'Messy and buggy code, needs refined.
-                            MsgBox("This is already your directory!", MsgBoxStyle.Information)
-                            ini.WriteValue("Main", "InstallPath", readvalue)
+                            If File.Exists(readvalue & "\CoDUOMP.exe") Or File.Exists(readvalue & "\mohaa.exe") Then
+                            Else
+                                MsgBox("This is already your directory, but CoDUOMP.exe or mohaa.exe could not be found!", MsgBoxStyle.Information)
+                                ini.WriteValue("Main", "InstallPath", readvalue)
+                            End If
                         End If
                     Else
                         If ostype = "64" Then
@@ -1222,12 +1298,13 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
         Try 'Atttempts to check if the set directory contains the UO exe.
-            If My.Computer.FileSystem.FileExists(readvalue & "\CoDUOMP.exe") Or donotcheck = True Then
+            If My.Computer.FileSystem.FileExists(readvalue & "\CoDUOMP.exe") Or File.Exists(readvalue & "\mohaa.exe") Or donotcheck = True Then
                 ini.WriteValue("Extras", "FirstRun", "No")
             Else
                 ini.WriteValue("Extras", "FirstRun", "Yes")
-                MsgBox("The path you have set does not contain CoDUOMP.exe, please set your path again.", MsgBoxStyle.Information)
+                MsgBox("The path you have set does not contain CoDUOMP.exe or mohaa.exe, please set your path again.", MsgBoxStyle.Information)
                 Application.Restart()
+                Return
             End If
         Catch ex As Exception
             errorOccured = True
@@ -1330,15 +1407,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
         StartGameButton.Select()
-
-
-
-        Dim TimeSpent As System.TimeSpan
-        TimeSpent = Now.Subtract(TimerStart)
-        ' MsgBox(TimeSpent.TotalSeconds & " seconds spent on this task")
-        If TimeSpent.TotalMilliseconds >= 100 Or Debugger.IsAttached = True Then
-            Log.WriteLine("program startup took: " & TimeSpent.TotalMilliseconds)
-        End If
 
         Dim versmod As String = Application.ProductVersion.Substring(0, 3)
         ' MessageBox.Show(versmod)
@@ -1451,6 +1519,13 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Next
 
 
+        Dim TimeSpent As System.TimeSpan
+        TimeSpent = Now.Subtract(TimerStart)
+        ' MsgBox(TimeSpent.TotalSeconds & " seconds spent on this task")
+        If TimeSpent.TotalMilliseconds >= 100 Or Debugger.IsAttached = True Then
+            Log.WriteLine("program startup took: " & TimeSpent.TotalMilliseconds & " (this is too long)")
+        End If
+
         '    MessageBox.Show(TimeSpent.TotalMilliseconds)
         '   If nolog = True Then MessageBox.Show(TimeSpent.TotalSeconds)
 
@@ -1500,7 +1575,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Dim TimerStart As DateTime
         TimerStart = Now
         Try
-            WriteFloat("CoDUOMP", &H3052F7C8, 80)
+            WriteFloat(exename, &H3052F7C8, 80)
         Catch ex As Exception
             Log.WriteLine("ERROR !!:  " & ex.Message)
             errorOccured = True
@@ -1582,51 +1657,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles FoVTimer.Tick
-        Try
-            If CoD1CheckBox.Checked = False Then
-                If pid = 0 Then
-                    WriteFloat("CoDUOMP", &H3052F7C8, FoVTextBox.Text)
-                Else
-                    WriteFloatpid(pid, &H3052F7C8, FoVTextBox.Text)
-                End If
-            Else
-                WriteFloat("CoDMP", &H3029CA28, FoVTextBox.Text)
-            End If
-            If pid = 0 Then
-                Dim MyP As Process() = Process.GetProcessesByName("CoDUOMP")
-                If MyP.Length = 0 Then
-                    StatusLabel.Text = ("Status: not found or failed to write to memory!")
-                    If isminimal = "Dark" Then
-                        StatusLabel.ForeColor = Color.DarkRed
-                    Else
-                        StatusLabel.ForeColor = Color.Red
-                    End If
-                    If Not CoD1CheckBox.Checked = True Then
-                        StartGameButton.Enabled = True
-                    Else
-                        StartGameButton.Enabled = False
-                    End If
-
-                    Exit Sub
-                Else
-                    StatusLabel.Text = ("Status: UO found and wrote to memory!")
-                    If isminimal = "Dark" Then
-                        StatusLabel.ForeColor = Color.DarkGreen
-                    Else
-                        StatusLabel.ForeColor = Color.Green
-                    End If
-                    StartGameButton.Enabled = False
-                End If
-            End If
-        Catch ex As Exception
-            FoVTimer.Stop()
-            '   MsgBox(ex.Message)
-            Log.WriteLine("ERROR !!:  " & ex.Message)
-            errorOccured = True
-            '
-
-
-        End Try
+        ChangeFoV()
     End Sub
 
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles StartGameButton.Click
@@ -1636,9 +1667,16 @@ My.Computer.FileSystem.GetFileInfo(filename)
             If Not LaunchParametersTB.Text = "" And Not LaunchParametersTB.Text Is Nothing Then
                 startInfo.Arguments = LaunchParametersTB.Text & " +set r_ignorehwgamma 1" & " +set vid_xpos 0 +set vid_ypos 0 +set com_hunkmegs 128 +set win_allowalttab 1"
             End If
-            startInfo.FileName = installpath & "\CoDUOMP.exe"
+            If Not exename = "" And Not exename Is Nothing Then
+                startInfo.FileName = installpath & "\" & exename & ".exe"
+                MessageBox.Show(installpath & "\" & exename & ".exe")
+            Else
+                MessageBox.Show("Could not find game's .exe, looked for: " & installpath & "\" & exename & ".exe", appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Log.WriteLine("Could not find game's .exe, looked for: " & installpath & "\" & exename & ".exe")
+                Return
+            End If
             Process.Start(startInfo)
-            Log.WriteLine("Started game.")
+            Log.WriteLine("Started game: " & exename & ".exe " & "with args: " & startInfo.Arguments)
 
 
 
@@ -1671,10 +1709,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub dbg_Click(sender As Object, e As EventArgs) Handles debugb.Click
-        '        If Not Debugger.IsAttached = True Then
-        ' MessageBox.Show("debugger not attached, returning...")
-        ' Return
-        ' End If
         For Each item In HackyFoVComboBox.Items
             MessageBox.Show(item.ToString)
         Next
@@ -1688,13 +1722,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
         MsgBox("app version: " & Application.ProductVersion)
         UpdateButton.Visible = True
     End Sub
-    'Private Sub playpos()
-    '    If neg = True Then
-    '        Me.audio.Play()
-    '    Else
-    '        Me.audion.Play()
-    '    End If
-    'End Sub
 
     Private Sub Timer4_Tick(sender As Object, e As EventArgs) Handles HotKeyHandler.Tick
         If hidden = ("Yes") Then
@@ -1724,46 +1751,13 @@ My.Computer.FileSystem.GetFileInfo(filename)
             If Not FoVTextBox.Text + 1 = 121 Then
                 FoVTextBox.Text = FoVTextBox.Text + 1
                 neg = False
-                'audioEngine = New Thread(AddressOf Me.playpos)
-                'audioEngine.IsBackground = True
-                'audioEngine.Start()
-                'If Not hasPlayed = True Then
-                '    audio.Play() 'apparently this fixes it?
-                '    hasPlayed = True
-                'End If
-                If CoD1CheckBox.Checked = False Then
-                    If pid = 0 Then
-                        WriteFloat("CoDUOMP", &H3052F7C8, FoVTextBox.Text)
-                    Else
-                        WriteFloatpid(pid, &H3052F7C8, FoVTextBox.Text)
-                    End If
-                Else
-                    WriteFloat("CoDMP", &H3029CA28, FoVTextBox.Text)
-                End If
+                ChangeFoV()
             End If
         ElseIf hotkey4 = True Then
             If Not FoVTextBox.Text - 1 = 79 Then
                 FoVTextBox.Text = FoVTextBox.Text - 1
-                ' Dim audio As New AudioFile(temp & "\beep.mp3")
                 neg = True
-                'audioEngine = New Thread(AddressOf Me.playpos)
-                'audioEngine.IsBackground = True
-                'audioEngine.Start()
-                'If Not hasPlayed = True Then
-                '    audion.Play() 'apparently this fixes it?
-                '    hasPlayed = True
-                'End If
-
-                If CoD1CheckBox.Checked = False Then
-
-                    If pid = 0 Then
-                        WriteFloat("CoDUOMP", &H3052F7C8, FoVTextBox.Text)
-                    Else
-                        WriteFloatpid(pid, &H3052F7C8, FoVTextBox.Text)
-                    End If
-                Else
-                    WriteFloat("CoDMP", &H3029CA28, FoVTextBox.Text)
-                End If
+                ChangeFoV()
             End If
         End If
 
@@ -1898,20 +1892,11 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles FogCheckBox.CheckedChanged
 
-        'If Not My.Computer.FileSystem.FileExists("C:\Users\matt_\cod.dat") Then
-        '    FogCheckBox.Checked = True
-        '    FogCheckBox.Enabled = False
-        '    FogCheckBox.Visible = False
-        '    WriteInteger("CoDUOMP", &H9885F0, 1)
-        '    Return
-        'End If
-
-
         Dim ask5 As MsgBoxResult
 
         If didFS = True Then
             FogTimer.Start()
-            WriteInteger("CoDUOMP", &H98861C, 0)
+            WriteInteger(exename, &H98861C, 0)
             '   CheckBox1.Checked = False
             ini.WriteValue("Extras", "FogMSG", "DoNotAsk")
             ini.WriteValue("Extras", "Fog", "Disabled")
@@ -1920,7 +1905,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         If FogCheckBox.Checked = True Then
             FogTimer.Stop()
-            WriteInteger("CoDUOMP", &H98861C, 1)
+            WriteInteger(exename, &H98861C, 1)
         End If
         If FogCheckBox.Checked = False Then
             If didFS = False Then
@@ -1929,14 +1914,14 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Log.WriteLine("Gave warning about Fog.")
             If ask5 = MsgBoxResult.No And didFS = False Then
                 FogTimer.Stop()
-                WriteInteger("CoDUOMP", &H98861C, 1)
+                WriteInteger(exename, &H98861C, 1)
                 ' CheckBox1.Checked = True
                 ini.WriteValue("Extras", "FogMSG", "Ask")
                 ini.WriteValue("Extras", "Fog", "Enabled")
                 Log.WriteLine("User did not continue.")
             ElseIf ask5 = MsgBoxResult.Yes And didFS = False Then
                 FogTimer.Start()
-                WriteInteger("CoDUOMP", &H98861C, 0)
+                WriteInteger(exename, &H98861C, 0)
                 '   CheckBox1.Checked = False
                 ini.WriteValue("Extras", "FogMSG", "DoNotAsk")
                 ini.WriteValue("Extras", "Fog", "Disabled")
@@ -1972,9 +1957,9 @@ My.Computer.FileSystem.GetFileInfo(filename)
     Private Sub Timer11_Tick(sender As Object, e As EventArgs) Handles FogTimer.Tick
         Try
             If FogCheckBox.Checked = True Then
-                WriteInteger("CoDUOMP", &H98861C, 1)
+                WriteInteger(exename, &H98861C, 1)
             Else
-                WriteInteger("CoDUOMP", &H98861C, 0)
+                WriteInteger(exename, &H98861C, 0)
             End If
         Catch ex As Exception
             FogTimer.Stop()
@@ -2010,20 +1995,9 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub Timer7_Tick(sender As Object, e As EventArgs) Handles FoVFixTimer.Tick
-        '     If TextBox4.Height = 50 Then
-        '        Label9.Location = New Point(0, 126)
-        ' Label8.Location = New Point(0, 138)
-        '  Else
-        '        Label9.Location = New Point(0, 98)
-        '     Label8.Location = New Point(0, 110)
-        '  End If
         If FoVTextBox.Text = "" Then
             FoVTextBox.Text = CStr(My.Settings.FoVFix) 'FoVFix will never be below 80 or empty.
         End If
-    End Sub
-
-    Private Sub Button14_Click(sender As Object, e As EventArgs)
-        Process.Start("https://googledrive.com/host/0B0nCag_Hp76zSzJ1MmVzYm1ONEk/coduofovchanger.html")
     End Sub
 
     Private Sub Button13_Click(sender As Object, e As EventArgs)
@@ -2106,10 +2080,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Me.Close()
     End Sub
 
-    Private Sub ToolStripMenuItem3_Click(sender As Object, e As EventArgs)
-
-    End Sub
-
     Private Sub Timer5_Tick(sender As Object, e As EventArgs) Handles ABITWTimer.Tick
         If LaunchParametersTB.Text.Contains("wedontneedno") Then
             LaunchParametersLB.Location = New Point(0, 126)
@@ -2134,10 +2104,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
             LaunchParametersTB.Text = LaunchParametersTB.Text.Replace("The Endless River", "")
             ABITWTimer.Start()
         End If
-
-    End Sub
-
-    Private Sub SendButton_Click(sender As Object, e As EventArgs)
 
     End Sub
     Private Sub CheckBox3_CheckedChanged(sender As Object, e As EventArgs) Handles CoD1CheckBox.CheckedChanged
@@ -2206,20 +2172,14 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub CheckBox4_CheckedChanged(sender As Object, e As EventArgs) Handles DvarsCheckBox.CheckedChanged
-        'If Not My.Computer.FileSystem.FileExists("C:\Users\matt_\cod.dat") Then
-        '    DvarsCheckBox.Checked = False
-        '    DvarsCheckBox.Enabled = False
-        '    DvarsCheckBox.Visible = False
-        '    Return
-        'End If
         If DvarsCheckBox.Checked = True Then
-            WriteInteger("CoDUOMP", &H43DD86, 235, nsize:=1)
-            WriteInteger("CoDUOMP", &H43DDA3, 235, nsize:=1)
-            WriteInteger("CoDUOMP", &H43DDC1, 235, nsize:=1)
+            WriteInteger(exename, &H43DD86, 235, nsize:=1)
+            WriteInteger(exename, &H43DDA3, 235, nsize:=1)
+            WriteInteger(exename, &H43DDC1, 235, nsize:=1)
         Else
-            WriteInteger("CoDUOMP", &H43DD86, 116, nsize:=1)
-            WriteInteger("CoDUOMP", &H43DDA3, 116, nsize:=1)
-            WriteInteger("CoDUOMP", &H43DDC1, 116, nsize:=1)
+            WriteInteger(exename, &H43DD86, 116, nsize:=1)
+            WriteInteger(exename, &H43DDA3, 116, nsize:=1)
+            WriteInteger(exename, &H43DDC1, 116, nsize:=1)
         End If
     End Sub
 
@@ -2266,21 +2226,14 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
     Private Sub Timer9_Tick(sender As Object, e As EventArgs) Handles DvarUnlockerTimer.Tick
-        'If Not My.Computer.FileSystem.FileExists("C:\Users\matt_\cod.dat") Then
-        '    DvarsCheckBox.Checked = False
-        '    DvarsCheckBox.Enabled = False
-        '    DvarsCheckBox.Visible = False
-        '    DvarUnlockerTimer.Stop()
-        '    Return
-        'End If
         If DvarsCheckBox.Checked = True Then
-            WriteInteger("CoDUOMP", &H43DD86, 235, nsize:=1)
-            WriteInteger("CoDUOMP", &H43DDA3, 235, nsize:=1)
-            WriteInteger("CoDUOMP", &H43DDC1, 235, nsize:=1)
+            WriteInteger(exename, &H43DD86, 235, nsize:=1)
+            WriteInteger(exename, &H43DDA3, 235, nsize:=1)
+            WriteInteger(exename, &H43DDC1, 235, nsize:=1)
         Else
-            WriteInteger("CoDUOMP", &H43DD86, 116, nsize:=1)
-            WriteInteger("CoDUOMP", &H43DDA3, 116, nsize:=1)
-            WriteInteger("CoDUOMP", &H43DDC1, 116, nsize:=1)
+            WriteInteger(exename, &H43DD86, 116, nsize:=1)
+            WriteInteger(exename, &H43DDA3, 116, nsize:=1)
+            WriteInteger(exename, &H43DDC1, 116, nsize:=1)
         End If
     End Sub
 
@@ -2290,20 +2243,10 @@ My.Computer.FileSystem.GetFileInfo(filename)
             ini.WriteValue("Extras", "cmdline", LaunchParametersTB.Text)
         End If
     End Sub
-
-    Private Sub HelpToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles HelpToolStripMenuItem.Click
-
-    End Sub
-    Private Sub HelpToolStripMenuItem_Hover(sender As Object, e As EventArgs) Handles HelpToolStripMenuItem.MouseHover
-        '    HelpToolStripMenuItem.ShowDropDown()
-        'not sure why but I had to do this, where as on "Tools", I didn't have to.
-    End Sub
-
     Private Sub InfoToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles InfoToolStripMenuItem.Click
         MessageBox.Show("Hi, thanks for using my FoV Changer for Call of Duty and Call of Duty United Offensive. This is how to use it properly: " & newline & newline & "1. Start your game and type: r_mode -1 (yes, that's minus 1), r_customwidth " & CStr(My.Computer.Screen.Bounds.Width) & " (your monitor's estimated width), r_customheight " & CStr(My.Computer.Screen.Bounds.Height) & " (your monitor's estimated height)" & newline & newline & "2. Join a server and tab out, or use numpad + and numpad - to adjust your field of view to your liking." & newline & newline & "3. Enjoy playing UO at your monitor's native resolution, with proper Field of View." & newline & newline & "Program developed by:" & newline & "Shady, with the help of CurtDog's logging module, ""CurtLog"".", Application.ProductName & " (" & Application.ProductVersion & ")", MessageBoxButtons.OK, MessageBoxIcon.Information)
         '  MessageBox.Show("Here's some general information on the program: " & Environment.NewLine & Environment.NewLine & "• All config settings and logs are stored in " & appdata & "CoDUO FoV Changer")
     End Sub
-
     Private Sub ComboBox2_SelectedIndexChanged(sender As Object, e As EventArgs) Handles HackyFoVComboBox.SelectedIndexChanged
         Dim itemlist1 As Integer = 0
         If Not fovbox.Contains(HackyFoVComboBox.SelectedItem.ToString) Then
@@ -2326,9 +2269,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 HackyFoVComboBox.SelectedIndex = 0
             End If
         End If
-        '  For Each itemm In Form3.ComboBox2.Items
-        '       itemlist1 = itemlist1 + 1
-        '    Next
         If FoVHotKeyForm.CBBoxFoV.Items.Count >= 1 Then
             FoVHotKeyForm.CBBoxFoV.SelectedIndex = HackyFoVComboBox.SelectedIndex
         End If
@@ -2339,46 +2279,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Return
         End Try
 
-        Try
-            If CoD1CheckBox.Checked = False Then
-                If pid = 0 Then
-                    WriteFloat("CoDUOMP", &H3052F7C8, FoVTextBox.Text)
-                Else
-                    WriteFloatpid(pid, &H3052F7C8, FoVTextBox.Text)
-                End If
-            Else
-                WriteFloat("CoDMP", &H3029CA28, FoVTextBox.Text)
-            End If
-            If pid = 0 Then
-                Dim MyP As Process() = Process.GetProcessesByName("CoDUOMP")
-                If MyP.Length = 0 Then
-                    StatusLabel.Text = ("Status: not found or failed to write to memory!")
-                    If isminimal = "Dark" Then
-                        StatusLabel.ForeColor = Color.DarkRed
-                    Else
-                        StatusLabel.ForeColor = Color.Red
-                    End If
-                    If Not CoD1CheckBox.Checked = True Then
-                        StartGameButton.Enabled = True
-                    Else
-                        StartGameButton.Enabled = False
-                    End If
-
-                    Exit Sub
-                Else
-                    StatusLabel.Text = ("Status: UO found and wrote to memory!")
-                    StatusLabel.ForeColor = Color.Green
-                    StartGameButton.Enabled = False
-                End If
-            End If
-        Catch ex As Exception
-            '   MsgBox(ex.Message)
-            Log.WriteLine("ERROR !!:  " & ex.Message)
-            errorOccured = True
-            '
-
-
-        End Try
+        ChangeFoV()
 
         ini.WriteValue("Main", "LastComboBoxFoV", FoVTextBox.Text)
 
@@ -2392,7 +2293,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub Button2_Click(sender As Object, e As EventArgs)
-        '       MessageBox.Show(ComboBox2.SelectedIndex)
         If Not HackyFoVComboBox.SelectedIndex < 0 Then
             Dim replace As String
             replace = fovbox.Replace(HackyFoVComboBox.SelectedItem.ToString & ",", "")
