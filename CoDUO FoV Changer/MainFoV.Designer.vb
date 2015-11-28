@@ -330,7 +330,7 @@ Partial Class MainFoV
         Me.FoVMenuStrip.BackColor = System.Drawing.SystemColors.Control
         Me.FoVMenuStrip.Dock = System.Windows.Forms.DockStyle.Bottom
         Me.FoVMenuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.HelpToolStripMenuItem, Me.ToolStripMenuItem1, Me.ExitToolStripMenuItem})
-        Me.FoVMenuStrip.Location = New System.Drawing.Point(0, 186)
+        Me.FoVMenuStrip.Location = New System.Drawing.Point(0, 183)
         Me.FoVMenuStrip.Name = "FoVMenuStrip"
         Me.FoVMenuStrip.Size = New System.Drawing.Size(583, 24)
         Me.FoVMenuStrip.TabIndex = 54
@@ -399,7 +399,7 @@ Partial Class MainFoV
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
-        Me.ClientSize = New System.Drawing.Size(583, 210)
+        Me.ClientSize = New System.Drawing.Size(583, 207)
         Me.Controls.Add(Me.HackyFoVComboBox)
         Me.Controls.Add(Me.ComboBox1)
         Me.Controls.Add(Me.FoVMenuStrip)

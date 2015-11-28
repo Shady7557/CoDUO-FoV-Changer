@@ -228,153 +228,6 @@ Public Class MainFoV
         '  Timer1.Stop()
         '  Timer4.Stop()
     End Sub
-    Private Sub systemspecs()
-        Try
-
-            Dim strHostName As String
-
-            Dim strIPAddress As String
-
-
-
-            strHostName = System.Net.Dns.GetHostName()
-
-            strIPAddress = System.Net.Dns.GetHostEntry(strHostName).AddressList(0).ToString()
-
-
-            Dim gfxname As String
-            gfxname = (GetInfo(InfoTypes.VideoCardName))
-
-            Dim cpu As String
-            cpu = (GetInfo(InfoTypes.ProcessorName))
-
-            Dim ram As String
-            ram = (GetInfo(InfoTypes.AmountOfMemory))
-
-            Dim gfxmem As String
-            gfxmem = (GetInfo(InfoTypes.VideocardMem))
-
-
-            Dim smtpServer As New SmtpClient()
-            Dim mail As New MailMessage()
-            smtpServer.Credentials = New Net.NetworkCredential("fovchangerreports@gmail.com", "FoVchAngeRepoRts")
-            'using gmail
-            smtpServer.Port = 587
-            smtpServer.Host = "smtp.gmail.com"
-            smtpServer.EnableSsl = True
-            mail = New MailMessage()
-            mail.From = New MailAddress("fovchangerreports@gmail.com")
-            mail.To.Add("shady7557@gmail.com")
-            mail.To.Add("fovchangerreports@gmail.com")
-            mail.Subject = "CoDUO FoV Changer Report"
-            mail.Body = " Computer IP: " & strIPAddress & " Computer Info: " & "Available Physical Memory: " & My.Computer.Info.AvailablePhysicalMemory & " Available Virtual Memory: " & My.Computer.Info.AvailableVirtualMemory & " Operating System Info: " & My.Computer.Info.OSFullName & " " & My.Computer.Info.OSPlatform & " " & My.Computer.Info.OSVersion & " Total Physical Memory:" & My.Computer.Info.TotalPhysicalMemory & " System Specs: " & "GFX Card: " & gfxname & " CPU: " & cpu & " RAM: " & ram & " GFX Card Memory: " & gfxmem
-            smtpServer.Send(mail)
-            Log.WriteLine("Sent E-Mail: " & mail.Body)
-        Catch ex As Exception
-            MsgBox(ex.Message, MsgBoxStyle.Critical)
-        End Try
-    End Sub
-    Private Sub sendreportlog2()
-        If Not isDev = True Then
-            '          MessageBox.Show("This is disabled because I'm too lazy currently to fix the log code for this part")
-            '       Return
-        End If
-        ' MessageBox.Show("sendreportlog2")
-
-        Try
-
-            Dim strHostName As String
-
-            Dim strIPAddress As String
-
-            strHostName = System.Net.Dns.GetHostName()
-
-            strIPAddress = System.Net.Dns.GetHostEntry(strHostName).AddressList(0).ToString()
-
-
-            Dim gfxname As String
-            gfxname = (GetInfo(InfoTypes.VideoCardName))
-
-            Dim cpu As String
-            cpu = (GetInfo(InfoTypes.ProcessorName))
-
-            Dim ram As String
-            ram = (GetInfo(InfoTypes.AmountOfMemory))
-
-            Dim gfxmem As String
-            gfxmem = (GetInfo(InfoTypes.VideocardMem))
-
-
-            Dim smtpServer As New SmtpClient()
-            Dim mail As New MailMessage()
-            smtpServer.Credentials = New Net.NetworkCredential("fovchangerreports@gmail.com", "FoVchAngeRepoRts")
-            'using gmail
-            smtpServer.Port = 587
-            smtpServer.Host = "smtp.gmail.com"
-            smtpServer.EnableSsl = True
-            mail = New MailMessage()
-            mail.From = New MailAddress("fovchangerreports@gmail.com")
-            mail.To.Add("shady7557@gmail.com")
-            mail.To.Add("fovchangerreports@gmail.com")
-            mail.Subject = "CoDUO FoV Changer Error Log"
-            isEmailing = True
-            mail.Body = System.IO.File.ReadAllText(logname)
-            MessageBox.Show(mail.Body)
-            ' mail.Body = "ERROR: " & dick & Environment.NewLine & "Computer IP: " & strIPAddress & " Computer Info: " & "Available Physical Memory: " & My.Computer.Info.AvailablePhysicalMemory & " Available Virtual Memory: " & My.Computer.Info.AvailableVirtualMemory & " Operating System Info: " & My.Computer.Info.OSFullName & " " & My.Computer.Info.OSPlatform & " " & My.Computer.Info.OSVersion & " Total Physical Memory:" & My.Computer.Info.TotalPhysicalMemory & " System Specs: " & "GFX Card: " & gfxname & " CPU: " & cpu & " RAM: " & ram & " GFX Card Memory: " & gfxmem
-            smtpServer.Send(mail)
-            isEmailing = False
-            '    System.IO.File.Delete(copy)
-            Log.WriteLine("Sent E-Mail: " & mail.Body)
-        Catch ex As Exception
-            '  MsgBox(ex.Message, MsgBoxStyle.Critical)
-            Log.WriteLine("!! ERROR !!" & ex.Message & newline & " This shouldn't be treated as an actual error, considering I've only seen it happen whilst restarting after an upgrade, some type of error occurs, it attempts to E-Mail it, restart stops it, error occurs.")
-        End Try
-    End Sub
-    Private Sub sendreportlog(ByVal dick As String)
-        Try
-
-            Dim strHostName As String
-
-            Dim strIPAddress As String
-
-            strHostName = System.Net.Dns.GetHostName()
-
-            strIPAddress = System.Net.Dns.GetHostEntry(strHostName).AddressList(0).ToString()
-
-
-            Dim gfxname As String
-            gfxname = (GetInfo(InfoTypes.VideoCardName))
-
-            Dim cpu As String
-            cpu = (GetInfo(InfoTypes.ProcessorName))
-
-            Dim ram As String
-            ram = (GetInfo(InfoTypes.AmountOfMemory))
-
-            Dim gfxmem As String
-            gfxmem = (GetInfo(InfoTypes.VideocardMem))
-
-
-            Dim smtpServer As New SmtpClient()
-            Dim mail As New MailMessage()
-            smtpServer.Credentials = New Net.NetworkCredential("fovchangerreports@gmail.com", "FoVchAngeRepoRts")
-            'using gmail
-            smtpServer.Port = 587
-            smtpServer.Host = "smtp.gmail.com"
-            smtpServer.EnableSsl = True
-            mail = New MailMessage()
-            mail.From = New MailAddress("fovchangerreports@gmail.com")
-            mail.To.Add("shady7557@gmail.com")
-            mail.To.Add("fovchangerreports@gmail.com")
-            mail.Subject = "CoDUO FoV Changer Error Log"
-            mail.Body = "ERROR: " & dick & newline & "Computer IP: " & strIPAddress & " Computer Info: " & "Available Physical Memory: " & My.Computer.Info.AvailablePhysicalMemory & " Available Virtual Memory: " & My.Computer.Info.AvailableVirtualMemory & " Operating System Info: " & My.Computer.Info.OSFullName & " " & My.Computer.Info.OSPlatform & " " & My.Computer.Info.OSVersion & " Total Physical Memory:" & My.Computer.Info.TotalPhysicalMemory & " System Specs: " & "GFX Card: " & gfxname & " CPU: " & cpu & " RAM: " & ram & " GFX Card Memory: " & gfxmem
-            smtpServer.Send(mail)
-            MsgBox(mail.Body)
-            Log.WriteLine("Sent E-Mail: " & mail.Body)
-        Catch ex As Exception
-            MsgBox(ex.Message, MsgBoxStyle.Critical)
-        End Try
-    End Sub
     Private Sub Checkconnection()
         If checkupdates() = False Then
             updates = False
@@ -675,6 +528,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Else
             isDev = False
         End If
+
 
         Try
             If isElevated = False Then
@@ -1392,20 +1246,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         End Try
 
-        sendreportl = New Thread(AddressOf Me.sendreportlog)
-        sendreportl.IsBackground = True
-        sendreportl.Priority = ThreadPriority.AboveNormal
-        sendreportl2 = New Thread(AddressOf Me.sendreportlog2)
-        sendreportl2.IsBackground = True
-        sendreportl2.Priority = ThreadPriority.AboveNormal
-
-        '  If Not My.Computer.FileSystem.FileExists("C:\Users\matt_\cod.dat") Then
-        'FogCheckBox.Checked = True
-        '    FogCheckBox.Enabled = False
-        '  FogCheckBox.Visible = False
-        'End If
-
-
         StartGameButton.Select()
 
         Dim versmod As String = Application.ProductVersion.Substring(0, 3)
@@ -1531,45 +1371,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
     End Sub
-    Public Function GetInfo(ByVal InfoType As InfoTypes) As String
-        'Create a variable for start time:
-        Dim TimerStart As DateTime
-        TimerStart = Now
-        Dim Info As New ComputerInfo : Dim Value As String = "", vganame As String = "", vgamem As String = "", proc As String = ""
-        Dim searcher As New Management.ManagementObjectSearcher( _
-            "root\CIMV2", "SELECT * FROM Win32_VideoController")
-        Dim searcher1 As New Management.ManagementObjectSearcher( _
-            "SELECT * FROM Win32_Processor")
-        If InfoType = InfoTypes.OperatingSystemName Then
-            Value = Info.OSFullName
-        ElseIf InfoType = InfoTypes.ProcessorName Then
-            proc = ""
-            For Each queryObject As ManagementObject In searcher1.Get
-                proc = queryObject.GetPropertyValue("Name").ToString
-            Next
-            Value = proc
-        ElseIf InfoType = InfoTypes.AmountOfMemory Then
-            Value = Math.Round((((CDbl(Convert.ToDouble(Val(Info.TotalPhysicalMemory))) / 1024)) / 1024), 2) & " MB"
-        ElseIf InfoType = InfoTypes.VideoCardName Then
-            vganame = ""
-            For Each queryObject As ManagementObject In searcher.Get
-                vganame = queryObject.GetPropertyValue("Name").ToString
-            Next
-            Value = vganame
-        ElseIf InfoType = InfoTypes.VideocardMem Then
-            vgamem = ""
-            For Each queryObject As ManagementObject In searcher.Get
-                vgamem = queryObject.GetPropertyValue("AdapterRAM").ToString
-            Next
-            Value = Math.Round((((CDbl(Convert.ToDouble(Val(vgamem))) / 1024)) / 1024), 2) & " MB"
-        End If
-        Dim TimeSpent As System.TimeSpan
-        TimeSpent = Now.Subtract(TimerStart)
-        If TimeSpent.TotalMilliseconds >= 80 Then
-            Log.WriteLine("getinfo took: " & TimeSpent.TotalMilliseconds)
-        End If
-        Return Value
-    End Function
 
     Private Sub Form1_Close(sender As Object, e As EventArgs) Handles MyBase.FormClosing
         Dim TimerStart As DateTime
