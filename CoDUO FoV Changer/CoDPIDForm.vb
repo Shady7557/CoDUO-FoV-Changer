@@ -5,15 +5,12 @@
             MessageBox.Show("No process selected!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
             Return
         End If
-        '    MessageBox.Show(ListBox1.SelectedIndex.ToString)
         Dim splitStr() As String
         Dim pid As String
         Dim pidInt As Integer
         pid = PIDListBox.SelectedItem.ToString
         splitStr = pid.Split("(")
-        '   MessageBox.Show(splitStr(1))
         pid = splitStr(1).Replace(")", "")
-        ' MessageBox.Show(CStr(pid))
         pidInt = CInt(pid)
         MainFoV.pid = pidInt
         Me.Hide()

@@ -165,7 +165,7 @@ Partial Class MainFoV
         '
         Me.LaunchParametersLB.AutoSize = True
         Me.LaunchParametersLB.BackColor = System.Drawing.Color.Transparent
-        Me.LaunchParametersLB.Location = New System.Drawing.Point(1, 69)
+        Me.LaunchParametersLB.Location = New System.Drawing.Point(1, 67)
         Me.LaunchParametersLB.Name = "LaunchParametersLB"
         Me.LaunchParametersLB.Size = New System.Drawing.Size(102, 13)
         Me.LaunchParametersLB.TabIndex = 24

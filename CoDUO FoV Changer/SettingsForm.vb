@@ -101,36 +101,9 @@ Public Class SettingsForm
     End Sub
 
     Private Sub Form3_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-
-        '    If Not StyleCBox.SelectedItem Then
-        '         StyleCBox.SelectedItem = "Default"
-        '      End If
-        '  Me.CenterToParent()
-        'If Not Debugger.IsAttached = True Then
-        'RadioButton1.Visible = False
-        'RadioButton2.Visible = False
-        'RadioButton3.Visible = False
-        'Label12.Visible = False
-        'Label9.Visible = False
-        'ComboBox1.Visible = False
-        'Button5.Location = New Point(187, 241)
-        'Me.Location = New Point(317, 325)
-        'Me.Width = 317
-        ' Else
-        '   RadioButton1.Checked = True
-        '  End If
-
         If stylet = "Minimal" Then
-            'AppBranchLabel.Visible = True
-            'GameVersLabel.Visible = True
-            'CDKeyLabel.Visible = True
-            'AppVersLabel.Visible = True
             StyleCBox.SelectedItem = "Minimal"
         ElseIf stylet = "Default" Then
-            'GameVersLabel.Visible = False
-            'AppBranchLabel.Visible = False
-            'CDKeyLabel.Visible = False
-            'AppVersLabel.Visible = False
             StyleCBox.SelectedItem = "Default"
         ElseIf stylet = "Dark" Then
             StyleCBox.SelectedItem = "Dark"
@@ -150,11 +123,6 @@ Public Class SettingsForm
             ToolTipHandler.SetToolTip(ButtonSelectGamePID, "This only supports CoDUO!")
         End If
         Dim readvalue2 As String = ""
-        '    If Form1.ostype = "64" Then
-        '        readvalue2 = My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Version", 1.51) 'If the registry key is not found, it may report an error.
-        '    ElseIf Form1.ostype = "86" Then
-        '        readvalue2 = My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "Version", 1.51) 'If the registry key is not found, it may report an error.
-        '    End If
 
         GameVersLabel.Text = MainFoV.HackyGameVersLB.Text 'Sets the label to read the games version from form1
         AppBranchLabel.Text = MainFoV.HackyAppBranchLB.Text 'Sets the label's text to contain the application branch.
@@ -189,11 +157,6 @@ Public Class SettingsForm
             MainFoV.HackyAppBranchLB.Visible = False
             MainFoV.HackyAppVersLB.Visible = False
             MainFoV.HackyGameVersLB.Visible = False
-            'AppBranchLabel.Visible = True
-            'GameVersLabel.Visible = True
-            'AppVersLabel.Visible = True
-            'CDKeyLabel.Visible = True
-            ' Form1.Label2.Location = New Point(0, 201)
             MainFoV.Height = 220
             ini.WriteValue("Extras", "Style", "Minimal")
         ElseIf StyleCBox.SelectedItem = "Default" Then
@@ -201,10 +164,6 @@ Public Class SettingsForm
             MainFoV.HackyAppBranchLB.Visible = True
             MainFoV.HackyAppVersLB.Visible = True
             MainFoV.HackyGameVersLB.Visible = True
-            'AppBranchLabel.Visible = False
-            'GameVersLabel.Visible = False
-            'AppVersLabel.Visible = False
-            'CDKeyLabel.Visible = False
             MainFoV.Height = 249
             MainFoV.BackColor = MainFoV.DefaultBackColor
             Me.BackColor = DefaultBackColor
@@ -214,11 +173,9 @@ Public Class SettingsForm
             ButtonSettingsAdvanced.BackColor = DefaultBackColor
             RestartAppButton.BackColor = DefaultBackColor
             TextBox1.BackColor = DefaultBackColor
-            ' TextBox2.BackColor = DefaultBackColor
             StyleCBox.BackColor = DefaultBackColor
             ButtonSelectGamePID.BackColor = DefaultBackColor
             SetupKeysButton.BackColor = DefaultBackColor
-            ' Form1.Label2.Location = New Point(0, 162)
         ElseIf StyleCBox.SelectedItem = "Dark" Then
             MainFoV.BackColor = Color.DimGray
             Me.BackColor = Color.DimGray
@@ -229,7 +186,6 @@ Public Class SettingsForm
             RestartAppButton.BackColor = Color.DarkGray
             TextBox1.BackColor = Color.DarkGray
             ButtonSelectGamePID.BackColor = Color.DarkGray
-            '    TextBox2.BackColor = Color.DarkGray
             StyleCBox.BackColor = Color.DarkGray
             MainFoV.FoVMenuStrip.BackColor = Color.DarkGray
             SetupKeysButton.BackColor = Color.DarkGray

@@ -7,8 +7,6 @@
                 Return
             End If
             If Not CBBoxFoV.Items.Contains(MainFoV.FoVTextBox.Text) Then
-                '   MainFoV.HackyFoVComboBox.Items.Add(MainFoV.FoVTextBox.Text)
-                '   MainFoV.HackyFoVComboBox.SelectedItem = MainFoV.FoVTextBox.Text
                 CBBoxFoV.Items.Add(MainFoV.FoVTextBox.Text)
                 CBBoxFoV.SelectedItem = MainFoV.FoVTextBox.Text
             End If

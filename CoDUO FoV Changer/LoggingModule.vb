@@ -56,11 +56,4 @@
 
     End Class
 
-
-    '  Public Sub logg(ByVal value As String)
-    '      wlog.WriteLine(DateTime.Now & " >> " & value)
-    '   wlog.Flush()
-
-    '  End Sub
-
 End Module
