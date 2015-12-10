@@ -1,4 +1,4 @@
-﻿Option Strict Off
+﻿Option Strict On
 Option Explicit Off
 Imports System.Net
 Imports System.IO
@@ -48,7 +48,7 @@ Public Class MainFoV
     Dim gameTime As Double = 0
     Dim trackGameTime As String = ini.ReadValue("Main", "TrackGameTime")
     Dim gameTimeHack As String = ini.ReadValue("Main", "GameTime")
-    Public gameTimeIni = 0
+    Public gameTimeIni As Long = 0
     Public appnamevers As String = Application.ProductName & " (" & Application.ProductVersion & ", HF" & hotfix & ")"
     Public appname As String = Application.ProductName
     Dim lastExe As String
@@ -416,61 +416,61 @@ Public Class MainFoV
             End Try
         End If
     End Sub
-    Private Function corruptCheck(filename As String, bytes As Long)
+    Private Function corruptCheck(filename As String, bytes As Long) As Long
         Dim infoReader As System.IO.FileInfo =
 My.Computer.FileSystem.GetFileInfo(filename)
         ' MessageBox.Show(infoReader.Length)
         Return infoReader.Length
     End Function
-    Private Function getImgur2()
-        'this code isn't yet used, got too confused at 3:40am, will probably work on it later, cause program hanging is annoying
-        Try
-            getImgur2 = False
-            '    Dim request2 As System.Net.WebRequest = System.Net.HttpWebRequest.Create("https://docs.google.com/uc?export=download&id=0B0nCag_Hp76zczRGeU9CZ3NZc3M")
-            '     Dim response2 As System.Net.WebResponse = request2.GetResponse()
+    ' Private Function getImgur2()
+    'this code isn't yet used, got too confused at 3:40am, will probably work on it later, cause program hanging is annoying
+    '  Try
+    '          getImgur2 = "False"
+    '    Dim request2 As System.Net.WebRequest = System.Net.HttpWebRequest.Create("https://docs.google.com/uc?export=download&id=0B0nCag_Hp76zczRGeU9CZ3NZc3M")
+    '     Dim response2 As System.Net.WebResponse = request2.GetResponse()
 
-            Try
-                Cache("https://i.imgur.com/2WRGvTd.png", "cache5.cache")
+    '  Try
+    '             Cache("https://i.imgur.com/2WRGvTd.png", "cache5.cache")
 
-                Return True
-            Catch ex As Exception
-                Return False
-            End Try
+    'Return "True"
+    ' Catch ex As Exception
+    'Return "False"
+    'End Try
 
 
 
-            '  Return False
-        Catch ex As Exception
-            If Not ex.Message.Contains("Could not establish trust relationship for the SSL/TLS secure channel") Then
-                MsgBox("Unable to download an image! " & ex.Message, MsgBoxStyle.Critical)
-            Else
-                MsgBox("Unable to download an image! " & ex.Message & newline & "This error is likely caused by your time being out of sync. (System time)", MsgBoxStyle.Critical)
-            End If
-            '   Application.Exit()
-        End Try
+    '  Return False
+    ' Catch ex As Exception
+    'If Not ex.Message.Contains("Could not establish trust relationship for the SSL/TLS secure channel") Then
+    '           MsgBox("Unable to download an image! " & ex.Message, MsgBoxStyle.Critical)
+    'Else
+    '           MsgBox("Unable to download an image! " & ex.Message & newline & "This error is likely caused by your time being out of sync. (System time)", MsgBoxStyle.Critical)
+    'End If
+    '   Application.Exit()
+    'End Try
 
-        Return False
-    End Function
+    'Return "False"
+    'End Function
 
-    Private Sub getImgur()
-        If getImgur2() = False Then
-            updates = False
-        Else
-            updates = True
-        End If
-        AccessLabel()
-    End Sub
+    '  Private Sub getImgur()
+    '      If getImgur2() Is "False" Then
+    '          updates = False
+    '      Else
+    '          updates = True
+    '      End If
+    '      AccessLabel()
+    '  End Sub
 
     Private Sub ChangeFoV()
         Try
             If CoD1CheckBox.Checked = False Then
                 If pid = 0 Then
-                    WriteFloat(exename, &H3052F7C8, FoVTextBox.Text)
+                    WriteFloat(exename, &H3052F7C8, CSng(FoVTextBox.Text))
                 Else
-                    WriteFloatpid(pid, &H3052F7C8, FoVTextBox.Text)
+                    WriteFloatpid(pid, &H3052F7C8, CSng(FoVTextBox.Text))
                 End If
             Else
-                WriteFloat("CoDMP", &H3029CA28, FoVTextBox.Text)
+                WriteFloat("CoDMP", &H3029CA28, CSng(FoVTextBox.Text))
             End If
             If pid = 0 Then
                 Dim MyP As Process() = Process.GetProcessesByName(exename)
@@ -612,7 +612,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
 
         If Not gameTimeHack = "" And Not gameTimeHack Is Nothing Then
-            gameTimeIni = gameTimeHack
+            gameTimeIni = CLng(gameTimeHack)
         End If
 
 
@@ -625,8 +625,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
         If trackGameTime = "True" Then
             GameTimeLabel.Visible = True
             GameTimeLabel.Text = "Game Time: " & CStr(gameTime)
+        ElseIf trackgametime = "" Or trackgametime Is Nothing Then
+            trackGameTime = "True"
+            GameTimeLabel.Visible = True
+            GameTimeLabel.Text = "Game Time: " & CStr(gameTime)
+            ini.WriteValue("Main", "TrackGameTime", "True")
         Else
-            'MessageBox.Show(trackGameTime)
             GameTracker.Stop()
             GameTimeLabel.Visible = False
         End If
@@ -690,7 +694,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         Dim splitStrr() As String
         If fovbox.Contains(",") Then
-            splitStrr = fovbox.Split(",")
+            splitStrr = fovbox.Split(CType(",", Char()))
             For Each word In splitStrr
                 If Not word = "" Then
                     '               MessageBox.Show(word)
@@ -716,7 +720,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Try
             If gamev = "UO" Or gamev Is Nothing Or gamev = "" Then
                 If My.Computer.FileSystem.FileExists(cacheloc & "\cache5.cache") Then
-                    Dim iscorrupt As String = corruptCheck(cacheloc & "\cache5.cache", 11846)
+                    Dim iscorrupt As Double = CDbl(corruptCheck(cacheloc & "\cache5.cache", 11846))
                     If iscorrupt <= 11845 Or iscorrupt >= 11847 Then
                         CoDPictureBox.Image = My.Resources.Loading
                         CoDPictureBox.Load("https://i.imgur.com/2WRGvTd.png")
@@ -732,7 +736,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 End If
             Else
                 If My.Computer.FileSystem.FileExists(cacheloc & "\cache6.cache") Then
-                    Dim iscorrupt As String = corruptCheck(cacheloc & "\cache6.cache", 8606)
+                    Dim iscorrupt As Double = CDbl(corruptCheck(cacheloc & "\cache6.cache", 8606))
                     If iscorrupt <= 8605 Or iscorrupt >= 8607 Then
                         CoDPictureBox.Image = My.Resources.Loading
                         CoDPictureBox.Load("https://i.imgur.com/xhBcQSp.png")
@@ -846,18 +850,18 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
             If arguement.Contains("-fov=") Then
                 '   If Not arguement.StartsWith("-") Then
-                splitStr = arguement.Split("=")
+                splitStr = arguement.Split(CType("=", Char()))
                 If splitStr(1) = Nothing Or splitStr(1) = "" Then
                     Return
                 End If
 
                 If CInt(splitStr(1)) >= 121 Then
-                    splitStr(1) = CInt(120)
+                    splitStr(1) = CStr(120)
                 End If
                 If CInt(splitStr(1)) <= 79 Then
-                    splitStr(1) = CInt(80)
+                    splitStr(1) = CStr(80)
                 End If
-                If splitStr(1).StartsWith(1) Or splitStr(1).StartsWith(2) Or splitStr(1).StartsWith(3) Or splitStr(1).StartsWith(4) Or splitStr(1).StartsWith(5) Or splitStr(1).StartsWith(6) Or splitStr(1).StartsWith(7) Or splitStr(1).StartsWith(8) Or splitStr(1).StartsWith(9) Then
+                If splitStr(1).StartsWith(CStr(1)) Or splitStr(1).StartsWith(CStr(2)) Or splitStr(1).StartsWith(CStr(3)) Or splitStr(1).StartsWith(CStr(4)) Or splitStr(1).StartsWith(CStr(5)) Or splitStr(1).StartsWith(CStr(6)) Or splitStr(1).StartsWith(CStr(7)) Or splitStr(1).StartsWith(CStr(8)) Or splitStr(1).StartsWith(CStr(9)) Then
                     FoVTextBox.Text = splitStr(1)
                     Log.WriteLine("Launched fov changer with -fov=" & splitStr(1))
                 End If
@@ -866,25 +870,25 @@ My.Computer.FileSystem.GetFileInfo(filename)
             '   If My.Computer.FileSystem.FileExists("C:\users\matt_\cod.dat") Then
             If arguement.Contains("-fog=") Then
                 '   If Not arguement.StartsWith("-") Then
-                splitStr = arguement.Split("=")
+                splitStr = arguement.Split(CType("=", Char()))
                 'MessageBox.Show(splitStr(1))
                 If splitStr(1) = Nothing Or splitStr(1) = "" Then
                     Return
                 End If
 
-                If CInt(splitStr(1) < 0) Then
-                    splitStr(1) = 0
+                If CBool(CInt(splitStr(1)) < 0) Then
+                    splitStr(1) = CStr(0)
                 End If
-                If CInt(splitStr(1) >= 2) Then
-                    splitStr(1) = 1
+                If CBool(CInt(splitStr(1)) >= 2) Then
+                    splitStr(1) = CStr(1)
                 End If
-                If splitStr(1).StartsWith(0) Or splitStr(1).StartsWith(1) Then
-                    If splitStr(1) = 1 Then
+                If splitStr(1).StartsWith("0") Or splitStr(1).StartsWith("1") Then
+                    If splitStr(1) = "1" Then
                         FogCheckBox.Checked = True
                         FogTimer.Stop()
                         ini.WriteValue("Extras", "FogMSG", "Ask")
                         ini.WriteValue("Extras", "Fog", "Enabled")
-                    ElseIf splitStr(1) = 0 Then
+                    ElseIf splitStr(1) = "0" Then
                         didFS = True
                         ini.WriteValue("Extras", "FogMSG", "DoNotAsk")
                         ini.WriteValue("Extras", "Fog", "Disabled")
@@ -899,23 +903,23 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
             If arguement.Contains("-menustrip=") Then
                 '   If Not arguement.StartsWith("-") Then
-                splitStr = arguement.Split("=")
+                splitStr = arguement.Split(CType("=", Char()))
                 'MessageBox.Show(splitStr(1))
                 If splitStr(1) = Nothing Or splitStr(1) = "" Then
                     Return
                 End If
 
-                If CInt(splitStr(1) < 0) Then
-                    splitStr(1) = 0
+                If CInt(splitStr(1)) < 0 Then
+                    splitStr(1) = "0"
                 End If
-                If CInt(splitStr(1) >= 1) Then
+                If CInt(splitStr(1)) >= 1 Then
                     Return
                     '      splitStr(1) = 1
                 End If
-                If splitStr(1).StartsWith(0) Or splitStr(1).StartsWith(1) Then
-                    If splitStr(1) = 1 Then
+                If splitStr(1).StartsWith("0") Or splitStr(1).StartsWith("1") Then
+                    If splitStr(1) = "1" Then
                         '    MenuStrip1.Visible = true
-                    ElseIf splitStr(1) = 0 Then
+                    ElseIf splitStr(1) = "0" Then
                         FoVMenuStrip.Visible = False
                     End If
                     Log.WriteLine("Launched fov changer with -menustrip=" & splitStr(1))
@@ -995,19 +999,19 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
             If arguement.Contains("-unlock=") Then
-                splitStr = arguement.Split("=")
+                splitStr = arguement.Split(CType("=", Char()))
                 If splitStr(1) = Nothing Or splitStr(1) = "" Then
                     Return
                 End If
 
                 If CInt(splitStr(1)) >= 1 Then
-                    splitStr(1) = CInt(1)
+                    splitStr(1) = "1"
                     DvarsCheckBox.Visible = True
                     DvarsCheckBox.Checked = True
                     DvarUnlockerTimer.Start()
                 End If
                 If CInt(splitStr(1)) <= 0 Then
-                    splitStr(1) = CInt(0)
+                    splitStr(1) = "0"
                     DvarsCheckBox.Visible = True
                     DvarUnlockerTimer.Stop()
                 End If
@@ -1367,7 +1371,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Next
 
 
-        Dim TimeSpent As System.TimeSpan
+        Dim TimeSpent As TimeSpan
         TimeSpent = Now.Subtract(TimerStart)
         ' MsgBox(TimeSpent.TotalSeconds & " seconds spent on this task")
         If TimeSpent.TotalMilliseconds >= 100 Or Debugger.IsAttached = True Then
@@ -1510,8 +1514,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub Timer3_Tick(sender As Object, e As EventArgs) Handles TextBoxTimer.Tick
         Try
-            If FoVTextBox.Text > 120 Then
-                FoVTextBox.Text = 120
+            If CInt(FoVTextBox.Text) > 120 Then
+                FoVTextBox.Text = "120"
             End If
         Catch ex As Exception
             TextBoxTimer.Stop()
@@ -1519,7 +1523,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             errorOccured = True
             Dim timesoccured As String = ""
             If isDev = True Then
-                timesoccured = (+1)
+                timesoccured = CStr((+1))
             End If
             If Not timesoccured = 3 & isDev = True Then
                 TextBoxTimer.Start()
@@ -1547,12 +1551,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Try
                 Dim hotkey As Boolean
                 Dim hotkey2 As Boolean
-                hotkey = GetAsyncKeyState(Keys.F2)
+                hotkey = CBool(GetAsyncKeyState(Keys.F2))
                 If hotkey = True Then
                     Visible = False
                     Log.WriteLine("Hid Window")
                 End If
-                hotkey2 = GetAsyncKeyState(Keys.F3)
+                hotkey2 = CBool(GetAsyncKeyState(Keys.F3))
                 If hotkey2 = True Then
                     Visible = True
                     Log.WriteLine("Unhid Window")
@@ -1564,17 +1568,17 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
         Dim hotkey3 As Boolean
         Dim hotkey4 As Boolean
-        hotkey3 = GetAsyncKeyState(Keys.Add)
-        hotkey4 = GetAsyncKeyState(Keys.Subtract)
+        hotkey3 = CBool(GetAsyncKeyState(Keys.Add))
+        hotkey4 = CBool(GetAsyncKeyState(Keys.Subtract))
         If hotkey3 = True Then
-            If Not FoVTextBox.Text + 1 = 121 Then
-                FoVTextBox.Text = FoVTextBox.Text + 1
+            If Not CInt(FoVTextBox.Text) + 1 = 121 Then
+                FoVTextBox.Text = CStr(CInt(FoVTextBox.Text) + 1)
                 neg = False
                 ChangeFoV()
             End If
         ElseIf hotkey4 = True Then
-            If Not FoVTextBox.Text - 1 = 79 Then
-                FoVTextBox.Text = FoVTextBox.Text - 1
+            If Not CInt(FoVTextBox.Text) - 1 = 79 Then
+                FoVTextBox.Text = CStr(CInt(FoVTextBox.Text) - 1)
                 neg = True
                 ChangeFoV()
             End If
@@ -1590,15 +1594,15 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Dim hotkeycomboupp As Boolean
         Dim ishotkeydown As Boolean = False
         Dim ishotkeyup As Boolean = False
-        hotkeydownn = GetAsyncKeyState(hotkeydown)
-        hotkeyupp = GetAsyncKeyState(hotkeyup)
+        hotkeydownn = CBool(GetAsyncKeyState(CType(hotkeydown, Keys)))
+        hotkeyupp = CBool(GetAsyncKeyState(CType(hotkeyup, Keys)))
 
         If Not hotkeycomboup = 0 And Not hotkeycomboup = Nothing Then
-            hotkeycomboupp = GetAsyncKeyState(hotkeycomboup)
+            hotkeycomboupp = CBool(GetAsyncKeyState(CType(hotkeycomboup, Keys)))
             ishotkeyup = True
         End If
         If Not hotkeycombodown = 0 And Not hotkeycombodown = Nothing Then
-            hotkeycombodownn = GetAsyncKeyState(hotkeycombodown)
+            hotkeycombodownn = CBool(GetAsyncKeyState(CType(hotkeycombodown, Keys)))
             ishotkeydown = True
         End If
 
@@ -1728,7 +1732,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
         If FogCheckBox.Checked = False Then
             If didFS = False Then
-                ask5 = MessageBox.Show("Please note, you may be banned if you are caught using this, example: making a video and putting it on your clans site, or YouTube, PunkBuster also bans for this, do you want to continue?", "WARNING!", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information)
+                ask5 = CType(MessageBox.Show("Please note, you may be banned if you are caught using this, example: making a video and putting it on your clans site, or YouTube, PunkBuster also bans for this, do you want to continue?", "WARNING!", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information), MsgBoxResult)
             End If
             Log.WriteLine("Gave warning about Fog.")
             If ask5 = MsgBoxResult.No And didFS = False Then
@@ -1928,7 +1932,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Text = "CoDUO FoV Changer (in CoD1 Mode)"
             '  Me.Width = 637
             If My.Computer.FileSystem.FileExists(cacheloc & "\cache6.cache") Then
-                Dim iscorrupt As String = corruptCheck(cacheloc & "\cache6.cache", 8606)
+                Dim iscorrupt As Integer = CInt(corruptCheck(cacheloc & "\cache6.cache", 8606))
                 If iscorrupt <= 8605 Or iscorrupt >= 8607 Then
                     CoDPictureBox.Image = My.Resources.Loading
                     CoDPictureBox.Load("https://i.imgur.com/xhBcQSp.png")
@@ -1955,7 +1959,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Text = "CoDUO FoV Changer"
             'Me.Width = 624
             If My.Computer.FileSystem.FileExists(cacheloc & "\cache5.cache") Then
-                Dim iscorrupt As String = corruptCheck(cacheloc & "\cache5.cache", 11846)
+                Dim iscorrupt As Integer = CInt(corruptCheck(cacheloc & "\cache5.cache", 11846))
                 If iscorrupt <= 11845 Or iscorrupt >= 11847 Then
                     CoDPictureBox.Image = My.Resources.Loading
                     CoDPictureBox.Load("https://i.imgur.com/2WRGvTd.png")
@@ -2125,17 +2129,24 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub GetGameTimeLabel()
-        Dim iSpan As TimeSpan = TimeSpan.FromSeconds(gameTime)
-        Dim TotalMinutes As String = Math.Floor(iSpan.TotalMinutes)
-        Dim TotalHours As String = Math.Floor(iSpan.TotalMinutes)
+        If Not trackGameTime = "True" Then Return
+        If gameTime <= -3153600032 Or gameTime >= 3153600032 Then
+            'prevents overflow from timespan, not quite sure the exact max value, but no one is really ever going to play 100 years of Call of Duty
+            GameTimeLabel.Text = "Game Time: >= 100 years"
+            Return
+        End If
 
-        If gameTime >= 1 And iSpan.Minutes <= 0 Then
+        Dim iSpan As TimeSpan = TimeSpan.FromSeconds(gameTime)
+        Dim TotalMinutes As String = CStr(Math.Floor(iSpan.TotalMinutes))
+        Dim TotalHours As String = CStr(Math.Floor(iSpan.TotalHours))
+
+        If gameTime >= 1 And iSpan.TotalMinutes <= 0 Then
             GameTimeLabel.Text = "Game Time: " & gameTime.ToString() & " seconds"
         End If
-        If iSpan.Minutes >= 1 And iSpan.Hours <= 0 And gameTime >= 60 Then
+        If iSpan.TotalMinutes >= 1 And iSpan.TotalHours <= 0 And gameTime >= 60 Then
             GameTimeLabel.Text = "Game Time: " & TotalMinutes & " minutes"
         End If
-        If iSpan.Hours >= 1 Then
+        If iSpan.TotalHours >= 1 Then
             GameTimeLabel.Text = "Game Time: " & TotalHours & " hours"
         End If
         If GameTimeLabel.Text = "Game Time: 0" Then
@@ -2159,7 +2170,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
         Else
             Dim MyPID As Process = Process.GetProcessById(pid)
-            If Not MyPID.ToString Then
+            If Not CBool(MyPID.ToString) Then
                 Return
             End If
             '
@@ -2168,6 +2179,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub GameTimeSaver_Tick(sender As Object, e As EventArgs) Handles GameTimeSaver.Tick
-        ini.WriteValue("Main", "GameTime", gameTime)
+        ini.WriteValue("Main", "GameTime", CStr(gameTime))
     End Sub
 End Class
