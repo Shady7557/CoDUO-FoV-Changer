@@ -195,6 +195,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApplicationEvents.vb" />
     <Compile Include="AudioClass.vb" />
     <Compile Include="FoVHotKeyForm.Designer.vb">
       <DependentUpon>FoVHotKeyForm.vb</DependentUpon>
@@ -215,10 +216,10 @@
     <Compile Include="SettingsForm.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AdvSettingsForm.Designer.vb">
-      <DependentUpon>AdvSettingsForm.vb</DependentUpon>
+    <Compile Include="AdtSettingsForm.Designer.vb">
+      <DependentUpon>AdtSettingsForm.vb</DependentUpon>
     </Compile>
-    <Compile Include="AdvSettingsForm.vb">
+    <Compile Include="AdtSettingsForm.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="CoDPIDForm.Designer.vb">
@@ -261,8 +262,8 @@
     <EmbeddedResource Include="SettingsForm.resx">
       <DependentUpon>SettingsForm.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="AdvSettingsForm.resx">
-      <DependentUpon>AdvSettingsForm.vb</DependentUpon>
+    <EmbeddedResource Include="AdtSettingsForm.resx">
+      <DependentUpon>AdtSettingsForm.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="CoDPIDForm.resx">
       <DependentUpon>CoDPIDForm.vb</DependentUpon>

@@ -1,19 +1,10 @@
 ﻿Option Strict Off
 Option Explicit Off
-
-Imports System.Net.Mail
 Imports System.Net
 Imports System.IO
-Imports System.Management
-Imports Microsoft.VisualBasic.Devices
-Imports System.ServiceProcess
 Imports System.Threading
-Imports System.Net.Sockets
 Imports System.Text
-Imports System.Text.RegularExpressions
-Imports System
 Imports System.Security.Principal
-Imports System.Security.Cryptography
 Imports CurtLog
 Imports Microsoft.Win32
 
@@ -34,7 +25,7 @@ Public Class MainFoV
     Dim disableupdatetimer As String = ini.ReadValue("Tweaks", "DisableUpdateTimer")
     Dim sleep As String = ini.ReadValue("Tweaks", "Sleep")
     Dim installpath As String = ini.ReadValue("Main", "InstallPath")
-    Dim hotfix As String = "6.5"
+    Dim hotfix As String = "6.6"
     Dim hotfixini As String = ini.ReadValue("Main", "Hotfix")
     Dim progvers As String = Application.ProductVersion
     Dim progversini As String = ini.ReadValue("Main", "AppVersion")
@@ -54,6 +45,10 @@ Public Class MainFoV
     Dim oldoptions As String = appdata & "CoD UO FoV Changer\options.ini"
     Dim exename As String = "CoDUOMP"
     Dim ismohaa As String = ini.ReadValue("Main", "GameExe")
+    Dim gameTime As Double = 0
+    Dim trackGameTime As String = ini.ReadValue("Main", "TrackGameTime")
+    Dim gameTimeHack As String = ini.ReadValue("Main", "GameTime")
+    Public gameTimeIni = 0
     Public appnamevers As String = Application.ProductName & " (" & Application.ProductVersion & ", HF" & hotfix & ")"
     Public appname As String = Application.ProductName
     Dim lastExe As String
@@ -115,7 +110,7 @@ Public Class MainFoV
     Private WithEvents httpclient As WebClient
     Private WithEvents httpclient2 As WebClient
     Private WithEvents httpclient3 As WebClient
-    <System.Runtime.InteropServices.DllImport("user32.dll")> _
+    <System.Runtime.InteropServices.DllImport("user32.dll")>
     Private Shared Function GetAsyncKeyState(ByVal vkey As System.Windows.Forms.Keys) As Short
     End Function
     Enum InfoTypes
@@ -241,8 +236,8 @@ Public Class MainFoV
     End Sub
     Private Sub AccessLabel()
         Try
-            If Me.InvokeRequired Then
-                Me.Invoke(New MethodInvoker(AddressOf AccessLabel))
+            If InvokeRequired Then
+                Invoke(New MethodInvoker(AddressOf AccessLabel))
             Else
 
                 If updates = True Then
@@ -422,7 +417,7 @@ Public Class MainFoV
         End If
     End Sub
     Private Function corruptCheck(filename As String, bytes As Long)
-        Dim infoReader As System.IO.FileInfo = _
+        Dim infoReader As System.IO.FileInfo =
 My.Computer.FileSystem.GetFileInfo(filename)
         ' MessageBox.Show(infoReader.Length)
         Return infoReader.Length
@@ -578,7 +573,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         If saveapplocation.ToLower = "true" Then
             If Not lastwindowposX = "" And Not lastwindowposX Is Nothing And Not lastwindowposY = "" And Not lastwindowposY Is Nothing Then
-                Me.Location = New Point(CInt(lastwindowposX), CInt(lastwindowposY))
+                Location = New Point(CInt(lastwindowposX), CInt(lastwindowposY))
             End If
         End If
 
@@ -619,15 +614,40 @@ My.Computer.FileSystem.GetFileInfo(filename)
             LaunchParametersTB.Text = cmdline
         End If
 
+        If Not gameTimeHack = "" And Not gameTimeHack Is Nothing Then
+            gameTimeIni = gameTimeHack
+        End If
 
 
 
 
+        If Not gameTimeIni = Nothing Then
+            gameTime = gameTimeIni
+        End If
+
+        If trackGameTime = "True" Then
+            GameTimeLabel.Visible = True
+            GameTimeLabel.Text = "Game Time: " & CStr(gameTime)
+        Else
+            'MessageBox.Show(trackGameTime)
+            GameTracker.Stop()
+            GameTimeLabel.Visible = False
+        End If
 
 
+        Dim iSpan As TimeSpan = TimeSpan.FromSeconds(gameTime)
+        If gameTime >= 1 And iSpan.TotalMinutes <= 0 Then
+            GameTimeLabel.Text = "Game Time: " & gameTime.ToString() & " seconds"
+        End If
+        If iSpan.TotalMinutes >= 1 And iSpan.TotalHours <= 0 And gameTime >= 60 Then
+            GameTimeLabel.Text = "Game Time: " & iSpan.TotalMinutes.ToString() & " minutes"
+        End If
+        If iSpan.TotalHours >= 1 Then
+            GameTimeLabel.Text = "Game Time: " & iSpan.TotalHours.ToString & " hours"
+        End If
 
 
-        getmonthT = New Thread(AddressOf Me.getMonth)
+        getmonthT = New Thread(AddressOf getMonth)
         getmonthT.Priority = ThreadPriority.AboveNormal
         getmonthT.IsBackground = True
         getmonthT.Start()
@@ -635,18 +655,16 @@ My.Computer.FileSystem.GetFileInfo(filename)
             HackyAppBranchLB.Visible = False
             HackyGameVersLB.Visible = False
             HackyAppVersLB.Visible = False
-            Me.Height = 220
+            Height = 220
             'Label2.Location = New Point(0, 162)
         End If
 
         If isminimal = "Dark" Then
-            Me.BackColor = Color.DimGray
+            BackColor = Color.DimGray
             FoVTextBox.BackColor = Color.DarkGray
             LaunchParametersTB.BackColor = Color.DarkGray
             UpdateButton.BackColor = Color.DarkGray
             StartGameButton.BackColor = Color.DarkGray
-            ChangeLogButton.BackColor = Color.DarkGray
-            SettingsButton.BackColor = Color.DarkGray
             FoVMenuStrip.BackColor = Color.DarkGray
             If StatusLabel.ForeColor = Color.Red Then
                 StatusLabel.ForeColor = Color.DarkRed
@@ -671,7 +689,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
 
 
-        checkthread = New Thread(AddressOf Me.Checkconnection)
+        checkthread = New Thread(AddressOf Checkconnection)
         checkthread.Priority = ThreadPriority.AboveNormal
         checkthread.IsBackground = True
         checkthread.Start()
@@ -741,6 +759,10 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     Cache("https://i.imgur.com/xhBcQSp.png", "cache6.cache")
                 End If
             End If
+            Dim finalImg As Bitmap
+            finalImg = New Bitmap(CoDPictureBox.Image, CoDPictureBox.Width, CoDPictureBox.Height)
+            CoDPictureBox.SizeMode = PictureBoxSizeMode.CenterImage
+            CoDPictureBox.Image = finalImg
         Catch ex As Exception
             MessageBox.Show("An error has occured while attempting to cache files, this could be a result of no write permissions or not having an internet connection: " & ex.Message & newline & " this should not prevent the program from otherwise running normally.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error)
             Log.WriteLine("Unable to retrieve or cache pictures: " & ex.Message)
@@ -774,8 +796,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
             FoVTextBox.ReadOnly = True
             FoVTimer.Enabled = False
             StartGameButton.Enabled = False
-            ChangeLogButton.Enabled = False
-            SettingsButton.Enabled = False
         End If
 
 
@@ -787,7 +807,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         'safety code
         If Not fov = "80" Or Not fov = "" Then
-            FoVTextBox.Text = CStr(fov)
+            FoVTextBox.Text = fov
         Else
             FoVTextBox.Text = CStr(My.Settings.FoVFix)
         End If
@@ -1211,7 +1231,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
         'Logs stuff
-        Log.WriteLine("User is using version: " & Me.ProductVersion & " Hotfix Version: " & hotfix)
+        Log.WriteLine("User is using version: " & ProductVersion & " Hotfix Version: " & hotfix)
         Log.WriteLine("Log folder is: " & appdata & "CoDUO FoV Changer\Logs")
 
 
@@ -1347,7 +1367,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
                     If currmonth = lastmonth And Not lastday = currday Then
                         For count = CInt(lastday) To CInt(currday)
-                            MessageBox.Show("count: " & CStr(count))
+                            '    MessageBox.Show("count: " & CStr(count))
                             If count >= 14 Then
                                 Log.WriteLine("Log: " & fri.ToString & " is " & Math.Floor(count - 1) & " days old, maximum is 14. - Deleting log.")
                                 IO.File.Delete(fri.FullName)
@@ -1442,10 +1462,10 @@ My.Computer.FileSystem.GetFileInfo(filename)
             '         Log.FlushBuffer()
         End If
 
-        If saveapplocation.ToLower = "true" And Not lastwindowposX = CStr(Me.Location.X) And Not lastwindowposY = CStr(Me.Location.Y) Then
-            ini.WriteValue("Extras", "LastWindowPosX", CStr(Me.Location.X))
-            ini.WriteValue("Extras", "LastWindowPosY", CStr(Me.Location.Y))
-            Log.WriteLine("Saved App Location: " & CStr(Me.Location.X) & " " & CStr(Me.Location.Y))
+        If saveapplocation.ToLower = "true" And Not lastwindowposX = CStr(Location.X) And Not lastwindowposY = CStr(Location.Y) Then
+            ini.WriteValue("Extras", "LastWindowPosX", CStr(Location.X))
+            ini.WriteValue("Extras", "LastWindowPosY", CStr(Location.Y))
+            Log.WriteLine("Saved App Location: " & CStr(Location.X) & " " & CStr(Location.Y))
         End If
 
 
@@ -1513,7 +1533,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         For Each item In HackyFoVComboBox.Items
             MessageBox.Show(item.ToString)
         Next
-        Me.Height = (454)
+        Height = (454)
         MsgBox("This is a debug button.", MsgBoxStyle.Information)
         MsgBox(fov)
         MsgBox(fovinterval & " " & FoVTimer.Interval)
@@ -1531,12 +1551,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 Dim hotkey2 As Boolean
                 hotkey = GetAsyncKeyState(Keys.F2)
                 If hotkey = True Then
-                    Me.Visible = False
+                    Visible = False
                     Log.WriteLine("Hid Window")
                 End If
                 hotkey2 = GetAsyncKeyState(Keys.F3)
                 If hotkey2 = True Then
-                    Me.Visible = True
+                    Visible = True
                     Log.WriteLine("Unhid Window")
                 End If
             Catch ex As Exception
@@ -1732,15 +1752,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     End Sub
 
-    Private Sub Button7_Click_1(sender As Object, e As EventArgs) Handles ChangeLogButton.Click
-        getcl = New Thread(AddressOf Me.getChangelog)
-        getcl.IsBackground = True
-        getcl.Start()
-        ChangeLogButton.Enabled = False
-        System.Threading.Thread.Sleep(1750)
-        ChangeLogButton.Enabled = True
-    End Sub
-
     Private Sub Button9_Click_1(sender As Object, e As EventArgs)
         Try
             My.Computer.FileSystem.DeleteFile(appdata & "CoDUO FoV Changer\settings.ini")
@@ -1773,7 +1784,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End Try
     End Sub
 
-    Private Sub Button11_Click_1(sender As Object, e As EventArgs) Handles SettingsButton.Click
+    Private Sub Button11_Click_1(sender As Object, e As EventArgs)
         SettingsForm.Show()
         Log.WriteLine("Showing Settings Form")
     End Sub
@@ -1792,7 +1803,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub Button12_Click_1(sender As Object, e As EventArgs)
-        AdvSettingsForm.Show()
+        AdtSettingsForm.Show()
     End Sub
 
     Private Sub Timer7_Tick(sender As Object, e As EventArgs) Handles FoVFixTimer.Tick
@@ -1814,7 +1825,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub Label5_Click(sender As Object, e As EventArgs) Handles CheckUpdatesLabel.Click
-        checkthread = New Thread(AddressOf Me.Checkconnection)
+        checkthread = New Thread(AddressOf Checkconnection)
         checkthread.Priority = ThreadPriority.Highest
         checkthread.IsBackground = True
         checkthread.Start()
@@ -1828,9 +1839,9 @@ My.Computer.FileSystem.GetFileInfo(filename)
     Private Sub Form1_Resize(ByVal sender As Object, e As EventArgs) Handles Me.Resize
 
         Try
-            If Me.WindowState = FormWindowState.Minimized Then
+            If WindowState = FormWindowState.Minimized Then
                 If MinimizeCheckBox.Checked = True Then
-                    Me.Visible = False
+                    Visible = False
                     MinimizeIcon.Visible = True
                     MinimizeIcon.BalloonTipIcon = ToolTipIcon.Info
                     MinimizeIcon.BalloonTipText = Application.ProductName & " is minimized. Double click to restore full-size."
@@ -1850,8 +1861,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub NotifyIcon1_MouseDoubleClick(sender As Object, e As MouseEventArgs) Handles MinimizeIcon.MouseDoubleClick
         Try
-            Me.Visible = True
-            Me.WindowState = FormWindowState.Normal
+            Visible = True
+            WindowState = FormWindowState.Normal
             MinimizeIcon.Visible = False
         Catch ex As Exception
             MsgBox(ex.Message)
@@ -1872,13 +1883,13 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub ToolStripMenuItem1_Click(sender As Object, e As EventArgs)
-        Me.Visible = True
-        Me.WindowState = FormWindowState.Normal
+        Visible = True
+        WindowState = FormWindowState.Normal
         MinimizeIcon.Visible = False
     End Sub
 
     Private Sub ToolStripMenuItem2_Click(sender As Object, e As EventArgs)
-        Me.Close()
+        Close()
     End Sub
 
     Private Sub Timer5_Tick(sender As Object, e As EventArgs) Handles ABITWTimer.Tick
@@ -1918,8 +1929,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             FogCheckBox.Checked = True
             FogCheckBox.Enabled = False
             FogCheckBox.Text = "Fog (UO only!)"
-            Me.Text = "CoDUO FoV Changer (in CoD1 Mode)"
-            SettingsForm.ToolTipHandler.SetToolTip(UpdateButton, "Select the process for the FoV changer to write to.")
+            Text = "CoDUO FoV Changer (in CoD1 Mode)"
             '  Me.Width = 637
             If My.Computer.FileSystem.FileExists(cacheloc & "\cache6.cache") Then
                 Dim iscorrupt As String = corruptCheck(cacheloc & "\cache6.cache", 8606)
@@ -1948,7 +1958,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             DvarsCheckBox.Enabled = True
             FogCheckBox.Enabled = True
             FogCheckBox.Text = "Fog"
-            Me.Text = "CoDUO FoV Changer"
+            Text = "CoDUO FoV Changer"
             'Me.Width = 624
             If My.Computer.FileSystem.FileExists(cacheloc & "\cache5.cache") Then
                 Dim iscorrupt As String = corruptCheck(cacheloc & "\cache5.cache", 11846)
@@ -1970,6 +1980,10 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 End Try
             End If
         End If
+        Dim finalImg As Bitmap
+        finalImg = New Bitmap(CoDPictureBox.Image, CoDPictureBox.Width, CoDPictureBox.Height)
+        CoDPictureBox.SizeMode = PictureBoxSizeMode.CenterImage
+        CoDPictureBox.Image = finalImg
     End Sub
 
     Private Sub CheckBox4_CheckedChanged(sender As Object, e As EventArgs) Handles DvarsCheckBox.CheckedChanged
@@ -1988,7 +2002,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         If checkthread.IsAlive = True Then
             checkthread.Abort()
         End If
-        checkthread = New Thread(AddressOf Me.Checkconnection)
+        checkthread = New Thread(AddressOf Checkconnection)
         checkthread.IsBackground = True
         checkthread.Start()
 
@@ -2013,15 +2027,15 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub AdvancedSettingsToolStripMenuItem_Click(sender As Object, e As EventArgs)
-        AdvSettingsForm.Show()
+        AdtSettingsForm.Show()
         iscontext = True
     End Sub
 
     Private Sub Timer2_Tick(sender As Object, e As EventArgs)
         If checkupdates() = True Then
-            SettingsButton.Enabled = True
+            ' SettingsButton.Enabled = True
         Else
-            SettingsButton.Enabled = False
+            '  SettingsButton.Enabled = False
         End If
     End Sub
 
@@ -2108,5 +2122,70 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub Button4_Click(sender As Object, e As EventArgs)
         ChangeHotKeyForm.Show()
+    End Sub
+
+    Private Sub ChangelogToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ChangelogToolStripMenuItem.Click
+        getcl = New Thread(AddressOf getChangelog)
+        getcl.IsBackground = True
+        getcl.Start()
+    End Sub
+
+    Private Sub Button7_Click_1(sender As Object, e As EventArgs)
+
+    End Sub
+
+    Private Sub GameTracker_Tick(sender As Object, e As EventArgs) Handles GameTracker.Tick
+
+
+
+
+        '  If gameTime >= 60 And mMinutes <= 0 Then
+        '      GameTimeLabel.Text = "Game Time: " & gameTime.ToString() & " seconds"
+        '  End If
+        '  If mMinutes >= 1 And gameTime >= 60 Then
+        '      GameTimeLabel.Text = "Game Time: " & mMinutes.ToString() & " minutes"
+        '  End If
+        '   If mHours >= 1 And mMinutes >= 60 Then
+        '       GameTimeLabel.Text = "Game Time: " & mHours.ToString() & " hours"
+        ' End If
+
+
+
+        Dim iSpan As TimeSpan = TimeSpan.FromSeconds(gameTime)
+
+        If gameTime >= 1 And iSpan.Minutes <= 0 Then
+            GameTimeLabel.Text = "Game Time: " & gameTime.ToString() & " seconds"
+        End If
+        If iSpan.Minutes >= 1 And iSpan.Hours <= 0 And gameTime >= 60 Then
+            GameTimeLabel.Text = "Game Time: " & iSpan.TotalMinutes.ToString() & " minutes"
+        End If
+        If iSpan.Hours >= 1 Then
+            GameTimeLabel.Text = "Game Time: " & iSpan.TotalHours.ToString & " hours"
+        End If
+
+
+        If pid = 0 Then
+            Dim MyP As Process() = Process.GetProcessesByName(exename)
+            If MyP.Length = 0 Then
+                Return
+            End If
+        Else
+            Dim MyPID As Process = Process.GetProcessById(pid)
+            If Not MyPID.ToString Then
+                Return
+            End If
+            '
+        End If
+
+
+        gameTime = gameTime + 1
+
+
+
+
+    End Sub
+
+    Private Sub GameTimeSaver_Tick(sender As Object, e As EventArgs) Handles GameTimeSaver.Tick
+        ini.WriteValue("Main", "GameTime", gameTime)
     End Sub
 End Class

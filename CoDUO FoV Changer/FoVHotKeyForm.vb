@@ -41,18 +41,18 @@
 
     Private Sub FoVHotKeyShowForm_Click(sender As Object, e As EventArgs) Handles FoVHotKeyShowForm.Click
         ChangeHotKeyForm.Show()
-        Me.Hide()
+        Hide()
     End Sub
 
     Private Sub CloseFormButton_Click(sender As Object, e As EventArgs) Handles CloseFormButton.Click
         MainFoV.HackyFoVComboBox.SelectedIndex = CBBoxFoV.SelectedIndex
         SettingsForm.Show()
-        Me.Close()
+        Close()
     End Sub
 
     Private Sub FoVHotKeyForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If SettingsForm.StyleCBox.SelectedItem.ToString = "Dark" Then
-            Me.BackColor = Color.DimGray
+            BackColor = Color.DimGray
             ButtonAddFoVCB.BackColor = Color.DarkGray
             CloseFormButton.BackColor = Color.DarkGray
             FoVHotKeyShowForm.BackColor = Color.DarkGray

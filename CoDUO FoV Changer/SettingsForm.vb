@@ -200,7 +200,7 @@ Public Class SettingsForm
 
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles ButtonSettingsAdvanced.Click
         Me.Visible = False
-        AdvSettingsForm.Show()
+        AdtSettingsForm.Show()
     End Sub
 
     Private Sub Label13_Click(sender As Object, e As EventArgs)

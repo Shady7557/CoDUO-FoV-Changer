@@ -13,13 +13,13 @@
         pid = splitStr(1).Replace(")", "")
         pidInt = CInt(pid)
         MainFoV.pid = pidInt
-        Me.Hide()
+        Hide()
     End Sub
 
     Private Sub Form6_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
             If SettingsForm.StyleCBox.SelectedItem = "Dark" Then
-                Me.BackColor = Color.DimGray
+                BackColor = Color.DimGray
                 PIDListBox.BackColor = Color.DarkGray
                 SelectPIDButton.BackColor = Color.DarkGray
                 ClosePIDListButton.BackColor = Color.DarkGray
@@ -34,11 +34,11 @@
         End Try
         If PIDListBox.Items.Count <= 0 Then
             MessageBox.Show("CoDUO is not running or the process could not be found! (process must contain or equal ""CoDUOMP"")", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
-            Me.Close()
+            Close()
         End If
     End Sub
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles ClosePIDListButton.Click
-        Me.Hide()
+        Hide()
     End Sub
 End Class

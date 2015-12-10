@@ -13,12 +13,12 @@
     Dim keyupcombo As String = ini.ReadValue("Extras", "HotKeyUpCombo")
     Dim keydowncombo As String = ini.ReadValue("Extras", "HotKeyDownCombo")
     Dim keystring As String
-    <System.Runtime.InteropServices.DllImport("user32.dll")> _
-    Private Shared Function GetAsyncKeyState(ByVal vkey As System.Windows.Forms.Keys) As Short
+    <System.Runtime.InteropServices.DllImport("user32.dll")>
+    Private Shared Function GetAsyncKeyState(ByVal vkey As Keys) As Short
     End Function
     Private Sub Form7_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If SettingsForm.StyleCBox.SelectedItem.ToString = "Dark" Then
-            Me.BackColor = Color.DimGray
+            BackColor = Color.DimGray
             CloseHotKeyFormButton.BackColor = Color.DarkGray
             ClearComboKeys.BackColor = Color.DarkGray
             ClearHotKeys.BackColor = Color.DarkGray
@@ -189,7 +189,7 @@
             ini.WriteValue("Extras", "HotKeyDownCombo", keycombo2)
         End If
         FoVHotKeyForm.Show()
-        Me.Close()
+        Close()
     End Sub
 
     Private Sub ClearHotKeys_Click(sender As Object, e As EventArgs) Handles ClearHotKeys.Click

@@ -51,7 +51,7 @@ Partial Class SettingsForm
         Me.GamePathButton.Name = "GamePathButton"
         Me.GamePathButton.Size = New System.Drawing.Size(173, 23)
         Me.GamePathButton.TabIndex = 0
-        Me.GamePathButton.Text = "Set Game Path"
+        Me.GamePathButton.Text = "Change Game Path"
         Me.ToolTipHandler.SetToolTip(Me.GamePathButton, "Change your game's install location, as according to the FoV Changer.")
         Me.GamePathButton.UseVisualStyleBackColor = True
         '
@@ -177,7 +177,7 @@ Partial Class SettingsForm
         Me.ButtonSettingsAdvanced.Name = "ButtonSettingsAdvanced"
         Me.ButtonSettingsAdvanced.Size = New System.Drawing.Size(173, 22)
         Me.ButtonSettingsAdvanced.TabIndex = 59
-        Me.ButtonSettingsAdvanced.Text = "Advanced Settings"
+        Me.ButtonSettingsAdvanced.Text = "Additional Settings"
         Me.ToolTipHandler.SetToolTip(Me.ButtonSettingsAdvanced, "Config file settings, and other more advanced settings.")
         Me.ButtonSettingsAdvanced.UseVisualStyleBackColor = True
         '
@@ -210,7 +210,7 @@ Partial Class SettingsForm
         Me.ButtonSelectGamePID.Name = "ButtonSelectGamePID"
         Me.ButtonSelectGamePID.Size = New System.Drawing.Size(173, 23)
         Me.ButtonSelectGamePID.TabIndex = 65
-        Me.ButtonSelectGamePID.Text = "Select Process for FoV"
+        Me.ButtonSelectGamePID.Text = "Select Process ID"
         Me.ToolTipHandler.SetToolTip(Me.ButtonSelectGamePID, "Select the process for the FoV changer to write to.")
         Me.ButtonSelectGamePID.UseVisualStyleBackColor = True
         '
@@ -228,7 +228,7 @@ Partial Class SettingsForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(190, 328)
+        Me.ClientSize = New System.Drawing.Size(191, 334)
         Me.ControlBox = False
         Me.Controls.Add(Me.SetupKeysButton)
         Me.Controls.Add(Me.ButtonSelectGamePID)

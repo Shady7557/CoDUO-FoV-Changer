@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class MainFoV
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,7 +20,7 @@ Partial Class MainFoV
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(MainFoV))
@@ -40,9 +40,7 @@ Partial Class MainFoV
         Me.HackyAppBranchLB = New System.Windows.Forms.Label()
         Me.HackyGameVersLB = New System.Windows.Forms.Label()
         Me.FogCheckBox = New System.Windows.Forms.CheckBox()
-        Me.ChangeLogButton = New System.Windows.Forms.Button()
         Me.FogTimer = New System.Windows.Forms.Timer(Me.components)
-        Me.SettingsButton = New System.Windows.Forms.Button()
         Me.FolderBrowserDialog1 = New System.Windows.Forms.FolderBrowserDialog()
         Me.FoVFixTimer = New System.Windows.Forms.Timer(Me.components)
         Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog()
@@ -62,11 +60,15 @@ Partial Class MainFoV
         Me.InfoToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
         Me.SettingsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ChangelogToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.CmdLineTimer = New System.Windows.Forms.Timer(Me.components)
         Me.DvarUnlockerTimer = New System.Windows.Forms.Timer(Me.components)
         Me.ComboBox1 = New System.Windows.Forms.ComboBox()
         Me.HackyFoVComboBox = New System.Windows.Forms.ComboBox()
+        Me.GameTracker = New System.Windows.Forms.Timer(Me.components)
+        Me.GameTimeLabel = New System.Windows.Forms.Label()
+        Me.GameTimeSaver = New System.Windows.Forms.Timer(Me.components)
         CType(Me.CoDPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.FoVMenuStrip.SuspendLayout()
         Me.SuspendLayout()
@@ -103,8 +105,8 @@ Partial Class MainFoV
         Me.StatusLabel.Size = New System.Drawing.Size(307, 18)
         Me.StatusLabel.TabIndex = 3
         Me.StatusLabel.Text = "Status: not found or failed to write to memory!"
-        Me.ToolTipHandler.SetToolTip(Me.StatusLabel, "The status of the FoV Changer. " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "If it is not found or failed to write to memory," & _
-        " start the game." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "If this fails, you probably have com_hunkmegs set above 128." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & _
+        Me.ToolTipHandler.SetToolTip(Me.StatusLabel, "The status of the FoV Changer. " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "If it is not found or failed to write to memory," &
+        " start the game." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "If this fails, you probably have com_hunkmegs set above 128." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) &
         "Change it to 128. It CANNOT be higher.")
         '
         'StartGameButton
@@ -123,7 +125,7 @@ Partial Class MainFoV
         '
         'debugb
         '
-        Me.debugb.Location = New System.Drawing.Point(315, 142)
+        Me.debugb.Location = New System.Drawing.Point(305, 154)
         Me.debugb.Name = "debugb"
         Me.debugb.Size = New System.Drawing.Size(86, 22)
         Me.debugb.TabIndex = 6
@@ -140,7 +142,7 @@ Partial Class MainFoV
         '
         Me.UpdateButton.Location = New System.Drawing.Point(171, 38)
         Me.UpdateButton.Name = "UpdateButton"
-        Me.UpdateButton.Size = New System.Drawing.Size(133, 25)
+        Me.UpdateButton.Size = New System.Drawing.Size(70, 25)
         Me.UpdateButton.TabIndex = 11
         Me.UpdateButton.Text = "Update"
         Me.UpdateButton.UseVisualStyleBackColor = True
@@ -150,7 +152,7 @@ Partial Class MainFoV
         '
         Me.CheckUpdatesLabel.AutoSize = True
         Me.CheckUpdatesLabel.BackColor = System.Drawing.Color.Transparent
-        Me.CheckUpdatesLabel.Location = New System.Drawing.Point(141, 9)
+        Me.CheckUpdatesLabel.Location = New System.Drawing.Point(125, 9)
         Me.CheckUpdatesLabel.Name = "CheckUpdatesLabel"
         Me.CheckUpdatesLabel.Size = New System.Drawing.Size(117, 13)
         Me.CheckUpdatesLabel.TabIndex = 12
@@ -170,7 +172,7 @@ Partial Class MainFoV
         Me.LaunchParametersLB.Size = New System.Drawing.Size(102, 13)
         Me.LaunchParametersLB.TabIndex = 24
         Me.LaunchParametersLB.Text = "Launch Parameters:"
-        Me.ToolTipHandler.SetToolTip(Me.LaunchParametersLB, "Start the game with these launch parameters." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(Formerly known as ""Command Line""" & _
+        Me.ToolTipHandler.SetToolTip(Me.LaunchParametersLB, "Start the game with these launch parameters." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(Formerly known as ""Command Line""" &
         ")" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10))
         '
         'LaunchParametersTB
@@ -180,7 +182,7 @@ Partial Class MainFoV
         Me.LaunchParametersTB.Name = "LaunchParametersTB"
         Me.LaunchParametersTB.Size = New System.Drawing.Size(270, 20)
         Me.LaunchParametersTB.TabIndex = 25
-        Me.ToolTipHandler.SetToolTip(Me.LaunchParametersTB, "Start the game with these launch parameters." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(Formerly known as ""Command Line""" & _
+        Me.ToolTipHandler.SetToolTip(Me.LaunchParametersTB, "Start the game with these launch parameters." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(Formerly known as ""Command Line""" &
         ")" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10))
         '
         'HackyAppBranchLB
@@ -206,34 +208,16 @@ Partial Class MainFoV
         'FogCheckBox
         '
         Me.FogCheckBox.AutoSize = True
-        Me.FogCheckBox.Location = New System.Drawing.Point(500, 78)
+        Me.FogCheckBox.Location = New System.Drawing.Point(296, 74)
         Me.FogCheckBox.Name = "FogCheckBox"
         Me.FogCheckBox.Size = New System.Drawing.Size(44, 17)
         Me.FogCheckBox.TabIndex = 30
         Me.FogCheckBox.Text = "Fog"
         Me.FogCheckBox.UseVisualStyleBackColor = True
         '
-        'ChangeLogButton
-        '
-        Me.ChangeLogButton.Location = New System.Drawing.Point(396, 107)
-        Me.ChangeLogButton.Name = "ChangeLogButton"
-        Me.ChangeLogButton.Size = New System.Drawing.Size(86, 22)
-        Me.ChangeLogButton.TabIndex = 31
-        Me.ChangeLogButton.Text = "Changelog"
-        Me.ChangeLogButton.UseVisualStyleBackColor = True
-        '
         'FogTimer
         '
         Me.FogTimer.Interval = 2000
-        '
-        'SettingsButton
-        '
-        Me.SettingsButton.Location = New System.Drawing.Point(490, 107)
-        Me.SettingsButton.Name = "SettingsButton"
-        Me.SettingsButton.Size = New System.Drawing.Size(86, 22)
-        Me.SettingsButton.TabIndex = 36
-        Me.SettingsButton.Text = "Settings"
-        Me.SettingsButton.UseVisualStyleBackColor = True
         '
         'FolderBrowserDialog1
         '
@@ -255,7 +239,7 @@ Partial Class MainFoV
         'MinimizeCheckBox
         '
         Me.MinimizeCheckBox.AutoSize = True
-        Me.MinimizeCheckBox.Location = New System.Drawing.Point(396, 78)
+        Me.MinimizeCheckBox.Location = New System.Drawing.Point(296, 51)
         Me.MinimizeCheckBox.Name = "MinimizeCheckBox"
         Me.MinimizeCheckBox.Size = New System.Drawing.Size(98, 17)
         Me.MinimizeCheckBox.TabIndex = 45
@@ -280,7 +264,7 @@ Partial Class MainFoV
         'CoD1CheckBox
         '
         Me.CoD1CheckBox.AutoSize = True
-        Me.CoD1CheckBox.Location = New System.Drawing.Point(396, 55)
+        Me.CoD1CheckBox.Location = New System.Drawing.Point(296, 28)
         Me.CoD1CheckBox.Name = "CoD1CheckBox"
         Me.CoD1CheckBox.Size = New System.Drawing.Size(71, 17)
         Me.CoD1CheckBox.TabIndex = 49
@@ -310,7 +294,7 @@ Partial Class MainFoV
         'DvarsCheckBox
         '
         Me.DvarsCheckBox.AutoSize = True
-        Me.DvarsCheckBox.Location = New System.Drawing.Point(394, 32)
+        Me.DvarsCheckBox.Location = New System.Drawing.Point(296, 5)
         Me.DvarsCheckBox.Name = "DvarsCheckBox"
         Me.DvarsCheckBox.Size = New System.Drawing.Size(105, 17)
         Me.DvarsCheckBox.TabIndex = 52
@@ -319,9 +303,9 @@ Partial Class MainFoV
         '
         'CoDPictureBox
         '
-        Me.CoDPictureBox.Location = New System.Drawing.Point(310, 49)
+        Me.CoDPictureBox.Location = New System.Drawing.Point(346, 90)
         Me.CoDPictureBox.Name = "CoDPictureBox"
-        Me.CoDPictureBox.Size = New System.Drawing.Size(80, 80)
+        Me.CoDPictureBox.Size = New System.Drawing.Size(45, 46)
         Me.CoDPictureBox.TabIndex = 53
         Me.CoDPictureBox.TabStop = False
         '
@@ -330,9 +314,9 @@ Partial Class MainFoV
         Me.FoVMenuStrip.BackColor = System.Drawing.SystemColors.Control
         Me.FoVMenuStrip.Dock = System.Windows.Forms.DockStyle.Bottom
         Me.FoVMenuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.HelpToolStripMenuItem, Me.ToolStripMenuItem1, Me.ExitToolStripMenuItem})
-        Me.FoVMenuStrip.Location = New System.Drawing.Point(0, 183)
+        Me.FoVMenuStrip.Location = New System.Drawing.Point(0, 165)
         Me.FoVMenuStrip.Name = "FoVMenuStrip"
-        Me.FoVMenuStrip.Size = New System.Drawing.Size(583, 24)
+        Me.FoVMenuStrip.Size = New System.Drawing.Size(399, 24)
         Me.FoVMenuStrip.TabIndex = 54
         Me.FoVMenuStrip.Text = "MenuStrip1"
         '
@@ -351,7 +335,7 @@ Partial Class MainFoV
         '
         'ToolStripMenuItem1
         '
-        Me.ToolStripMenuItem1.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SettingsToolStripMenuItem})
+        Me.ToolStripMenuItem1.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SettingsToolStripMenuItem, Me.ChangelogToolStripMenuItem})
         Me.ToolStripMenuItem1.Name = "ToolStripMenuItem1"
         Me.ToolStripMenuItem1.Size = New System.Drawing.Size(47, 20)
         Me.ToolStripMenuItem1.Text = "Tools"
@@ -359,8 +343,14 @@ Partial Class MainFoV
         'SettingsToolStripMenuItem
         '
         Me.SettingsToolStripMenuItem.Name = "SettingsToolStripMenuItem"
-        Me.SettingsToolStripMenuItem.Size = New System.Drawing.Size(116, 22)
+        Me.SettingsToolStripMenuItem.Size = New System.Drawing.Size(132, 22)
         Me.SettingsToolStripMenuItem.Text = "Settings"
+        '
+        'ChangelogToolStripMenuItem
+        '
+        Me.ChangelogToolStripMenuItem.Name = "ChangelogToolStripMenuItem"
+        Me.ChangelogToolStripMenuItem.Size = New System.Drawing.Size(132, 22)
+        Me.ChangelogToolStripMenuItem.Text = "Changelog"
         '
         'ExitToolStripMenuItem
         '
@@ -388,18 +378,38 @@ Partial Class MainFoV
         'HackyFoVComboBox
         '
         Me.HackyFoVComboBox.FormattingEnabled = True
-        Me.HackyFoVComboBox.Location = New System.Drawing.Point(12, 160)
+        Me.HackyFoVComboBox.Location = New System.Drawing.Point(202, 326)
         Me.HackyFoVComboBox.Name = "HackyFoVComboBox"
         Me.HackyFoVComboBox.Size = New System.Drawing.Size(121, 21)
         Me.HackyFoVComboBox.TabIndex = 56
         Me.HackyFoVComboBox.Visible = False
+        '
+        'GameTracker
+        '
+        Me.GameTracker.Enabled = True
+        Me.GameTracker.Interval = 1000
+        '
+        'GameTimeLabel
+        '
+        Me.GameTimeLabel.AutoSize = True
+        Me.GameTimeLabel.Location = New System.Drawing.Point(171, 66)
+        Me.GameTimeLabel.Name = "GameTimeLabel"
+        Me.GameTimeLabel.Size = New System.Drawing.Size(67, 13)
+        Me.GameTimeLabel.TabIndex = 57
+        Me.GameTimeLabel.Text = "Game Time: "
+        '
+        'GameTimeSaver
+        '
+        Me.GameTimeSaver.Enabled = True
+        Me.GameTimeSaver.Interval = 5000
         '
         'MainFoV
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
-        Me.ClientSize = New System.Drawing.Size(583, 207)
+        Me.ClientSize = New System.Drawing.Size(399, 189)
+        Me.Controls.Add(Me.GameTimeLabel)
         Me.Controls.Add(Me.HackyFoVComboBox)
         Me.Controls.Add(Me.ComboBox1)
         Me.Controls.Add(Me.FoVMenuStrip)
@@ -410,8 +420,6 @@ Partial Class MainFoV
         Me.Controls.Add(Me.CoD1CheckBox)
         Me.Controls.Add(Me.HackyAppVersLB)
         Me.Controls.Add(Me.MinimizeCheckBox)
-        Me.Controls.Add(Me.SettingsButton)
-        Me.Controls.Add(Me.ChangeLogButton)
         Me.Controls.Add(Me.FogCheckBox)
         Me.Controls.Add(Me.HackyGameVersLB)
         Me.Controls.Add(Me.HackyAppBranchLB)
@@ -455,9 +463,7 @@ Partial Class MainFoV
     Friend WithEvents HackyAppBranchLB As System.Windows.Forms.Label
     Friend WithEvents HackyGameVersLB As System.Windows.Forms.Label
     Friend WithEvents FogCheckBox As System.Windows.Forms.CheckBox
-    Friend WithEvents ChangeLogButton As System.Windows.Forms.Button
     Friend WithEvents FogTimer As System.Windows.Forms.Timer
-    Friend WithEvents SettingsButton As System.Windows.Forms.Button
     Friend WithEvents FolderBrowserDialog1 As System.Windows.Forms.FolderBrowserDialog
     Friend WithEvents FoVFixTimer As System.Windows.Forms.Timer
     Friend WithEvents OpenFileDialog1 As System.Windows.Forms.OpenFileDialog
@@ -482,5 +488,8 @@ Partial Class MainFoV
     Friend WithEvents InfoToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ComboBox1 As System.Windows.Forms.ComboBox
     Friend WithEvents HackyFoVComboBox As System.Windows.Forms.ComboBox
-
+    Friend WithEvents ChangelogToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents GameTracker As Timer
+    Friend WithEvents GameTimeLabel As Label
+    Friend WithEvents GameTimeSaver As Timer
 End Class
