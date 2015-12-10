@@ -1,4 +1,5 @@
-﻿Public Class FoVHotKeyForm
+﻿Option Strict On
+Public Class FoVHotKeyForm
     Dim ini As New IniFile(MainFoV.appdata & "CoDUO FoV Changer\settings.ini")
     Private Sub ButtonAddFoVCB_Click(sender As Object, e As EventArgs) Handles ButtonAddFoVCB.Click
         Try
@@ -62,7 +63,7 @@
         CBBoxFoV.DropDownStyle = ComboBoxStyle.DropDownList
         Dim splitStrr() As String
         If MainFoV.fovbox.Contains(",") Then
-            splitStrr = MainFoV.fovbox.Split(",")
+            splitStrr = MainFoV.fovbox.Split(CType(",", Char()))
             For Each word In splitStrr
                 If Not word = "" Then
                     '               MessageBox.Show(word)

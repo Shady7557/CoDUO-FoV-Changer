@@ -1,4 +1,5 @@
-﻿Public Class AdtSettingsForm
+﻿Option Strict On
+Public Class AdtSettingsForm
     Public userpth As String = System.Environment.GetEnvironmentVariable("userprofile")
     Public appdata As String = System.Environment.GetEnvironmentVariable("appdata") & "\"
     Dim ini As New IniFile(appdata & "CoDUO FoV Changer\settings.ini")

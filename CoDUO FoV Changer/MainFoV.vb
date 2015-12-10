@@ -463,38 +463,45 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub ChangeFoV()
         Try
+            '    If Not pid = 0 Then
+            '         Dim MyPID As Process = Process.GetProcessById(pid)
+            '         If MyPID.HasExited = True Then
+            '         Return
+            '     End If
+            '     End If
+
             If CoD1CheckBox.Checked = False Then
-                If pid = 0 Then
-                    WriteFloat(exename, &H3052F7C8, CSng(FoVTextBox.Text))
-                Else
-                    WriteFloatpid(pid, &H3052F7C8, CSng(FoVTextBox.Text))
-                End If
-            Else
-                WriteFloat("CoDMP", &H3029CA28, CSng(FoVTextBox.Text))
-            End If
-            If pid = 0 Then
-                Dim MyP As Process() = Process.GetProcessesByName(exename)
-                If MyP.Length = 0 Then
-                    StatusLabel.Text = ("Status: not found or failed to write to memory!")
-                    If isminimal = "Dark" Then
-                        StatusLabel.ForeColor = Color.DarkRed
+                    If pid = 0 Then
+                        WriteFloat(exename, &H3052F7C8, CSng(FoVTextBox.Text))
                     Else
-                        StatusLabel.ForeColor = Color.Red
+                        WriteFloatpid(pid, &H3052F7C8, CSng(FoVTextBox.Text))
                     End If
-                    StartGameButton.Enabled = True
+                Else
+                    WriteFloat("CoDMP", &H3029CA28, CSng(FoVTextBox.Text))
+                End If
+                If pid = 0 Then
+                    Dim MyP As Process() = Process.GetProcessesByName(exename)
+                    If MyP.Length = 0 Then
+                        StatusLabel.Text = ("Status: not found or failed to write to memory!")
+                        If isminimal = "Dark" Then
+                            StatusLabel.ForeColor = Color.DarkRed
+                        Else
+                            StatusLabel.ForeColor = Color.Red
+                        End If
+                        StartGameButton.Enabled = True
 
 
                         Exit Sub
-                Else
-                    StatusLabel.Text = ("Status: UO found and wrote to memory!")
-                    If isminimal = "Dark" Then
-                        StatusLabel.ForeColor = Color.DarkGreen
                     Else
-                        StatusLabel.ForeColor = Color.Green
+                        StatusLabel.Text = ("Status: UO found and wrote to memory!")
+                        If isminimal = "Dark" Then
+                            StatusLabel.ForeColor = Color.DarkGreen
+                        Else
+                            StatusLabel.ForeColor = Color.Green
+                        End If
+                        StartGameButton.Enabled = False
                     End If
-                    StartGameButton.Enabled = False
                 End If
-            End If
         Catch ex As Exception
             FoVTimer.Stop()
             '   MsgBox(ex.Message)
@@ -624,11 +631,9 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         If trackGameTime = "True" Then
             GameTimeLabel.Visible = True
-            GameTimeLabel.Text = "Game Time: " & CStr(gameTime)
         ElseIf trackgametime = "" Or trackgametime Is Nothing Then
             trackGameTime = "True"
             GameTimeLabel.Visible = True
-            GameTimeLabel.Text = "Game Time: " & CStr(gameTime)
             ini.WriteValue("Main", "TrackGameTime", "True")
         Else
             GameTracker.Stop()
@@ -873,7 +878,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 splitStr = arguement.Split(CType("=", Char()))
                 'MessageBox.Show(splitStr(1))
                 If splitStr(1) = Nothing Or splitStr(1) = "" Then
-                    Return
+                    '
                 End If
 
                 If CBool(CInt(splitStr(1)) < 0) Then
@@ -906,14 +911,14 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 splitStr = arguement.Split(CType("=", Char()))
                 'MessageBox.Show(splitStr(1))
                 If splitStr(1) = Nothing Or splitStr(1) = "" Then
-                    Return
+                    '
                 End If
 
                 If CInt(splitStr(1)) < 0 Then
                     splitStr(1) = "0"
                 End If
                 If CInt(splitStr(1)) >= 1 Then
-                    Return
+                    '
                     '      splitStr(1) = 1
                 End If
                 If splitStr(1).StartsWith("0") Or splitStr(1).StartsWith("1") Then
@@ -1001,7 +1006,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             If arguement.Contains("-unlock=") Then
                 splitStr = arguement.Split(CType("=", Char()))
                 If splitStr(1) = Nothing Or splitStr(1) = "" Then
-                    Return
+                    ' Return
                 End If
 
                 If CInt(splitStr(1)) >= 1 Then
@@ -1739,6 +1744,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 FogTimer.Stop()
                 WriteInteger(exename, &H98861C, 1)
                 ' CheckBox1.Checked = True
+                FogCheckBox.Checked = True
                 ini.WriteValue("Extras", "FogMSG", "Ask")
                 ini.WriteValue("Extras", "Fog", "Enabled")
                 Log.WriteLine("User did not continue.")
@@ -1746,6 +1752,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 FogTimer.Start()
                 WriteInteger(exename, &H98861C, 0)
                 '   CheckBox1.Checked = False
+                FogCheckBox.Checked = False
                 ini.WriteValue("Extras", "FogMSG", "DoNotAsk")
                 ini.WriteValue("Extras", "Fog", "Disabled")
                 Log.WriteLine("User continued.")
@@ -2130,9 +2137,13 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub GetGameTimeLabel()
         If Not trackGameTime = "True" Then Return
-        If gameTime <= -3153600032 Or gameTime >= 3153600032 Then
+        If gameTime >= 3153600032 Then
             'prevents overflow from timespan, not quite sure the exact max value, but no one is really ever going to play 100 years of Call of Duty
             GameTimeLabel.Text = "Game Time: >= 100 years"
+            Return
+        End If
+        If gameTime <= 0 Then
+            GameTimeLabel.Text = "Game Time: No time played"
             Return
         End If
 
@@ -2140,13 +2151,13 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Dim TotalMinutes As String = CStr(Math.Floor(iSpan.TotalMinutes))
         Dim TotalHours As String = CStr(Math.Floor(iSpan.TotalHours))
 
-        If gameTime >= 1 And iSpan.TotalMinutes <= 0 Then
+        If gameTime >= 1 And CDbl(TotalMinutes) <= 0 Then
             GameTimeLabel.Text = "Game Time: " & gameTime.ToString() & " seconds"
         End If
-        If iSpan.TotalMinutes >= 1 And iSpan.TotalHours <= 0 And gameTime >= 60 Then
+        If iSpan.TotalMinutes >= 1 And CDbl(TotalHours) <= 0 And gameTime >= 60 Then
             GameTimeLabel.Text = "Game Time: " & TotalMinutes & " minutes"
         End If
-        If iSpan.TotalHours >= 1 Then
+        If CDbl(TotalHours) >= 1 Then
             GameTimeLabel.Text = "Game Time: " & TotalHours & " hours"
         End If
         If GameTimeLabel.Text = "Game Time: 0" Then
@@ -2156,6 +2167,11 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub GameTracker_Tick(sender As Object, e As EventArgs) Handles GameTracker.Tick
+        ' Dim MyPID As Process
+        ' If Not pid = 0 Then
+        '  MyPID = Process.GetProcessById(pid)
+
+        'End If
         GetGameTimeLabel()
         Dim MyP As Process()
         If pid = 0 Then
@@ -2164,16 +2180,9 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Else
                 MyP = Process.GetProcessesByName(exename)
             End If
-
             If MyP.Length = 0 Then
                 Return
             End If
-        Else
-            Dim MyPID As Process = Process.GetProcessById(pid)
-            If Not CBool(MyPID.ToString) Then
-                Return
-            End If
-            '
         End If
         gameTime = gameTime + 1
     End Sub

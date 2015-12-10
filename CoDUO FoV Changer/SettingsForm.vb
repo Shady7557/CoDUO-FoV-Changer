@@ -1,4 +1,5 @@
-﻿Imports System
+﻿Option Strict On
+Imports System
 Imports System.Management
 Imports System.Runtime.InteropServices
 
@@ -7,14 +8,14 @@ Public Class SettingsForm
     Public userpth As String = System.Environment.GetEnvironmentVariable("userprofile")
     Public appdata As String = System.Environment.GetEnvironmentVariable("appdata") & "\"
     Dim ini As New IniFile(appdata & "CoDUO FoV Changer\settings.ini")
-    Dim sleep = ini.ReadValue("Tweaks", "SleepMili")
-    Dim installpath = ini.ReadValue("Main", "InstallPath")
+    Dim sleep As String = ini.ReadValue("Tweaks", "SleepMili")
+    Dim installpath As String = ini.ReadValue("Main", "InstallPath")
     ' Dim appversion = ini.ReadValue("Main", "AppType")
     '  Dim appversion As String = "x86"
-    Dim stylet = ini.ReadValue("Extras", "Style")
+    Dim stylet As String = ini.ReadValue("Extras", "Style")
     Dim modern As Boolean
     Dim hide2 As Boolean
-    Dim reso = ini.ReadValue("Extras", "Resolution")
+    Dim reso As String = ini.ReadValue("Extras", "Resolution")
     Public num1 As Integer = 0
     Public num2 As Integer = 0
     Dim cacheKey As String = ""
@@ -34,9 +35,9 @@ Public Class SettingsForm
 
 
             Dim readvalue As String
-            readvalue = My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "InstallPath", "game registry keys not found")
+            readvalue = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "InstallPath", "game registry keys not found"))
             If MainFoV.ostype = "32" Then
-                readvalue = My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "InstallPath", "game registry keys not found")
+                readvalue = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "InstallPath", "game registry keys not found"))
             End If
 
             If readvalue = TextBox1.Text Then
@@ -73,9 +74,9 @@ Public Class SettingsForm
             Return
         End If
         If MainFoV.ostype = "64" Then
-            keyfind = My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Key", "CD-Key not found!")
+            keyfind = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Key", "CD-Key not found!"))
         Else
-            keyfind = My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "Key", "CD-Key not found!")
+            keyfind = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "Key", "CD-Key not found!"))
         End If
 
         If CDKeyLabel.Text.Contains("Hidden") Then
@@ -148,18 +149,18 @@ Public Class SettingsForm
 
     Private Sub ComboBox2_SelectedIndexChanged(sender As Object, e As EventArgs) Handles StyleCBox.SelectedIndexChanged
         If Not StyleCBox.SelectedItem.ToString = stylet Then
-                Dim ask As MsgBoxResult = MessageBox.Show("The program must be restarted to (fully) change your style, would you like to restart it now?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Information)
-                If ask = MsgBoxResult.Yes Then
-                    Application.Restart()
-                End If
+            Dim ask As MsgBoxResult = CType(MessageBox.Show("The program must be restarted to (fully) change your style, would you like to restart it now?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Information), MsgBoxResult)
+            If ask = MsgBoxResult.Yes Then
+                Application.Restart()
+            End If
         End If
-        If StyleCBox.SelectedItem = "Minimal" Then
+        If StyleCBox.SelectedItem.ToString = "Minimal" Then
             MainFoV.HackyAppBranchLB.Visible = False
             MainFoV.HackyAppVersLB.Visible = False
             MainFoV.HackyGameVersLB.Visible = False
             MainFoV.Height = 220
             ini.WriteValue("Extras", "Style", "Minimal")
-        ElseIf StyleCBox.SelectedItem = "Default" Then
+        ElseIf StyleCBox.SelectedItem.tostring = "Default" Then
             ini.WriteValue("Extras", "Style", "Default")
             MainFoV.HackyAppBranchLB.Visible = True
             MainFoV.HackyAppVersLB.Visible = True
@@ -176,7 +177,7 @@ Public Class SettingsForm
             StyleCBox.BackColor = DefaultBackColor
             ButtonSelectGamePID.BackColor = DefaultBackColor
             SetupKeysButton.BackColor = DefaultBackColor
-        ElseIf StyleCBox.SelectedItem = "Dark" Then
+        ElseIf StyleCBox.SelectedItem.tostring = "Dark" Then
             MainFoV.BackColor = Color.DimGray
             Me.BackColor = Color.DimGray
             GamePathButton.BackColor = Color.DarkGray
@@ -234,12 +235,6 @@ Public Class SettingsForm
     End Sub
 
     Private Sub Button6_Click(sender As Object, e As EventArgs) Handles ButtonSelectGamePID.Click
-        If MainFoV.CoD1CheckBox.Checked = True Then
-            '       Button6.Enabled = False
-            ToolTipHandler.SetToolTip(ButtonSelectGamePID, "This only supports CoDUO!")
-            MessageBox.Show("This only supports CoDUO!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information)
-            Return
-        End If
         CoDPIDForm.Show()
     End Sub
 

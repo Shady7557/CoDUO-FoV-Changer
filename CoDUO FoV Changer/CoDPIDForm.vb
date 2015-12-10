@@ -1,4 +1,5 @@
-﻿Public Class CoDPIDForm
+﻿Option Strict On
+Public Class CoDPIDForm
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles SelectPIDButton.Click
         If PIDListBox.SelectedIndex < 0 Then
@@ -9,7 +10,7 @@
         Dim pid As String
         Dim pidInt As Integer
         pid = PIDListBox.SelectedItem.ToString
-        splitStr = pid.Split("(")
+        splitStr = pid.Split(CType("(", Char()))
         pid = splitStr(1).Replace(")", "")
         pidInt = CInt(pid)
         MainFoV.pid = pidInt
@@ -18,7 +19,7 @@
 
     Private Sub Form6_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
-            If SettingsForm.StyleCBox.SelectedItem = "Dark" Then
+            If SettingsForm.StyleCBox.SelectedItem.ToString = "Dark" Then
                 BackColor = Color.DimGray
                 PIDListBox.BackColor = Color.DarkGray
                 SelectPIDButton.BackColor = Color.DarkGray

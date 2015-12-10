@@ -1,4 +1,5 @@
-﻿Module LoggingModule
+﻿Option Strict On
+Module LoggingModule
     Public userpth As String = System.Environment.GetEnvironmentVariable("userprofile")
     Dim rn As New Random
     'Public location As String = userpth & "\AppData\Roaming\CoDUO FoV Changer\Logs\ " & rn.Next(1, 65000)
@@ -8,18 +9,18 @@
     Public Class IniFile
 
         Private Declare Ansi Function GetPrivateProfileString Lib "kernel32.dll" Alias "GetPrivateProfileStringA" _
-            (ByVal lpApplicationName As String, _
-             ByVal lpKeyName As String, _
-             ByVal lpDefault As String, _
-             ByVal lpReturnedString As System.Text.StringBuilder, _
-             ByVal nSize As Integer, _
+            (ByVal lpApplicationName As String,
+             ByVal lpKeyName As String,
+             ByVal lpDefault As String,
+             ByVal lpReturnedString As System.Text.StringBuilder,
+             ByVal nSize As Integer,
              ByVal lpFileName As String) _
          As Integer
 
         Private Declare Ansi Function WritePrivateProfileString Lib "kernel32.dll" Alias "WritePrivateProfileStringA" _
-            (ByVal lpApplicationName As String, _
-             ByVal lpKeyName As String, _
-             ByVal lpString As String, _
+            (ByVal lpApplicationName As String,
+             ByVal lpKeyName As String,
+             ByVal lpString As String,
              ByVal lpFileName As String) _
         As Integer
 

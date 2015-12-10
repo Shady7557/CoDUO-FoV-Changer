@@ -228,7 +228,7 @@ Partial Class SettingsForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(191, 334)
+        Me.ClientSize = New System.Drawing.Size(189, 330)
         Me.ControlBox = False
         Me.Controls.Add(Me.SetupKeysButton)
         Me.Controls.Add(Me.ButtonSelectGamePID)

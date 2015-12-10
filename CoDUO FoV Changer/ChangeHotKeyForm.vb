@@ -1,9 +1,10 @@
-﻿Public Class ChangeHotKeyForm
+﻿Option Strict On
+Public Class ChangeHotKeyForm
     Dim ini As New IniFile(MainFoV.appdata & "CoDUO FoV Changer\settings.ini")
-    Dim key = 0
-    Dim key2 = 0
-    Dim keycombo1 = 0
-    Dim keycombo2 = 0
+    Dim key As Integer = 0
+    Dim key2 As Integer = 0
+    Dim keycombo1 As Integer = 0
+    Dim keycombo2 As Integer = 0
     Dim keyupini As String = ini.ReadValue("Extras", "HotKeyUp")
     Dim keydownini As String = ini.ReadValue("Extras", "HotKeyDown")
     Dim keyupinistr As String = ini.ReadValue("Extras", "HotKeyUpStr")
@@ -26,7 +27,7 @@
         UpHotKeyRB.Checked = True
         DownHotKeyRB.Checked = False
         If Not keyupini = "" And Not keyupini = Nothing Then
-            key = keyupini
+            key = CInt(keyupini)
         End If
         If Not keyupinistr = "" And Not keyupinistr = Nothing Then
             UpHotKeyLabel.Text = "Up Hot Key: " & keyupinistr
@@ -36,7 +37,7 @@
             End If
         End If
         If Not keydownini = "" And Not keydownini = Nothing Then
-            key2 = keydownini
+            key2 = CInt(keydownini)
         End If
         If Not keydowninistr = "" And Not keydowninistr = Nothing Then
             DownHotKeyLabel.Text = "Down Hot Key: " & keydowninistr
@@ -174,19 +175,19 @@
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles CloseHotKeyFormButton.Click
 
-        If Not key = 0 And Not key Is Nothing Then
-            ini.WriteValue("Extras", "HotKeyUp", key)
+        If Not key = 0 Then
+            ini.WriteValue("Extras", "HotKeyUp", CStr(key))
             MainFoV.hotkeyup = key
         End If
-        If Not key2 = 0 And Not key2 Is Nothing Then
-            ini.WriteValue("Extras", "HotKeyDown", key2)
+        If Not key2 = 0 Then
+            ini.WriteValue("Extras", "HotKeyDown", CStr(key2))
             MainFoV.hotkeydown = key2
         End If
-        If Not keycombo1 = 0 And Not keycombo1 Is Nothing Then
-            ini.WriteValue("Extras", "HotKeyUpCombo", keycombo1)
+        If Not keycombo1 = 0 Then
+            ini.WriteValue("Extras", "HotKeyUpCombo", CStr(keycombo1))
         End If
-        If Not keycombo2 = 0 And Not keycombo2 Is Nothing Then
-            ini.WriteValue("Extras", "HotKeyDownCombo", keycombo2)
+        If Not keycombo2 = 0 Then
+            ini.WriteValue("Extras", "HotKeyDownCombo", CStr(keycombo2))
         End If
         FoVHotKeyForm.Show()
         Close()
@@ -202,10 +203,10 @@
         keyupinistr = ""
         key = 0
         key2 = 0
-      
+
         MainFoV.hotkeyup = 0
         MainFoV.hotkeydown = 0
-        
+
         UpHotKeyLabel.Text = "Up Hot Key: "
         DownHotKeyLabel.Text = "Down Hot Key: "
     End Sub
