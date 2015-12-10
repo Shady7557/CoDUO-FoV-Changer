@@ -481,13 +481,10 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     Else
                         StatusLabel.ForeColor = Color.Red
                     End If
-                    If Not CoD1CheckBox.Checked = True Then
-                        StartGameButton.Enabled = True
-                    Else
-                        StartGameButton.Enabled = False
-                    End If
+                    StartGameButton.Enabled = True
 
-                    Exit Sub
+
+                        Exit Sub
                 Else
                     StatusLabel.Text = ("Status: UO found and wrote to memory!")
                     If isminimal = "Dark" Then
@@ -635,16 +632,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
 
 
-        Dim iSpan As TimeSpan = TimeSpan.FromSeconds(gameTime)
-        If gameTime >= 1 And iSpan.TotalMinutes <= 0 Then
-            GameTimeLabel.Text = "Game Time: " & gameTime.ToString() & " seconds"
-        End If
-        If iSpan.TotalMinutes >= 1 And iSpan.TotalHours <= 0 And gameTime >= 60 Then
-            GameTimeLabel.Text = "Game Time: " & iSpan.TotalMinutes.ToString() & " minutes"
-        End If
-        If iSpan.TotalHours >= 1 Then
-            GameTimeLabel.Text = "Game Time: " & iSpan.TotalHours.ToString & " hours"
-        End If
+        GetGameTimeLabel()
 
 
         getmonthT = New Thread(AddressOf getMonth)
@@ -1480,29 +1468,39 @@ My.Computer.FileSystem.GetFileInfo(filename)
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles FoVTimer.Tick
         ChangeFoV()
     End Sub
+    Private Sub StartGame(exe As String)
+        Dim startInfo = New ProcessStartInfo()
+        startInfo.WorkingDirectory = installpath
+        If Not LaunchParametersTB.Text = "" And Not LaunchParametersTB.Text Is Nothing Then
+            startInfo.Arguments = LaunchParametersTB.Text & " +set r_ignorehwgamma 1" & " +set vid_xpos 0 +set vid_ypos 0 +set com_hunkmegs 128 +set win_allowalttab 1"
+        End If
+        If Not exe = "" And Not exe Is Nothing Then
+            startInfo.FileName = installpath & "\" & exe & ".exe"
+        Else
+            MessageBox.Show("Could not find game's .exe, looked for: " & installpath & "\" & exe & ".exe", appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Log.WriteLine("Could not find game's .exe, looked for: " & installpath & "\" & exe & ".exe")
+            Return
+        End If
+        Process.Start(startInfo)
+        Log.WriteLine("Started game: " & exe & ".exe, with args: " & startInfo.Arguments)
+    End Sub
 
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles StartGameButton.Click
         Try
-            Dim startInfo = New ProcessStartInfo()
-            startInfo.WorkingDirectory = installpath
-            If Not LaunchParametersTB.Text = "" And Not LaunchParametersTB.Text Is Nothing Then
-                startInfo.Arguments = LaunchParametersTB.Text & " +set r_ignorehwgamma 1" & " +set vid_xpos 0 +set vid_ypos 0 +set com_hunkmegs 128 +set win_allowalttab 1"
-            End If
-            If Not exename = "" And Not exename Is Nothing Then
-                startInfo.FileName = installpath & "\" & exename & ".exe"
-                MessageBox.Show(installpath & "\" & exename & ".exe")
-            Else
-                MessageBox.Show("Could not find game's .exe, looked for: " & installpath & "\" & exename & ".exe", appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
-                Log.WriteLine("Could not find game's .exe, looked for: " & installpath & "\" & exename & ".exe")
+            If CoD1CheckBox.Checked = True Then
+                StartGame("CoDMP")
                 Return
             End If
-            Process.Start(startInfo)
-            Log.WriteLine("Started game: " & exename & ".exe " & "with args: " & startInfo.Arguments)
-
-
-
         Catch ex As Exception
-            MsgBox("Error: " & ex.Message, MsgBoxStyle.Critical)
+            MessageBox.Show("Error: " & ex.Message, appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
+            errorOccured = True
+            Log.WriteLine("ERROR !!:  " & ex.Message)
+        End Try
+
+        Try
+            StartGame(exename)
+        Catch ex As Exception
+            MessageBox.Show("Error: " & ex.Message, appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
             errorOccured = True
             Log.WriteLine("ERROR !!:  " & ex.Message)
 
@@ -1730,7 +1728,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
         If FogCheckBox.Checked = False Then
             If didFS = False Then
-                ask5 = MessageBox.Show("Please note, you may be banned if you are caught using this, example: making a video and putting it on your clans site, or YouTube, PunkBuster also bans for this, do you want to continue?", "WARNING!", MessageBoxButtons.YesNo, MessageBoxIcon.Information)
+                ask5 = MessageBox.Show("Please note, you may be banned if you are caught using this, example: making a video and putting it on your clans site, or YouTube, PunkBuster also bans for this, do you want to continue?", "WARNING!", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information)
             End If
             Log.WriteLine("Gave warning about Fog.")
             If ask5 = MsgBoxResult.No And didFS = False Then
@@ -1922,8 +1920,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
         If CoD1CheckBox.Checked = True Then
             ini.WriteValue("Main", "Game", "CoD1")
             DvarsCheckBox.Text = "Unlock All Dvars (UO only!)"
-            StartGameButton.Enabled = False
-            StartGameButton.Text = "Start Game (UO only!)"
             DvarsCheckBox.Enabled = False
             DvarsCheckBox.Checked = False
             FogCheckBox.Checked = True
@@ -1953,8 +1949,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Else
             ini.WriteValue("Main", "Game", "UO")
             DvarsCheckBox.Text = "Unlock All Dvars"
-            StartGameButton.Enabled = True
-            StartGameButton.Text = "Start Game"
             DvarsCheckBox.Enabled = True
             FogCheckBox.Enabled = True
             FogCheckBox.Text = "Fog"
@@ -2130,42 +2124,36 @@ My.Computer.FileSystem.GetFileInfo(filename)
         getcl.Start()
     End Sub
 
-    Private Sub Button7_Click_1(sender As Object, e As EventArgs)
-
-    End Sub
-
-    Private Sub GameTracker_Tick(sender As Object, e As EventArgs) Handles GameTracker.Tick
-
-
-
-
-        '  If gameTime >= 60 And mMinutes <= 0 Then
-        '      GameTimeLabel.Text = "Game Time: " & gameTime.ToString() & " seconds"
-        '  End If
-        '  If mMinutes >= 1 And gameTime >= 60 Then
-        '      GameTimeLabel.Text = "Game Time: " & mMinutes.ToString() & " minutes"
-        '  End If
-        '   If mHours >= 1 And mMinutes >= 60 Then
-        '       GameTimeLabel.Text = "Game Time: " & mHours.ToString() & " hours"
-        ' End If
-
-
-
+    Private Sub GetGameTimeLabel()
         Dim iSpan As TimeSpan = TimeSpan.FromSeconds(gameTime)
+        Dim TotalMinutes As String = Math.Floor(iSpan.TotalMinutes)
+        Dim TotalHours As String = Math.Floor(iSpan.TotalMinutes)
 
         If gameTime >= 1 And iSpan.Minutes <= 0 Then
             GameTimeLabel.Text = "Game Time: " & gameTime.ToString() & " seconds"
         End If
         If iSpan.Minutes >= 1 And iSpan.Hours <= 0 And gameTime >= 60 Then
-            GameTimeLabel.Text = "Game Time: " & iSpan.TotalMinutes.ToString() & " minutes"
+            GameTimeLabel.Text = "Game Time: " & TotalMinutes & " minutes"
         End If
         If iSpan.Hours >= 1 Then
-            GameTimeLabel.Text = "Game Time: " & iSpan.TotalHours.ToString & " hours"
+            GameTimeLabel.Text = "Game Time: " & TotalHours & " hours"
+        End If
+        If GameTimeLabel.Text = "Game Time: 0" Then
+            GameTimeLabel.Text = "Game Time: No time played"
         End If
 
+    End Sub
 
+    Private Sub GameTracker_Tick(sender As Object, e As EventArgs) Handles GameTracker.Tick
+        GetGameTimeLabel()
+        Dim MyP As Process()
         If pid = 0 Then
-            Dim MyP As Process() = Process.GetProcessesByName(exename)
+            If CoD1CheckBox.Checked = True Then
+                MyP = Process.GetProcessesByName("CoDMP")
+            Else
+                MyP = Process.GetProcessesByName(exename)
+            End If
+
             If MyP.Length = 0 Then
                 Return
             End If
@@ -2176,13 +2164,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
             '
         End If
-
-
         gameTime = gameTime + 1
-
-
-
-
     End Sub
 
     Private Sub GameTimeSaver_Tick(sender As Object, e As EventArgs) Handles GameTimeSaver.Tick

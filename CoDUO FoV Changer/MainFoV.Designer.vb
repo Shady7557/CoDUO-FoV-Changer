@@ -266,9 +266,9 @@ Partial Class MainFoV
         Me.CoD1CheckBox.AutoSize = True
         Me.CoD1CheckBox.Location = New System.Drawing.Point(296, 28)
         Me.CoD1CheckBox.Name = "CoD1CheckBox"
-        Me.CoD1CheckBox.Size = New System.Drawing.Size(71, 17)
+        Me.CoD1CheckBox.Size = New System.Drawing.Size(78, 17)
         Me.CoD1CheckBox.TabIndex = 49
-        Me.CoD1CheckBox.Text = "CoD v1.5"
+        Me.CoD1CheckBox.Text = "VCoD v1.5"
         Me.CoD1CheckBox.UseVisualStyleBackColor = True
         '
         'FileSizeLabel
@@ -392,7 +392,7 @@ Partial Class MainFoV
         'GameTimeLabel
         '
         Me.GameTimeLabel.AutoSize = True
-        Me.GameTimeLabel.Location = New System.Drawing.Point(171, 66)
+        Me.GameTimeLabel.Location = New System.Drawing.Point(145, 66)
         Me.GameTimeLabel.Name = "GameTimeLabel"
         Me.GameTimeLabel.Size = New System.Drawing.Size(67, 13)
         Me.GameTimeLabel.TabIndex = 57
