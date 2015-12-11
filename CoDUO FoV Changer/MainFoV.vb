@@ -66,9 +66,9 @@ Public Class MainFoV
     Dim hasPlayed As Boolean = False
     Dim neg As Boolean
     Dim gamev As String = ini.ReadValue("Main", "Game")
-    Dim day As Integer = DateTime.Now.Day
+    Dim day As Integer = Date.Now.Day
     Dim niceDay As String
-    Dim month As Integer = DateTime.Now.Month
+    Dim month As Integer = Date.Now.Month
     Dim monthstring As String
     Dim isathread As Boolean = False
     Dim checkthread As Thread
@@ -196,15 +196,15 @@ Public Class MainFoV
                 If changelog = cache Or cache = changelog Then
                     '    Process.Start(myExe)
                 Else
-                    System.IO.File.Delete(myExe)
+                    File.Delete(myExe)
                     myExe = temp & "\changelog.new.tmp.txt"
-                    System.IO.File.WriteAllText(myExe, changelog)
+                    File.WriteAllText(myExe, changelog)
                     Process.Start(myExe)
                     Log.WriteLine("Writing Changelog to location: " & myExe)
                 End If
             End If
-            If Not System.IO.File.Exists(myExe) Then
-                System.IO.File.WriteAllText(myExe, changelog)
+            If Not File.Exists(myExe) Then
+                File.WriteAllText(myExe, changelog)
                 Process.Start(myExe)
                 Log.WriteLine("Writing Changelog to location: " & myExe)
             End If
@@ -272,7 +272,7 @@ Public Class MainFoV
 
     End Sub
     Private Sub getMonth()
-        Dim TimerStart As DateTime
+        Dim TimerStart As Date
         TimerStart = Now
         If day = 1 Then
             niceDay = "1st"
@@ -475,37 +475,37 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
 
             If CoD1CheckBox.Checked = False Then
-                    If pid = 0 Then
-                        WriteFloat(exename, &H3052F7C8, CSng(FoVTextBox.Text))
-                    Else
-                        WriteFloatpid(pid, &H3052F7C8, CSng(FoVTextBox.Text))
-                    End If
-                Else
-                    WriteFloat("CoDMP", &H3029CA28, CSng(FoVTextBox.Text))
-                End If
                 If pid = 0 Then
-                    Dim MyP As Process() = Process.GetProcessesByName(exename)
-                    If MyP.Length = 0 Then
-                        StatusLabel.Text = ("Status: not found or failed to write to memory!")
-                        If isminimal = "Dark" Then
-                            StatusLabel.ForeColor = Color.DarkRed
-                        Else
-                            StatusLabel.ForeColor = Color.Red
-                        End If
-                        StartGameButton.Enabled = True
-
-
-                        Exit Sub
-                    Else
-                        StatusLabel.Text = ("Status: UO found and wrote to memory!")
-                        If isminimal = "Dark" Then
-                            StatusLabel.ForeColor = Color.DarkGreen
-                        Else
-                            StatusLabel.ForeColor = Color.Green
-                        End If
-                        StartGameButton.Enabled = False
-                    End If
+                    WriteFloat(exename, &H3052F7C8, CSng(FoVTextBox.Text))
+                Else
+                    WriteFloatpid(pid, &H3052F7C8, CSng(FoVTextBox.Text))
                 End If
+            Else
+                WriteFloat("CoDMP", &H3029CA28, CSng(FoVTextBox.Text))
+            End If
+            If pid = 0 Then
+                Dim MyP As Process() = Process.GetProcessesByName(exename)
+                If MyP.Length = 0 Then
+                    StatusLabel.Text = ("Status: not found or failed to write to memory!")
+                    If isminimal = "Dark" Then
+                        StatusLabel.ForeColor = Color.DarkRed
+                    Else
+                        StatusLabel.ForeColor = Color.Red
+                    End If
+                    StartGameButton.Enabled = True
+
+
+                    Exit Sub
+                Else
+                    StatusLabel.Text = ("Status: UO found and wrote to memory!")
+                    If isminimal = "Dark" Then
+                        StatusLabel.ForeColor = Color.DarkGreen
+                    Else
+                        StatusLabel.ForeColor = Color.Green
+                    End If
+                    StartGameButton.Enabled = False
+                End If
+            End If
         Catch ex As Exception
             FoVTimer.Stop()
             '   MsgBox(ex.Message)
@@ -523,7 +523,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         CheckForIllegalCrossThreadCalls = True
 
         'Create a variable for start time:
-        Dim TimerStart As DateTime
+        Dim TimerStart As Date
         TimerStart = Now
 
         If Debugger.IsAttached = True Then
@@ -635,7 +635,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         If trackGameTime = "True" Then
             GameTimeLabel.Visible = True
-        ElseIf trackgametime = "" Or trackgametime Is Nothing Then
+        ElseIf trackGameTime = "" Or trackGameTime Is Nothing Then
             trackGameTime = "True"
             GameTimeLabel.Visible = True
             ini.WriteValue("Main", "TrackGameTime", "True")
@@ -672,11 +672,11 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
         End If
 
-        If month = 12 And DateTime.Now.Day = 25 Then
+        If month = 12 And Date.Now.Day = 25 Then
             MessageBox.Show("wow christmas & stuff", "pls snow", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
 
-        If month = 10 And DateTime.Now.Day = 31 Then
+        If month = 10 And Date.Now.Day = 31 Then
             MessageBox.Show("ooooh spooooooky ghosts and candy", "BOO", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
 
@@ -771,10 +771,10 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End Try
 
 
-        If System.IO.File.Exists(appdata & "CoD UO FoV Changer\options.ini") Then
+        If File.Exists(appdata & "CoD UO FoV Changer\options.ini") Then
             Try
-                System.IO.File.Delete(iniLocation)
-                System.IO.File.Copy(oldoptions, iniLocation)
+                File.Delete(iniLocation)
+                File.Copy(oldoptions, iniLocation)
                 '   ini.WriteValue("FoV", "FoV Value", testingaa)
                 ' My.Settings.didUpgrade = True
                 My.Settings.FoVFix = CInt(testingaa)
@@ -885,10 +885,10 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     '
                 End If
 
-                If CBool(CInt(splitStr(1)) < 0) Then
+                If CInt(splitStr(1)) < 0 Then
                     splitStr(1) = CStr(0)
                 End If
-                If CBool(CInt(splitStr(1)) >= 2) Then
+                If CInt(splitStr(1)) >= 2 Then
                     splitStr(1) = CStr(1)
                 End If
                 If splitStr(1).StartsWith("0") Or splitStr(1).StartsWith("1") Then
@@ -978,11 +978,11 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
                 Dim test As String
                 test = quote & "CoDUO FoV Changer Updater.exe" & quote
-                System.Threading.Thread.Sleep(1800) ' lets try to wait for everything to finish first.
+                Thread.Sleep(1800) ' lets try to wait for everything to finish first.
                 Try
                     Dim myExe As String = temp & "\CoDUO FoV Changer Updater.exe"
-                    If Not System.IO.File.Exists(myExe) Then
-                        System.IO.File.WriteAllBytes(myExe, My.Resources.CoDUO_FoV_Changer_Updater)
+                    If Not File.Exists(myExe) Then
+                        File.WriteAllBytes(myExe, My.Resources.CoDUO_FoV_Changer_Updater)
                         Log.WriteLine("Creating Updater Application.")
                     End If
                     Dim shasta As New ProcessStartInfo
@@ -992,7 +992,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     shasta.FileName = myExe
                     Process.Start(shasta)
                     Log.WriteLine("Restarting.")
-                    System.Threading.Thread.Sleep(700)
+                    Thread.Sleep(700)
                     Application.Exit()
                 Catch ex As Exception
                     Log.WriteLine("!! ERROR !! Unable to create Updater Application:")
@@ -1136,7 +1136,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
                             'My.Computer.Registry.LocalMachine.CreateSubKey("SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive")
                             My.Computer.Registry.LocalMachine.CreateSubKey("SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", RegistryKeyPermissionCheck.ReadWriteSubTree)
-                            System.Threading.Thread.Sleep(300)
+                            Thread.Sleep(300)
                             My.Computer.Registry.SetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "InstallPath", uoinstall)
                             readvalue = uoinstall
                             ini.WriteValue("Main", "InstallPath", readvalue)
@@ -1144,7 +1144,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
                         ElseIf ostype = "86" Then
                             My.Computer.Registry.LocalMachine.CreateSubKey("SOFTWARE\Activision\Call of Duty United Offensive")
-                            System.Threading.Thread.Sleep(400)
+                            Thread.Sleep(400)
                             My.Computer.Registry.SetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "InstallPath", uoinstall)
                             readvalue = uoinstall
                             ini.WriteValue("Main", "InstallPath", readvalue)
@@ -1221,7 +1221,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Else
                 HackyGameVersLB.Text = ("CoD:UO Version: " & readvalue2) 'Sets the label to read the games version via registry key above.
             End If
-            HackyAppBranchLB.Text = "Application Branch: " & "2.2" 'Sets the label's text to contain the application branch.
+            HackyAppBranchLB.Text = "Application Branch: " & "3.0" 'Sets the label's text to contain the application branch.
             Dim testString As String = "Application Version: " & Application.ProductVersion
             HackyAppVersLB.Text = testString
 
@@ -1261,7 +1261,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         Try
             If Not lastlogname = "" And Not isDev = True Then
-                System.IO.File.Delete(lastlogname)
+                File.Delete(lastlogname)
             End If
         Catch ex As Exception
 
@@ -1394,7 +1394,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub Form1_Close(sender As Object, e As EventArgs) Handles MyBase.FormClosing
-        Dim TimerStart As DateTime
+        Dim TimerStart As Date
         TimerStart = Now
         Try
             WriteFloat(exename, &H3052F7C8, 80)
@@ -1416,7 +1416,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
         End Try
 
-        If System.IO.File.Exists(oldoptions) Then
+        If File.Exists(oldoptions) Then
             My.Computer.FileSystem.DeleteDirectory(appdata & "CoD UO FoV Changer", FileIO.DeleteDirectoryOption.DeleteAllContents)
         End If
 
@@ -1674,8 +1674,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         Try
             Dim myExe As String = temp & "\CoDUO FoV Changer Updater.exe"
-            If Not System.IO.File.Exists(myExe) Then
-                System.IO.File.WriteAllBytes(myExe, My.Resources.CoDUO_FoV_Changer_Updater)
+            If Not File.Exists(myExe) Then
+                File.WriteAllBytes(myExe, My.Resources.CoDUO_FoV_Changer_Updater)
                 Log.WriteLine("Creating Updater Application.")
             End If
             Process.Start(myExe)
@@ -1908,15 +1908,15 @@ My.Computer.FileSystem.GetFileInfo(filename)
             LaunchParametersTB.Height = 80
             LaunchParametersTB.ScrollBars = ScrollBars.Vertical
             LaunchParametersTB.Text = ""
-            System.Threading.Thread.Sleep(200)
+            Thread.Sleep(200)
             LaunchParametersTB.AppendText("We don't need no education.")
-            System.Threading.Thread.Sleep(700)
+            Thread.Sleep(700)
             LaunchParametersTB.AppendText(newline & "We don't need no thought control.")
-            System.Threading.Thread.Sleep(700)
+            Thread.Sleep(700)
             LaunchParametersTB.AppendText(newline & "No dark sarcasm in the classroom.")
-            System.Threading.Thread.Sleep(650)
+            Thread.Sleep(650)
             LaunchParametersTB.AppendText(newline & "Hey! Teacher, leave them kids alone.")
-            System.Threading.Thread.Sleep(700)
+            Thread.Sleep(700)
             LaunchParametersTB.AppendText(newline & "All in all you're just another brick in the wall.")
             ABITWTimer.Stop()
         End If
