@@ -463,12 +463,16 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub ChangeFoV()
         Try
-            '    If Not pid = 0 Then
-            '         Dim MyPID As Process = Process.GetProcessById(pid)
-            '         If MyPID.HasExited = True Then
-            '         Return
-            '     End If
-            '     End If
+            If Not pid = 0 Then
+                Try
+                    Dim MyPID As Process = Process.GetProcessById(pid)
+                Catch ex As Exception
+                    If ex.Message.Contains("Process with an Id") Then
+                        pid = 0
+                    End If
+                    Return
+                End Try
+            End If
 
             If CoD1CheckBox.Checked = False Then
                     If pid = 0 Then
@@ -1422,12 +1426,9 @@ My.Computer.FileSystem.GetFileInfo(filename)
         '     MessageBox.Show("what")
         If errorOccured = True Then
             If Not restartneededpath = True Then
-                sendreportl2.Start()
-                '  MessageBox.Show("attempt to start reportl")
+                Log.WriteLine("some type of fuckin' error has occurred")
             End If
 
-            '   MessageBox.Show("sendreportl")
-            '  ElseIf isDev = True And errorOccured = False Then
         End If
 
 
@@ -2167,11 +2168,14 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub GameTracker_Tick(sender As Object, e As EventArgs) Handles GameTracker.Tick
-        ' Dim MyPID As Process
-        ' If Not pid = 0 Then
-        '  MyPID = Process.GetProcessById(pid)
-
-        'End If
+        Try
+            Dim MyPID As Process = Process.GetProcessById(pid)
+        Catch ex As Exception
+            If ex.Message.Contains("Process with an Id") Then
+                pid = 0
+            End If
+            Return
+        End Try
         GetGameTimeLabel()
         Dim MyP As Process()
         If pid = 0 Then
@@ -2189,5 +2193,22 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub GameTimeSaver_Tick(sender As Object, e As EventArgs) Handles GameTimeSaver.Tick
         ini.WriteValue("Main", "GameTime", CStr(gameTime))
+    End Sub
+
+    Private Sub FoVTextBox_TextChanged(sender As Object, e As EventArgs) Handles FoVTextBox.TextChanged
+        Dim myArray() As Char
+        myArray = FoVTextBox.Text.ToCharArray
+        For Each Charr In myArray
+            '    MessageBox.Show(Charr.ToString)
+            If Charr.ToString = "1" Or Charr.ToString = "2" Or Charr.ToString = "3" Or Charr.ToString = "4" Or Charr.ToString = "5" Or Charr.ToString = "6" Or Charr.ToString = "7" Or Charr.ToString = "8" Or Charr.ToString = "9" Then
+            Else
+                FoVTextBox.Text = FoVTextBox.Text.Replace(Charr.ToString, "0")
+            End If
+        Next
+
+        If FoVTextBox.Text.StartsWith("1") Or FoVTextBox.Text.StartsWith("2") Or FoVTextBox.Text.StartsWith("3") Or FoVTextBox.Text.StartsWith("4") Or FoVTextBox.Text.StartsWith("5") Or FoVTextBox.Text.StartsWith("6") Or FoVTextBox.Text.StartsWith("7") Or FoVTextBox.Text.StartsWith("8") Or FoVTextBox.Text.StartsWith("9") Or FoVTextBox.Text = "" Then
+        Else
+            FoVTextBox.Text = "80"
+        End If
     End Sub
 End Class
