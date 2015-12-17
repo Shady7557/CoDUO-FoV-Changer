@@ -69,13 +69,14 @@ Partial Class MainFoV
         Me.GameTracker = New System.Windows.Forms.Timer(Me.components)
         Me.GameTimeLabel = New System.Windows.Forms.Label()
         Me.GameTimeSaver = New System.Windows.Forms.Timer(Me.components)
+        Me.CurSessionGT = New System.Windows.Forms.Label()
         CType(Me.CoDPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.FoVMenuStrip.SuspendLayout()
         Me.SuspendLayout()
         '
         'FoVTextBox
         '
-        Me.FoVTextBox.Location = New System.Drawing.Point(77, 13)
+        Me.FoVTextBox.Location = New System.Drawing.Point(77, 6)
         Me.FoVTextBox.Name = "FoVTextBox"
         Me.FoVTextBox.Size = New System.Drawing.Size(42, 20)
         Me.FoVTextBox.TabIndex = 0
@@ -84,7 +85,7 @@ Partial Class MainFoV
         'FoVLabel
         '
         Me.FoVLabel.AutoSize = True
-        Me.FoVLabel.Location = New System.Drawing.Point(1, 16)
+        Me.FoVLabel.Location = New System.Drawing.Point(1, 9)
         Me.FoVLabel.Name = "FoVLabel"
         Me.FoVLabel.Size = New System.Drawing.Size(70, 13)
         Me.FoVLabel.TabIndex = 2
@@ -100,7 +101,7 @@ Partial Class MainFoV
         Me.StatusLabel.AutoSize = True
         Me.StatusLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.StatusLabel.ForeColor = System.Drawing.Color.Red
-        Me.StatusLabel.Location = New System.Drawing.Point(1, 135)
+        Me.StatusLabel.Location = New System.Drawing.Point(1, 145)
         Me.StatusLabel.Name = "StatusLabel"
         Me.StatusLabel.Size = New System.Drawing.Size(307, 18)
         Me.StatusLabel.TabIndex = 3
@@ -111,7 +112,7 @@ Partial Class MainFoV
         '
         'StartGameButton
         '
-        Me.StartGameButton.Location = New System.Drawing.Point(4, 38)
+        Me.StartGameButton.Location = New System.Drawing.Point(4, 32)
         Me.StartGameButton.Name = "StartGameButton"
         Me.StartGameButton.Size = New System.Drawing.Size(161, 25)
         Me.StartGameButton.TabIndex = 5
@@ -140,7 +141,7 @@ Partial Class MainFoV
         '
         'UpdateButton
         '
-        Me.UpdateButton.Location = New System.Drawing.Point(171, 38)
+        Me.UpdateButton.Location = New System.Drawing.Point(185, 28)
         Me.UpdateButton.Name = "UpdateButton"
         Me.UpdateButton.Size = New System.Drawing.Size(70, 25)
         Me.UpdateButton.TabIndex = 11
@@ -161,13 +162,13 @@ Partial Class MainFoV
         'UpdateCheckTimer
         '
         Me.UpdateCheckTimer.Enabled = True
-        Me.UpdateCheckTimer.Interval = 45000
+        Me.UpdateCheckTimer.Interval = 300000
         '
         'LaunchParametersLB
         '
         Me.LaunchParametersLB.AutoSize = True
         Me.LaunchParametersLB.BackColor = System.Drawing.Color.Transparent
-        Me.LaunchParametersLB.Location = New System.Drawing.Point(1, 67)
+        Me.LaunchParametersLB.Location = New System.Drawing.Point(1, 74)
         Me.LaunchParametersLB.Name = "LaunchParametersLB"
         Me.LaunchParametersLB.Size = New System.Drawing.Size(102, 13)
         Me.LaunchParametersLB.TabIndex = 24
@@ -177,7 +178,7 @@ Partial Class MainFoV
         '
         'LaunchParametersTB
         '
-        Me.LaunchParametersTB.Location = New System.Drawing.Point(4, 85)
+        Me.LaunchParametersTB.Location = New System.Drawing.Point(4, 90)
         Me.LaunchParametersTB.Multiline = True
         Me.LaunchParametersTB.Name = "LaunchParametersTB"
         Me.LaunchParametersTB.Size = New System.Drawing.Size(270, 20)
@@ -294,7 +295,7 @@ Partial Class MainFoV
         'DvarsCheckBox
         '
         Me.DvarsCheckBox.AutoSize = True
-        Me.DvarsCheckBox.Location = New System.Drawing.Point(296, 5)
+        Me.DvarsCheckBox.Location = New System.Drawing.Point(128, 187)
         Me.DvarsCheckBox.Name = "DvarsCheckBox"
         Me.DvarsCheckBox.Size = New System.Drawing.Size(105, 17)
         Me.DvarsCheckBox.TabIndex = 52
@@ -392,7 +393,7 @@ Partial Class MainFoV
         'GameTimeLabel
         '
         Me.GameTimeLabel.AutoSize = True
-        Me.GameTimeLabel.Location = New System.Drawing.Point(145, 66)
+        Me.GameTimeLabel.Location = New System.Drawing.Point(135, 61)
         Me.GameTimeLabel.Name = "GameTimeLabel"
         Me.GameTimeLabel.Size = New System.Drawing.Size(67, 13)
         Me.GameTimeLabel.TabIndex = 57
@@ -403,12 +404,22 @@ Partial Class MainFoV
         Me.GameTimeSaver.Enabled = True
         Me.GameTimeSaver.Interval = 5000
         '
+        'CurSessionGT
+        '
+        Me.CurSessionGT.AutoSize = True
+        Me.CurSessionGT.Location = New System.Drawing.Point(135, 74)
+        Me.CurSessionGT.Name = "CurSessionGT"
+        Me.CurSessionGT.Size = New System.Drawing.Size(87, 13)
+        Me.CurSessionGT.TabIndex = 58
+        Me.CurSessionGT.Text = "Current Session: "
+        '
         'MainFoV
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(399, 189)
+        Me.Controls.Add(Me.CurSessionGT)
         Me.Controls.Add(Me.GameTimeLabel)
         Me.Controls.Add(Me.HackyFoVComboBox)
         Me.Controls.Add(Me.ComboBox1)
@@ -492,4 +503,5 @@ Partial Class MainFoV
     Friend WithEvents GameTracker As Timer
     Friend WithEvents GameTimeLabel As Label
     Friend WithEvents GameTimeSaver As Timer
+    Friend WithEvents CurSessionGT As Label
 End Class

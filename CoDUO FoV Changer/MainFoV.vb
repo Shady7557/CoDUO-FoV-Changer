@@ -46,6 +46,7 @@ Public Class MainFoV
     Dim exename As String = "CoDUOMP"
     Dim ismohaa As String = ini.ReadValue("Main", "GameExe")
     Dim gameTime As Double = 0
+    Dim curSess As Double = 0
     Dim trackGameTime As String = ini.ReadValue("Main", "TrackGameTime")
     Dim gameTimeHack As String = ini.ReadValue("Main", "GameTime")
     Public gameTimeIni As Long = 0
@@ -505,6 +506,10 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     End If
                     StartGameButton.Enabled = False
                 End If
+            End If
+            If StatusLabel.Text.Contains("not found or fa") Then
+                CurSessionGT.Visible = False
+                CurSessionGT.Text = "Current Session: No time played"
             End If
         Catch ex As Exception
             FoVTimer.Stop()
@@ -2143,26 +2148,47 @@ My.Computer.FileSystem.GetFileInfo(filename)
             GameTimeLabel.Text = "Game Time: >= 100 years"
             Return
         End If
+        If curSess >= 3153600032 Then
+            CurSessionGT.Text = "Current Session: >= 100 years"
+            Return
+        End If
+        If curSess <= 0 Then
+            CurSessionGT.Visible = False
+            CurSessionGT.Text = "Current Session: No time played"
+        End If
         If gameTime <= 0 Then
             GameTimeLabel.Text = "Game Time: No time played"
             Return
         End If
 
         Dim iSpan As TimeSpan = TimeSpan.FromSeconds(gameTime)
-        Dim TotalMinutes As String = CStr(Math.Floor(iSpan.TotalMinutes))
-        Dim TotalHours As String = CStr(Math.Floor(iSpan.TotalHours))
+        Dim iSpanCur As TimeSpan = TimeSpan.FromSeconds(curSess)
+        Dim TotalMinutes As Double = Math.Floor(iSpan.TotalMinutes)
+        Dim CurrentMinutes As Double = Math.Floor(iSpanCur.TotalMinutes)
+        Dim TotalHours As Double = Math.Floor(iSpan.TotalHours)
 
-        If gameTime >= 1 And CDbl(TotalMinutes) <= 0 Then
+        If gameTime >= 1 And TotalMinutes <= 0 Then
             GameTimeLabel.Text = "Game Time: " & gameTime.ToString() & " seconds"
         End If
-        If iSpan.TotalMinutes >= 1 And CDbl(TotalHours) <= 0 And gameTime >= 60 Then
+        If iSpan.TotalMinutes >= 1 And TotalHours <= 0 And gameTime >= 60 Then
             GameTimeLabel.Text = "Game Time: " & TotalMinutes & " minutes"
         End If
-        If CDbl(TotalHours) >= 1 Then
+        If TotalHours >= 1 And TotalHours <= 2 Then
+            GameTimeLabel.Text = "Game Time: " & TotalHours & " hour"
+        End If
+        If TotalHours >= 2 Then
             GameTimeLabel.Text = "Game Time: " & TotalHours & " hours"
         End If
         If GameTimeLabel.Text = "Game Time: 0" Then
             GameTimeLabel.Text = "Game Time: No time played"
+        End If
+        If curSess >= 1 And CurrentMinutes <= 0 Then
+            CurSessionGT.Text = "Current Session: " & curSess.ToString() & " seconds"
+            CurSessionGT.Visible = True
+        End If
+        If iSpanCur.TotalMinutes >= 1 And curSess >= 60 Then
+            CurSessionGT.Text = "Current Session: " & CurrentMinutes & " minutes"
+            CurSessionGT.Visible = True
         End If
 
     End Sub
@@ -2189,6 +2215,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
         End If
         gameTime = gameTime + 1
+        curSess = curSess + 1
     End Sub
 
     Private Sub GameTimeSaver_Tick(sender As Object, e As EventArgs) Handles GameTimeSaver.Tick
