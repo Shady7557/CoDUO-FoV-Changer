@@ -120,6 +120,9 @@ Public Class MainFoV
         AmountOfMemory
         VideocardMem
     End Enum
+    Private Sub WriteError(message As String, stacktrace As String)
+        Log.WriteLine("!! ERROR " & message & "    " & stacktrace & " !!")
+    End Sub
     Private Function checkupdates() As Boolean
         Try
             checkupdates = False
@@ -146,11 +149,11 @@ Public Class MainFoV
             '  Return False
         Catch ex As Exception
             If Not ex.Message.Contains("Could not establish trust relationship for the SSL/TLS secure channel") Then
-                MsgBox("Unable to Fetch Updates! " & ex.Message, MsgBoxStyle.Critical)
-                Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+                '  MsgBox("Unable to Fetch Updates! " & ex.Message, MsgBoxStyle.Critical)
+                WriteError(ex.Message, ex.StackTrace)
             Else
                 MsgBox("Unable to Fetch Updates! " & ex.Message & newline & "This error is likely caused by your time being out of sync. (System time)", MsgBoxStyle.Critical)
-                Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+                WriteError(ex.Message, ex.StackTrace)
             End If
             Return True
             '   Application.Exit()
@@ -173,7 +176,7 @@ Public Class MainFoV
             End If
         Catch ex As Exception
             MsgBox("Unable to fetch changelog! " & newline & ex.Message, MsgBoxStyle.Critical)
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
         End Try
 
 
@@ -215,7 +218,7 @@ Public Class MainFoV
 
         Catch ex As Exception
             MsgBox("Unable to fetch changelog! " & newline & ex.Message, MsgBoxStyle.Critical)
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
         End Try
     End Sub
     Private Sub disableUI()
@@ -257,7 +260,7 @@ Public Class MainFoV
             End If
         Catch ex As Exception
             MsgBox("A critical error has occured: " & ex.Message, MsgBoxStyle.Critical)
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
         End Try
     End Sub
     Private Sub CreateLogFolder()
@@ -406,7 +409,7 @@ Public Class MainFoV
                 httpclient2.DownloadFileAsync(New Uri(sourceURL2), (filedir2))
 
             Catch ex As Exception
-                Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+                WriteError(ex.Message, ex.StackTrace)
             End Try
         End If
     End Sub
@@ -417,7 +420,7 @@ Public Class MainFoV
             Try
                 httpclient.DownloadFileAsync(New Uri(sourceurl), cacheloc & "\" & filename)
             Catch ex As Exception
-                Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+                WriteError(ex.Message, ex.StackTrace)
                 MessageBox.Show("An error has occured while attempting to download a picture file: " & ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
         End If
@@ -476,7 +479,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     If ex.Message.Contains("Process with an Id") Then
                         pid = 0
                     Else
-                        Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+                        WriteError(ex.Message, ex.StackTrace)
                         errorOccured = True
                     End If
                     Return
@@ -521,7 +524,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
         Catch ex As Exception
             FoVTimer.Stop()
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             MessageBox.Show("An error has occurred: " & ex.Message & " please refer to the log file for more info.", appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
             errorOccured = True
             '
@@ -553,7 +556,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 Exit Sub
             End If
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             MessageBox.Show("Fatal error occured: " & ex.Message & " this will prevent the program from starting.")
             Application.Exit()
             Exit Sub
@@ -610,7 +613,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
 
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             MessageBox.Show("A fatal error has occured, this will prevent the program from starting: " & ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
             Application.Exit()
             Exit Sub
@@ -628,7 +631,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 'Log.WriteLine("Created Log Folder.")
             End If
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             MessageBox.Show("A fatal error has occured, this will prevent the program from starting: " & ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
             Application.Exit()
             Exit Sub
@@ -781,7 +784,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             CoDPictureBox.SizeMode = PictureBoxSizeMode.CenterImage
             CoDPictureBox.Image = finalImg
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             MessageBox.Show("An error has occured while attempting to cache files, this could be a result of no write permissions or not having an internet connection: " & ex.Message & newline & " this should not prevent the program from otherwise running normally.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error)
             CoDPictureBox.Image = My.Resources.Loading
         End Try
@@ -799,7 +802,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 'Dim restartneeded As Boolean = True
                 restartNeeded = True
             Catch ex As Exception
-                Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+                WriteError(ex.Message, ex.StackTrace)
             End Try
         End If
 
@@ -864,7 +867,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 ini.WriteValue("Extras", "StartCommandLine", startline.Replace("-launch", ""))
             End If
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
         End Try
 
         DvarsCheckBox.Visible = False
@@ -979,7 +982,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
                 Catch ex As Exception
-                    Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+                    WriteError(ex.Message, ex.StackTrace)
                     MsgBox("Error: " & ex.Message, MsgBoxStyle.Critical)
                     errorOccured = True
                 End Try
@@ -1009,7 +1012,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     Thread.Sleep(700)
                     Application.Exit()
                 Catch ex As Exception
-                    Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+                    WriteError(ex.Message, ex.StackTrace)
                     errorOccured = True
                     '
 
@@ -1064,7 +1067,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 UpdateCheckTimer.Start()
             End If
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             MessageBox.Show("ERROR: " & ex.Message)
         End Try
 
@@ -1085,7 +1088,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             '          readvalue = ""
             '      End If
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             MsgBox("Registry access denied, please run this program as an Administrator. Or other error: " & ex.Message, MsgBoxStyle.Critical)
             errorOccured = True
             '
@@ -1098,7 +1101,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 readvalue = installpath
             End If
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
         End Try
 
 
@@ -1170,12 +1173,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     ' specsthread.Start()
                 Catch ex As Exception
                     errorOccured = True
+                    WriteError(ex.Message, ex.StackTrace)
                     MsgBox("Error setting registry, invalid path? " & ex.Message, MsgBoxStyle.Critical)
-                    Log.WriteLine("!! ERROR !! tried to set registry and failed: " & ex.Message)
                 End Try
             End If
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             MessageBox.Show("An error has occurred while attempting to read/write registry: " & ex.Message & newline & "this may prevent the program from functioning normally.")
             errorOccured = True
             '
@@ -1194,7 +1197,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 Return
             End If
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             errorOccured = True
             MsgBox("Error setting/checking game path: " & ex.Message, MsgBoxStyle.Critical)
             '
@@ -1238,7 +1241,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             HackyAppVersLB.Text = testString
 
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             MessageBox.Show("An error has occured while attempting to read registry and set program labels: " & ex.Message & " this should not prevent the program from functioning normally.")
         End Try
 
@@ -1277,7 +1280,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 File.Delete(lastlogname)
             End If
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
         End Try
 
         StartGameButton.Select()
@@ -1371,7 +1374,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     End If
 
                 End If
-                End If
+            End If
 
         Next
 
@@ -1396,7 +1399,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Try
             WriteFloat(exename, &H3052F7C8, 80)
         Catch ex As Exception
-            Log.WriteLine("ERROR !!:  " & ex.Message)
+            WriteError(ex.Message, ex.StackTrace)
             errorOccured = True
         End Try
 
@@ -1411,7 +1414,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             If isDev = True Then
                 MsgBox(ex.Message)
             End If
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
         End Try
 
         If File.Exists(oldoptions) Then
@@ -1439,7 +1442,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 '  System.IO.File.Delete(copy)
             End If
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
         End Try
 
         If My.Computer.FileSystem.FileExists(lastlogname & " - copy 1") Then
@@ -1503,7 +1506,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 Return
             End If
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             MessageBox.Show("Error: " & ex.Message, appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
             errorOccured = True
         End Try
@@ -1511,7 +1514,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Try
             StartGame(exename)
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             MessageBox.Show("Error: " & ex.Message, appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
             errorOccured = True
 
@@ -1526,7 +1529,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
         Catch ex As Exception
             TextBoxTimer.Stop()
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             errorOccured = True
             Dim timesoccured As String = ""
             If isDev = True Then
@@ -1664,7 +1667,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Log.WriteLine("Restarting/Updating")
             Application.Exit()
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             MsgBox("Unable to create updater application. Error: " & ex.Message, MsgBoxStyle.Critical)
             errorOccured = True
         End Try
@@ -1678,7 +1681,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Process.Start(appdata & "CoDUO FoV Changer\settings.ini")
             Log.WriteLine("User opened Config File.")
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             MsgBox("Config file not found, first time running? Error: " & ex.Message, MsgBoxStyle.Critical)
             errorOccured = True
             '
@@ -1749,8 +1752,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
             My.Computer.FileSystem.DeleteFile(appdata & "CoDUO FoV Changer\settings.ini")
             Log.WriteLine("Reset Config.")
         Catch ex As Exception
+            WriteError(ex.Message, ex.StackTrace)
             MsgBox("Unable to reset, you may have already reset it. Error: " & ex.Message, MsgBoxStyle.Information)
-            Log.WriteLine("!! ERROR !! Unable to reset Config. " & ex.Message)
             errorOccured = True
             '
 
@@ -1767,7 +1770,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
         Catch ex As Exception
             FogTimer.Stop()
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             MsgBox("Failed to write to memory!" & ex.Message)
             errorOccured = True
             '
@@ -1785,7 +1788,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Try
             Process.Start("explorer.exe", appdata & "CoDUO FoV Changer\")
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             MsgBox(ex.Message, MsgBoxStyle.Critical)
             errorOccured = True
             '
@@ -1842,7 +1845,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 End If
             End If
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             MsgBox(ex.Message, MsgBoxStyle.Critical)
             errorOccured = True
             '
@@ -1857,7 +1860,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             WindowState = FormWindowState.Normal
             MinimizeIcon.Visible = False
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             MsgBox(ex.Message)
             errorOccured = True
             '
@@ -1938,7 +1941,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     Cache("https://i.imgur.com/xhBcQSp.png", "cache6.cache")
                 Catch ex As Exception
                     '     MessageBox.Show("An error has occured while attempting to download an image or load a cached image: " & ex.Message)
-                    Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+                    WriteError(ex.Message, ex.StackTrace)
                     errorOccured = True
                 End Try
             End If
@@ -1967,7 +1970,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     Cache("https://i.imgur.com/2WRGvTd.png", "cache5.cache")
                 Catch ex As Exception
                     ' MessageBox.Show("An error has occured while attempting to download an image or load a cached image: " & ex.Message)
-                    Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+                    WriteError(ex.Message, ex.StackTrace)
                     errorOccured = True
                 End Try
             End If
@@ -2082,7 +2085,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Try
             FoVTextBox.Text = HackyFoVComboBox.SelectedItem.ToString
         Catch ex As Exception
-            Log.WriteLine("!! ERROR !! " & ex.Message)
+            WriteError(ex.Message, ex.StackTrace)
             errorOccured = True
             Return
         End Try
@@ -2182,7 +2185,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             If ex.Message.Contains("Process with an Id") Then
                 pid = 0
             Else
-                Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+                WriteError(ex.Message, ex.StackTrace)
                 errorOccured = True
             End If
             Return
@@ -2224,7 +2227,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 FoVTextBox.Text = "80"
             End If
         Catch ex As Exception
-            Log.WriteLine("!! ERROR " & ex.Message & "    " & ex.StackTrace & " !!")
+            WriteError(ex.Message, ex.StackTrace)
             errorOccured = True
         End Try
     End Sub
