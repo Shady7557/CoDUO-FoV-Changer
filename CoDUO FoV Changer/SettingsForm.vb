@@ -158,14 +158,14 @@ Public Class SettingsForm
             MainFoV.HackyAppBranchLB.Visible = False
             MainFoV.HackyAppVersLB.Visible = False
             MainFoV.HackyGameVersLB.Visible = False
-            MainFoV.Height = 220
+            '     MainFoV.Height = 220
             ini.WriteValue("Extras", "Style", "Minimal")
         ElseIf StyleCBox.SelectedItem.tostring = "Default" Then
             ini.WriteValue("Extras", "Style", "Default")
             MainFoV.HackyAppBranchLB.Visible = True
             MainFoV.HackyAppVersLB.Visible = True
             MainFoV.HackyGameVersLB.Visible = True
-            MainFoV.Height = 249
+            '  MainFoV.Height = 249
             MainFoV.BackColor = MainFoV.DefaultBackColor
             Me.BackColor = DefaultBackColor
             GamePathButton.BackColor = DefaultBackColor

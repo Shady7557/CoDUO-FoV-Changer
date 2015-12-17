@@ -6,6 +6,7 @@ Public Class AdtSettingsForm
     Dim firstrunini As String = ini.ReadValue("Extras", "FirstRun")
     Dim disableupdatetimerini As String = ini.ReadValue("Tweaks", "DisableUpdateTimer")
     Dim saveapplocini As String = ini.ReadValue("Extras", "SaveAppLocation")
+    Dim TrackGameTime As String = ini.ReadValue("Main", "TrackGameTime")
     Dim whatami As String
     Dim conf As System.Threading.Thread
     Dim search As System.Threading.Thread
@@ -35,6 +36,11 @@ Public Class AdtSettingsForm
                 SaveWindowPosCBox.Checked = True
             Else
                 SaveWindowPosCBox.Checked = False
+            End If
+            If TrackGameTime.ToLower = "true" Then
+                GameTimeCheckbox.Checked = True
+            Else
+                GameTimeCheckbox.Checked = False
             End If
         Catch ex As Exception
             MessageBox.Show(ex.Message, MainFoV.appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)

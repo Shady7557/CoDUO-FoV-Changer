@@ -133,16 +133,32 @@ Public Class ChangeHotKeyForm
 
 
         If UpHotKeyRB.Checked = True Then
-            UpHotKeyLabel.Text = "Up Hot Key: " & keystring
-            key = e.KeyCode
-            ini.WriteValue("Extras", "HotKeyUpStr", keystring)
-            keyupinistr = keystring
+            If e.KeyCode.ToString.ToLower = keydowninistr Then Return
+            If keyupcombostr = "" Or keyupcombostr Is Nothing Then
+                UpHotKeyLabel.Text = "Up Hot Key: " & keystring
+                key = e.KeyCode
+                ini.WriteValue("Extras", "HotKeyUpStr", keystring)
+                keyupinistr = keystring
+            Else
+                UpHotKeyLabel.Text = "Up Hot Key: " & keyupcombostr & " + " & keystring
+                key = e.KeyCode
+                ini.WriteValue("Extras", "HotKeyUpStr", keystring)
+                keyupinistr = keystring
+            End If
         End If
         If DownHotKeyRB.Checked = True Then
-            DownHotKeyLabel.Text = "Down Hot Key: " & keystring
-            key2 = e.KeyCode
-            ini.WriteValue("Extras", "HotKeyDownStr", keystring)
-            keydowninistr = keystring
+            If e.KeyCode.ToString.ToLower = keyupinistr Then Return
+            If keydowncombostr = "" Or keydowncombostr Is Nothing Then
+                DownHotKeyLabel.Text = "Down Hot Key: " & keystring
+                key2 = e.KeyCode
+                ini.WriteValue("Extras", "HotKeyDownStr", keystring)
+                keydowninistr = keystring
+            Else
+                DownHotKeyLabel.Text = "Down Hot Key: " & keydowncombostr & " + " & keystring
+                key2 = e.KeyCode
+                ini.WriteValue("Extras", "HotKeyDownStr", keystring)
+                keydowninistr = keystring
+            End If
         End If
 
         If MiscRBUp.Checked = True Then
@@ -165,11 +181,18 @@ Public Class ChangeHotKeyForm
             End If
         End If
 
-        If UpHotKeyLabel.Text.Contains("d") And Not e.KeyCode.ToString = "D" And Not UpHotKeyLabel.Text.Contains("numpa") Then
-            UpHotKeyLabel.Text = "Up Hot Key: " & e.KeyCode.ToString.ToLower.Replace("d", "")
+
+        If e.KeyCode.ToString.StartsWith("D") And Not e.KeyCode.ToString = "D" And UpHotKeyRB.Checked = True Then
+            UpHotKeyLabel.Text = UpHotKeyLabel.Text.Replace(e.KeyCode.ToString.ToLower, e.KeyCode.ToString.ToLower.Replace("d", ""))
         End If
-        If DownHotKeyLabel.Text.Contains("d") And Not e.KeyCode.ToString = "D" And Not DownHotKeyLabel.Text.Contains("numpa") Then
-            DownHotKeyLabel.Text = "Up Hot Key: " & e.KeyCode.ToString.ToLower.Replace("d", "")
+        If e.KeyCode.ToString.StartsWith("D") And Not e.KeyCode.ToString = "D" And DownHotKeyRB.Checked = True Then
+            DownHotKeyLabel.Text = DownHotKeyLabel.Text.Replace(e.KeyCode.ToString.ToLower, e.KeyCode.ToString.ToLower.Replace("d", ""))
+        End If
+        If UpHotKeyLabel.Text.Contains(" + d") And Not e.KeyCode.ToString = "D" Then
+            UpHotKeyLabel.Text = UpHotKeyLabel.Text.Replace(" + d ", " + ")
+        End If
+        If DownHotKeyLabel.Text.Contains(" + d") And Not e.KeyCode.ToString = "D" Then
+            DownHotKeyLabel.Text = DownHotKeyLabel.Text.Replace(" + d ", " + ")
         End If
     End Sub
 
@@ -217,6 +240,7 @@ Public Class ChangeHotKeyForm
         ini.WriteValue("Extras", "HotKeyUpComboStr", "")
         ini.WriteValue("Extras", "HotKeyDownComboStr", "")
 
+
         keycombo1 = 0
         keycombo2 = 0
         MainFoV.hotkeycomboup = 0
@@ -227,5 +251,9 @@ Public Class ChangeHotKeyForm
         If Not DownHotKeyLabel.Text = "Down Hot Key: " Then
             DownHotKeyLabel.Text = DownHotKeyLabel.Text.Replace(keydowncombostr & " + ", "")
         End If
+        keydowncombostr = ""
+        keydowncombo = ""
+        keyupcombostr = ""
+        keyupcombo = ""
     End Sub
 End Class

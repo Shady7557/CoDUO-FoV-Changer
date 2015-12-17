@@ -146,6 +146,7 @@ Partial Class MainFoV
         Me.UpdateButton.Size = New System.Drawing.Size(70, 25)
         Me.UpdateButton.TabIndex = 11
         Me.UpdateButton.Text = "Update"
+        Me.ToolTipHandler.SetToolTip(Me.UpdateButton, "Update the program to the latest version.")
         Me.UpdateButton.UseVisualStyleBackColor = True
         Me.UpdateButton.Visible = False
         '
@@ -183,8 +184,8 @@ Partial Class MainFoV
         Me.LaunchParametersTB.Name = "LaunchParametersTB"
         Me.LaunchParametersTB.Size = New System.Drawing.Size(270, 20)
         Me.LaunchParametersTB.TabIndex = 25
-        Me.ToolTipHandler.SetToolTip(Me.LaunchParametersTB, "Start the game with these launch parameters." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(Formerly known as ""Command Line""" &
-        ")" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10))
+        Me.ToolTipHandler.SetToolTip(Me.LaunchParametersTB, "Start the game with these launch parameters." & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Example:" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "+set name ""PlayerName"" +s" &
+        "et r_fullscreen 1 +set r_mode -1 +connect 192.168.1.1")
         '
         'HackyAppBranchLB
         '
@@ -214,6 +215,8 @@ Partial Class MainFoV
         Me.FogCheckBox.Size = New System.Drawing.Size(44, 17)
         Me.FogCheckBox.TabIndex = 30
         Me.FogCheckBox.Text = "Fog"
+        Me.ToolTipHandler.SetToolTip(Me.FogCheckBox, "If not checked, fog will not be enabled. " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "!! WARNING !! You can be detected/kick" &
+        "ed/banned by PunkBuster if using this. " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "!! Do not use on PB servers. !!")
         Me.FogCheckBox.UseVisualStyleBackColor = True
         '
         'FogTimer
@@ -245,6 +248,7 @@ Partial Class MainFoV
         Me.MinimizeCheckBox.Size = New System.Drawing.Size(98, 17)
         Me.MinimizeCheckBox.TabIndex = 45
         Me.MinimizeCheckBox.Text = "Minimize to tray"
+        Me.ToolTipHandler.SetToolTip(Me.MinimizeCheckBox, "If checked, the program will go to the tray when minimized.")
         Me.MinimizeCheckBox.UseVisualStyleBackColor = True
         '
         'HackyAppVersLB
@@ -270,6 +274,7 @@ Partial Class MainFoV
         Me.CoD1CheckBox.Size = New System.Drawing.Size(78, 17)
         Me.CoD1CheckBox.TabIndex = 49
         Me.CoD1CheckBox.Text = "VCoD v1.5"
+        Me.ToolTipHandler.SetToolTip(Me.CoD1CheckBox, "Enable/disable Call of Duty 1 version.")
         Me.CoD1CheckBox.UseVisualStyleBackColor = True
         '
         'FileSizeLabel
@@ -398,6 +403,7 @@ Partial Class MainFoV
         Me.GameTimeLabel.Size = New System.Drawing.Size(67, 13)
         Me.GameTimeLabel.TabIndex = 57
         Me.GameTimeLabel.Text = "Game Time: "
+        Me.ToolTipHandler.SetToolTip(Me.GameTimeLabel, "Your total time spent in-game.")
         '
         'GameTimeSaver
         '
@@ -412,6 +418,7 @@ Partial Class MainFoV
         Me.CurSessionGT.Size = New System.Drawing.Size(87, 13)
         Me.CurSessionGT.TabIndex = 58
         Me.CurSessionGT.Text = "Current Session: "
+        Me.ToolTipHandler.SetToolTip(Me.CurSessionGT, "Your total time spent in this current session.")
         '
         'MainFoV
         '
