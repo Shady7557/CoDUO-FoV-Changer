@@ -120,8 +120,9 @@ Public Class MainFoV
         AmountOfMemory
         VideocardMem
     End Enum
-    Private Sub WriteError(message As String, stacktrace As String)
+    Public Sub WriteError(message As String, stacktrace As String)
         Log.WriteLine("!! ERROR " & message & "    " & stacktrace & " !!")
+        errorOccured = True
     End Sub
     Private Function checkupdates() As Boolean
         Try
@@ -480,7 +481,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                         pid = 0
                     Else
                         WriteError(ex.Message, ex.StackTrace)
-                        errorOccured = True
+
                     End If
                     Return
                 End Try
@@ -499,7 +500,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 Dim MyP As Process() = Process.GetProcessesByName(exename)
                 If MyP.Length = 0 Then
                     StatusLabel.Text = ("Status: not found or failed to write to memory!")
-                    If isminimal = "Dark" Then
+                    If isminimal = "Default" Then
                         StatusLabel.ForeColor = Color.DarkRed
                     Else
                         StatusLabel.ForeColor = Color.Red
@@ -510,7 +511,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     Exit Sub
                 Else
                     StatusLabel.Text = ("Status: UO found and wrote to memory!")
-                    If isminimal = "Dark" Then
+                    If isminimal = "Default" Then
                         StatusLabel.ForeColor = Color.DarkGreen
                     Else
                         StatusLabel.ForeColor = Color.Green
@@ -526,7 +527,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             FoVTimer.Stop()
             WriteError(ex.Message, ex.StackTrace)
             MessageBox.Show("An error has occurred: " & ex.Message & " please refer to the log file for more info.", appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
-            errorOccured = True
+
             '
 
 
@@ -580,7 +581,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
 
         If isDev = True Then
-            '     errorOccured = True
+            '     
         End If
 
         Dim nolog As Boolean = False
@@ -594,6 +595,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         If isminimal = "" Or isminimal Is Nothing Then
             ini.WriteValue("Extras", "Style", "Default")
+            isminimal = "Default"
+        End If
+
+        If saveapplocation = "" Or saveapplocation Is Nothing Then
+            ini.WriteValue("Extras", "SaveAppLocation", "True")
+            saveapplocation = "True"
         End If
 
         If saveapplocation.ToLower = "true" Then
@@ -671,15 +678,13 @@ My.Computer.FileSystem.GetFileInfo(filename)
         getmonthT.Priority = ThreadPriority.AboveNormal
         getmonthT.IsBackground = True
         getmonthT.Start()
-        If isminimal = "Minimal" Then
-            HackyAppBranchLB.Visible = False
-            HackyGameVersLB.Visible = False
-            HackyAppVersLB.Visible = False
-            Height = 220
-            'Label2.Location = New Point(0, 162)
-        End If
 
         If isminimal = "Dark" Then
+            ini.WriteValue("Extras", "Style", "Default")
+            isminimal = "Default"
+        End If
+
+        If isminimal = "Default" Then
             BackColor = Color.DimGray
             FoVTextBox.BackColor = Color.DarkGray
             LaunchParametersTB.BackColor = Color.DarkGray
@@ -748,7 +753,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Try
             If gamev = "UO" Or gamev Is Nothing Or gamev = "" Then
                 If My.Computer.FileSystem.FileExists(cacheloc & "\cache5.cache") Then
-                    Dim iscorrupt As Double = CDbl(corruptCheck(cacheloc & "\cache5.cache", 11846))
+                    Dim iscorrupt As Double = corruptCheck(cacheloc & "\cache5.cache", 11846)
                     If iscorrupt <= 11845 Or iscorrupt >= 11847 Then
                         CoDPictureBox.Image = My.Resources.Loading
                         CoDPictureBox.Load("https://i.imgur.com/2WRGvTd.png")
@@ -764,7 +769,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 End If
             Else
                 If My.Computer.FileSystem.FileExists(cacheloc & "\cache6.cache") Then
-                    Dim iscorrupt As Double = CDbl(corruptCheck(cacheloc & "\cache6.cache", 8606))
+                    Dim iscorrupt As Double = corruptCheck(cacheloc & "\cache6.cache", 8606)
                     If iscorrupt <= 8605 Or iscorrupt >= 8607 Then
                         CoDPictureBox.Image = My.Resources.Loading
                         CoDPictureBox.Load("https://i.imgur.com/xhBcQSp.png")
@@ -787,24 +792,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
             WriteError(ex.Message, ex.StackTrace)
             MessageBox.Show("An error has occured while attempting to cache files, this could be a result of no write permissions or not having an internet connection: " & ex.Message & newline & " this should not prevent the program from otherwise running normally.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error)
             CoDPictureBox.Image = My.Resources.Loading
+
         End Try
-
-
-        If File.Exists(appdata & "CoD UO FoV Changer\options.ini") Then
-            Try
-                File.Delete(iniLocation)
-                File.Copy(oldoptions, iniLocation)
-                '   ini.WriteValue("FoV", "FoV Value", testingaa)
-                ' My.Settings.didUpgrade = True
-                My.Settings.FoVFix = CInt(testingaa)
-                My.Settings.Save()
-                ini.WriteValue("FoV", "FoV Value", CStr(My.Settings.FoVFix))
-                'Dim restartneeded As Boolean = True
-                restartNeeded = True
-            Catch ex As Exception
-                WriteError(ex.Message, ex.StackTrace)
-            End Try
-        End If
 
         If My.Computer.FileSystem.FileExists(temp & "\CoDUO FoV Changer Updater.exe") Then
             My.Computer.FileSystem.DeleteFile(temp & "\CoDUO FoV Changer Updater.exe")
@@ -868,6 +857,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
+
         End Try
 
         DvarsCheckBox.Visible = False
@@ -984,7 +974,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 Catch ex As Exception
                     WriteError(ex.Message, ex.StackTrace)
                     MsgBox("Error: " & ex.Message, MsgBoxStyle.Critical)
-                    errorOccured = True
+
                 End Try
                 '  Button3.Enabled = False
             End If
@@ -1013,7 +1003,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     Application.Exit()
                 Catch ex As Exception
                     WriteError(ex.Message, ex.StackTrace)
-                    errorOccured = True
+
                     '
 
 
@@ -1090,7 +1080,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
             MsgBox("Registry access denied, please run this program as an Administrator. Or other error: " & ex.Message, MsgBoxStyle.Critical)
-            errorOccured = True
+
             '
 
 
@@ -1137,7 +1127,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     FolderBrowserDialog1.Description = ("Select your game path.")
                     FolderBrowserDialog1.ShowDialog()
                     Dim uoinstall As String
-                    uoinstall = CStr(FolderBrowserDialog1.SelectedPath)
+                    uoinstall = FolderBrowserDialog1.SelectedPath
 
 
                     If Not readvalue = "" Then
@@ -1172,7 +1162,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     '       specsthread.IsBackground = True
                     ' specsthread.Start()
                 Catch ex As Exception
-                    errorOccured = True
+
                     WriteError(ex.Message, ex.StackTrace)
                     MsgBox("Error setting registry, invalid path? " & ex.Message, MsgBoxStyle.Critical)
                 End Try
@@ -1180,7 +1170,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
             MessageBox.Show("An error has occurred while attempting to read/write registry: " & ex.Message & newline & "this may prevent the program from functioning normally.")
-            errorOccured = True
+
             '
 
 
@@ -1198,7 +1188,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
-            errorOccured = True
+
             MsgBox("Error setting/checking game path: " & ex.Message, MsgBoxStyle.Critical)
             '
 
@@ -1360,24 +1350,27 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Next
         End If
 
-        Dim di As New DirectoryInfo(appdata & "CoDUO FoV Changer\Logs")
-        Dim fiArr As FileInfo() = di.GetFiles
-        Dim fri As FileInfo
-        For Each fri In fiArr
-            If Not fri.FullName = logname Then
-                If fri.FullName.EndsWith(".log") Then
-                    Dim dayDiff As Long = DateDiff(DateInterval.Day, fri.LastWriteTime, Now)
+        Try
+            Dim di As New DirectoryInfo(appdata & "CoDUO FoV Changer\Logs")
+            Dim fiArr As FileInfo() = di.GetFiles
+            Dim fri As FileInfo
+            For Each fri In fiArr
+                If Not fri.FullName = logname Then
+                    If fri.FullName.EndsWith(".log") Then
+                        Dim dayDiff As Long = DateDiff(DateInterval.Day, fri.LastWriteTime, Now)
 
-                    If dayDiff >= 14 Then
-                        Log.WriteLine("Log: " & fri.ToString & " is " & CStr(dayDiff) & " days old, maximum is 14. - Deleting log.")
-                        IO.File.Delete(fri.FullName)
+                        If dayDiff >= 14 Then
+                            Log.WriteLine("Log: " & fri.ToString & " is " & CStr(dayDiff) & " days old, maximum is 14. - Deleting log.")
+                            IO.File.Delete(fri.FullName)
+                        End If
+
                     End If
-
                 End If
-            End If
 
-        Next
-
+            Next
+        Catch ex As Exception
+            WriteError(ex.Message, ex.StackTrace)
+        End Try
 
         Dim TimeSpent As TimeSpan
         TimeSpent = Now.Subtract(TimerStart)
@@ -1400,7 +1393,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             WriteFloat(exename, &H3052F7C8, 80)
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
-            errorOccured = True
+
         End Try
 
         If Not LaunchParametersTB.Text = "" And Not LaunchParametersTB.Text Is Nothing Then
@@ -1426,10 +1419,10 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
         '     MessageBox.Show("what")
-        If errorOccured = True Then
+        If errorOccured Then
             If Not restartneededpath = True Then
                 Log.WriteLine("An error has occurred -- not deleting log file!")
-                ini.WriteValue("Main", "LastLogName", "")
+                ini.WriteValue("Logging", "LastLogName", "")
             End If
 
         End If
@@ -1508,7 +1501,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
             MessageBox.Show("Error: " & ex.Message, appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
-            errorOccured = True
+
         End Try
 
         Try
@@ -1516,7 +1509,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
             MessageBox.Show("Error: " & ex.Message, appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
-            errorOccured = True
+
 
 
         End Try
@@ -1530,7 +1523,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Catch ex As Exception
             TextBoxTimer.Stop()
             WriteError(ex.Message, ex.StackTrace)
-            errorOccured = True
+
             Dim timesoccured As String = ""
             If isDev = True Then
                 timesoccured = CStr((+1))
@@ -1669,7 +1662,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
             MsgBox("Unable to create updater application. Error: " & ex.Message, MsgBoxStyle.Critical)
-            errorOccured = True
+
         End Try
 
 
@@ -1683,7 +1676,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
             MsgBox("Config file not found, first time running? Error: " & ex.Message, MsgBoxStyle.Critical)
-            errorOccured = True
+
             '
 
 
@@ -1754,7 +1747,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
             MsgBox("Unable to reset, you may have already reset it. Error: " & ex.Message, MsgBoxStyle.Information)
-            errorOccured = True
+
             '
 
 
@@ -1772,7 +1765,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             FogTimer.Stop()
             WriteError(ex.Message, ex.StackTrace)
             MsgBox("Failed to write to memory!" & ex.Message)
-            errorOccured = True
+
             '
 
 
@@ -1790,7 +1783,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
             MsgBox(ex.Message, MsgBoxStyle.Critical)
-            errorOccured = True
+
             '
 
 
@@ -1847,7 +1840,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
             MsgBox(ex.Message, MsgBoxStyle.Critical)
-            errorOccured = True
+
             '
 
 
@@ -1862,7 +1855,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
             MsgBox(ex.Message)
-            errorOccured = True
+
             '
 
 
@@ -1914,71 +1907,64 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     End Sub
     Private Sub CheckBox3_CheckedChanged(sender As Object, e As EventArgs) Handles CoD1CheckBox.CheckedChanged
-        If CoD1CheckBox.Checked = True Then
-            ini.WriteValue("Main", "Game", "CoD1")
-            DvarsCheckBox.Text = "Unlock All Dvars (UO only!)"
-            DvarsCheckBox.Enabled = False
-            DvarsCheckBox.Checked = False
-            FogCheckBox.Checked = True
-            FogCheckBox.Enabled = False
-            FogCheckBox.Text = "Fog (UO only!)"
-            Text = "CoDUO FoV Changer (in CoD1 Mode)"
-            '  Me.Width = 637
-            If My.Computer.FileSystem.FileExists(cacheloc & "\cache6.cache") Then
-                Dim iscorrupt As Integer = CInt(corruptCheck(cacheloc & "\cache6.cache", 8606))
-                If iscorrupt <= 8605 Or iscorrupt >= 8607 Then
-                    CoDPictureBox.Image = My.Resources.Loading
-                    CoDPictureBox.Load("https://i.imgur.com/xhBcQSp.png")
-                    My.Computer.FileSystem.DeleteFile(cacheloc & "\cache6.cache")
-                    Cache("https://i.imgur.com/xhBcQSp.png", "cache6.cache")
-                Else
-                    CoDPictureBox.Image = Image.FromFile(cacheloc & "\cache6.cache")
-                End If
+        Try
+            If CoD1CheckBox.Checked = True Then
+                ini.WriteValue("Main", "Game", "CoD1")
+                DvarsCheckBox.Text = "Unlock All Dvars (UO only!)"
+                DvarsCheckBox.Enabled = False
+                DvarsCheckBox.Checked = False
+                FogCheckBox.Checked = True
+                FogCheckBox.Enabled = False
+                FogCheckBox.Text = "Fog (UO only!)"
+                Text = "CoDUO FoV Changer (in CoD1 Mode)"
+                '  Me.Width = 637
+                If My.Computer.FileSystem.FileExists(cacheloc & "\cache6.cache") Then
+                    Dim iscorrupt As Integer = CInt(corruptCheck(cacheloc & "\cache6.cache", 8606))
+                    If iscorrupt <= 8605 Or iscorrupt >= 8607 Then
+                        CoDPictureBox.Image = My.Resources.Loading
+                        CoDPictureBox.Load("https://i.imgur.com/xhBcQSp.png")
+                        My.Computer.FileSystem.DeleteFile(cacheloc & "\cache6.cache")
+                        Cache("https://i.imgur.com/xhBcQSp.png", "cache6.cache")
+                    Else
+                        CoDPictureBox.Image = Image.FromFile(cacheloc & "\cache6.cache")
+                    End If
 
-            Else
-                Try
+                Else
                     CoDPictureBox.Load("https://i.imgur.com/xhBcQSp.png")
                     Cache("https://i.imgur.com/xhBcQSp.png", "cache6.cache")
-                Catch ex As Exception
-                    '     MessageBox.Show("An error has occured while attempting to download an image or load a cached image: " & ex.Message)
-                    WriteError(ex.Message, ex.StackTrace)
-                    errorOccured = True
-                End Try
-            End If
-        Else
-            ini.WriteValue("Main", "Game", "UO")
-            DvarsCheckBox.Text = "Unlock All Dvars"
-            DvarsCheckBox.Enabled = True
-            FogCheckBox.Enabled = True
-            FogCheckBox.Text = "Fog"
-            Text = "CoDUO FoV Changer"
-            'Me.Width = 624
-            If My.Computer.FileSystem.FileExists(cacheloc & "\cache5.cache") Then
-                Dim iscorrupt As Integer = CInt(corruptCheck(cacheloc & "\cache5.cache", 11846))
-                If iscorrupt <= 11845 Or iscorrupt >= 11847 Then
-                    CoDPictureBox.Image = My.Resources.Loading
-                    CoDPictureBox.Load("https://i.imgur.com/2WRGvTd.png")
-                    My.Computer.FileSystem.DeleteFile(cacheloc & "\cache5.cache")
-                    Cache("https://i.imgur.com/2WRGvTd.png", "cache5.cache")
-                Else
-                    CoDPictureBox.Image = Image.FromFile(cacheloc & "\cache5.cache")
                 End If
-
             Else
-                Try
+                ini.WriteValue("Main", "Game", "UO")
+                DvarsCheckBox.Text = "Unlock All Dvars"
+                DvarsCheckBox.Enabled = True
+                FogCheckBox.Enabled = True
+                FogCheckBox.Text = "Fog"
+                Text = "CoDUO FoV Changer"
+                'Me.Width = 624
+                If My.Computer.FileSystem.FileExists(cacheloc & "\cache5.cache") Then
+                    Dim iscorrupt As Integer = CInt(corruptCheck(cacheloc & "\cache5.cache", 11846))
+                    If iscorrupt <= 11845 Or iscorrupt >= 11847 Then
+                        CoDPictureBox.Image = My.Resources.Loading
+                        CoDPictureBox.Load("https://i.imgur.com/2WRGvTd.png")
+                        My.Computer.FileSystem.DeleteFile(cacheloc & "\cache5.cache")
+                        Cache("https://i.imgur.com/2WRGvTd.png", "cache5.cache")
+                    Else
+                        CoDPictureBox.Image = Image.FromFile(cacheloc & "\cache5.cache")
+                    End If
+
+                Else
                     CoDPictureBox.Load("https://i.imgur.com/2WRGvTd.png")
                     Cache("https://i.imgur.com/2WRGvTd.png", "cache5.cache")
-                Catch ex As Exception
-                    ' MessageBox.Show("An error has occured while attempting to download an image or load a cached image: " & ex.Message)
-                    WriteError(ex.Message, ex.StackTrace)
-                    errorOccured = True
-                End Try
+                End If
             End If
-        End If
-        Dim finalImg As Bitmap
-        finalImg = New Bitmap(CoDPictureBox.Image, CoDPictureBox.Width, CoDPictureBox.Height)
-        CoDPictureBox.SizeMode = PictureBoxSizeMode.CenterImage
-        CoDPictureBox.Image = finalImg
+            Dim finalImg As Bitmap
+            finalImg = New Bitmap(CoDPictureBox.Image, CoDPictureBox.Width, CoDPictureBox.Height)
+            CoDPictureBox.SizeMode = PictureBoxSizeMode.CenterImage
+            CoDPictureBox.Image = finalImg
+        Catch ex As Exception
+            MessageBox.Show("An error has occurred while attempting to cache/load image files: " & newline & ex.Message, appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
+            WriteError(ex.Message, ex.StackTrace)
+        End Try
     End Sub
 
     Private Sub CheckBox4_CheckedChanged(sender As Object, e As EventArgs) Handles DvarsCheckBox.CheckedChanged
@@ -2086,7 +2072,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             FoVTextBox.Text = HackyFoVComboBox.SelectedItem.ToString
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
-            errorOccured = True
+
             Return
         End Try
 
@@ -2186,7 +2172,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 pid = 0
             Else
                 WriteError(ex.Message, ex.StackTrace)
-                errorOccured = True
+
             End If
             Return
         End Try
@@ -2228,7 +2214,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
-            errorOccured = True
+
         End Try
     End Sub
 End Class

@@ -102,12 +102,8 @@ Public Class SettingsForm
     End Sub
 
     Private Sub Form3_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        If stylet = "Minimal" Then
-            StyleCBox.SelectedItem = "Minimal"
-        ElseIf stylet = "Default" Then
+        If stylet = "Default" Then
             StyleCBox.SelectedItem = "Default"
-        ElseIf stylet = "Dark" Then
-            StyleCBox.SelectedItem = "Dark"
             Me.BackColor = Color.DimGray
             GamePathButton.BackColor = Color.DarkGray
             CloseSettingsButton.BackColor = Color.DarkGray
@@ -118,10 +114,8 @@ Public Class SettingsForm
             ' TextBox2.BackColor = Color.DarkGray
             StyleCBox.BackColor = Color.DarkGray
             SetupKeysButton.BackColor = Color.DarkGray
-        End If
-        If MainFoV.CoD1CheckBox.Checked = True Then
-            '   Button6.Enabled = False
-            ToolTipHandler.SetToolTip(ButtonSelectGamePID, "This only supports CoDUO!")
+        ElseIf stylet = "Light" Then
+            StyleCBox.SelectedItem = "Light"
         End If
         Dim readvalue2 As String = ""
 
@@ -154,14 +148,8 @@ Public Class SettingsForm
                 Application.Restart()
             End If
         End If
-        If StyleCBox.SelectedItem.ToString = "Minimal" Then
-            MainFoV.HackyAppBranchLB.Visible = False
-            MainFoV.HackyAppVersLB.Visible = False
-            MainFoV.HackyGameVersLB.Visible = False
-            '     MainFoV.Height = 220
-            ini.WriteValue("Extras", "Style", "Minimal")
-        ElseIf StyleCBox.SelectedItem.tostring = "Default" Then
-            ini.WriteValue("Extras", "Style", "Default")
+        If StyleCBox.SelectedItem.ToString = "Light" Then
+            ini.WriteValue("Extras", "Style", "Light")
             MainFoV.HackyAppBranchLB.Visible = True
             MainFoV.HackyAppVersLB.Visible = True
             MainFoV.HackyGameVersLB.Visible = True
@@ -177,7 +165,7 @@ Public Class SettingsForm
             StyleCBox.BackColor = DefaultBackColor
             ButtonSelectGamePID.BackColor = DefaultBackColor
             SetupKeysButton.BackColor = DefaultBackColor
-        ElseIf StyleCBox.SelectedItem.tostring = "Dark" Then
+        ElseIf StyleCBox.SelectedItem.ToString = "Default" Then
             MainFoV.BackColor = Color.DimGray
             Me.BackColor = Color.DimGray
             GamePathButton.BackColor = Color.DarkGray
@@ -190,9 +178,8 @@ Public Class SettingsForm
             StyleCBox.BackColor = Color.DarkGray
             MainFoV.FoVMenuStrip.BackColor = Color.DarkGray
             SetupKeysButton.BackColor = Color.DarkGray
-            ini.WriteValue("Extras", "Style", "Dark")
+            ini.WriteValue("Extras", "Style", "Default")
         End If
-
     End Sub
 
     Private Sub Label8_Click(sender As Object, e As EventArgs) Handles CDKeyLabel.Click

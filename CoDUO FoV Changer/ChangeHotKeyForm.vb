@@ -18,7 +18,7 @@ Public Class ChangeHotKeyForm
     Private Shared Function GetAsyncKeyState(ByVal vkey As Keys) As Short
     End Function
     Private Sub Form7_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        If SettingsForm.StyleCBox.SelectedItem.ToString = "Dark" Then
+        If SettingsForm.StyleCBox.SelectedItem.ToString = "Default" Then
             BackColor = Color.DimGray
             CloseHotKeyFormButton.BackColor = Color.DarkGray
             ClearComboKeys.BackColor = Color.DarkGray

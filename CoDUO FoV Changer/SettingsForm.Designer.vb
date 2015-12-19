@@ -125,7 +125,7 @@ Partial Class SettingsForm
         'StyleCBox
         '
         Me.StyleCBox.FormattingEnabled = True
-        Me.StyleCBox.Items.AddRange(New Object() {"Default", "Minimal", "Dark"})
+        Me.StyleCBox.Items.AddRange(New Object() {"Default", "Light"})
         Me.StyleCBox.Location = New System.Drawing.Point(50, 232)
         Me.StyleCBox.Name = "StyleCBox"
         Me.StyleCBox.Size = New System.Drawing.Size(114, 21)
@@ -228,7 +228,7 @@ Partial Class SettingsForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(189, 330)
+        Me.ClientSize = New System.Drawing.Size(189, 326)
         Me.ControlBox = False
         Me.Controls.Add(Me.SetupKeysButton)
         Me.Controls.Add(Me.ButtonSelectGamePID)

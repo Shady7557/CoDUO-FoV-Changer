@@ -1,4 +1,6 @@
 ﻿Option Strict On
+Imports System.IO
+
 Public Class AdtSettingsForm
     Public userpth As String = System.Environment.GetEnvironmentVariable("userprofile")
     Public appdata As String = System.Environment.GetEnvironmentVariable("appdata") & "\"
@@ -16,7 +18,7 @@ Public Class AdtSettingsForm
     Private Sub Form5_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         '  MessageBox.Show(SettingsForm.StyleCBox.SelectedItem.ToString)
         Try
-            If SettingsForm.StyleCBox.SelectedItem.ToString = "Dark" Then
+            If SettingsForm.StyleCBox.SelectedItem.ToString = "Default" Then
                 BackColor = Color.DimGray
                 SaveRestartAppButton.BackColor = Color.DarkGray
                 OpenConfigButton.BackColor = Color.DarkGray
@@ -138,6 +140,25 @@ Public Class AdtSettingsForm
         Else
             ini.WriteValue("Main", "TrackGameTime", "False")
             '     MainFoV.trackGameTime = "False"
+        End If
+    End Sub
+
+    Private Sub ClearCacheButton_Click(sender As Object, e As EventArgs) Handles ClearCacheButton.Click
+        Dim ask As MsgBoxResult = CType(MessageBox.Show("The program must be restarted to fully clear the image cache, are you sure you want to continue?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Information), MsgBoxResult)
+        If ask = MsgBoxResult.Yes Then
+            Try
+                Dim di As New DirectoryInfo(appdata & "CoDUO FoV Changer\Cache")
+                Dim fiArr As FileInfo() = di.GetFiles
+                Dim fri As FileInfo
+                For Each fri In fiArr
+                    If fri.FullName.EndsWith(".cache") Then
+                        File.Delete(fri.FullName)
+                    End If
+
+                Next
+            Catch ex As Exception
+                MainFoV.WriteError(ex.Message, ex.StackTrace)
+            End Try
         End If
     End Sub
 End Class

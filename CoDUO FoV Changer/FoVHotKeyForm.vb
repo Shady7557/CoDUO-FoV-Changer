@@ -52,7 +52,7 @@ Public Class FoVHotKeyForm
     End Sub
 
     Private Sub FoVHotKeyForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        If SettingsForm.StyleCBox.SelectedItem.ToString = "Dark" Then
+        If SettingsForm.StyleCBox.SelectedItem.ToString = "Default" Then
             BackColor = Color.DimGray
             ButtonAddFoVCB.BackColor = Color.DarkGray
             CloseFormButton.BackColor = Color.DarkGray

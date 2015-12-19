@@ -33,11 +33,12 @@ Partial Class AdtSettingsForm
         Me.ToolTipHandler = New System.Windows.Forms.ToolTip(Me.components)
         Me.SaveWindowPosCBox = New System.Windows.Forms.CheckBox()
         Me.GameTimeCheckbox = New System.Windows.Forms.CheckBox()
+        Me.ClearCacheButton = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'SaveRestartAppButton
         '
-        Me.SaveRestartAppButton.Location = New System.Drawing.Point(12, 115)
+        Me.SaveRestartAppButton.Location = New System.Drawing.Point(12, 104)
         Me.SaveRestartAppButton.Name = "SaveRestartAppButton"
         Me.SaveRestartAppButton.Size = New System.Drawing.Size(107, 23)
         Me.SaveRestartAppButton.TabIndex = 0
@@ -69,7 +70,7 @@ Partial Class AdtSettingsForm
         '
         'CancelCloseButton
         '
-        Me.CancelCloseButton.Location = New System.Drawing.Point(12, 173)
+        Me.CancelCloseButton.Location = New System.Drawing.Point(12, 190)
         Me.CancelCloseButton.Name = "CancelCloseButton"
         Me.CancelCloseButton.Size = New System.Drawing.Size(107, 22)
         Me.CancelCloseButton.TabIndex = 11
@@ -78,7 +79,7 @@ Partial Class AdtSettingsForm
         '
         'OpenConfigButton
         '
-        Me.OpenConfigButton.Location = New System.Drawing.Point(12, 144)
+        Me.OpenConfigButton.Location = New System.Drawing.Point(12, 133)
         Me.OpenConfigButton.Name = "OpenConfigButton"
         Me.OpenConfigButton.Size = New System.Drawing.Size(107, 23)
         Me.OpenConfigButton.TabIndex = 12
@@ -124,12 +125,22 @@ Partial Class AdtSettingsForm
         Me.ToolTipHandler.SetToolTip(Me.GameTimeCheckbox, "Saves the program's last X and Y location")
         Me.GameTimeCheckbox.UseVisualStyleBackColor = True
         '
+        'ClearCacheButton
+        '
+        Me.ClearCacheButton.Location = New System.Drawing.Point(12, 161)
+        Me.ClearCacheButton.Name = "ClearCacheButton"
+        Me.ClearCacheButton.Size = New System.Drawing.Size(107, 23)
+        Me.ClearCacheButton.TabIndex = 18
+        Me.ClearCacheButton.Text = "Clear Cache"
+        Me.ClearCacheButton.UseVisualStyleBackColor = True
+        '
         'AdtSettingsForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(142, 207)
+        Me.ClientSize = New System.Drawing.Size(138, 221)
         Me.ControlBox = False
+        Me.Controls.Add(Me.ClearCacheButton)
         Me.Controls.Add(Me.GameTimeCheckbox)
         Me.Controls.Add(Me.SaveWindowPosCBox)
         Me.Controls.Add(Me.TextBox1)
@@ -157,4 +168,5 @@ Partial Class AdtSettingsForm
     Friend WithEvents ToolTipHandler As System.Windows.Forms.ToolTip
     Friend WithEvents SaveWindowPosCBox As System.Windows.Forms.CheckBox
     Friend WithEvents GameTimeCheckbox As CheckBox
+    Friend WithEvents ClearCacheButton As Button
 End Class

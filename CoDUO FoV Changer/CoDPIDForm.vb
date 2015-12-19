@@ -19,7 +19,7 @@ Public Class CoDPIDForm
 
     Private Sub Form6_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
-            If SettingsForm.StyleCBox.SelectedItem.ToString = "Dark" Then
+            If SettingsForm.StyleCBox.SelectedItem.ToString = "Default" Then
                 BackColor = Color.DimGray
                 PIDListBox.BackColor = Color.DarkGray
                 SelectPIDButton.BackColor = Color.DarkGray
