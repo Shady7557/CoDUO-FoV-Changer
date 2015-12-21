@@ -489,12 +489,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
             If CoD1CheckBox.Checked = False Then
                 If pid = 0 Then
-                    WriteFloat(exename, &H3052F7C8, CSng(FoVTextBox.Text))
+                    WriteFloat(exename, &H3052F7C8, CSng(FoVNumeric.Text))
                 Else
-                    WriteFloatpid(pid, &H3052F7C8, CSng(FoVTextBox.Text))
+                    WriteFloatpid(pid, &H3052F7C8, CSng(FoVNumeric.Text))
                 End If
             Else
-                WriteFloat("CoDMP", &H3029CA28, CSng(FoVTextBox.Text))
+                WriteFloat("CoDMP", &H3029CA28, CSng(FoVNumeric.Text))
             End If
             If pid = 0 Then
                 Dim MyP As Process() = Process.GetProcessesByName(exename)
@@ -550,7 +550,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
 
 
-        Try
+        Try 'I'm not really sure this try is even needed, doesn't seem like something that would ever have a fault
             If isElevated = False Then
                 MessageBox.Show("Program is not being ran with Administrative privileges, please restart this program with sufficient access.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Application.Exit()
@@ -686,7 +686,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         If isminimal = "Default" Then
             BackColor = Color.DimGray
-            FoVTextBox.BackColor = Color.DarkGray
+            FoVNumeric.BackColor = Color.DarkGray
             LaunchParametersTB.BackColor = Color.DarkGray
             UpdateButton.BackColor = Color.DarkGray
             StartGameButton.BackColor = Color.DarkGray
@@ -802,7 +802,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         If restartNeeded = True Then
             MessageBox.Show("Your .ini file has been moved, it is recommended your restart the program, and as such, most of the program has been disabled until you do so.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Asterisk)
             restartNeeded = False
-            FoVTextBox.ReadOnly = True
+            FoVNumeric.ReadOnly = True
             FoVTimer.Enabled = False
             StartGameButton.Enabled = False
         End If
@@ -816,9 +816,9 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         'safety code
         If Not fov = "80" Or Not fov = "" Then
-            FoVTextBox.Text = fov
+            FoVNumeric.Text = fov
         Else
-            FoVTextBox.Text = CStr(My.Settings.FoVFix)
+            FoVNumeric.Text = CStr(My.Settings.FoVFix)
         End If
 
         If minimizetray = "" Then
@@ -880,7 +880,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     splitStr(1) = CStr(80)
                 End If
                 If splitStr(1).StartsWith(CStr(1)) Or splitStr(1).StartsWith(CStr(2)) Or splitStr(1).StartsWith(CStr(3)) Or splitStr(1).StartsWith(CStr(4)) Or splitStr(1).StartsWith(CStr(5)) Or splitStr(1).StartsWith(CStr(6)) Or splitStr(1).StartsWith(CStr(7)) Or splitStr(1).StartsWith(CStr(8)) Or splitStr(1).StartsWith(CStr(9)) Then
-                    FoVTextBox.Text = splitStr(1)
+                    FoVNumeric.Text = splitStr(1)
                     Log.WriteLine("Launched fov changer with -fov=" & splitStr(1))
                 End If
                 '   MessageBox.Show(splitStr(1))
@@ -992,12 +992,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
                         File.WriteAllBytes(myExe, My.Resources.CoDUO_FoV_Changer_Updater)
                         Log.WriteLine("Creating Updater Application.")
                     End If
-                    Dim shasta As New ProcessStartInfo
-                    shasta.CreateNoWindow = True
-                    shasta.WindowStyle = ProcessWindowStyle.Hidden
-                    shasta.WorkingDirectory = temp
-                    shasta.FileName = myExe
-                    Process.Start(shasta)
+                    Dim updater As New ProcessStartInfo
+                    updater.CreateNoWindow = True
+                    updater.WindowStyle = ProcessWindowStyle.Hidden
+                    updater.WorkingDirectory = temp
+                    updater.FileName = myExe
+                    Process.Start(updater)
                     Log.WriteLine("Restarting.")
                     Thread.Sleep(700)
                     Application.Exit()
@@ -1245,7 +1245,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         If Not readvalue2 Is Nothing And Not readvalue2 = "" Then
             If CInt(readvalue2) < 1.51 Then
                 FoVTimer.Stop()
-                FoVTextBox.ReadOnly = True
+                FoVNumeric.ReadOnly = True
                 MsgBox("Your Call of Duty Version is not the correct version for this program, the FoV Changer only works on 1.51, if you're sure you have 1.51, then check UO registry, and set it through that.", MsgBoxStyle.Information)
             End If
         End If
@@ -1415,7 +1415,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Log.WriteLine("Deleted old options folder")
         End If
 
-        ini.WriteValue("FoV", "FoV Value", FoVTextBox.Text)
+        ini.WriteValue("FoV", "FoV Value", FoVNumeric.Text)
 
 
         '     MessageBox.Show("what")
@@ -1517,8 +1517,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub Timer3_Tick(sender As Object, e As EventArgs) Handles TextBoxTimer.Tick
         Try
-            If CInt(FoVTextBox.Text) > 120 Then
-                FoVTextBox.Text = "120"
+            If CInt(FoVNumeric.Text) > 120 Then
+                FoVNumeric.Text = "120"
             End If
         Catch ex As Exception
             TextBoxTimer.Stop()
@@ -1555,14 +1555,14 @@ My.Computer.FileSystem.GetFileInfo(filename)
         hotkey3 = CBool(GetAsyncKeyState(Keys.Add))
         hotkey4 = CBool(GetAsyncKeyState(Keys.Subtract))
         If hotkey3 = True Then
-            If Not CInt(FoVTextBox.Text) + 1 = 121 Then
-                FoVTextBox.Text = CStr(CInt(FoVTextBox.Text) + 1)
+            If Not CInt(FoVNumeric.Text) + 1 = 121 Then
+                FoVNumeric.Text = CStr(CInt(FoVNumeric.Text) + 1)
                 neg = False
                 ChangeFoV()
             End If
         ElseIf hotkey4 = True Then
-            If Not CInt(FoVTextBox.Text) - 1 = 79 Then
-                FoVTextBox.Text = CStr(CInt(FoVTextBox.Text) - 1)
+            If Not CInt(FoVNumeric.Text) - 1 = 79 Then
+                FoVNumeric.Text = CStr(CInt(FoVNumeric.Text) - 1)
                 neg = True
                 ChangeFoV()
             End If
@@ -1795,8 +1795,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub Timer7_Tick(sender As Object, e As EventArgs) Handles FoVFixTimer.Tick
-        If FoVTextBox.Text = "" Then
-            FoVTextBox.Text = CStr(My.Settings.FoVFix) 'FoVFix will never be below 80 or empty.
+        If FoVNumeric.Text = "" Then
+            FoVNumeric.Text = CStr(My.Settings.FoVFix) 'FoVFix will never be below 80 or empty.
         End If
     End Sub
 
@@ -2054,7 +2054,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
             ini.WriteValue("Main", "ComboBoxFoV", fovbox & HackyFoVComboBox.SelectedItem.ToString & ",")
             fovbox = fovbox & HackyFoVComboBox.SelectedItem.ToString & ","
-            FoVTextBox.Text = HackyFoVComboBox.SelectedItem.ToString
+            FoVNumeric.Text = HackyFoVComboBox.SelectedItem.ToString
         End If
         If CInt(HackyFoVComboBox.SelectedItem) > 120 Then
             Dim replace As String
@@ -2069,7 +2069,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             FoVHotKeyForm.CBBoxFoV.SelectedIndex = HackyFoVComboBox.SelectedIndex
         End If
         Try
-            FoVTextBox.Text = HackyFoVComboBox.SelectedItem.ToString
+            FoVNumeric.Text = HackyFoVComboBox.SelectedItem.ToString
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
 
@@ -2078,14 +2078,14 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         ChangeFoV()
 
-        ini.WriteValue("Main", "LastComboBoxFoV", FoVTextBox.Text)
+        ini.WriteValue("Main", "LastComboBoxFoV", FoVNumeric.Text)
 
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs)
-        If Not HackyFoVComboBox.Items.Contains(FoVTextBox.Text) Then
-            HackyFoVComboBox.Items.Add(FoVTextBox.Text)
-            HackyFoVComboBox.SelectedItem = FoVTextBox.Text
+        If Not HackyFoVComboBox.Items.Contains(FoVNumeric.Text) Then
+            HackyFoVComboBox.Items.Add(FoVNumeric.Text)
+            HackyFoVComboBox.SelectedItem = FoVNumeric.Text
         End If
     End Sub
 
@@ -2194,27 +2194,5 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub GameTimeSaver_Tick(sender As Object, e As EventArgs) Handles GameTimeSaver.Tick
         ini.WriteValue("Main", "GameTime", CStr(gameTime))
-    End Sub
-
-    Private Sub FoVTextBox_TextChanged(sender As Object, e As EventArgs) Handles FoVTextBox.TextChanged
-        Try
-            Dim myArray() As Char
-            myArray = FoVTextBox.Text.ToCharArray
-            For Each Charr In myArray
-                '    MessageBox.Show(Charr.ToString)
-                If Charr.ToString = "1" Or Charr.ToString = "2" Or Charr.ToString = "3" Or Charr.ToString = "4" Or Charr.ToString = "5" Or Charr.ToString = "6" Or Charr.ToString = "7" Or Charr.ToString = "8" Or Charr.ToString = "9" Then
-                Else
-                    FoVTextBox.Text = FoVTextBox.Text.Replace(Charr.ToString, "0")
-                End If
-            Next
-
-            If FoVTextBox.Text.StartsWith("1") Or FoVTextBox.Text.StartsWith("2") Or FoVTextBox.Text.StartsWith("3") Or FoVTextBox.Text.StartsWith("4") Or FoVTextBox.Text.StartsWith("5") Or FoVTextBox.Text.StartsWith("6") Or FoVTextBox.Text.StartsWith("7") Or FoVTextBox.Text.StartsWith("8") Or FoVTextBox.Text.StartsWith("9") Or FoVTextBox.Text = "" Then
-            Else
-                FoVTextBox.Text = "80"
-            End If
-        Catch ex As Exception
-            WriteError(ex.Message, ex.StackTrace)
-
-        End Try
     End Sub
 End Class

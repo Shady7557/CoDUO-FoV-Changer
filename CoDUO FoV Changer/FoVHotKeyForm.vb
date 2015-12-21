@@ -7,12 +7,12 @@ Public Class FoVHotKeyForm
                 MessageBox.Show("Unable to add FoV Value because it exceeds the max amount of 12.", MainFoV.appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Return
             End If
-            If Not CBBoxFoV.Items.Contains(MainFoV.FoVTextBox.Text) Then
-                CBBoxFoV.Items.Add(MainFoV.FoVTextBox.Text)
-                CBBoxFoV.SelectedItem = MainFoV.FoVTextBox.Text
+            If Not CBBoxFoV.Items.Contains(MainFoV.FoVNumeric.Text) Then
+                CBBoxFoV.Items.Add(MainFoV.FoVNumeric.Text)
+                CBBoxFoV.SelectedItem = MainFoV.FoVNumeric.Text
             End If
-            If Not MainFoV.HackyFoVComboBox.Items.Contains(MainFoV.FoVTextBox.Text) Then
-                MainFoV.HackyFoVComboBox.Items.Add(MainFoV.FoVTextBox.Text)
+            If Not MainFoV.HackyFoVComboBox.Items.Contains(MainFoV.FoVNumeric.Text) Then
+                MainFoV.HackyFoVComboBox.Items.Add(MainFoV.FoVNumeric.Text)
                 MainFoV.HackyFoVComboBox.SelectedItem = CBBoxFoV.SelectedItem
             End If
         Catch ex As Exception
@@ -21,7 +21,7 @@ Public Class FoVHotKeyForm
     End Sub
 
     Private Sub CBBoxFoV_SelectedIndexChanged(sender As Object, e As EventArgs) Handles CBBoxFoV.SelectedIndexChanged
-        MainFoV.FoVTextBox.Text = CBBoxFoV.SelectedItem.ToString
+        MainFoV.FoVNumeric.Text = CBBoxFoV.SelectedItem.ToString
 
 
 
@@ -81,8 +81,8 @@ Public Class FoVHotKeyForm
         Next
         If CBBoxFoV.Items.Count >= 1 Then
             For Each item As String In CBBoxFoV.Items
-                If item = MainFoV.FoVTextBox.Text Then
-                    CBBoxFoV.SelectedItem = MainFoV.FoVTextBox.Text
+                If item = MainFoV.FoVNumeric.Text Then
+                    CBBoxFoV.SelectedItem = MainFoV.FoVNumeric.Text
                     Return
                 End If
             Next

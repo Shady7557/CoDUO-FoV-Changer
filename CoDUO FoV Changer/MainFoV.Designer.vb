@@ -24,7 +24,6 @@ Partial Class MainFoV
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(MainFoV))
-        Me.FoVTextBox = New System.Windows.Forms.TextBox()
         Me.FoVLabel = New System.Windows.Forms.Label()
         Me.FoVTimer = New System.Windows.Forms.Timer(Me.components)
         Me.StatusLabel = New System.Windows.Forms.Label()
@@ -47,9 +46,11 @@ Partial Class MainFoV
         Me.MinimizeIcon = New System.Windows.Forms.NotifyIcon(Me.components)
         Me.MinimizeCheckBox = New System.Windows.Forms.CheckBox()
         Me.ToolTipHandler = New System.Windows.Forms.ToolTip(Me.components)
+        Me.CoD1CheckBox = New System.Windows.Forms.CheckBox()
+        Me.GameTimeLabel = New System.Windows.Forms.Label()
+        Me.CurSessionGT = New System.Windows.Forms.Label()
         Me.HackyAppVersLB = New System.Windows.Forms.Label()
         Me.ABITWTimer = New System.Windows.Forms.Timer(Me.components)
-        Me.CoD1CheckBox = New System.Windows.Forms.CheckBox()
         Me.FileSizeLabel = New System.Windows.Forms.Label()
         Me.FileSizeLabel2 = New System.Windows.Forms.Label()
         Me.ToolTipHandler2 = New System.Windows.Forms.ToolTip(Me.components)
@@ -67,20 +68,12 @@ Partial Class MainFoV
         Me.ComboBox1 = New System.Windows.Forms.ComboBox()
         Me.HackyFoVComboBox = New System.Windows.Forms.ComboBox()
         Me.GameTracker = New System.Windows.Forms.Timer(Me.components)
-        Me.GameTimeLabel = New System.Windows.Forms.Label()
         Me.GameTimeSaver = New System.Windows.Forms.Timer(Me.components)
-        Me.CurSessionGT = New System.Windows.Forms.Label()
+        Me.FoVNumeric = New System.Windows.Forms.NumericUpDown()
         CType(Me.CoDPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.FoVMenuStrip.SuspendLayout()
+        CType(Me.FoVNumeric, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
-        '
-        'FoVTextBox
-        '
-        Me.FoVTextBox.Location = New System.Drawing.Point(77, 6)
-        Me.FoVTextBox.Name = "FoVTextBox"
-        Me.FoVTextBox.Size = New System.Drawing.Size(42, 20)
-        Me.FoVTextBox.TabIndex = 0
-        Me.FoVTextBox.Text = "80"
         '
         'FoVLabel
         '
@@ -251,6 +244,37 @@ Partial Class MainFoV
         Me.ToolTipHandler.SetToolTip(Me.MinimizeCheckBox, "If checked, the program will go to the tray when minimized.")
         Me.MinimizeCheckBox.UseVisualStyleBackColor = True
         '
+        'CoD1CheckBox
+        '
+        Me.CoD1CheckBox.AutoSize = True
+        Me.CoD1CheckBox.Location = New System.Drawing.Point(296, 28)
+        Me.CoD1CheckBox.Name = "CoD1CheckBox"
+        Me.CoD1CheckBox.Size = New System.Drawing.Size(78, 17)
+        Me.CoD1CheckBox.TabIndex = 49
+        Me.CoD1CheckBox.Text = "VCoD v1.5"
+        Me.ToolTipHandler.SetToolTip(Me.CoD1CheckBox, "Enable/disable Call of Duty 1 version.")
+        Me.CoD1CheckBox.UseVisualStyleBackColor = True
+        '
+        'GameTimeLabel
+        '
+        Me.GameTimeLabel.AutoSize = True
+        Me.GameTimeLabel.Location = New System.Drawing.Point(135, 61)
+        Me.GameTimeLabel.Name = "GameTimeLabel"
+        Me.GameTimeLabel.Size = New System.Drawing.Size(67, 13)
+        Me.GameTimeLabel.TabIndex = 57
+        Me.GameTimeLabel.Text = "Game Time: "
+        Me.ToolTipHandler.SetToolTip(Me.GameTimeLabel, "Your total time spent in-game.")
+        '
+        'CurSessionGT
+        '
+        Me.CurSessionGT.AutoSize = True
+        Me.CurSessionGT.Location = New System.Drawing.Point(135, 74)
+        Me.CurSessionGT.Name = "CurSessionGT"
+        Me.CurSessionGT.Size = New System.Drawing.Size(87, 13)
+        Me.CurSessionGT.TabIndex = 58
+        Me.CurSessionGT.Text = "Current Session: "
+        Me.ToolTipHandler.SetToolTip(Me.CurSessionGT, "Your total time spent in this current session.")
+        '
         'HackyAppVersLB
         '
         Me.HackyAppVersLB.AutoSize = True
@@ -265,17 +289,6 @@ Partial Class MainFoV
         '
         Me.ABITWTimer.Enabled = True
         Me.ABITWTimer.Interval = 1200
-        '
-        'CoD1CheckBox
-        '
-        Me.CoD1CheckBox.AutoSize = True
-        Me.CoD1CheckBox.Location = New System.Drawing.Point(296, 28)
-        Me.CoD1CheckBox.Name = "CoD1CheckBox"
-        Me.CoD1CheckBox.Size = New System.Drawing.Size(78, 17)
-        Me.CoD1CheckBox.TabIndex = 49
-        Me.CoD1CheckBox.Text = "VCoD v1.5"
-        Me.ToolTipHandler.SetToolTip(Me.CoD1CheckBox, "Enable/disable Call of Duty 1 version.")
-        Me.CoD1CheckBox.UseVisualStyleBackColor = True
         '
         'FileSizeLabel
         '
@@ -395,30 +408,21 @@ Partial Class MainFoV
         Me.GameTracker.Enabled = True
         Me.GameTracker.Interval = 1000
         '
-        'GameTimeLabel
-        '
-        Me.GameTimeLabel.AutoSize = True
-        Me.GameTimeLabel.Location = New System.Drawing.Point(135, 61)
-        Me.GameTimeLabel.Name = "GameTimeLabel"
-        Me.GameTimeLabel.Size = New System.Drawing.Size(67, 13)
-        Me.GameTimeLabel.TabIndex = 57
-        Me.GameTimeLabel.Text = "Game Time: "
-        Me.ToolTipHandler.SetToolTip(Me.GameTimeLabel, "Your total time spent in-game.")
-        '
         'GameTimeSaver
         '
         Me.GameTimeSaver.Enabled = True
         Me.GameTimeSaver.Interval = 5000
         '
-        'CurSessionGT
+        'FoVNumeric
         '
-        Me.CurSessionGT.AutoSize = True
-        Me.CurSessionGT.Location = New System.Drawing.Point(135, 74)
-        Me.CurSessionGT.Name = "CurSessionGT"
-        Me.CurSessionGT.Size = New System.Drawing.Size(87, 13)
-        Me.CurSessionGT.TabIndex = 58
-        Me.CurSessionGT.Text = "Current Session: "
-        Me.ToolTipHandler.SetToolTip(Me.CurSessionGT, "Your total time spent in this current session.")
+        Me.FoVNumeric.Location = New System.Drawing.Point(77, 7)
+        Me.FoVNumeric.Maximum = New Decimal(New Integer() {120, 0, 0, 0})
+        Me.FoVNumeric.Minimum = New Decimal(New Integer() {80, 0, 0, 0})
+        Me.FoVNumeric.Name = "FoVNumeric"
+        Me.FoVNumeric.Size = New System.Drawing.Size(42, 20)
+        Me.FoVNumeric.TabIndex = 59
+        Me.ToolTipHandler.SetToolTip(Me.FoVNumeric, "Input the value you want your FoV to be set to.")
+        Me.FoVNumeric.Value = New Decimal(New Integer() {80, 0, 0, 0})
         '
         'MainFoV
         '
@@ -426,6 +430,7 @@ Partial Class MainFoV
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(399, 189)
+        Me.Controls.Add(Me.FoVNumeric)
         Me.Controls.Add(Me.CurSessionGT)
         Me.Controls.Add(Me.GameTimeLabel)
         Me.Controls.Add(Me.HackyFoVComboBox)
@@ -449,7 +454,6 @@ Partial Class MainFoV
         Me.Controls.Add(Me.StartGameButton)
         Me.Controls.Add(Me.StatusLabel)
         Me.Controls.Add(Me.FoVLabel)
-        Me.Controls.Add(Me.FoVTextBox)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MainMenuStrip = Me.FoVMenuStrip
@@ -461,11 +465,11 @@ Partial Class MainFoV
         CType(Me.CoDPictureBox, System.ComponentModel.ISupportInitialize).EndInit()
         Me.FoVMenuStrip.ResumeLayout(False)
         Me.FoVMenuStrip.PerformLayout()
+        CType(Me.FoVNumeric, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
-    Friend WithEvents FoVTextBox As System.Windows.Forms.TextBox
     Friend WithEvents FoVLabel As System.Windows.Forms.Label
     Friend WithEvents FoVTimer As System.Windows.Forms.Timer
     Friend WithEvents StatusLabel As System.Windows.Forms.Label
@@ -511,4 +515,5 @@ Partial Class MainFoV
     Friend WithEvents GameTimeLabel As Label
     Friend WithEvents GameTimeSaver As Timer
     Friend WithEvents CurSessionGT As Label
+    Friend WithEvents FoVNumeric As NumericUpDown
 End Class
