@@ -426,6 +426,26 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     readvalue = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "InstallPath", "no path found"))
                 End If
             End If
+
+            keyfind = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Key", "0")) 'Searches for CD-keys.
+            keyfind2 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "CodKey", "0")) 'Searches for CD-keys.
+            keyfind3 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "Key", "0")) 'Searches for CD-keys. Changed to the number 0 because it wont produce errors, and I can just have the label chance if the text is equal to '0'
+
+
+
+            If ostype = "64" Then
+                readvalue2 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Version", 1.51)) 'If the registry key is not found, it may report an error.
+            ElseIf ostype = "86" Then
+                readvalue2 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "Version", 1.51)) 'If the registry key is not found, it may report an error.
+            End If
+
+
+            ' If Not readvalue2 Then
+            '   readvalue2 = ""
+            'End If
+            If Not gamevers = readvalue2 Then
+                ini.WriteValue("Main", "GameVersion", readvalue2)
+            End If
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
         End Try
@@ -1026,29 +1046,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
         Try
-            If Not gamevers = "" And Not gamevers Is Nothing Then
-
-
-                keyfind = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Key", "0")) 'Searches for CD-keys.
-                keyfind2 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "CodKey", "0")) 'Searches for CD-keys.
-                keyfind3 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "Key", "0")) 'Searches for CD-keys. Changed to the number 0 because it wont produce errors, and I can just have the label chance if the text is equal to '0'
-
-
-
-                If ostype = "64" Then
-                    readvalue2 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Version", 1.51)) 'If the registry key is not found, it may report an error.
-                ElseIf ostype = "86" Then
-                    readvalue2 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "Version", 1.51)) 'If the registry key is not found, it may report an error.
-                End If
-
-
-                ' If Not readvalue2 Then
-                '   readvalue2 = ""
-                'End If
-                If Not gamevers = readvalue2 Then
-                    ini.WriteValue("Main", "GameVersion", readvalue2)
-                End If
-            End If
             If Not gamevers Is Nothing And Not gamevers = "" Then
                 HackyGameVersLB.Text = ("CoD:UO Version: " & gamevers)
                 readvalue2 = gamevers 'lazy code
