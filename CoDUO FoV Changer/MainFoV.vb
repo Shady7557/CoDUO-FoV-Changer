@@ -24,7 +24,7 @@ Public Class MainFoV
     Dim disableupdatetimer As String = ini.ReadValue("Tweaks", "DisableUpdateTimer")
     Dim sleep As String = ini.ReadValue("Tweaks", "Sleep")
     Dim installpath As String = ini.ReadValue("Main", "InstallPath")
-    Dim hotfix As String = "6.6"
+    Dim hotfix As String = "6.7"
     Dim hotfixini As String = ini.ReadValue("Main", "Hotfix")
     Dim progvers As String = Application.ProductVersion
     Dim progversini As String = ini.ReadValue("Main", "AppVersion")
@@ -121,7 +121,7 @@ Public Class MainFoV
         VideocardMem
     End Enum
     Public Sub WriteError(message As String, stacktrace As String)
-        Log.WriteLine("!! ERROR " & message & "    " & stacktrace & " !!")
+        Log.WriteLine("!! ERROR " & message & "  " & stacktrace & " !!")
         errorOccured = True
     End Sub
     Private Function checkupdates() As Boolean
@@ -138,7 +138,7 @@ Public Class MainFoV
 
             Dim newestversion2 As String = sr.ReadToEnd()
 
-            If newestversion2.Contains(hotfix) Or CInt(hotfix) > CInt(newestversion2) Then
+            If newestversion2.Contains(hotfix) Or hotfix > newestversion2 Then
                 Return True
             Else
                 Return False
@@ -251,7 +251,7 @@ Public Class MainFoV
                 If updates = True Then
                     CheckUpdatesLabel.Text = ("No Updates found. Click to check again.")
                 Else
-                    CheckUpdatesLabel.Text = ("Hotfix/Update Available!")
+                    CheckUpdatesLabel.Text = ("Update Available!")
                     CheckUpdatesLabel.Font = New Font("Microsoft Sans Serif", 10, FontStyle.Bold)
                     disableUI()
                 End If
