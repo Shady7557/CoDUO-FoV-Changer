@@ -44,6 +44,8 @@ Public Class MainFoV
     Dim startuptimeaverage As String = ini.ReadValue("Tweaks", "AverageStartupTime")
     Dim iniLocation As String = appdata & "CoDUO FoV Changer\settings.ini"
     Dim oldoptions As String = appdata & "CoD UO FoV Changer\options.ini"
+    Dim readvalue As String = ""
+    Dim readvalue2 As String = ""
     Dim exename As String = "CoDUOMP"
     Dim ismohaa As String = ini.ReadValue("Main", "GameExe")
     Dim gameTime As Double = 0
@@ -251,6 +253,7 @@ Public Class MainFoV
                 End If
                 If isDev = True Then
                     CheckUpdatesLabel.Text = "Developer (debug) mode is active. Updates will not be searched for."
+                    UpdateButton.Visible = True
                 End If
             End If
         Catch ex As Exception
@@ -410,8 +413,62 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         End Try
     End Sub
+    Private Sub GetRegPath()
+        Try
+            If ostype = "64" Then
+                If installpath = "" Or installpath Is Nothing Then  'potential speed improvement if we're not checking the registry each time it starts the program, may accidentally cause errors
+                    '   My.Computer.Registry.LocalMachine.CreateSubKey("SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive")
+                    readvalue = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "InstallPath", "no path found"))
+                End If
+            ElseIf ostype = "86" Then
+                ' My.Computer.Registry.LocalMachine.CreateSubKey("SOFTWARE\Activision\Call of Duty United Offensive")
+                If installpath = "" Or installpath Is Nothing Then
+                    readvalue = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "InstallPath", "no path found"))
+                End If
+            End If
+        Catch ex As Exception
+            WriteError(ex.Message, ex.StackTrace)
+        End Try
+    End Sub
+    Private Sub GetIniValues()
+        If Not ismohaa = "" And Not ismohaa Is Nothing Then
+            exename = ismohaa
+        ElseIf ismohaa = "" Or ismohaa Is Nothing Then
+            ini.WriteValue("Main", "GameExe", "CoDUOMP")
+            exename = "CoDUOMP"
+        End If
 
-
+        If ismohaa.Contains(".exe") Then
+            ismohaa = ismohaa.Replace(".exe", "")
+            exename = ismohaa
+            ini.WriteValue("Main", "GameExe", exename)
+        End If
+        If exename.Contains(".exe") Then
+            exename = exename.Replace(".exe", "")
+            ini.WriteValue("Main", "GameExe", exename)
+        End If
+        If isminimal = "" Or isminimal Is Nothing Then
+            ini.WriteValue("Extras", "Style", "Default")
+            isminimal = "Default"
+        End If
+        If saveapplocation = "" Or saveapplocation Is Nothing Then
+            ini.WriteValue("Extras", "SaveAppLocation", "True")
+            saveapplocation = "True"
+        End If
+        If Not gameTimeHack = "" And Not gameTimeHack Is Nothing Then
+            gameTimeIni = CLng(gameTimeHack)
+        End If
+        If Not gameTimeIni = Nothing Then
+            gameTime = gameTimeIni
+        End If
+        If isminimal = "Dark" Then
+            ini.WriteValue("Extras", "Style", "Default")
+            isminimal = "Default"
+        End If
+        If fog = "" Then
+            ini.WriteValue("Extras", "Fog", "Enabled")
+        End If
+    End Sub
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Dim TTStart As Date = Now
@@ -446,22 +503,10 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Exit Sub
         End Try
 
-        If Not ismohaa = "" And Not ismohaa Is Nothing Then
-            exename = ismohaa
-        ElseIf ismohaa = "" Or ismohaa Is Nothing Then
-            ini.WriteValue("Main", "GameExe", "CoDUOMP")
-            exename = "CoDUOMP"
-        End If
-
-        If ismohaa.Contains(".exe") Then
-            ismohaa = ismohaa.Replace(".exe", "")
-            exename = ismohaa
-            ini.WriteValue("Main", "GameExe", exename)
-        End If
-        If exename.Contains(".exe") Then
-            exename = exename.Replace(".exe", "")
-            ini.WriteValue("Main", "GameExe", exename)
-        End If
+        Dim inithread As New Thread(AddressOf GetIniValues)
+        inithread.Priority = ThreadPriority.AboveNormal
+        inithread.IsBackground = True
+        inithread.Start()
 
         If isDev = True Then
             '     
@@ -476,15 +521,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         Next
 
-        If isminimal = "" Or isminimal Is Nothing Then
-            ini.WriteValue("Extras", "Style", "Default")
-            isminimal = "Default"
-        End If
-
-        If saveapplocation = "" Or saveapplocation Is Nothing Then
-            ini.WriteValue("Extras", "SaveAppLocation", "True")
-            saveapplocation = "True"
-        End If
 
         If saveapplocation.ToLower = "true" Then
             If Not lastwindowposX = "" And Not lastwindowposX Is Nothing And Not lastwindowposY = "" And Not lastwindowposY Is Nothing Then
@@ -531,16 +567,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             LaunchParametersTB.Text = cmdline
         End If
 
-        If Not gameTimeHack = "" And Not gameTimeHack Is Nothing Then
-            gameTimeIni = CLng(gameTimeHack)
-        End If
 
-
-
-
-        If Not gameTimeIni = Nothing Then
-            gameTime = gameTimeIni
-        End If
 
         If trackGameTime = "True" Then
             GameTimeLabel.Visible = True
@@ -553,10 +580,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             GameTimeLabel.Visible = False
         End If
 
-        If isminimal = "Dark" Then
-            ini.WriteValue("Extras", "Style", "Default")
-            isminimal = "Default"
-        End If
+
 
         If isminimal = "Default" Then
             BackColor = Color.DimGray
@@ -589,7 +613,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
         checkthread = New Thread(AddressOf Checkconnection)
-        checkthread.Priority = ThreadPriority.AboveNormal
+        checkthread.Priority = ThreadPriority.Highest
         checkthread.IsBackground = True
         checkthread.Start()
 
@@ -618,6 +642,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         If Not My.Computer.FileSystem.DirectoryExists(cacheloc) Then
             My.Computer.FileSystem.CreateDirectory(cacheloc)
         End If
+
         Dim rn As New Random
 
         Try
@@ -698,9 +723,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             MinimizeCheckBox.Checked = False
         End If
 
-        If fog = "" Then
-            ini.WriteValue("Extras", "Fog", "Enabled")
-        End If
+
 
 
         If fog = "Enabled" Then 'Checks if fog is enabled in the .ini
@@ -780,39 +803,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     End If
                     Log.WriteLine("Launched fov changer with -fog=" & splitStr(1))
                 End If
-                '   MessageBox.Show(splitStr(1))
             End If
-            '   End If
-
-            If arguement.Contains("-menustrip=") Then
-                '   If Not arguement.StartsWith("-") Then
-                splitStr = arguement.Split(CType("=", Char()))
-                'MessageBox.Show(splitStr(1))
-                If splitStr(1) = Nothing Or splitStr(1) = "" Then
-                    '
-                End If
-
-                If CInt(splitStr(1)) < 0 Then
-                    splitStr(1) = "0"
-                End If
-                If CInt(splitStr(1)) >= 1 Then
-                    '
-                    '      splitStr(1) = 1
-                End If
-                If splitStr(1).StartsWith("0") Or splitStr(1).StartsWith("1") Then
-                    If splitStr(1) = "1" Then
-                        '    MenuStrip1.Visible = true
-                    ElseIf splitStr(1) = "0" Then
-                        FoVMenuStrip.Visible = False
-                    End If
-                    Log.WriteLine("Launched fov changer with -menustrip=" & splitStr(1))
-                End If
-                '   MessageBox.Show(splitStr(1))
-            End If
-
-            ' MessageBox.Show("is there a return")
-
-            '  End If
 
             If arguement = ("-launch") Then 'Automatically launches the game, probably useful if you're not running a command line and don't know the autorun .ini value exists, one of the codes can be removed.
                 'Button3.PerformClick()
@@ -821,18 +812,9 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     If startline.Contains("-launch") Then
                         ini.WriteValue("Extras", "StartCommandLine", startline.Replace("-launch", ""))
                     End If
-                    '   ini.WriteValue("Extras", "StartCommandLine", arguement)
-                    Dim startInfo = New ProcessStartInfo()
-                    startInfo.WorkingDirectory = installpath
-                    If Not LaunchParametersTB.Text = "" And Not LaunchParametersTB Is Nothing Then
-                        startInfo.Arguments = LaunchParametersTB.Text & " +set r_ignorehwgamma 1" & " +set vid_xpos 0 +set vid_ypos 0 +set com_hunkmegs 128 +set win_allowalttab 1"
-                    Else
-                        startInfo.Arguments = "+set r_ignorehwgamma 1" & " +set vid_xpos 0 +set vid_ypos 0 +set com_hunkmegs 128 +set win_allowalttab 1"
-                    End If
-                    Log.WriteLine("Game arguments are: " & startInfo.Arguments)
-                    startInfo.FileName = installpath & "\CoDUOMP.exe"
-                    Process.Start(startInfo)
-                    Log.WriteLine("Started game with -launch")
+                    Dim StartGameThread As New Thread(AddressOf StartGame)
+                        StartGameThread.IsBackground = True
+                    StartGameThread.Start()
 
 
 
@@ -844,28 +826,20 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 '  Button3.Enabled = False
             End If
 
-            If arguement = ("-forceupdate") Then 'Self explantory? Isn't it? Also seems to sometimes crash the program.  --- NOT ANYMORE!
-                ' Button6.PerformClick()
-                Const quote As String = """"
-
-                Dim test As String
-                test = quote & "CoDUO FoV Changer Updater.exe" & quote
-                Thread.Sleep(1800) ' lets try to wait for everything to finish first.
+            If arguement = ("-forceupdate") Then 'Self explantory
                 Try
-                    Dim myExe As String = temp & "\CoDUO FoV Changer Updater.exe"
-                    If Not File.Exists(myExe) Then
-                        File.WriteAllBytes(myExe, My.Resources.CoDUO_FoV_Changer_Updater)
-                        Log.WriteLine("Creating Updater Application.")
-                    End If
-                    Dim updater As New ProcessStartInfo
-                    updater.CreateNoWindow = True
-                    updater.WindowStyle = ProcessWindowStyle.Hidden
-                    updater.WorkingDirectory = temp
-                    updater.FileName = myExe
-                    Process.Start(updater)
+                    Visible = False
+                    Me.Hide()
+                    Dim updatethread As Thread
+
+                    updatethread = New Thread(AddressOf CreateUpdaterApp)
+                    updatethread.Priority = ThreadPriority.AboveNormal
+                    updatethread.IsBackground = True
+                    updatethread.Start()
                     Log.WriteLine("Restarting.")
-                    Thread.Sleep(700)
+                    Thread.Sleep(50)
                     Application.Exit()
+                    Return
                 Catch ex As Exception
                     WriteError(ex.Message, ex.StackTrace)
 
@@ -926,25 +900,17 @@ My.Computer.FileSystem.GetFileInfo(filename)
             MessageBox.Show("ERROR: " & ex.Message)
         End Try
 
-        Dim readvalue As String = ""
+
         Try
-            If ostype = "64" Then
-                If installpath = "" Or installpath Is Nothing Then  'potential speed improvement if we're not checking the registry each time it starts the program, may accidentally cause errors
-                    '   My.Computer.Registry.LocalMachine.CreateSubKey("SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive")
-                    readvalue = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "InstallPath", "no path found"))
-                End If
-            ElseIf ostype = "86" Then
-                ' My.Computer.Registry.LocalMachine.CreateSubKey("SOFTWARE\Activision\Call of Duty United Offensive")
-                If installpath = "" Or installpath Is Nothing Then
-                    readvalue = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "InstallPath", "no path found"))
-                End If
-            End If
-            '      If Not CStr(readvalue) Then
-            '          readvalue = ""
-            '      End If
+            Dim regpaththread As Thread
+            regpaththread = New Thread(AddressOf GetRegPath)
+            regpaththread.Priority = ThreadPriority.AboveNormal
+            regpaththread.IsBackground = True
+            regpaththread.Start()
+
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
-            MsgBox("Registry access denied, please run this program as an Administrator. Or other error: " & ex.Message, MsgBoxStyle.Critical)
+            MsgBox("Error: " & ex.Message, MsgBoxStyle.Critical)
 
             '
 
@@ -1058,7 +1024,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         End Try
 
-        Dim readvalue2 As String = ""
+
         Try
             If Not gamevers = "" And Not gamevers Is Nothing Then
 
@@ -1340,37 +1306,36 @@ My.Computer.FileSystem.GetFileInfo(filename)
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles FoVTimer.Tick
         ChangeFoV()
     End Sub
-    Private Sub StartGame(exe As String)
+    Private Sub StartGame()
         Dim startInfo = New ProcessStartInfo()
         startInfo.WorkingDirectory = installpath
         If Not LaunchParametersTB.Text = "" And Not LaunchParametersTB.Text Is Nothing Then
             startInfo.Arguments = LaunchParametersTB.Text & " +set r_ignorehwgamma 1" & " +set vid_xpos 0 +set vid_ypos 0 +set com_hunkmegs 128 +set win_allowalttab 1"
         End If
-        If Not exe = "" And Not exe Is Nothing Then
-            startInfo.FileName = installpath & "\" & exe & ".exe"
+        If Not exename = "" And Not exename Is Nothing Then
+            startInfo.FileName = installpath & "\" & exename & ".exe"
         Else
-            MessageBox.Show("Could not find game's .exe, looked for: " & installpath & "\" & exe & ".exe", appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
-            Log.WriteLine("Could not find game's .exe, looked for: " & installpath & "\" & exe & ".exe")
+            MessageBox.Show("Could not find game's .exe, looked for: " & installpath & "\" & exename & ".exe", appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Log.WriteLine("Could not find game's .exe, looked for: " & installpath & "\" & exename & ".exe")
             Return
         End If
         Process.Start(startInfo)
-        Log.WriteLine("Started game: " & exe & ".exe, with args: " & startInfo.Arguments)
+        Log.WriteLine("Started game: " & exename & ".exe, with args: " & startInfo.Arguments)
     End Sub
 
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles StartGameButton.Click
+        If CoD1CheckBox.Checked = True Then
+            exename = "CoDMP"
+        End If
+
+
         Try
-            If CoD1CheckBox.Checked = True Then
-                StartGame("CoDMP")
-                Return
+            If Not CoD1CheckBox.Checked = True Then
+                exename = ismohaa
             End If
-        Catch ex As Exception
-            WriteError(ex.Message, ex.StackTrace)
-            MessageBox.Show("Error: " & ex.Message, appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
-
-        End Try
-
-        Try
-            StartGame(exename)
+            Dim StartGameThread As New Thread(AddressOf StartGame)
+            StartGameThread.IsBackground = True
+            StartGameThread.Start()
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
             MessageBox.Show("Error: " & ex.Message, appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
@@ -1382,20 +1347,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub Timer3_Tick(sender As Object, e As EventArgs) Handles TextBoxTimer.Tick
         Try
-            If CInt(FoVNumeric.Text) > 120 Then
-                FoVNumeric.Text = "120"
+            If FoVNumeric.Value > 120 Then
+                FoVNumeric.Value = 120
             End If
         Catch ex As Exception
             TextBoxTimer.Stop()
             WriteError(ex.Message, ex.StackTrace)
-
-            Dim timesoccured As String = ""
-            If isDev = True Then
-                timesoccured = CStr((+1))
-            End If
-            If Not timesoccured = 3 & isDev = True Then
-                TextBoxTimer.Start()
-            End If
         End Try
     End Sub
 
@@ -1508,13 +1465,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
     End Sub
-    Private Sub Button6_Click_1(sender As Object, e As EventArgs) Handles UpdateButton.Click
-
-        Const quote As String = """"
-
-        Dim test As String
-        test = quote & "CoDUO FoV Changer Updater.exe" & quote
-
+    Private Sub CreateUpdaterApp()
         Try
             Dim myExe As String = temp & "\CoDUO FoV Changer Updater.exe"
             If Not File.Exists(myExe) Then
@@ -1529,23 +1480,16 @@ My.Computer.FileSystem.GetFileInfo(filename)
             MsgBox("Unable to create updater application. Error: " & ex.Message, MsgBoxStyle.Critical)
 
         End Try
-
-
     End Sub
+    Private Sub Button6_Click_1(sender As Object, e As EventArgs) Handles UpdateButton.Click
+        Dim updatethread As Thread
+
+        updatethread = New Thread(AddressOf CreateUpdaterApp)
+        updatethread.Priority = ThreadPriority.AboveNormal
+        updatethread.IsBackground = True
+        updatethread.start
 
 
-    Private Sub Button8_Click(sender As Object, e As EventArgs)
-        Try
-            Process.Start(appdata & "CoDUO FoV Changer\settings.ini")
-            Log.WriteLine("User opened Config File.")
-        Catch ex As Exception
-            WriteError(ex.Message, ex.StackTrace)
-            MsgBox("Config file not found, first time running? Error: " & ex.Message, MsgBoxStyle.Critical)
-
-            '
-
-
-        End Try
     End Sub
 
     Private Sub TextBox4_TextChanged(sender As Object, e As EventArgs) Handles LaunchParametersTB.TextChanged
