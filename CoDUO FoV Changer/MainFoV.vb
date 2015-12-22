@@ -24,7 +24,7 @@ Public Class MainFoV
     Dim disableupdatetimer As String = ini.ReadValue("Tweaks", "DisableUpdateTimer")
     Dim sleep As String = ini.ReadValue("Tweaks", "Sleep")
     Dim installpath As String = ini.ReadValue("Main", "InstallPath")
-    Dim hotfix As String = "6.7"
+    Dim hotfix As String = "6.8"
     Dim hotfixini As String = ini.ReadValue("Main", "Hotfix")
     Dim progvers As String = Application.ProductVersion
     Dim progversini As String = ini.ReadValue("Main", "AppVersion")
@@ -40,6 +40,8 @@ Public Class MainFoV
     Dim lastwindowposX As String = ini.ReadValue("Extras", "LastWindowPosX")
     Dim lastwindowposY As String = ini.ReadValue("Extras", "LastWindowPosY")
     Public saveapplocation As String = ini.ReadValue("Extras", "SaveAppLocation")
+    Dim timetokeeplogs As String = ini.ReadValue("Logging", "DaysToKeepLogs")
+    Dim startuptimeaverage As String = ini.ReadValue("Tweaks", "AverageStartupTime")
     Dim iniLocation As String = appdata & "CoDUO FoV Changer\settings.ini"
     Dim oldoptions As String = appdata & "CoD UO FoV Changer\options.ini"
     Dim exename As String = "CoDUOMP"
@@ -89,7 +91,6 @@ Public Class MainFoV
     Dim keyfind3 As String
     Dim rand As New Random
     Dim audioEngine As Thread
-    Dim didFS As Boolean = False
     Dim logname As String
     Dim restartneededpath As Boolean = False
     Public pid As Integer = 0
@@ -113,13 +114,6 @@ Public Class MainFoV
     <System.Runtime.InteropServices.DllImport("user32.dll")>
     Private Shared Function GetAsyncKeyState(ByVal vkey As System.Windows.Forms.Keys) As Short
     End Function
-    Enum InfoTypes
-        VideoCardName
-        OperatingSystemName
-        ProcessorName
-        AmountOfMemory
-        VideocardMem
-    End Enum
     Public Sub WriteError(message As String, stacktrace As String)
         Log.WriteLine("!! ERROR " & message & "  " & stacktrace & " !!")
         errorOccured = True
@@ -130,10 +124,10 @@ Public Class MainFoV
             If isDev = True Then
                 Return True
             End If
-            Dim request2 As System.Net.WebRequest = System.Net.HttpWebRequest.Create("https://docs.google.com/uc?export=download&id=0B0nCag_Hp76zczRGeU9CZ3NZc3M")
-            Dim response2 As System.Net.WebResponse = request2.GetResponse()
+            Dim request2 As WebRequest = WebRequest.Create("https://docs.google.com/uc?export=download&id=0B0nCag_Hp76zczRGeU9CZ3NZc3M")
+            Dim response2 As WebResponse = request2.GetResponse()
 
-            Dim sr As System.IO.StreamReader = New System.IO.StreamReader(response2.GetResponseStream())
+            Dim sr As StreamReader = New StreamReader(response2.GetResponseStream())
 
 
             Dim newestversion2 As String = sr.ReadToEnd()
@@ -167,7 +161,7 @@ Public Class MainFoV
         Try
             Dim myExe As String = temp & "\changelog.tmp.txt"
             If My.Computer.FileSystem.FileExists(myExe) Then
-                Dim sr4 As System.IO.StreamReader = New System.IO.StreamReader(myExe)
+                Dim sr4 As StreamReader = New StreamReader(myExe)
                 Dim cache As String = sr4.ReadToEnd
                 sr4.Close()
                 If Not cache Is Nothing And Not cache = "" Then
@@ -182,10 +176,10 @@ Public Class MainFoV
 
 
         Try
-            Dim request3 As System.Net.WebRequest = System.Net.HttpWebRequest.Create("https://docs.google.com/uc?export=download&id=0B0nCag_Hp76za3Y3dW9KYU5kQlE")
-            Dim response3 As System.Net.WebResponse = request3.GetResponse()
+            Dim request3 As WebRequest = WebRequest.Create("https://docs.google.com/uc?export=download&id=0B0nCag_Hp76za3Y3dW9KYU5kQlE")
+            Dim response3 As WebResponse = request3.GetResponse()
 
-            Dim sr3 As System.IO.StreamReader = New System.IO.StreamReader(response3.GetResponseStream())
+            Dim sr3 As StreamReader = New StreamReader(response3.GetResponseStream())
 
             Dim changelog As String = sr3.ReadToEnd()
 
@@ -193,7 +187,7 @@ Public Class MainFoV
 
             Dim myExe As String = temp & "\changelog.tmp.txt"
             If My.Computer.FileSystem.FileExists(myExe) Then
-                Dim sr4 As System.IO.StreamReader = New System.IO.StreamReader(myExe)
+                Dim sr4 As StreamReader = New StreamReader(myExe)
                 Dim cache As String = sr4.ReadToEnd
                 sr4.Close()
                 If Not cache Is Nothing And Not cache = "" Then
@@ -277,125 +271,6 @@ Public Class MainFoV
     Public Function BytesTO(lBytes As Long, convertto As convTo) As Double
         BytesTO = lBytes / (1024 ^ convertto)
     End Function
-    Private Sub getNiceDay()
-
-    End Sub
-    Private Sub getMonth()
-        Dim TimerStart As Date
-        TimerStart = Now
-        If day = 1 Then
-            niceDay = "1st"
-        ElseIf day = 21 Then
-            niceDay = "21st"
-        ElseIf day = 31 Then
-            niceDay = "31st"
-        ElseIf day = 2 Then
-            niceDay = "2nd"
-        ElseIf day = 22 Then
-            niceDay = "22nd"
-        ElseIf day = 3 Then
-            niceDay = "3rd"
-        ElseIf day = 23 Then
-            niceDay = "23rd"
-        ElseIf day = 4 Then
-            niceDay = "4th"
-        ElseIf day = 24 Then
-            niceDay = "24th"
-        ElseIf day = 5 Then
-            niceDay = "5th"
-        ElseIf day = 25 Then
-            niceDay = "25th"
-        ElseIf day = 6 Then
-            niceDay = "6th"
-        ElseIf day = 26 Then
-            niceDay = "26th"
-        ElseIf day = 7 Then
-            niceDay = "7th"
-        ElseIf day = 27 Then
-            niceDay = "27th"
-        ElseIf day = 8 Then
-            niceDay = "8th"
-        ElseIf day = 9 Then
-            niceDay = "9th"
-        ElseIf day = 10 Then
-            niceDay = "10th"
-        ElseIf day = 11 Then
-            niceDay = "11th"
-        ElseIf day = 12 Then
-            niceDay = "12th"
-        ElseIf day = 13 Then
-            niceDay = "13th"
-        ElseIf day = 14 Then
-            niceDay = "14th"
-        ElseIf day = 15 Then
-            niceDay = "15th"
-        ElseIf day = 16 Then
-            niceDay = "16th"
-        ElseIf day = 17 Then
-            niceDay = "17th"
-        ElseIf day = 18 Then
-            niceDay = "18th"
-        ElseIf day = 19 Then
-            niceDay = "19th"
-        ElseIf day = 20 Then
-            niceDay = "20th"
-        Else
-            niceDay = "Unknown"
-        End If
-        If month = 1 Then
-            monthstring = "January "
-        ElseIf month = 2 Then
-            monthstring = "February "
-        ElseIf month = 3 Then
-            monthstring = "March "
-        ElseIf month = 4 Then
-            monthstring = "April "
-        ElseIf month = 5 Then
-            monthstring = "May "
-        ElseIf month = 6 Then
-            monthstring = "June "
-        ElseIf month = 7 Then
-            monthstring = "July "
-        ElseIf month = 8 Then
-            monthstring = "August "
-        ElseIf month = 9 Then
-            monthstring = "September "
-        ElseIf month = 10 Then
-            monthstring = "October "
-        ElseIf month = 11 Then
-            monthstring = "November "
-        ElseIf month = 12 Then
-            monthstring = "December "
-        Else
-            monthstring = "clearly time no longer exists "
-        End If
-        'start bad code
-        'If Module1.location Then
-        '  My.Computer.FileSystem.CopyFile(Module1.location, Module1.location & "- copy 1")
-        '  Dim cop As String = Module1.location & "- copy 1"
-        '  Dim sr As System.IO.StreamReader = New System.IO.StreamReader(cop)
-        '  If Not sr.ReadToEnd.Contains(niceDay) Then
-        ' Log.WriteLine("                                                                          " & monthstring & niceDay & ", " & DateAndTime.Now.Year)
-        '      System.Threading.Thread.Sleep(200)
-        '      sr.Close()
-        '  End If
-        '  System.Threading.Thread.Sleep(1500)
-        '  If My.Computer.FileSystem.FileExists(cop) Then
-        '      My.Computer.FileSystem.DeleteFile(cop)
-        '  End If
-        ' End If
-
-        'end bad code
-
-        Dim TimeSpent As System.TimeSpan
-        TimeSpent = Now.Subtract(TimerStart)
-        ' MsgBox(TimeSpent.TotalSeconds & " seconds spent on this task")
-        If TimeSpent.TotalMilliseconds >= 100 Or Debugger.IsAttached = True Then
-            Log.WriteLine("program startup took: " & TimeSpent.TotalMilliseconds)
-        End If
-
-
-    End Sub
     Private Sub getWav()
         If Not My.Computer.FileSystem.FileExists(temp & "\beep.mp3") Then
             httpclient = New WebClient
@@ -473,6 +348,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub ChangeFoV()
         Try
+            Dim TimerStart As Date = Now
             If Not pid = 0 Then
                 Try
                     Dim MyPID As Process = Process.GetProcessById(pid)
@@ -523,6 +399,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 CurSessionGT.Visible = False
                 CurSessionGT.Text = "Current Session: No time played"
             End If
+            GetTimeWarning(TimerStart, 70, "ChangeFoV()")
         Catch ex As Exception
             FoVTimer.Stop()
             WriteError(ex.Message, ex.StackTrace)
@@ -537,17 +414,23 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        Dim TTStart As Date = Now
         CheckForIllegalCrossThreadCalls = True
-
-        'Create a variable for start time:
-        Dim TimerStart As Date
-        TimerStart = Now
 
         If Debugger.IsAttached = True Then
             isDev = True
         Else
             isDev = False
         End If
+
+        If Environment.Is64BitOperatingSystem = True Then
+            ostype = "64"
+        Else
+            ostype = "86"
+        End If
+
+
+
 
 
         Try 'I'm not really sure this try is even needed, doesn't seem like something that would ever have a fault
@@ -670,15 +553,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
             GameTimeLabel.Visible = False
         End If
 
-
-        GetGameTimeLabel()
-
-
-        getmonthT = New Thread(AddressOf getMonth)
-        getmonthT.Priority = ThreadPriority.AboveNormal
-        getmonthT.IsBackground = True
-        getmonthT.Start()
-
         If isminimal = "Dark" Then
             ini.WriteValue("Extras", "Style", "Default")
             isminimal = "Default"
@@ -718,10 +592,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
         checkthread.Priority = ThreadPriority.AboveNormal
         checkthread.IsBackground = True
         checkthread.Start()
-
-        '   getW = New Thread(AddressOf Me.getWav)
-        '   getW.IsBackground = True
-        '   getW.Start()
 
 
 
@@ -808,11 +678,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
 
 
-        If Environment.Is64BitOperatingSystem = True Then
-            ostype = "64"
-        Else
-            ostype = "86"
-        End If
+
 
         'safety code
         If Not fov = "80" Or Not fov = "" Then
@@ -832,7 +698,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             MinimizeCheckBox.Checked = False
         End If
 
-        If Not fog = "Disabled" Or Not fog = "Enabled" Then
+        If fog = "" Then
             ini.WriteValue("Extras", "Fog", "Enabled")
         End If
 
@@ -843,12 +709,10 @@ My.Computer.FileSystem.GetFileInfo(filename)
             FogTimer.Stop()
             Log.WriteLine("Stopping Fog Timer, turning fog on, checking Fog CheckBox.")
         ElseIf fog = "Disabled" Then
-            If Not didFS = True Then
-                FogCheckBox.Checked = False
+            FogCheckBox.Checked = False
                 WriteInteger(exename, &H98861C, 0)
                 FogTimer.Start()
-                Log.WriteLine("Starting Fog Timer, turning fog off, unchecking Fog CheckBox")
-            End If
+            Log.WriteLine("Starting Fog Timer, turning fog off, unchecking Fog CheckBox")
         End If
 
         Try
@@ -859,6 +723,10 @@ My.Computer.FileSystem.GetFileInfo(filename)
             WriteError(ex.Message, ex.StackTrace)
 
         End Try
+
+        If timetokeeplogs = "" Or Not IsNumeric(timetokeeplogs) Then
+            ini.WriteValue("Logging", "DaysToKeepLogs", "14")
+        End If
 
         DvarsCheckBox.Visible = False
         For Each arguement As String In My.Application.CommandLineArgs
@@ -904,11 +772,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     If splitStr(1) = "1" Then
                         FogCheckBox.Checked = True
                         FogTimer.Stop()
-                        ini.WriteValue("Extras", "FogMSG", "Ask")
                         ini.WriteValue("Extras", "Fog", "Enabled")
                     ElseIf splitStr(1) = "0" Then
-                        didFS = True
-                        ini.WriteValue("Extras", "FogMSG", "DoNotAsk")
                         ini.WriteValue("Extras", "Fog", "Disabled")
                         FogCheckBox.Checked = False
                         FogTimer.Start()
@@ -1157,10 +1022,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
                         End If
                     End If
-                    '     specsthread = New Thread(AddressOf Me.systemspecs)
-                    '      specsthread.Priority = ThreadPriority.AboveNormal
-                    '       specsthread.IsBackground = True
-                    ' specsthread.Start()
+
+
                 Catch ex As Exception
 
                     WriteError(ex.Message, ex.StackTrace)
@@ -1276,7 +1139,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
         StartGameButton.Select()
 
         Dim versmod As String = Application.ProductVersion.Substring(0, 3)
-        ' MessageBox.Show(versmod)
         Dim showmsgbox As Boolean = True
         Dim pv1 As Boolean = False
 
@@ -1321,6 +1183,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
             hotfixini = hotfix
         End If
 
+        GetGameTimeLabel()
+
         Dim itemlist As Integer = 0
         For Each item In HackyFoVComboBox.Items
             itemlist = itemlist + 1
@@ -1354,12 +1218,21 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Dim di As New DirectoryInfo(appdata & "CoDUO FoV Changer\Logs")
             Dim fiArr As FileInfo() = di.GetFiles
             Dim fri As FileInfo
-            For Each fri In fiArr
+            Dim DaysToKeepLogs As Long = 14
+            If Not timetokeeplogs = "" And Not timetokeeplogs = "14" Then
+                If IsNumeric(timetokeeplogs) Then
+                    DaysToKeepLogs = CLng(timetokeeplogs)
+                Else
+                    ini.WriteValue("Logging", "DaysToKeepLogs", "14")
+                    Log.WriteLine("Time to Keep Logs was not numeric, default value was set to 14.")
+                End If
+            End If
+                For Each fri In fiArr
                 If Not fri.FullName = logname Then
                     If fri.FullName.EndsWith(".log") Then
                         Dim dayDiff As Long = DateDiff(DateInterval.Day, fri.LastWriteTime, Now)
 
-                        If dayDiff >= 14 Then
+                        If dayDiff >= DaysToKeepLogs Then
                             Log.WriteLine("Log: " & fri.ToString & " is " & CStr(dayDiff) & " days old, maximum is 14. - Deleting log.")
                             IO.File.Delete(fri.FullName)
                         End If
@@ -1372,22 +1245,23 @@ My.Computer.FileSystem.GetFileInfo(filename)
             WriteError(ex.Message, ex.StackTrace)
         End Try
 
-        Dim TimeSpent As TimeSpan
-        TimeSpent = Now.Subtract(TimerStart)
-        ' MsgBox(TimeSpent.TotalSeconds & " seconds spent on this task")
-        If TimeSpent.TotalMilliseconds >= 100 Or Debugger.IsAttached = True Then
-            Log.WriteLine("program startup took: " & TimeSpent.TotalMilliseconds & " (this is too long)")
-        End If
+        GetTimeWarning(TTStart, 120, "MyBase.Load")
 
         '    MessageBox.Show(TimeSpent.TotalMilliseconds)
         '   If nolog = True Then MessageBox.Show(TimeSpent.TotalSeconds)
 
 
     End Sub
+    Private Sub GetTimeWarning(StartTime As Date, MaxMS As Long, Name As String)
+        Dim TimeSpent As TimeSpan = Now.Subtract(StartTime)
+        If TimeSpent.TotalMilliseconds >= MaxMS Then
+            Log.WriteLine(Name & " took: " & TimeSpent.TotalMilliseconds & " (this is too long!)")
+        End If
+    End Sub
 
     Private Sub Form1_Close(sender As Object, e As EventArgs) Handles MyBase.FormClosing
-        Dim TimerStart As Date
-        TimerStart = Now
+        Dim TTStart As Date = Now
+
         Log.WriteLine("Program is closing.")
         Try
             WriteFloat(exename, &H3052F7C8, 80)
@@ -1438,23 +1312,18 @@ My.Computer.FileSystem.GetFileInfo(filename)
             WriteError(ex.Message, ex.StackTrace)
         End Try
 
-        If My.Computer.FileSystem.FileExists(lastlogname & " - copy 1") Then
-            My.Computer.FileSystem.DeleteFile(lastlogname & " - copy 1")
+        If File.Exists(lastlogname & " - copy 1") Then
+            File.Delete(lastlogname & " - copy 1")
         End If
 
-        If My.Computer.FileSystem.FileExists(temp & "\changelog.tmp.txt") Then
+        If File.Exists(temp & "\changelog.tmp.txt") Then
             File.Delete(temp & "\changelog.tmp.txt")
             Log.WriteLine("Deleted temporary changelog file")
         End If
         'these are in 2 seperate if statements because they can both exist at once, thus, a elseif would not work.
-        If My.Computer.FileSystem.FileExists(temp & "\changelog.new.tmp.txt") Then
+        If File.Exists(temp & "\changelog.new.tmp.txt") Then
             File.Delete(temp & "\changelog.new.tmp.txt")
             Log.WriteLine("Deleted temporary changelog file")
-        End If
-
-
-        If My.Computer.FileSystem.DirectoryExists(appdata & "CoDUO FoV Changer\Logs") Then
-            '         Log.FlushBuffer()
         End If
 
         If saveapplocation.ToLower = "true" And Not lastwindowposX = CStr(Location.X) And Not lastwindowposY = CStr(Location.Y) Then
@@ -1464,11 +1333,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
 
 
-        Dim TimeSpent As System.TimeSpan
-        TimeSpent = Now.Subtract(TimerStart)
-        If TimeSpent.TotalMilliseconds >= 80 Then
-            Log.WriteLine("form1 closing took: " & TimeSpent.TotalMilliseconds & " (this is too long!)")
-        End If
+        GetTimeWarning(TTStart, 70, "MyBase.FormClosing")
 
     End Sub
 
@@ -1654,7 +1519,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Dim myExe As String = temp & "\CoDUO FoV Changer Updater.exe"
             If Not File.Exists(myExe) Then
                 File.WriteAllBytes(myExe, My.Resources.CoDUO_FoV_Changer_Updater)
-                Log.WriteLine("Creating Updater Application.")
+                Log.WriteLine("Creating Updater Application at: " & myExe)
             End If
             Process.Start(myExe)
             Log.WriteLine("Restarting/Updating")
@@ -1698,45 +1563,21 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
 
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles FogCheckBox.CheckedChanged
-
-        Dim ask5 As MsgBoxResult
-
-        If didFS = True Then
-            FogTimer.Start()
-            WriteInteger(exename, &H98861C, 0)
-            '   CheckBox1.Checked = False
-            ini.WriteValue("Extras", "FogMSG", "DoNotAsk")
-            ini.WriteValue("Extras", "Fog", "Disabled")
-            Return
-        End If
-
-        If FogCheckBox.Checked = True Then
-            FogTimer.Stop()
-            WriteInteger(exename, &H98861C, 1)
-        End If
-        If FogCheckBox.Checked = False Then
-            If didFS = False Then
-                ask5 = CType(MessageBox.Show("Please note, you may be banned if you are caught using this, example: making a video and putting it on your clans site, or YouTube, PunkBuster also bans for this, do you want to continue?", "WARNING!", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information), MsgBoxResult)
-            End If
-            Log.WriteLine("Gave warning about Fog.")
-            If ask5 = MsgBoxResult.No And didFS = False Then
+        Try
+            If FogCheckBox.Checked = True Then
                 FogTimer.Stop()
                 WriteInteger(exename, &H98861C, 1)
-                ' CheckBox1.Checked = True
-                FogCheckBox.Checked = True
-                ini.WriteValue("Extras", "FogMSG", "Ask")
                 ini.WriteValue("Extras", "Fog", "Enabled")
-                Log.WriteLine("User did not continue.")
-            ElseIf ask5 = MsgBoxResult.Yes And didFS = False Then
+                FogTimer.Stop()
+                WriteInteger(exename, &H98861C, 1)
+            Else
                 FogTimer.Start()
                 WriteInteger(exename, &H98861C, 0)
-                '   CheckBox1.Checked = False
-                FogCheckBox.Checked = False
-                ini.WriteValue("Extras", "FogMSG", "DoNotAsk")
                 ini.WriteValue("Extras", "Fog", "Disabled")
-                Log.WriteLine("User continued.")
             End If
-        End If
+        Catch ex As Exception
+            WriteError(ex.Message, ex.StackTrace)
+        End Try
 
     End Sub
 
@@ -2194,5 +2035,9 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub GameTimeSaver_Tick(sender As Object, e As EventArgs) Handles GameTimeSaver.Tick
         ini.WriteValue("Main", "GameTime", CStr(gameTime))
+    End Sub
+
+    Private Sub FoVNumeric_ValueChanged(sender As Object, e As EventArgs) Handles FoVNumeric.ValueChanged
+        ChangeFoV()
     End Sub
 End Class

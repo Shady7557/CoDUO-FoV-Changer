@@ -1,5 +1,6 @@
 ﻿Option Strict On
 Imports System.IO
+Imports CurtLog
 
 Public Class AdtSettingsForm
     Public userpth As String = System.Environment.GetEnvironmentVariable("userprofile")
@@ -9,6 +10,7 @@ Public Class AdtSettingsForm
     Dim disableupdatetimerini As String = ini.ReadValue("Tweaks", "DisableUpdateTimer")
     Dim saveapplocini As String = ini.ReadValue("Extras", "SaveAppLocation")
     Dim TrackGameTime As String = ini.ReadValue("Main", "TrackGameTime")
+    Dim TimeToKeepLogs As String = ini.ReadValue("Logging", "DaysToKeepLogs")
     Dim whatami As String
     Dim conf As System.Threading.Thread
     Dim search As System.Threading.Thread
@@ -23,6 +25,8 @@ Public Class AdtSettingsForm
                 SaveRestartAppButton.BackColor = Color.DarkGray
                 OpenConfigButton.BackColor = Color.DarkGray
                 CancelCloseButton.BackColor = Color.DarkGray
+                ClearCacheButton.BackColor = Color.DarkGray
+                DTKLUD.BackColor = Color.DarkGray
             End If
             If firstrunini = "Yes" Then
                 FirstRunCheckBox.Checked = True
@@ -44,8 +48,16 @@ Public Class AdtSettingsForm
             Else
                 GameTimeCheckbox.Checked = False
             End If
+            If IsNumeric(TimeToKeepLogs) Then
+                DTKLUD.Value = CInt(TimeToKeepLogs)
+            Else
+                ini.WriteValue("Logging", "DaysToKeepLogs", "14")
+                DTKLUD.Value = 14
+                Log.WriteLine("Time to Keep Logs was not numeric, default value was set to 14.")
+            End If
         Catch ex As Exception
             MessageBox.Show(ex.Message, MainFoV.appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MainFoV.WriteError(ex.Message, ex.StackTrace)
         End Try
     End Sub
 
@@ -78,10 +90,12 @@ Public Class AdtSettingsForm
             ini.WriteValue("Tweaks", "DisableUpdateTimer", disableupdatetimer)
             ini.WriteValue("Extras", "FirstRun", firstrun)
             ini.WriteValue("Extras", "SaveAppLocation", saveapploc)
+            ini.WriteValue("Logging", "DaysToKeepLogs", CStr(DTKLUD.Value))
 
             Application.Restart()
         Catch ex As Exception
             MsgBox("Failed to set config! Error: " & ex.Message, MsgBoxStyle.Critical)
+            MainFoV.WriteError(ex.Message, ex.StackTrace)
         End Try
 
     End Sub

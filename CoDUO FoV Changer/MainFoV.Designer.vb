@@ -49,6 +49,7 @@ Partial Class MainFoV
         Me.CoD1CheckBox = New System.Windows.Forms.CheckBox()
         Me.GameTimeLabel = New System.Windows.Forms.Label()
         Me.CurSessionGT = New System.Windows.Forms.Label()
+        Me.FoVNumeric = New System.Windows.Forms.NumericUpDown()
         Me.HackyAppVersLB = New System.Windows.Forms.Label()
         Me.ABITWTimer = New System.Windows.Forms.Timer(Me.components)
         Me.FileSizeLabel = New System.Windows.Forms.Label()
@@ -69,10 +70,9 @@ Partial Class MainFoV
         Me.HackyFoVComboBox = New System.Windows.Forms.ComboBox()
         Me.GameTracker = New System.Windows.Forms.Timer(Me.components)
         Me.GameTimeSaver = New System.Windows.Forms.Timer(Me.components)
-        Me.FoVNumeric = New System.Windows.Forms.NumericUpDown()
+        CType(Me.FoVNumeric, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.CoDPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.FoVMenuStrip.SuspendLayout()
-        CType(Me.FoVNumeric, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'FoVLabel
@@ -275,6 +275,17 @@ Partial Class MainFoV
         Me.CurSessionGT.Text = "Current Session: "
         Me.ToolTipHandler.SetToolTip(Me.CurSessionGT, "Your total time spent in this current session.")
         '
+        'FoVNumeric
+        '
+        Me.FoVNumeric.Location = New System.Drawing.Point(77, 7)
+        Me.FoVNumeric.Maximum = New Decimal(New Integer() {120, 0, 0, 0})
+        Me.FoVNumeric.Minimum = New Decimal(New Integer() {80, 0, 0, 0})
+        Me.FoVNumeric.Name = "FoVNumeric"
+        Me.FoVNumeric.Size = New System.Drawing.Size(42, 20)
+        Me.FoVNumeric.TabIndex = 59
+        Me.ToolTipHandler.SetToolTip(Me.FoVNumeric, "Input the value you want your FoV to be set to.")
+        Me.FoVNumeric.Value = New Decimal(New Integer() {80, 0, 0, 0})
+        '
         'HackyAppVersLB
         '
         Me.HackyAppVersLB.AutoSize = True
@@ -413,17 +424,6 @@ Partial Class MainFoV
         Me.GameTimeSaver.Enabled = True
         Me.GameTimeSaver.Interval = 5000
         '
-        'FoVNumeric
-        '
-        Me.FoVNumeric.Location = New System.Drawing.Point(77, 7)
-        Me.FoVNumeric.Maximum = New Decimal(New Integer() {120, 0, 0, 0})
-        Me.FoVNumeric.Minimum = New Decimal(New Integer() {80, 0, 0, 0})
-        Me.FoVNumeric.Name = "FoVNumeric"
-        Me.FoVNumeric.Size = New System.Drawing.Size(42, 20)
-        Me.FoVNumeric.TabIndex = 59
-        Me.ToolTipHandler.SetToolTip(Me.FoVNumeric, "Input the value you want your FoV to be set to.")
-        Me.FoVNumeric.Value = New Decimal(New Integer() {80, 0, 0, 0})
-        '
         'MainFoV
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -462,10 +462,10 @@ Partial Class MainFoV
         Me.RightToLeft = System.Windows.Forms.RightToLeft.No
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "CoDUO FoV Changer"
+        CType(Me.FoVNumeric, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.CoDPictureBox, System.ComponentModel.ISupportInitialize).EndInit()
         Me.FoVMenuStrip.ResumeLayout(False)
         Me.FoVMenuStrip.PerformLayout()
-        CType(Me.FoVNumeric, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 

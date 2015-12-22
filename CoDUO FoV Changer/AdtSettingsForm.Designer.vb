@@ -34,11 +34,14 @@ Partial Class AdtSettingsForm
         Me.SaveWindowPosCBox = New System.Windows.Forms.CheckBox()
         Me.GameTimeCheckbox = New System.Windows.Forms.CheckBox()
         Me.ClearCacheButton = New System.Windows.Forms.Button()
+        Me.DTKLLabel = New System.Windows.Forms.Label()
+        Me.DTKLUD = New System.Windows.Forms.NumericUpDown()
+        CType(Me.DTKLUD, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'SaveRestartAppButton
         '
-        Me.SaveRestartAppButton.Location = New System.Drawing.Point(12, 104)
+        Me.SaveRestartAppButton.Location = New System.Drawing.Point(12, 145)
         Me.SaveRestartAppButton.Name = "SaveRestartAppButton"
         Me.SaveRestartAppButton.Size = New System.Drawing.Size(107, 23)
         Me.SaveRestartAppButton.TabIndex = 0
@@ -70,7 +73,7 @@ Partial Class AdtSettingsForm
         '
         'CancelCloseButton
         '
-        Me.CancelCloseButton.Location = New System.Drawing.Point(12, 190)
+        Me.CancelCloseButton.Location = New System.Drawing.Point(12, 232)
         Me.CancelCloseButton.Name = "CancelCloseButton"
         Me.CancelCloseButton.Size = New System.Drawing.Size(107, 22)
         Me.CancelCloseButton.TabIndex = 11
@@ -79,7 +82,7 @@ Partial Class AdtSettingsForm
         '
         'OpenConfigButton
         '
-        Me.OpenConfigButton.Location = New System.Drawing.Point(12, 133)
+        Me.OpenConfigButton.Location = New System.Drawing.Point(12, 174)
         Me.OpenConfigButton.Name = "OpenConfigButton"
         Me.OpenConfigButton.Size = New System.Drawing.Size(107, 23)
         Me.OpenConfigButton.TabIndex = 12
@@ -127,19 +130,40 @@ Partial Class AdtSettingsForm
         '
         'ClearCacheButton
         '
-        Me.ClearCacheButton.Location = New System.Drawing.Point(12, 161)
+        Me.ClearCacheButton.Location = New System.Drawing.Point(12, 203)
         Me.ClearCacheButton.Name = "ClearCacheButton"
         Me.ClearCacheButton.Size = New System.Drawing.Size(107, 23)
         Me.ClearCacheButton.TabIndex = 18
         Me.ClearCacheButton.Text = "Clear Cache"
         Me.ClearCacheButton.UseVisualStyleBackColor = True
         '
+        'DTKLLabel
+        '
+        Me.DTKLLabel.AutoSize = True
+        Me.DTKLLabel.Location = New System.Drawing.Point(9, 99)
+        Me.DTKLLabel.Name = "DTKLLabel"
+        Me.DTKLLabel.Size = New System.Drawing.Size(100, 13)
+        Me.DTKLLabel.TabIndex = 19
+        Me.DTKLLabel.Text = "Days to Keep Logs:"
+        '
+        'DTKLUD
+        '
+        Me.DTKLUD.Location = New System.Drawing.Point(115, 97)
+        Me.DTKLUD.Maximum = New Decimal(New Integer() {365, 0, 0, 0})
+        Me.DTKLUD.Minimum = New Decimal(New Integer() {2, 0, 0, 0})
+        Me.DTKLUD.Name = "DTKLUD"
+        Me.DTKLUD.Size = New System.Drawing.Size(38, 20)
+        Me.DTKLUD.TabIndex = 20
+        Me.DTKLUD.Value = New Decimal(New Integer() {2, 0, 0, 0})
+        '
         'AdtSettingsForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(138, 221)
+        Me.ClientSize = New System.Drawing.Size(162, 266)
         Me.ControlBox = False
+        Me.Controls.Add(Me.DTKLUD)
+        Me.Controls.Add(Me.DTKLLabel)
         Me.Controls.Add(Me.ClearCacheButton)
         Me.Controls.Add(Me.GameTimeCheckbox)
         Me.Controls.Add(Me.SaveWindowPosCBox)
@@ -154,6 +178,7 @@ Partial Class AdtSettingsForm
         Me.Name = "AdtSettingsForm"
         Me.ShowIcon = False
         Me.Text = "Additional Settings"
+        CType(Me.DTKLUD, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -169,4 +194,6 @@ Partial Class AdtSettingsForm
     Friend WithEvents SaveWindowPosCBox As System.Windows.Forms.CheckBox
     Friend WithEvents GameTimeCheckbox As CheckBox
     Friend WithEvents ClearCacheButton As Button
+    Friend WithEvents DTKLLabel As Label
+    Friend WithEvents DTKLUD As NumericUpDown
 End Class
