@@ -44,7 +44,6 @@ Public Class MainFoV
     Dim startuptimeaverage As String = ini.ReadValue("Tweaks", "AverageStartupTime")
     Dim iniLocation As String = appdata & "CoDUO FoV Changer\settings.ini"
     Dim oldoptions As String = appdata & "CoD UO FoV Changer\options.ini"
-    Dim readvalue As String = ""
     Dim readvalue2 As String = ""
     Dim exename As String = "CoDUOMP"
     Dim ismohaa As String = ini.ReadValue("Main", "GameExe")
@@ -415,17 +414,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
     Private Sub GetRegPath()
         Try
-            If ostype = "64" Then
-                If installpath = "" Or installpath Is Nothing Then  'potential speed improvement if we're not checking the registry each time it starts the program, may accidentally cause errors
-                    '   My.Computer.Registry.LocalMachine.CreateSubKey("SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive")
-                    readvalue = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "InstallPath", "no path found"))
-                End If
-            ElseIf ostype = "86" Then
-                ' My.Computer.Registry.LocalMachine.CreateSubKey("SOFTWARE\Activision\Call of Duty United Offensive")
-                If installpath = "" Or installpath Is Nothing Then
-                    readvalue = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "InstallPath", "no path found"))
-                End If
-            End If
+
 
             keyfind = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Key", "0")) 'Searches for CD-keys.
             keyfind2 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "CodKey", "0")) 'Searches for CD-keys.
@@ -488,6 +477,66 @@ My.Computer.FileSystem.GetFileInfo(filename)
         If fog = "" Then
             ini.WriteValue("Extras", "Fog", "Enabled")
         End If
+        If timetokeeplogs = "" Or Not IsNumeric(timetokeeplogs) Then
+            ini.WriteValue("Logging", "DaysToKeepLogs", "14")
+        End If
+        If Not fovinterval = "" Then 'Checks the .ini for the user specified timer interval, if one exists
+            FoVTimer.Interval = CInt(fovinterval)
+        Else
+            FoVTimer.Interval = 1500
+        End If
+        If disableupdatetimer = "" Then
+            ini.WriteValue("Tweaks", "DisableUpdateTimer", "No")
+        ElseIf disableupdatetimer = "Yes" Then
+            UpdateCheckTimer.Stop()
+        ElseIf disableupdatetimer = "No" Or disableupdatetimer = "" Or disableupdatetimer Is Nothing Then
+            UpdateCheckTimer.Start()
+        End If
+        If Not ini.ReadValue("Extras", "HotKeyUp") = "" And Not ini.ReadValue("Extras", "HotKeyUp") = Nothing Then
+            hotkeyup = CInt(ini.ReadValue("Extras", "HotKeyUp"))
+        End If
+        If Not ini.ReadValue("Extras", "HotKeyDown") = "" And Not ini.ReadValue("Extras", "HotKeyDown") = Nothing Then
+            hotkeydown = CInt(ini.ReadValue("Extras", "HotKeyDown"))
+        End If
+        If Not ini.ReadValue("Extras", "HotKeyUpCombo") = "" And Not ini.ReadValue("Extras", "HotKeyUpCombo") = Nothing Then
+            hotkeycomboup = CInt(ini.ReadValue("Extras", "HotKeyUpCombo"))
+        End If
+        If Not ini.ReadValue("Extras", "HotKeyDownCombo") = "" And Not ini.ReadValue("Extras", "HotKeyDownCombo") = Nothing Then
+            hotkeycombodown = CInt(ini.ReadValue("Extras", "HotKeyDownCombo"))
+        End If
+    End Sub
+    Private Sub OldLogFiles()
+
+        Try
+            Dim di As New DirectoryInfo(appdata & "CoDUO FoV Changer\Logs")
+            Dim fiArr As FileInfo() = di.GetFiles
+            Dim fri As FileInfo
+            Dim DaysToKeepLogs As Long = 14
+            If Not timetokeeplogs = "" And Not timetokeeplogs = "14" Then
+                If IsNumeric(timetokeeplogs) Then
+                    DaysToKeepLogs = CLng(timetokeeplogs)
+                Else
+                    ini.WriteValue("Logging", "DaysToKeepLogs", "14")
+                    Log.WriteLine("Time to Keep Logs was not numeric, default value was set to 14.")
+                End If
+            End If
+            For Each fri In fiArr
+                If Not fri.FullName = logname Then
+                    If fri.FullName.EndsWith(".log") Then
+                        Dim dayDiff As Long = DateDiff(DateInterval.Day, fri.LastWriteTime, Now)
+
+                        If dayDiff >= DaysToKeepLogs Then
+                            Log.WriteLine("Log: " & fri.ToString & " is " & CStr(dayDiff) & " days old, maximum is 14. - Deleting log.")
+                            IO.File.Delete(fri.FullName)
+                        End If
+
+                    End If
+                End If
+
+            Next
+        Catch ex As Exception
+            WriteError(ex.Message, ex.StackTrace)
+        End Try
     End Sub
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -602,7 +651,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
 
-        If isminimal = "Default" Then
+        If isminimal = "Default" Or isminimal = "" Or isminimal Is Nothing Then
             BackColor = Color.DimGray
             FoVNumeric.BackColor = Color.DarkGray
             LaunchParametersTB.BackColor = Color.DarkGray
@@ -612,6 +661,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             If StatusLabel.ForeColor = Color.Red Then
                 StatusLabel.ForeColor = Color.DarkRed
             End If
+            isminimal = "Default"
         End If
 
         If month = 12 And Date.Now.Day = 25 Then
@@ -631,6 +681,58 @@ My.Computer.FileSystem.GetFileInfo(filename)
             CoD1CheckBox.Checked = True
         End If
 
+        Dim GameRegistry As String = ""
+        Try
+            If ostype = "64" Then
+                My.Computer.Registry.LocalMachine.CreateSubKey("SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive")
+                GameRegistry = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "InstallPath", "no path found"))
+            ElseIf ostype = "86" Then
+                My.Computer.Registry.LocalMachine.CreateSubKey("SOFTWARE\Activision\Call of Duty United Offensive")
+                GameRegistry = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "InstallPath", "no path found"))
+            End If
+        Catch ex As Exception
+            WriteError(ex.Message, ex.StackTrace)
+        End Try
+
+        Dim DoContinue As Boolean = False
+
+        Try
+
+            If GameRegistry.Contains("Call of Duty") Or GameRegistry.Contains("CoD") Then
+                If File.Exists(GameRegistry & "\CoDUOMP.exe") Or File.Exists(GameRegistry & "\mohaa.exe") Or File.Exists(GameRegistry & "\CoDMP.exe") Then
+                    If installpath = "" Or installpath Is Nothing Then
+                        ini.WriteValue("Extras", "FirstRun", "No")
+                        ini.WriteValue("Main", "InstallPath", GameRegistry)
+                        MessageBox.Show("Auto Detected Install Path as: " & GameRegistry, appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    End If
+                Else
+                        DoContinue = True
+                End If
+            End If
+        Catch ex As Exception
+            MessageBox.Show("!! ERROR !!" & ex.Message, appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
+            WriteError(ex.Message, ex.StackTrace)
+        End Try
+
+        Try
+            If installpath = "" Or installpath Is Nothing Then 'potential speed improvement if we're not checking the registry each time it starts the program, may accidentally cause errors
+                If GameRegistry = "" Or GameRegistry = "no path found" Or GameRegistry Is Nothing And DoContinue = True Then
+                    MessageBox.Show("Hello! Since this seems to be your first time using this program, you need to set your install path, because we were unable to detect it automatically!", appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Dim SelectedPath As String = ""
+                    FolderBrowserDialog1.ShowDialog()
+                    SelectedPath = FolderBrowserDialog1.SelectedPath
+                    ini.WriteValue("Main", "InstallPath", SelectedPath)
+                    ini.WriteValue("Extras", "FirstRun", "No")
+                    installpath = SelectedPath
+                    firstrun = "No"
+                    MessageBox.Show("Install Path set to: " & SelectedPath & ", if you wish to change this later, go to: Tools > Settings > Change Game Path", appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Information)
+                End If
+            End If
+        Catch ex As Exception
+            MessageBox.Show("!!ERROR!! " & ex.Message, appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
+            WriteError(ex.Message, ex.StackTrace)
+        End Try
+
 
         checkthread = New Thread(AddressOf Checkconnection)
         checkthread.Priority = ThreadPriority.Highest
@@ -640,8 +742,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
         Dim splitStrr() As String
-        If fovbox.Contains(",") Then
-            splitStrr = fovbox.Split(CType(",", Char()))
+        If fovbox.Contains(", ") Then
+            splitStrr = fovbox.Split(CType(", ", Char()))
             For Each word In splitStrr
                 If Not word = "" Then
                     '               MessageBox.Show(word)
@@ -649,7 +751,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                         If Not HackyFoVComboBox.Items.Count + 1 >= 13 Then
                             HackyFoVComboBox.Items.Add(word)
                         Else
-                            Log.WriteLine("FoV values in hacky fov combo box exceed 12. Not adding item: " & word)
+                            Log.WriteLine("FoV values in hacky fov combo box exceed 12. Not adding item:   " & word)
                         End If
                     Else
                         Log.WriteLine(word & " is higher than 120 fov (max) will not add to combobox")
@@ -724,12 +826,28 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
 
+        Try
+            Dim regpaththread As Thread
+            regpaththread = New Thread(AddressOf GetRegPath)
+            regpaththread.Priority = ThreadPriority.AboveNormal
+            regpaththread.IsBackground = True
+            regpaththread.Start()
+
+        Catch ex As Exception
+            WriteError(ex.Message, ex.StackTrace)
+            MsgBox("Error: " & ex.Message, MsgBoxStyle.Critical)
+
+            '
+
+
+        End Try
 
         'safety code
         If Not fov = "80" Or Not fov = "" Then
-            FoVNumeric.Text = fov
+            If IsNumeric(fov) Then FoVNumeric.Value = CInt(fov)
+            If Not IsNumeric(fov) Then FoVNumeric.Value = 80
         Else
-            FoVNumeric.Text = CStr(My.Settings.FoVFix)
+                FoVNumeric.Value = My.Settings.FoVFix
         End If
 
         If minimizetray = "" Then
@@ -753,8 +871,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Log.WriteLine("Stopping Fog Timer, turning fog on, checking Fog CheckBox.")
         ElseIf fog = "Disabled" Then
             FogCheckBox.Checked = False
-                WriteInteger(exename, &H98861C, 0)
-                FogTimer.Start()
+            WriteInteger(exename, &H98861C, 0)
+            FogTimer.Start()
             Log.WriteLine("Starting Fog Timer, turning fog off, unchecking Fog CheckBox")
         End If
 
@@ -767,9 +885,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         End Try
 
-        If timetokeeplogs = "" Or Not IsNumeric(timetokeeplogs) Then
-            ini.WriteValue("Logging", "DaysToKeepLogs", "14")
-        End If
+
 
         DvarsCheckBox.Visible = False
         For Each arguement As String In My.Application.CommandLineArgs
@@ -833,7 +949,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                         ini.WriteValue("Extras", "StartCommandLine", startline.Replace("-launch", ""))
                     End If
                     Dim StartGameThread As New Thread(AddressOf StartGame)
-                        StartGameThread.IsBackground = True
+                    StartGameThread.IsBackground = True
                     StartGameThread.Start()
 
 
@@ -899,151 +1015,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
 
 
-        If Not fovinterval = "" Then 'Checks the .ini for the user specified timer interval, if one exists
-            FoVTimer.Interval = CInt(fovinterval)
-        Else
-            FoVTimer.Interval = 1500
-        End If
-
-
-
-        Try 'Sets the empty value for the .ini file, and then also disables or enables the timer that automatically checks for updates.
-            If disableupdatetimer = "" Then
-                ini.WriteValue("Tweaks", "DisableUpdateTimer", "No")
-            ElseIf disableupdatetimer = "Yes" Then
-                UpdateCheckTimer.Stop()
-            ElseIf disableupdatetimer = "No" Or disableupdatetimer = "" Or disableupdatetimer Is Nothing Then
-                UpdateCheckTimer.Start()
-            End If
-        Catch ex As Exception
-            WriteError(ex.Message, ex.StackTrace)
-            MessageBox.Show("ERROR: " & ex.Message)
-        End Try
-
-
-        Try
-            Dim regpaththread As Thread
-            regpaththread = New Thread(AddressOf GetRegPath)
-            regpaththread.Priority = ThreadPriority.AboveNormal
-            regpaththread.IsBackground = True
-            regpaththread.Start()
-
-        Catch ex As Exception
-            WriteError(ex.Message, ex.StackTrace)
-            MsgBox("Error: " & ex.Message, MsgBoxStyle.Critical)
-
-            '
-
-
-        End Try
-
-        Try
-            If Not installpath = "" And Not installpath Is Nothing Then
-                readvalue = installpath
-            End If
-        Catch ex As Exception
-            WriteError(ex.Message, ex.StackTrace)
-        End Try
-
-
-        Dim donotcheck As Boolean
-        Dim dorestart As Boolean
-        Dim donotcheckk As Boolean = False
-        Dim doesnotcontain As Boolean = False
-        donotcheck = False
-        dorestart = False
-
-        If readvalue Is Nothing Or readvalue = "" Then
-            donotcheckk = True
-            'MessageBox.Show(readvalue & " <--")
-            readvalue = ""
-        End If
-
-
-        Try
-            If readvalue.Contains("Call of Duty") Or readvalue.Contains("CoD") And Not donotcheckk = True Then
-                If File.Exists(readvalue & "\CoDUOMP.exe") Or File.Exists(readvalue & "\mohaa.exe") Then
-                    ini.WriteValue("Extras", "FirstRun", "No")
-                    ini.WriteValue("Main", "InstallPath", readvalue)
-                Else
-                    doesnotcontain = True
-                End If
-            End If
-            If doesnotcontain = True Then
-                donotcheck = True
-                dorestart = True
-                MsgBox("Hello! We see that this is your first time using this program, and we could also not automatically find your game directory. We highly recommend you set your game path properly if it wasn't already set. We'll only ask you to do this once, that way everytime you update your FoV changer it will always be placed in your UO folder.", MsgBoxStyle.Information)
-                Try
-
-                    FolderBrowserDialog1.Description = ("Select your game path.")
-                    FolderBrowserDialog1.ShowDialog()
-                    Dim uoinstall As String
-                    uoinstall = FolderBrowserDialog1.SelectedPath
-
-
-                    If Not readvalue = "" Then
-                        If readvalue = uoinstall Or uoinstall = readvalue Then 'Messy and buggy code, needs refined.
-                            If File.Exists(readvalue & "\CoDUOMP.exe") Or File.Exists(readvalue & "\mohaa.exe") Then
-                            Else
-                                MsgBox("This is already your directory, but CoDUOMP.exe or mohaa.exe could not be found!", MsgBoxStyle.Information)
-                                ini.WriteValue("Main", "InstallPath", readvalue)
-                            End If
-                        End If
-                    Else
-                        If ostype = "64" Then
-
-                            'My.Computer.Registry.LocalMachine.CreateSubKey("SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive")
-                            My.Computer.Registry.LocalMachine.CreateSubKey("SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", RegistryKeyPermissionCheck.ReadWriteSubTree)
-                            My.Computer.Registry.SetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "InstallPath", uoinstall)
-                            readvalue = uoinstall
-                            ini.WriteValue("Main", "InstallPath", readvalue)
-                            MsgBox("Completed!", MsgBoxStyle.Information)
-
-                        ElseIf ostype = "86" Then
-                            My.Computer.Registry.LocalMachine.CreateSubKey("SOFTWARE\Activision\Call of Duty United Offensive")
-                            My.Computer.Registry.SetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "InstallPath", uoinstall)
-                            readvalue = uoinstall
-                            ini.WriteValue("Main", "InstallPath", readvalue)
-                            MsgBox("Completed!", MsgBoxStyle.Information)
-
-                        End If
-                    End If
-
-
-                Catch ex As Exception
-
-                    WriteError(ex.Message, ex.StackTrace)
-                    MsgBox("Error setting registry, invalid path? " & ex.Message, MsgBoxStyle.Critical)
-                End Try
-            End If
-        Catch ex As Exception
-            WriteError(ex.Message, ex.StackTrace)
-            MessageBox.Show("An error has occurred while attempting to read/write registry: " & ex.Message & newline & "this may prevent the program from functioning normally.")
-
-            '
-
-
-        End Try
-
-
-        Try 'Atttempts to check if the set directory contains the UO exe.
-            If My.Computer.FileSystem.FileExists(readvalue & "\CoDUOMP.exe") Or File.Exists(readvalue & "\mohaa.exe") Or donotcheck = True Then
-                ini.WriteValue("Extras", "FirstRun", "No")
-            Else
-                ini.WriteValue("Extras", "FirstRun", "Yes")
-                MsgBox("The path you have set does not contain CoDUOMP.exe or mohaa.exe, please set your path again.", MsgBoxStyle.Information)
-                Application.Restart()
-                Return
-            End If
-        Catch ex As Exception
-            WriteError(ex.Message, ex.StackTrace)
-
-            MsgBox("Error setting/checking game path: " & ex.Message, MsgBoxStyle.Critical)
-            '
-
-
-        End Try
-
 
         Try
             If Not gamevers Is Nothing And Not gamevers = "" Then
@@ -1084,12 +1055,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
             hidekey = "Yes"
         End If
 
-        If dorestart = True Then
-            restartneededpath = True
-            MsgBox("Restarting to set install path...", MsgBoxStyle.Information)
-            Application.Restart()
-            Return
-        End If
+        '        If dorestart = True Then
+        '            restartneededpath = True
+        '            MsgBox("Restarting to set install path...", MsgBoxStyle.Information)
+        '            Application.Restart()
+        '            Return
+        '        End If
 
         Try
             If Not lastlogname = "" And Not isDev = True Then
@@ -1124,7 +1095,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             '  If progvers = "" Then
             '   progvers = "Unknown"
             showmsgbox = False
-            MessageBox.Show(Application.ProductName & " has been updated from Unknown to " & progvers & " (" & "HF" & hotfix & "), be sure to check the changelog to see what's different!", appname, MessageBoxButtons.OK, MessageBoxIcon.Information)
+            '   MessageBox.Show(Application.ProductName & " has been updated from Unknown to " & progvers & " (" & "HF" & hotfix & "), be sure to check the changelog to see what's different!", appname, MessageBoxButtons.OK, MessageBoxIcon.Information)
             progversini = progvers
             '     Return
         End If
@@ -1156,19 +1127,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
             HackyFoVComboBox.SelectedIndex = 0
         End If
 
-        If Not ini.ReadValue("Extras", "HotKeyUp") = "" And Not ini.ReadValue("Extras", "HotKeyUp") = Nothing Then
-            hotkeyup = CInt(ini.ReadValue("Extras", "HotKeyUp"))
-        End If
-        If Not ini.ReadValue("Extras", "HotKeyDown") = "" And Not ini.ReadValue("Extras", "HotKeyDown") = Nothing Then
-            hotkeydown = CInt(ini.ReadValue("Extras", "HotKeyDown"))
-        End If
-        If Not ini.ReadValue("Extras", "HotKeyUpCombo") = "" And Not ini.ReadValue("Extras", "HotKeyUpCombo") = Nothing Then
-            hotkeycomboup = CInt(ini.ReadValue("Extras", "HotKeyUpCombo"))
-        End If
-        If Not ini.ReadValue("Extras", "HotKeyDownCombo") = "" And Not ini.ReadValue("Extras", "HotKeyDownCombo") = Nothing Then
-            hotkeycombodown = CInt(ini.ReadValue("Extras", "HotKeyDownCombo"))
-        End If
-
         If Not HackyFoVComboBox.Items.Count <= 0 Then
             For Each itemstring In HackyFoVComboBox.Items
                 If itemstring.ToString.Contains(lastcboxfov) And Not lastcboxfov = "" And Not lastcboxfov Is Nothing Then
@@ -1177,36 +1135,9 @@ My.Computer.FileSystem.GetFileInfo(filename)
             Next
         End If
 
-        Try
-            Dim di As New DirectoryInfo(appdata & "CoDUO FoV Changer\Logs")
-            Dim fiArr As FileInfo() = di.GetFiles
-            Dim fri As FileInfo
-            Dim DaysToKeepLogs As Long = 14
-            If Not timetokeeplogs = "" And Not timetokeeplogs = "14" Then
-                If IsNumeric(timetokeeplogs) Then
-                    DaysToKeepLogs = CLng(timetokeeplogs)
-                Else
-                    ini.WriteValue("Logging", "DaysToKeepLogs", "14")
-                    Log.WriteLine("Time to Keep Logs was not numeric, default value was set to 14.")
-                End If
-            End If
-                For Each fri In fiArr
-                If Not fri.FullName = logname Then
-                    If fri.FullName.EndsWith(".log") Then
-                        Dim dayDiff As Long = DateDiff(DateInterval.Day, fri.LastWriteTime, Now)
-
-                        If dayDiff >= DaysToKeepLogs Then
-                            Log.WriteLine("Log: " & fri.ToString & " is " & CStr(dayDiff) & " days old, maximum is 14. - Deleting log.")
-                            IO.File.Delete(fri.FullName)
-                        End If
-
-                    End If
-                End If
-
-            Next
-        Catch ex As Exception
-            WriteError(ex.Message, ex.StackTrace)
-        End Try
+        Dim OldLogsThread As New Thread(AddressOf OldLogFiles)
+        OldLogsThread.IsBackground = True
+        OldLogsThread.Start()
 
         GetTimeWarning(TTStart, 120, "MyBase.Load")
 
@@ -1484,7 +1415,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         updatethread = New Thread(AddressOf CreateUpdaterApp)
         updatethread.Priority = ThreadPriority.AboveNormal
         updatethread.IsBackground = True
-        updatethread.start
+        updatethread.Start()
 
 
     End Sub
