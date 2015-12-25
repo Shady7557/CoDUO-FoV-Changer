@@ -742,8 +742,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
         Dim splitStrr() As String
-        If fovbox.Contains(", ") Then
-            splitStrr = fovbox.Split(CType(", ", Char()))
+        If fovbox.Contains(",") Then
+            splitStrr = fovbox.Split(CType(",", Char()))
             For Each word In splitStrr
                 If Not word = "" Then
                     '               MessageBox.Show(word)
@@ -751,7 +751,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                         If Not HackyFoVComboBox.Items.Count + 1 >= 13 Then
                             HackyFoVComboBox.Items.Add(word)
                         Else
-                            Log.WriteLine("FoV values in hacky fov combo box exceed 12. Not adding item:   " & word)
+                            Log.WriteLine("FoV values in hacky fov combo box exceed 12. Not adding item: " & word)
                         End If
                     Else
                         Log.WriteLine(word & " is higher than 120 fov (max) will not add to combobox")
@@ -1397,7 +1397,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Try
             Dim myExe As String = temp & "\CoDUO FoV Changer Updater.exe"
             If Not File.Exists(myExe) Then
-                File.WriteAllBytes(myExe, My.Resources.CoDUO_FoV_Changer_Updater)
+                File.WriteAllBytes(myExe, My.Resources.CoDUO_FoV_Changer_Updater_CSharp)
                 Log.WriteLine("Creating Updater Application at: " & myExe)
             End If
             Process.Start(myExe)
