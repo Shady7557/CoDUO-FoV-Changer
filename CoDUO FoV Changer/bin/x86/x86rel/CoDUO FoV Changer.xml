@@ -22,7 +22,7 @@ CoDUO FoV Changer
   resource lookups using this strongly typed resource class.
 </summary>
 </member>
-<member name="P:CoDUO_FoV_Changer.My.Resources.Resources.CoDUO_FoV_Changer_Updater">
+<member name="P:CoDUO_FoV_Changer.My.Resources.Resources.CoDUO_FoV_Changer_Updater_CSharp">
 <summary>
   Looks up a localized resource of type System.Byte[].
 </summary>

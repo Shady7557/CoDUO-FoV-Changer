@@ -19,6 +19,7 @@ Public Class SettingsForm
     Public num1 As Integer = 0
     Public num2 As Integer = 0
     Dim cacheKey As String = ""
+    Dim defWidth As Integer = 207
     <System.Runtime.InteropServices.DllImport("user32.dll")> _
     Private Shared Function GetAsyncKeyState(ByVal vkey As System.Windows.Forms.Keys) As Short
     End Function
@@ -67,9 +68,11 @@ Public Class SettingsForm
         Dim keyfind As String
         If Not cacheKey = "" Then
             If CDKeyLabel.Text.Contains("Hidden") Then
-                CDKeyLabel.Text = "CD-Key: " & cacheKey & "    (Click to hide)"
+                CDKeyLabel.Text = "CD-Key: " & cacheKey & " (Click to hide)"
+                Width = 215
             Else
                 CDKeyLabel.Text = "CD-Key: Hidden (Click to show)"
+                Width = defWidth
             End If
             Return
         End If
@@ -80,7 +83,7 @@ Public Class SettingsForm
         End If
 
         If CDKeyLabel.Text.Contains("Hidden") Then
-            CDKeyLabel.Text = "CD-Key: " & keyfind & "      (Click to hide)"
+            CDKeyLabel.Text = "CD-Key: " & keyfind & " (Click to hide)"
         Else
             CDKeyLabel.Text = "CD-Key: Hidden (Click to show)"
         End If
@@ -91,9 +94,9 @@ Public Class SettingsForm
         End If
 
         If CDKeyLabel.Text.Contains("Hidden") Then
-            Me.Width = 203
+            Width = defWidth
         Else
-            Me.Width = 215
+            Width = 215
         End If
 
         cacheKey = keyfind
@@ -189,24 +192,6 @@ Public Class SettingsForm
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles ButtonSettingsAdvanced.Click
         Me.Visible = False
         AdtSettingsForm.Show()
-    End Sub
-
-    Private Sub Label13_Click(sender As Object, e As EventArgs)
-
-        Try
-            ini.WriteValue("Main", "BuildType", "x64")
-            Dim myExe As String = MainFoV.temp & "\CoDUO FoV Changer Updater.exe"
-            If Not System.IO.File.Exists(myExe) Then
-                System.IO.File.WriteAllBytes(myExe, My.Resources.CoDUO_FoV_Changer_Updater)
-                '  log("Creating Updater Application.")
-            End If
-            Process.Start(myExe)
-            '  log("Restarting/Updating")
-            Application.Exit()
-        Catch ex As Exception
-            MsgBox("Unable to create updater application. Error: " & ex.Message, MsgBoxStyle.Critical)
-            '  log("Unable to create Updater Application. !! ERROR !! " & ex.Message)
-        End Try
     End Sub
 
     Private Sub Button7_Click(sender As Object, e As EventArgs) Handles RestartAppButton.Click

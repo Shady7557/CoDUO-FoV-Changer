@@ -41,9 +41,9 @@ Partial Class AdtSettingsForm
         '
         'SaveRestartAppButton
         '
-        Me.SaveRestartAppButton.Location = New System.Drawing.Point(12, 145)
+        Me.SaveRestartAppButton.Location = New System.Drawing.Point(12, 123)
         Me.SaveRestartAppButton.Name = "SaveRestartAppButton"
-        Me.SaveRestartAppButton.Size = New System.Drawing.Size(107, 23)
+        Me.SaveRestartAppButton.Size = New System.Drawing.Size(128, 23)
         Me.SaveRestartAppButton.TabIndex = 0
         Me.SaveRestartAppButton.Text = "Save And Restart"
         Me.SaveRestartAppButton.UseVisualStyleBackColor = True
@@ -73,18 +73,18 @@ Partial Class AdtSettingsForm
         '
         'CancelCloseButton
         '
-        Me.CancelCloseButton.Location = New System.Drawing.Point(12, 232)
+        Me.CancelCloseButton.Location = New System.Drawing.Point(12, 210)
         Me.CancelCloseButton.Name = "CancelCloseButton"
-        Me.CancelCloseButton.Size = New System.Drawing.Size(107, 22)
+        Me.CancelCloseButton.Size = New System.Drawing.Size(128, 22)
         Me.CancelCloseButton.TabIndex = 11
         Me.CancelCloseButton.Text = "Cancel"
         Me.CancelCloseButton.UseVisualStyleBackColor = True
         '
         'OpenConfigButton
         '
-        Me.OpenConfigButton.Location = New System.Drawing.Point(12, 174)
+        Me.OpenConfigButton.Location = New System.Drawing.Point(12, 152)
         Me.OpenConfigButton.Name = "OpenConfigButton"
-        Me.OpenConfigButton.Size = New System.Drawing.Size(107, 23)
+        Me.OpenConfigButton.Size = New System.Drawing.Size(128, 23)
         Me.OpenConfigButton.TabIndex = 12
         Me.OpenConfigButton.Text = "Open Config"
         Me.OpenConfigButton.UseVisualStyleBackColor = True
@@ -130,9 +130,9 @@ Partial Class AdtSettingsForm
         '
         'ClearCacheButton
         '
-        Me.ClearCacheButton.Location = New System.Drawing.Point(12, 203)
+        Me.ClearCacheButton.Location = New System.Drawing.Point(12, 181)
         Me.ClearCacheButton.Name = "ClearCacheButton"
-        Me.ClearCacheButton.Size = New System.Drawing.Size(107, 23)
+        Me.ClearCacheButton.Size = New System.Drawing.Size(128, 23)
         Me.ClearCacheButton.TabIndex = 18
         Me.ClearCacheButton.Text = "Clear Cache"
         Me.ClearCacheButton.UseVisualStyleBackColor = True
@@ -140,7 +140,7 @@ Partial Class AdtSettingsForm
         'DTKLLabel
         '
         Me.DTKLLabel.AutoSize = True
-        Me.DTKLLabel.Location = New System.Drawing.Point(9, 99)
+        Me.DTKLLabel.Location = New System.Drawing.Point(9, 101)
         Me.DTKLLabel.Name = "DTKLLabel"
         Me.DTKLLabel.Size = New System.Drawing.Size(100, 13)
         Me.DTKLLabel.TabIndex = 19
@@ -148,7 +148,7 @@ Partial Class AdtSettingsForm
         '
         'DTKLUD
         '
-        Me.DTKLUD.Location = New System.Drawing.Point(115, 97)
+        Me.DTKLUD.Location = New System.Drawing.Point(115, 99)
         Me.DTKLUD.Maximum = New Decimal(New Integer() {365, 0, 0, 0})
         Me.DTKLUD.Minimum = New Decimal(New Integer() {2, 0, 0, 0})
         Me.DTKLUD.Name = "DTKLUD"
@@ -160,7 +160,7 @@ Partial Class AdtSettingsForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(162, 266)
+        Me.ClientSize = New System.Drawing.Size(152, 239)
         Me.ControlBox = False
         Me.Controls.Add(Me.DTKLUD)
         Me.Controls.Add(Me.DTKLLabel)

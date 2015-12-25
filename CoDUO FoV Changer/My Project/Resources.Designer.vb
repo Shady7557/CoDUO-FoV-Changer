@@ -63,9 +63,9 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
-        Friend ReadOnly Property CoDUO_FoV_Changer_Updater() As Byte()
+        Friend ReadOnly Property CoDUO_FoV_Changer_Updater_CSharp() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("CoDUO_FoV_Changer_Updater", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("CoDUO_FoV_Changer_Updater_CSharp", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property
