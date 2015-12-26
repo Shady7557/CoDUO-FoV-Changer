@@ -6,12 +6,11 @@ Imports System.Threading
 Imports System.Text
 Imports System.Security.Principal
 Imports CurtLog
-Imports Microsoft.Win32
 
 Public Class MainFoV
-    Public userpth As String = System.Environment.GetEnvironmentVariable("userprofile")
-    Public temp As String = System.Environment.GetEnvironmentVariable("temp")
-    Public appdata As String = System.Environment.GetEnvironmentVariable("appdata") & "\"
+    Public userpth As String = Environment.GetEnvironmentVariable("userprofile")
+    Public temp As String = Environment.GetEnvironmentVariable("temp")
+    Public appdata As String = Environment.GetEnvironmentVariable("appdata") & "\"
     Dim ini As New IniFile(appdata & "CoDUO FoV Changer\settings.ini")
     Dim iniold As New IniFile(appdata & "CoD UO FoV Changer\options.ini")
     Dim fov As String = ini.ReadValue("FoV", "FoV Value")
@@ -87,9 +86,6 @@ Public Class MainFoV
     Dim checkElevation As Thread
     Dim pbload As Thread
     Dim getW As Thread
-    Dim keyfind As String
-    Dim keyfind2 As String
-    Dim keyfind3 As String
     Dim rand As New Random
     Dim audioEngine As Thread
     Dim logname As String
@@ -99,7 +95,7 @@ Public Class MainFoV
     Public iscontext As Boolean = False
     'Dim audio As New AudioFile(temp & "\beep.mp3")
     'Dim audion As New AudioFile(temp & "\beepnegative.mp3")
-    Dim thread As System.Threading.Thread
+    Dim thread As Thread
     Dim isDev As Boolean
     Dim errorOccured As Boolean = False
     Dim isEmailing As Boolean = False
@@ -161,7 +157,7 @@ Public Class MainFoV
 
         Try
             Dim myExe As String = temp & "\changelog.tmp.txt"
-            If My.Computer.FileSystem.FileExists(myExe) Then
+            If File.Exists(myExe) Then
                 Dim sr4 As StreamReader = New StreamReader(myExe)
                 Dim cache As String = sr4.ReadToEnd
                 sr4.Close()
@@ -187,7 +183,7 @@ Public Class MainFoV
             '  Dim rn As New Random
 
             Dim myExe As String = temp & "\changelog.tmp.txt"
-            If My.Computer.FileSystem.FileExists(myExe) Then
+            If File.Exists(myExe) Then
                 Dim sr4 As StreamReader = New StreamReader(myExe)
                 Dim cache As String = sr4.ReadToEnd
                 sr4.Close()
@@ -274,7 +270,7 @@ Public Class MainFoV
         BytesTO = lBytes / (1024 ^ convertto)
     End Function
     Private Sub getWav()
-        If Not My.Computer.FileSystem.FileExists(temp & "\beep.mp3") Then
+        If Not File.Exists(temp & "\beep.mp3") Then
             httpclient = New WebClient
             httpclient2 = New WebClient
             Dim sourceURL = "https://docs.google.com/uc?export=download&id=0B0nCag_Hp76zM0t4X2dvZDFiQm8"
@@ -293,7 +289,7 @@ Public Class MainFoV
     End Sub
 
     Private Sub Cache(sourceurl As String, filename As String)
-        If Not My.Computer.FileSystem.FileExists(cacheloc & "\" & filename) Then
+        If Not File.Exists(cacheloc & "\" & filename) Then
             httpclient = New WebClient
             Try
                 httpclient.DownloadFileAsync(New Uri(sourceurl), cacheloc & "\" & filename)
@@ -306,7 +302,6 @@ Public Class MainFoV
     Private Function corruptCheck(filename As String, bytes As Long) As Long
         Dim infoReader As System.IO.FileInfo =
 My.Computer.FileSystem.GetFileInfo(filename)
-        ' MessageBox.Show(infoReader.Length)
         Return infoReader.Length
     End Function
     ' Private Function getImgur2()
@@ -414,14 +409,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
     Private Sub GetRegPath()
         Try
-
-
-            keyfind = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Key", "0")) 'Searches for CD-keys.
-            keyfind2 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "CodKey", "0")) 'Searches for CD-keys.
-            keyfind3 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "Key", "0")) 'Searches for CD-keys. Changed to the number 0 because it wont produce errors, and I can just have the label chance if the text is equal to '0'
-
-
-
             If ostype = "64" Then
                 readvalue2 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Version", 1.51)) 'If the registry key is not found, it may report an error.
             ElseIf ostype = "86" Then
@@ -618,11 +605,11 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
 
         Try
-            If My.Computer.FileSystem.DirectoryExists(appdata & "CoDUO FoV Changer") And My.Computer.FileSystem.DirectoryExists(appdata & "CoDUO FoV Changer\Logs") Then
+            If Directory.Exists(appdata & "CoDUO FoV Changer") And Directory.Exists(appdata & "CoDUO FoV Changer\Logs") Then
                 'placeholder
             Else
-                My.Computer.FileSystem.CreateDirectory(appdata & "CoDUO FoV Changer")
-                My.Computer.FileSystem.CreateDirectory(appdata & "CoDUO FoV Changer\Logs")
+                Directory.CreateDirectory(appdata & "CoDUO FoV Changer")
+                Directory.CreateDirectory(appdata & "CoDUO FoV Changer\Logs")
                 'Log.WriteLine("Created Log Folder.")
             End If
         Catch ex As Exception
@@ -681,6 +668,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
             CoD1CheckBox.Checked = True
         End If
 
+        ''START REFINED INSTALL PATH CODE
+
         Dim GameRegistry As String = ""
         Try
             If ostype = "64" Then
@@ -706,7 +695,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                         MessageBox.Show("Auto Detected Install Path as: " & GameRegistry, appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Information)
                     End If
                 Else
-                        DoContinue = True
+                    DoContinue = True
                 End If
             End If
         Catch ex As Exception
@@ -733,6 +722,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
             WriteError(ex.Message, ex.StackTrace)
         End Try
 
+        ''END REFINED INSTALL PATH CODE
+
 
         checkthread = New Thread(AddressOf Checkconnection)
         checkthread.Priority = ThreadPriority.Highest
@@ -740,41 +731,44 @@ My.Computer.FileSystem.GetFileInfo(filename)
         checkthread.Start()
 
 
-
-        Dim splitStrr() As String
-        If fovbox.Contains(",") Then
-            splitStrr = fovbox.Split(CType(",", Char()))
-            For Each word In splitStrr
-                If Not word = "" Then
-                    '               MessageBox.Show(word)
-                    If Not CInt(word) >= 121 Then
-                        If Not HackyFoVComboBox.Items.Count + 1 >= 13 Then
-                            HackyFoVComboBox.Items.Add(word)
+        Try
+            Dim splitStrr() As String
+            If fovbox.Contains(",") Then
+                splitStrr = fovbox.Split(CType(",", Char()))
+                For Each word As String In splitStrr
+                    If Not word = "" And IsNumeric(word) Then
+                        If Not CInt(word) >= 121 Then
+                            If Not HackyFoVComboBox.Items.Count + 1 >= 13 Then
+                                HackyFoVComboBox.Items.Add(word)
+                            Else
+                                Log.WriteLine("FoV values in hacky fov combo box exceed 12. Not adding item: " & word)
+                            End If
                         Else
-                            Log.WriteLine("FoV values in hacky fov combo box exceed 12. Not adding item: " & word)
+                            Log.WriteLine(word & " is higher than 120 fov (max), will not add to combobox")
                         End If
-                    Else
-                        Log.WriteLine(word & " is higher than 120 fov (max) will not add to combobox")
                     End If
-                End If
-            Next
-        End If
+                Next
+            End If
+        Catch ex As Exception
+            WriteError(ex.Message, ex.StackTrace)
+            MessageBox.Show("Error: " & ex.Message & newline & "  check log for more info!", appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
 
 
-        If Not My.Computer.FileSystem.DirectoryExists(cacheloc) Then
-            My.Computer.FileSystem.CreateDirectory(cacheloc)
+        If Not Directory.Exists(cacheloc) Then
+            Directory.CreateDirectory(cacheloc)
         End If
 
         Dim rn As New Random
 
         Try
             If gamev = "UO" Or gamev Is Nothing Or gamev = "" Then
-                If My.Computer.FileSystem.FileExists(cacheloc & "\cache5.cache") Then
+                If File.Exists(cacheloc & "\cache5.cache") Then
                     Dim iscorrupt As Double = corruptCheck(cacheloc & "\cache5.cache", 11846)
                     If iscorrupt <= 11845 Or iscorrupt >= 11847 Then
                         CoDPictureBox.Image = My.Resources.Loading
                         CoDPictureBox.Load("https://i.imgur.com/2WRGvTd.png")
-                        My.Computer.FileSystem.DeleteFile(cacheloc & "\cache5.cache")
+                        File.Delete(cacheloc & "\cache5.cache")
                         Cache("https://i.imgur.com/2WRGvTd.png", "cache5.cache")
                     Else
                         CoDPictureBox.Image = Image.FromFile(cacheloc & "\cache5.cache")
@@ -785,12 +779,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     Cache("https://i.imgur.com/2WRGvTd.png", "cache5.cache")
                 End If
             Else
-                If My.Computer.FileSystem.FileExists(cacheloc & "\cache6.cache") Then
+                If File.Exists(cacheloc & "\cache6.cache") Then
                     Dim iscorrupt As Double = corruptCheck(cacheloc & "\cache6.cache", 8606)
                     If iscorrupt <= 8605 Or iscorrupt >= 8607 Then
                         CoDPictureBox.Image = My.Resources.Loading
                         CoDPictureBox.Load("https://i.imgur.com/xhBcQSp.png")
-                        My.Computer.FileSystem.DeleteFile(cacheloc & "\cache6.cache")
+                        File.Delete(cacheloc & "\cache6.cache")
                         Cache("https://i.imgur.com/xhBcQSp.png", "cache6.cache")
                     Else
                         CoDPictureBox.Image = Image.FromFile(cacheloc & "\cache6.cache")
@@ -812,8 +806,8 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         End Try
 
-        If My.Computer.FileSystem.FileExists(temp & "\CoDUO FoV Changer Updater.exe") Then
-            My.Computer.FileSystem.DeleteFile(temp & "\CoDUO FoV Changer Updater.exe")
+        If File.Exists(temp & "\CoDUO FoV Changer Updater.exe") Then
+            File.Delete(temp & "\CoDUO FoV Changer Updater.exe")
         End If
 
         If restartNeeded = True Then
@@ -894,7 +888,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 DvarsCheckBox.Visible = True
             End If
             If arguement.Contains("-fov=") Then
-                '   If Not arguement.StartsWith("-") Then
                 splitStr = arguement.Split(CType("=", Char()))
                 If splitStr(1) = Nothing Or splitStr(1) = "" Then
                     Return
@@ -910,13 +903,9 @@ My.Computer.FileSystem.GetFileInfo(filename)
                     FoVNumeric.Text = splitStr(1)
                     Log.WriteLine("Launched fov changer with -fov=" & splitStr(1))
                 End If
-                '   MessageBox.Show(splitStr(1))
             End If
-            '   If My.Computer.FileSystem.FileExists("C:\users\matt_\cod.dat") Then
             If arguement.Contains("-fog=") Then
-                '   If Not arguement.StartsWith("-") Then
                 splitStr = arguement.Split(CType("=", Char()))
-                'MessageBox.Show(splitStr(1))
                 If splitStr(1) = Nothing Or splitStr(1) = "" Then
                     '
                 End If
@@ -942,7 +931,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
 
             If arguement = ("-launch") Then 'Automatically launches the game, probably useful if you're not running a command line and don't know the autorun .ini value exists, one of the codes can be removed.
-                'Button3.PerformClick()
 
                 Try
                     If startline.Contains("-launch") Then
@@ -1050,17 +1038,10 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         If hidekey = "" Or hidekey = Nothing Then 'Checks if the user want's their CD-key not to be shown on the label.
             '     Button15.Text = ("Show CD-Key")
-            showkey()
+            'showkey()
             ini.WriteValue("Extras", "HideKey", "Yes")
             hidekey = "Yes"
         End If
-
-        '        If dorestart = True Then
-        '            restartneededpath = True
-        '            MsgBox("Restarting to set install path...", MsgBoxStyle.Information)
-        '            Application.Restart()
-        '            Return
-        '        End If
 
         Try
             If Not lastlogname = "" And Not isDev = True Then
@@ -1119,11 +1100,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         GetGameTimeLabel()
 
-        Dim itemlist As Integer = 0
-        For Each item In HackyFoVComboBox.Items
-            itemlist = itemlist + 1
-        Next
-        If itemlist >= 1 Then
+        If HackyFoVComboBox.Items.Count >= 1 Then
             HackyFoVComboBox.SelectedIndex = 0
         End If
 
@@ -1179,7 +1156,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End Try
 
         If File.Exists(oldoptions) Then
-            My.Computer.FileSystem.DeleteDirectory(appdata & "CoD UO FoV Changer", FileIO.DeleteDirectoryOption.DeleteAllContents)
+            Directory.Delete(appdata & "CoD UO FoV Changer")
             Log.WriteLine("Deleted old options folder")
         End If
 
@@ -1455,7 +1432,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub Button9_Click_1(sender As Object, e As EventArgs)
         Try
-            My.Computer.FileSystem.DeleteFile(appdata & "CoDUO FoV Changer\settings.ini")
+            File.Delete(appdata & "CoDUO FoV Changer\settings.ini")
             Log.WriteLine("Reset Config.")
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
@@ -1515,14 +1492,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub Button13_Click(sender As Object, e As EventArgs)
         Application.Restart()
-    End Sub
-
-    Private Sub showkey()
-        keyfind = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Key", "CD-Key not found!"))
-        keyfind2 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "CodKey", "CD-Key not found!"))
-        keyfind3 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "Key", "CD-Key not found!"))
-
-
     End Sub
 
     Private Sub Label5_Click(sender As Object, e As EventArgs) Handles CheckUpdatesLabel.Click
@@ -1631,12 +1600,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 FogCheckBox.Text = "Fog (UO only!)"
                 Text = "CoDUO FoV Changer (in CoD1 Mode)"
                 '  Me.Width = 637
-                If My.Computer.FileSystem.FileExists(cacheloc & "\cache6.cache") Then
+                If File.Exists(cacheloc & "\cache6.cache") Then
                     Dim iscorrupt As Integer = CInt(corruptCheck(cacheloc & "\cache6.cache", 8606))
                     If iscorrupt <= 8605 Or iscorrupt >= 8607 Then
                         CoDPictureBox.Image = My.Resources.Loading
                         CoDPictureBox.Load("https://i.imgur.com/xhBcQSp.png")
-                        My.Computer.FileSystem.DeleteFile(cacheloc & "\cache6.cache")
+                        File.Delete(cacheloc & "\cache6.cache")
                         Cache("https://i.imgur.com/xhBcQSp.png", "cache6.cache")
                     Else
                         CoDPictureBox.Image = Image.FromFile(cacheloc & "\cache6.cache")
@@ -1654,12 +1623,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 FogCheckBox.Text = "Fog"
                 Text = "CoDUO FoV Changer"
                 'Me.Width = 624
-                If My.Computer.FileSystem.FileExists(cacheloc & "\cache5.cache") Then
+                If File.Exists(cacheloc & "\cache5.cache") Then
                     Dim iscorrupt As Integer = CInt(corruptCheck(cacheloc & "\cache5.cache", 11846))
                     If iscorrupt <= 11845 Or iscorrupt >= 11847 Then
                         CoDPictureBox.Image = My.Resources.Loading
                         CoDPictureBox.Load("https://i.imgur.com/2WRGvTd.png")
-                        My.Computer.FileSystem.DeleteFile(cacheloc & "\cache5.cache")
+                        File.Delete(cacheloc & "\cache5.cache")
                         Cache("https://i.imgur.com/2WRGvTd.png", "cache5.cache")
                     Else
                         CoDPictureBox.Image = Image.FromFile(cacheloc & "\cache5.cache")
