@@ -295,6 +295,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="CurtLog.dll" />
+    <None Include="Resources\CoD1.png" />
+    <None Include="Resources\CoDUO.png" />
     <None Include="Resources\CoDUO FoV Changer Updater CSharp.exe" />
     <None Include="Resources\CoDUO FoV Changer Updater.exe" />
     <None Include="packages.config" />

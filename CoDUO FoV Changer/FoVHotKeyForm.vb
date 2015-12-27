@@ -1,4 +1,5 @@
 ﻿Option Strict On
+Imports CurtLog
 Public Class FoVHotKeyForm
     Dim ini As New IniFile(MainFoV.appdata & "CoDUO FoV Changer\settings.ini")
     Private Sub ButtonAddFoVCB_Click(sender As Object, e As EventArgs) Handles ButtonAddFoVCB.Click
@@ -61,34 +62,34 @@ Public Class FoVHotKeyForm
             RemoveFoVCBBox.BackColor = Color.DarkGray
         End If
         CBBoxFoV.DropDownStyle = ComboBoxStyle.DropDownList
-        Dim splitStrr() As String
-        If MainFoV.fovbox.Contains(",") Then
-            splitStrr = MainFoV.fovbox.Split(CType(",", Char()))
-            For Each word In splitStrr
-                If Not word = "" Then
-                    '               MessageBox.Show(word)
-                    If Not CInt(word) >= 121 Then
-                        CBBoxFoV.Items.Add(word)
-                    Else
-                        '   Log.WriteLine(word & " is higher than 120 fov (max) will not add to combobox")
+        Try
+            Dim splitStrr() As String
+            If MainFoV.fovbox.Contains(",") Then
+                splitStrr = MainFoV.fovbox.Split(CType(",", Char()))
+                For Each word In splitStrr
+                    If Not word = "" And IsNumeric(word) Then
+                        If Not CInt(word) >= 121 Then
+                            CBBoxFoV.Items.Add(word)
+                        Else
+                            Log.WriteLine(word & " is higher than 120 fov (max) will not add to combobox")
+                        End If
                     End If
-                End If
-            Next
-        End If
-        Dim itemlist As Integer = 0
-        For Each item In CBBoxFoV.Items
-            itemlist = itemlist + 1
-        Next
-        If CBBoxFoV.Items.Count >= 1 Then
-            For Each item As String In CBBoxFoV.Items
-                If item = MainFoV.FoVNumeric.Text Then
-                    CBBoxFoV.SelectedItem = MainFoV.FoVNumeric.Text
-                    Return
-                End If
-            Next
-        End If
-        If itemlist >= 1 Then
-            CBBoxFoV.SelectedIndex = 0
-        End If
+                Next
+            End If
+            If CBBoxFoV.Items.Count >= 1 Then
+                For Each item As String In CBBoxFoV.Items
+                    If item = MainFoV.FoVNumeric.Text Then
+                        CBBoxFoV.SelectedItem = MainFoV.FoVNumeric.Text
+                        Return
+                    End If
+                Next
+            End If
+            If CBBoxFoV.Items.Count >= 1 Then
+                CBBoxFoV.SelectedIndex = 0
+            End If
+        Catch ex As Exception
+            MainFoV.WriteError(ex.Message, ex.StackTrace)
+            MessageBox.Show("Error: " & ex.Message & Environment.NewLine & "  check log for more info!", "CoDUO FoV Changer", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
     End Sub
 End Class

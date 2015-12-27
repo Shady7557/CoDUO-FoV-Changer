@@ -2,7 +2,6 @@
 Module LoggingModule
     Public userpth As String = System.Environment.GetEnvironmentVariable("userprofile")
     Dim rn As New Random
-    'Public location As String = userpth & "\AppData\Roaming\CoDUO FoV Changer\Logs\ " & rn.Next(1, 65000)
     Dim sysdrv As String = System.Environment.GetEnvironmentVariable("systemdrive")
     '  Public wlog As New IO.StreamWriter(location, False)
 

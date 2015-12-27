@@ -160,7 +160,7 @@ Partial Class AdtSettingsForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(152, 239)
+        Me.ClientSize = New System.Drawing.Size(159, 235)
         Me.ControlBox = False
         Me.Controls.Add(Me.DTKLUD)
         Me.Controls.Add(Me.DTKLLabel)

@@ -57,7 +57,7 @@ Partial Class CoDPIDForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(373, 258)
+        Me.ClientSize = New System.Drawing.Size(374, 265)
         Me.ControlBox = False
         Me.Controls.Add(Me.ClosePIDListButton)
         Me.Controls.Add(Me.SelectPIDButton)

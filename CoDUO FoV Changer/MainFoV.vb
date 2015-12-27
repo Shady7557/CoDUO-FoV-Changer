@@ -410,9 +410,9 @@ My.Computer.FileSystem.GetFileInfo(filename)
     Private Sub GetRegPath()
         Try
             If ostype = "64" Then
-                readvalue2 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Version", 1.51)) 'If the registry key is not found, it may report an error.
+                readvalue2 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Version", "1.51")) 'If the registry key is not found, it may report an error.
             ElseIf ostype = "86" Then
-                readvalue2 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "Version", 1.51)) 'If the registry key is not found, it may report an error.
+                readvalue2 = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "Version", "1.51")) 'If the registry key is not found, it may report an error.
             End If
 
 
@@ -514,7 +514,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
                         If dayDiff >= DaysToKeepLogs Then
                             Log.WriteLine("Log: " & fri.ToString & " is " & CStr(dayDiff) & " days old, maximum is 14. - Deleting log.")
-                            IO.File.Delete(fri.FullName)
+                            File.Delete(fri.FullName)
                         End If
 
                     End If
@@ -524,6 +524,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
         Catch ex As Exception
             WriteError(ex.Message, ex.StackTrace)
         End Try
+    End Sub
+    Private Sub ScalePB()
+        Dim finalImg As Bitmap
+        finalImg = New Bitmap(CoDPictureBox.Image, CoDPictureBox.Width, CoDPictureBox.Height)
+        CoDPictureBox.SizeMode = PictureBoxSizeMode.CenterImage
+        CoDPictureBox.Image = finalImg
     End Sub
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -761,50 +767,13 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         Dim rn As New Random
 
-        Try
-            If gamev = "UO" Or gamev Is Nothing Or gamev = "" Then
-                If File.Exists(cacheloc & "\cache5.cache") Then
-                    Dim iscorrupt As Double = corruptCheck(cacheloc & "\cache5.cache", 11846)
-                    If iscorrupt <= 11845 Or iscorrupt >= 11847 Then
-                        CoDPictureBox.Image = My.Resources.Loading
-                        CoDPictureBox.Load("https://i.imgur.com/2WRGvTd.png")
-                        File.Delete(cacheloc & "\cache5.cache")
-                        Cache("https://i.imgur.com/2WRGvTd.png", "cache5.cache")
-                    Else
-                        CoDPictureBox.Image = Image.FromFile(cacheloc & "\cache5.cache")
-                    End If
+        If gamev = "UO" Or gamev = "" Then
+            CoDPictureBox.Image = My.Resources.CoDUO
+        ElseIf gamev = "CoD1" Then
+            CoDPictureBox.Image = My.Resources.CoD1
+        End If
+        ScalePB()
 
-                Else
-                    CoDPictureBox.Load("https://i.imgur.com/2WRGvTd.png")
-                    Cache("https://i.imgur.com/2WRGvTd.png", "cache5.cache")
-                End If
-            Else
-                If File.Exists(cacheloc & "\cache6.cache") Then
-                    Dim iscorrupt As Double = corruptCheck(cacheloc & "\cache6.cache", 8606)
-                    If iscorrupt <= 8605 Or iscorrupt >= 8607 Then
-                        CoDPictureBox.Image = My.Resources.Loading
-                        CoDPictureBox.Load("https://i.imgur.com/xhBcQSp.png")
-                        File.Delete(cacheloc & "\cache6.cache")
-                        Cache("https://i.imgur.com/xhBcQSp.png", "cache6.cache")
-                    Else
-                        CoDPictureBox.Image = Image.FromFile(cacheloc & "\cache6.cache")
-                    End If
-
-                Else
-                    CoDPictureBox.Load("https://i.imgur.com/xhBcQSp.png")
-                    Cache("https://i.imgur.com/xhBcQSp.png", "cache6.cache")
-                End If
-            End If
-            Dim finalImg As Bitmap
-            finalImg = New Bitmap(CoDPictureBox.Image, CoDPictureBox.Width, CoDPictureBox.Height)
-            CoDPictureBox.SizeMode = PictureBoxSizeMode.CenterImage
-            CoDPictureBox.Image = finalImg
-        Catch ex As Exception
-            WriteError(ex.Message, ex.StackTrace)
-            MessageBox.Show("An error has occured while attempting to cache files, this could be a result of no write permissions or not having an internet connection: " & ex.Message & newline & " this should not prevent the program from otherwise running normally.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error)
-            CoDPictureBox.Image = My.Resources.Loading
-
-        End Try
 
         If File.Exists(temp & "\CoDUO FoV Changer Updater.exe") Then
             File.Delete(temp & "\CoDUO FoV Changer Updater.exe")
@@ -1429,21 +1398,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End Try
 
     End Sub
-
-    Private Sub Button9_Click_1(sender As Object, e As EventArgs)
-        Try
-            File.Delete(appdata & "CoDUO FoV Changer\settings.ini")
-            Log.WriteLine("Reset Config.")
-        Catch ex As Exception
-            WriteError(ex.Message, ex.StackTrace)
-            MsgBox("Unable to reset, you may have already reset it. Error: " & ex.Message, MsgBoxStyle.Information)
-
-            '
-
-
-        End Try
-    End Sub
-
     Private Sub Timer11_Tick(sender As Object, e As EventArgs) Handles FogTimer.Tick
         Try
             If FogCheckBox.Checked = True Then
@@ -1461,37 +1415,10 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         End Try
     End Sub
-
-    Private Sub Button11_Click_1(sender As Object, e As EventArgs)
-        SettingsForm.Show()
-        Log.WriteLine("Showing Settings Form")
-    End Sub
-
-    Private Sub Button5_Click_1(sender As Object, e As EventArgs)
-        Try
-            Process.Start("explorer.exe", appdata & "CoDUO FoV Changer\")
-        Catch ex As Exception
-            WriteError(ex.Message, ex.StackTrace)
-            MsgBox(ex.Message, MsgBoxStyle.Critical)
-
-            '
-
-
-        End Try
-    End Sub
-
-    Private Sub Button12_Click_1(sender As Object, e As EventArgs)
-        AdtSettingsForm.Show()
-    End Sub
-
     Private Sub Timer7_Tick(sender As Object, e As EventArgs) Handles FoVFixTimer.Tick
         If FoVNumeric.Text = "" Then
             FoVNumeric.Text = CStr(My.Settings.FoVFix) 'FoVFix will never be below 80 or empty.
         End If
-    End Sub
-
-    Private Sub Button13_Click(sender As Object, e As EventArgs)
-        Application.Restart()
     End Sub
 
     Private Sub Label5_Click(sender As Object, e As EventArgs) Handles CheckUpdatesLabel.Click
@@ -1552,16 +1479,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
     End Sub
 
-    Private Sub ToolStripMenuItem1_Click(sender As Object, e As EventArgs)
-        Visible = True
-        WindowState = FormWindowState.Normal
-        MinimizeIcon.Visible = False
-    End Sub
-
-    Private Sub ToolStripMenuItem2_Click(sender As Object, e As EventArgs)
-        Close()
-    End Sub
-
     Private Sub Timer5_Tick(sender As Object, e As EventArgs) Handles ABITWTimer.Tick
         If LaunchParametersTB.Text.Contains("wedontneedno") Then
             LaunchParametersLB.Location = New Point(0, 126)
@@ -1588,7 +1505,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
         End If
 
     End Sub
-    Private Sub CheckBox3_CheckedChanged(sender As Object, e As EventArgs) Handles CoD1CheckBox.CheckedChanged
+    Private Sub ToggleUO()
         Try
             If CoD1CheckBox.Checked = True Then
                 ini.WriteValue("Main", "Game", "CoD1")
@@ -1599,22 +1516,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 FogCheckBox.Enabled = False
                 FogCheckBox.Text = "Fog (UO only!)"
                 Text = "CoDUO FoV Changer (in CoD1 Mode)"
-                '  Me.Width = 637
-                If File.Exists(cacheloc & "\cache6.cache") Then
-                    Dim iscorrupt As Integer = CInt(corruptCheck(cacheloc & "\cache6.cache", 8606))
-                    If iscorrupt <= 8605 Or iscorrupt >= 8607 Then
-                        CoDPictureBox.Image = My.Resources.Loading
-                        CoDPictureBox.Load("https://i.imgur.com/xhBcQSp.png")
-                        File.Delete(cacheloc & "\cache6.cache")
-                        Cache("https://i.imgur.com/xhBcQSp.png", "cache6.cache")
-                    Else
-                        CoDPictureBox.Image = Image.FromFile(cacheloc & "\cache6.cache")
-                    End If
-
-                Else
-                    CoDPictureBox.Load("https://i.imgur.com/xhBcQSp.png")
-                    Cache("https://i.imgur.com/xhBcQSp.png", "cache6.cache")
-                End If
+                CoDPictureBox.Image = My.Resources.CoD1
             Else
                 ini.WriteValue("Main", "Game", "UO")
                 DvarsCheckBox.Text = "Unlock All Dvars"
@@ -1622,31 +1524,16 @@ My.Computer.FileSystem.GetFileInfo(filename)
                 FogCheckBox.Enabled = True
                 FogCheckBox.Text = "Fog"
                 Text = "CoDUO FoV Changer"
-                'Me.Width = 624
-                If File.Exists(cacheloc & "\cache5.cache") Then
-                    Dim iscorrupt As Integer = CInt(corruptCheck(cacheloc & "\cache5.cache", 11846))
-                    If iscorrupt <= 11845 Or iscorrupt >= 11847 Then
-                        CoDPictureBox.Image = My.Resources.Loading
-                        CoDPictureBox.Load("https://i.imgur.com/2WRGvTd.png")
-                        File.Delete(cacheloc & "\cache5.cache")
-                        Cache("https://i.imgur.com/2WRGvTd.png", "cache5.cache")
-                    Else
-                        CoDPictureBox.Image = Image.FromFile(cacheloc & "\cache5.cache")
-                    End If
-
-                Else
-                    CoDPictureBox.Load("https://i.imgur.com/2WRGvTd.png")
-                    Cache("https://i.imgur.com/2WRGvTd.png", "cache5.cache")
-                End If
+                CoDPictureBox.Image = My.Resources.CoDUO
             End If
-            Dim finalImg As Bitmap
-            finalImg = New Bitmap(CoDPictureBox.Image, CoDPictureBox.Width, CoDPictureBox.Height)
-            CoDPictureBox.SizeMode = PictureBoxSizeMode.CenterImage
-            CoDPictureBox.Image = finalImg
+            ScalePB()
         Catch ex As Exception
-            MessageBox.Show("An error has occurred while attempting to cache/load image files: " & newline & ex.Message, appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("An error has occurred while attempting to load image files: " & newline & ex.Message, appnamevers, MessageBoxButtons.OK, MessageBoxIcon.Error)
             WriteError(ex.Message, ex.StackTrace)
         End Try
+    End Sub
+    Private Sub CheckBox3_CheckedChanged(sender As Object, e As EventArgs) Handles CoD1CheckBox.CheckedChanged
+        ToggleUO()
     End Sub
 
     Private Sub CheckBox4_CheckedChanged(sender As Object, e As EventArgs) Handles DvarsCheckBox.CheckedChanged
@@ -1688,20 +1575,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
     Private Sub ExitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExitToolStripMenuItem.Click
         Application.Exit()
     End Sub
-
-    Private Sub AdvancedSettingsToolStripMenuItem_Click(sender As Object, e As EventArgs)
-        AdtSettingsForm.Show()
-        iscontext = True
-    End Sub
-
-    Private Sub Timer2_Tick(sender As Object, e As EventArgs)
-        If checkupdates() = True Then
-            ' SettingsButton.Enabled = True
-        Else
-            '  SettingsButton.Enabled = False
-        End If
-    End Sub
-
 
     Private Sub Timer9_Tick(sender As Object, e As EventArgs) Handles DvarUnlockerTimer.Tick
         If DvarsCheckBox.Checked = True Then
@@ -1762,30 +1635,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         ini.WriteValue("Main", "LastComboBoxFoV", FoVNumeric.Text)
 
-    End Sub
-
-    Private Sub Button1_Click(sender As Object, e As EventArgs)
-        If Not HackyFoVComboBox.Items.Contains(FoVNumeric.Text) Then
-            HackyFoVComboBox.Items.Add(FoVNumeric.Text)
-            HackyFoVComboBox.SelectedItem = FoVNumeric.Text
-        End If
-    End Sub
-
-    Private Sub Button2_Click(sender As Object, e As EventArgs)
-        If Not HackyFoVComboBox.SelectedIndex < 0 Then
-            Dim replace As String
-            replace = fovbox.Replace(HackyFoVComboBox.SelectedItem.ToString & ",", "")
-            HackyFoVComboBox.Items.Remove(HackyFoVComboBox.SelectedItem)
-            HackyFoVComboBox.Text = ""
-            ini.WriteValue("Main", "ComboBoxFoV", replace)
-        End If
-        If Not HackyFoVComboBox.Items.Count <= 0 Then
-            HackyFoVComboBox.SelectedIndex = 0
-        End If
-    End Sub
-
-    Private Sub Button4_Click(sender As Object, e As EventArgs)
-        ChangeHotKeyForm.Show()
     End Sub
 
     Private Sub ChangelogToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ChangelogToolStripMenuItem.Click

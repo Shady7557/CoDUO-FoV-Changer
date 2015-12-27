@@ -61,6 +61,26 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CoD1() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CoD1", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CoDUO() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CoDUO", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
         Friend ReadOnly Property CoDUO_FoV_Changer_Updater_CSharp() As Byte()

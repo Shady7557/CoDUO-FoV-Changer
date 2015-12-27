@@ -65,42 +65,47 @@ Public Class SettingsForm
     End Sub
 
     Private Sub showkey()
-        Dim keyfind As String
-        If Not cacheKey = "" Then
+        Try
+            Dim keyfind As String
+            If Not cacheKey = "" Then
+                If CDKeyLabel.Text.Contains("Hidden") Then
+                    CDKeyLabel.Text = "CD-Key: " & cacheKey & " (Click to hide)"
+                    Width = 215
+                Else
+                    CDKeyLabel.Text = "CD-Key: Hidden (Click to show)"
+                    Width = defWidth
+                End If
+                Return
+            End If
+
+            If MainFoV.ostype = "64" Then
+                keyfind = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Key", "CD-Key not found!"))
+            Else
+                keyfind = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "Key", "CD-Key not found!"))
+            End If
+
             If CDKeyLabel.Text.Contains("Hidden") Then
-                CDKeyLabel.Text = "CD-Key: " & cacheKey & " (Click to hide)"
-                Width = 215
+                CDKeyLabel.Text = "CD-Key: " & keyfind & " (Click to hide)"
             Else
                 CDKeyLabel.Text = "CD-Key: Hidden (Click to show)"
-                Width = defWidth
             End If
-            Return
-        End If
-        If MainFoV.ostype = "64" Then
-            keyfind = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Key", "CD-Key not found!"))
-        Else
-            keyfind = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "Key", "CD-Key not found!"))
-        End If
-
-        If CDKeyLabel.Text.Contains("Hidden") Then
-            CDKeyLabel.Text = "CD-Key: " & keyfind & " (Click to hide)"
-        Else
-            CDKeyLabel.Text = "CD-Key: Hidden (Click to show)"
-        End If
 
 
-        If CDKeyLabel.Text = "0" Then
-            CDKeyLabel.Text = "No CD-Key found."
-        End If
+            If CDKeyLabel.Text = "0" Then
+                CDKeyLabel.Text = "No CD-Key found."
+            End If
 
-        If CDKeyLabel.Text.Contains("Hidden") Then
-            Width = defWidth
-        Else
-            Width = 215
-        End If
+            If CDKeyLabel.Text.Contains("Hidden") Then
+                Width = defWidth
+            Else
+                Width = 215
+            End If
 
-        cacheKey = keyfind
-
+            cacheKey = keyfind
+        Catch ex As Exception
+            MainFoV.WriteError(ex.Message, ex.StackTrace)
+            MessageBox.Show("Error: " & ex.Message & Environment.NewLine & "  check the log for more info!", "CoDUO FoV Changer", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
 
     End Sub
 
@@ -126,12 +131,17 @@ Public Class SettingsForm
         AppBranchLabel.Text = MainFoV.HackyAppBranchLB.Text 'Sets the label's text to contain the application branch.
         Dim testString As String = "Application Version: " & Application.ProductVersion
         AppVersLabel.Text = testString
-        Dim keyfind As String
-        If MainFoV.ostype = "64" Then
-            keyfind = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Key", "0")) 'Searches for CD-keys.
-        Else
-            keyfind = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "Key", "0")) 'Searches for CD-keys.
-        End If
+        Dim keyfind As String = ""
+        Try
+            If MainFoV.ostype = "64" Then
+                keyfind = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive", "Key", "0")) 'Searches for CD-keys.
+            Else
+                keyfind = CStr(My.Computer.Registry.GetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive", "Key", "0")) 'Searches for CD-keys.
+            End If
+        Catch ex As Exception
+            MainFoV.WriteError(ex.Message, ex.StackTrace)
+            MessageBox.Show("Error: " & ex.Message & Environment.NewLine & "  check the log for more info!", "CoDUO FoV Changer", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
 
         CDKeyLabel.Text = "CD-Key: " & keyfind & " (Click to hide)"
 
