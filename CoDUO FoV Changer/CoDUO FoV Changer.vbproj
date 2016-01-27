@@ -196,7 +196,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationEvents.vb" />
-    <Compile Include="AudioClass.vb" />
     <Compile Include="FoVHotKeyForm.Designer.vb">
       <DependentUpon>FoVHotKeyForm.vb</DependentUpon>
     </Compile>
@@ -298,7 +297,6 @@
     <None Include="Resources\CoD1.png" />
     <None Include="Resources\CoDUO.png" />
     <None Include="Resources\CoDUO FoV Changer Updater CSharp.exe" />
-    <None Include="packages.config" />
     <None Include="bin\Release\4.5.1.txt" />
     <Content Include="cod.ico" />
   </ItemGroup>

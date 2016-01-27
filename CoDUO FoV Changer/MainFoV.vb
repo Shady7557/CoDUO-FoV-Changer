@@ -548,7 +548,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
             ostype = "86"
         End If
 
-
+        ' Log.Settings.
 
 
 
@@ -593,9 +593,14 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         Try
             If Not nolog = True Then
-                Log.EnableBuffer = False
+                ' Log.EnableBuffer = False
                 logname = appdata & "CoDUO FoV Changer\Logs\CFC_" & DateAndTime.Now.Month & "_" & DateAndTime.Now.Day & "_" & DateAndTime.Now.Hour & "_" & DateAndTime.Now.Minute & "_" & DateAndTime.Now.Second & "_" & DateAndTime.Now.Year & "_" & DateAndTime.Now.Millisecond & ".log"
-                Log.AttachLogFile(logname, False, 1)
+                ' Log.AttachLogFile(logname, False, 1)
+                ' Log.Settings.PerformanceOptions.
+                Log.Settings.CustomLogHeader = "CoDUO FoV Changer Log File - " + DateTime.Now.ToLongDateString
+                Log.Settings.PerformanceOptions = Log.Performance.StandardPerformance
+                Log.Settings.LogHeaderOptions = Log.LogHeader.CustomHeader
+                Log.InitializeLogger(logname)
                 '     Log.WriteLine("This is a dev-mode log, it will not be deleted upon next startup.")
                 ini.WriteValue("Logging", "LastLogName", logname)
             End If
@@ -764,8 +769,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
         If Not Directory.Exists(cacheloc) Then
             Directory.CreateDirectory(cacheloc)
         End If
-
-        Dim rn As New Random
 
         If gamev = "UO" Or gamev = "" Then
             CoDPictureBox.Image = My.Resources.CoDUO
@@ -1140,17 +1143,6 @@ My.Computer.FileSystem.GetFileInfo(filename)
             End If
 
         End If
-
-
-        Try
-            If isEmailing = False Then
-                '   Dim copy = Module1.location & "- copy"
-
-                '  System.IO.File.Delete(copy)
-            End If
-        Catch ex As Exception
-            WriteError(ex.Message, ex.StackTrace)
-        End Try
 
         If File.Exists(lastlogname & " - copy 1") Then
             File.Delete(lastlogname & " - copy 1")
@@ -1596,7 +1588,7 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
     Private Sub InfoToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles InfoToolStripMenuItem.Click
         MessageBox.Show("Hi, thanks for using my FoV Changer for Call of Duty and Call of Duty United Offensive. This is how to use it properly: " & newline & newline & "1. Start your game and type: r_mode -1 (yes, that's minus 1), r_customwidth " & CStr(My.Computer.Screen.Bounds.Width) & " (your monitor's estimated width), r_customheight " & CStr(My.Computer.Screen.Bounds.Height) & " (your monitor's estimated height)" & newline & newline & "2. Join a server and tab out, or use numpad + and numpad - to adjust your field of view to your liking." & newline & newline & "3. Enjoy playing UO at your monitor's native resolution, with proper Field of View." & newline & newline & "Program developed by:" & newline & "Shady, with the help of CurtDog's logging module, ""CurtLog"".", Application.ProductName & " (" & Application.ProductVersion & ")", MessageBoxButtons.OK, MessageBoxIcon.Information)
-        '  MessageBox.Show("Here's some general information on the program: " & Environment.NewLine & Environment.NewLine & "• All config settings and logs are stored in " & appdata & "CoDUO FoV Changer")
+        MessageBox.Show("Here's some general information on the program: " & Environment.NewLine & Environment.NewLine & "• All config settings and logs are stored in " & appdata & "CoDUO FoV Changer")
     End Sub
     Private Sub ComboBox2_SelectedIndexChanged(sender As Object, e As EventArgs) Handles HackyFoVComboBox.SelectedIndexChanged
         Dim itemlist1 As Integer = 0

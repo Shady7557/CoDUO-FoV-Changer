@@ -84,7 +84,7 @@
                 If p.ProcessName.Contains("CoD") Then
                     '     ListBox1.Items.Add(p.ProcessName & ".exe" & " (" & CStr(p.Id) & ")")
                     If p.Id = ProcessID1 Then
-                        processnamee = p.ProcessName & " (" & CStr(p.Id) & ")"
+                        processnamee = p.ProcessName & " (" & p.Id & ")"
                     End If
                 End If
             Next

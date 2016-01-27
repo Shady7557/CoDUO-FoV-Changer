@@ -3,9 +3,9 @@ Imports System.IO
 Imports CurtLog
 
 Public Class AdtSettingsForm
-    Public userpth As String = System.Environment.GetEnvironmentVariable("userprofile")
-    Public appdata As String = System.Environment.GetEnvironmentVariable("appdata") & "\"
-    Dim ini As New IniFile(appdata & "CoDUO FoV Changer\settings.ini")
+    Public Userpth As String = System.Environment.GetEnvironmentVariable("userprofile")
+    Public Appdata As String = System.Environment.GetEnvironmentVariable("appdata") & "\"
+    Dim ini As New IniFile(Appdata & "CoDUO FoV Changer\settings.ini")
     Dim firstrunini As String = ini.ReadValue("Extras", "FirstRun")
     Dim disableupdatetimerini As String = ini.ReadValue("Tweaks", "DisableUpdateTimer")
     Dim saveapplocini As String = ini.ReadValue("Extras", "SaveAppLocation")
@@ -15,7 +15,6 @@ Public Class AdtSettingsForm
     Dim conf As System.Threading.Thread
     Dim search As System.Threading.Thread
     Dim foundUO As Boolean = False
-    Dim uoDirS As String
     '   Public iscontext As Boolean = False
     Private Sub Form5_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         '  MessageBox.Show(SettingsForm.StyleCBox.SelectedItem.ToString)
@@ -111,40 +110,6 @@ Public Class AdtSettingsForm
 
     Private Sub Button4_Click(sender As Object, e As EventArgs) Handles OpenConfigButton.Click
         Process.Start(appdata & "CoDUO FoV Changer")
-    End Sub
-    Private Sub AccessLabel()
-        Try
-            If InvokeRequired Then
-                Invoke(New MethodInvoker(AddressOf AccessLabel))
-            Else
-
-                If foundUO = False Then
-                    TextBox1.Text = "not found"
-                Else
-                    TextBox1.Text = uoDirS
-                    Dim yesno = MessageBox.Show(uoDirS & " Found! Does this directory look correct? If you press no, we will continue to search.", Application.ProductName, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information)
-                    If yesno = MsgBoxResult.Yes Then
-                        MessageBox.Show("HOLY SHIT")
-                    End If
-                End If
-            End If
-        Catch ex As Exception
-            MsgBox("A critical error has occured: " & ex.Message, MsgBoxStyle.Critical)
-        End Try
-    End Sub
-
-    Private Sub Button2_Click_1(sender As Object, e As EventArgs) Handles Button2.Click
-        If Not Debugger.IsAttached = True Then
-            MessageBox.Show("debugger not attached, returning...")
-            Return
-        End If
-    End Sub
-
-    Private Sub CheckBox5_CheckedChanged(sender As Object, e As EventArgs)
-        If Not Debugger.IsAttached = True Then
-            MessageBox.Show("debugger not attached, returning...")
-            Return
-        End If
     End Sub
 
     Private Sub GameTimeCheckbox_CheckedChanged(sender As Object, e As EventArgs) Handles GameTimeCheckbox.CheckedChanged

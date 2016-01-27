@@ -109,6 +109,16 @@ Public Class SettingsForm
 
     End Sub
 
+    Private Sub HotKeyHandlerr(sender As Object, e As EventArgs) Handles HotKeyHandler.Tick
+        Dim hotkey3 As Boolean
+        hotkey3 = CBool(GetAsyncKeyState(Keys.Escape))
+        If hotkey3 = True Then
+            Hide()
+        End If
+
+
+    End Sub
+
     Private Sub Form3_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If stylet = "Default" Then
             StyleCBox.SelectedItem = "Default"

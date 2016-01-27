@@ -43,6 +43,7 @@ Partial Class SettingsForm
         Me.ButtonBrowseGameFiles = New System.Windows.Forms.Button()
         Me.ButtonSelectGamePID = New System.Windows.Forms.Button()
         Me.SetupKeysButton = New System.Windows.Forms.Button()
+        Me.HotKeyHandler = New System.Windows.Forms.Timer(Me.components)
         Me.SuspendLayout()
         '
         'GamePathButton
@@ -224,11 +225,16 @@ Partial Class SettingsForm
         Me.ToolTipHandler.SetToolTip(Me.SetupKeysButton, "Setup hotkeys to quickly change your fov between presets")
         Me.SetupKeysButton.UseVisualStyleBackColor = True
         '
+        'HotKeyHandler
+        '
+        Me.HotKeyHandler.Enabled = True
+        Me.HotKeyHandler.Interval = 150
+        '
         'SettingsForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(187, 328)
+        Me.ClientSize = New System.Drawing.Size(196, 324)
         Me.ControlBox = False
         Me.Controls.Add(Me.SetupKeysButton)
         Me.Controls.Add(Me.ButtonSelectGamePID)
@@ -276,4 +282,5 @@ Partial Class SettingsForm
     Friend WithEvents ButtonBrowseGameFiles As System.Windows.Forms.Button
     Friend WithEvents ButtonSelectGamePID As System.Windows.Forms.Button
     Friend WithEvents SetupKeysButton As System.Windows.Forms.Button
+    Friend WithEvents HotKeyHandler As Timer
 End Class
