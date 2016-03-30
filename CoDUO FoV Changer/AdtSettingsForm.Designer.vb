@@ -36,8 +36,8 @@ Partial Class AdtSettingsForm
         Me.ClearCacheButton = New System.Windows.Forms.Button()
         Me.DTKLLabel = New System.Windows.Forms.Label()
         Me.DTKLUD = New System.Windows.Forms.NumericUpDown()
-        CType(Me.DTKLUD, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.SuspendLayout()
+        CType(Me.DTKLUD,System.ComponentModel.ISupportInitialize).BeginInit
+        Me.SuspendLayout
         '
         'SaveRestartAppButton
         '
@@ -46,30 +46,30 @@ Partial Class AdtSettingsForm
         Me.SaveRestartAppButton.Size = New System.Drawing.Size(128, 23)
         Me.SaveRestartAppButton.TabIndex = 0
         Me.SaveRestartAppButton.Text = "Save And Restart"
-        Me.SaveRestartAppButton.UseVisualStyleBackColor = True
+        Me.SaveRestartAppButton.UseVisualStyleBackColor = true
         '
         'FirstRunCheckBox
         '
-        Me.FirstRunCheckBox.AutoSize = True
+        Me.FirstRunCheckBox.AutoSize = true
         Me.FirstRunCheckBox.Location = New System.Drawing.Point(12, 12)
         Me.FirstRunCheckBox.Name = "FirstRunCheckBox"
         Me.FirstRunCheckBox.Size = New System.Drawing.Size(68, 17)
         Me.FirstRunCheckBox.TabIndex = 3
         Me.FirstRunCheckBox.Text = "First Run"
-        Me.ToolTipHandler.SetToolTip(Me.FirstRunCheckBox, "Tell the program to act as if the user has never ran" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "this program before.")
-        Me.FirstRunCheckBox.UseVisualStyleBackColor = True
+        Me.ToolTipHandler.SetToolTip(Me.FirstRunCheckBox, "Tell the program to act as if the user has never ran"&Global.Microsoft.VisualBasic.ChrW(13)&Global.Microsoft.VisualBasic.ChrW(10)&"this program before.")
+        Me.FirstRunCheckBox.UseVisualStyleBackColor = true
         '
         'DisableUpdateTimerCheck
         '
-        Me.DisableUpdateTimerCheck.AutoSize = True
+        Me.DisableUpdateTimerCheck.AutoSize = true
         Me.DisableUpdateTimerCheck.Location = New System.Drawing.Point(12, 35)
         Me.DisableUpdateTimerCheck.Name = "DisableUpdateTimerCheck"
         Me.DisableUpdateTimerCheck.Size = New System.Drawing.Size(128, 17)
         Me.DisableUpdateTimerCheck.TabIndex = 4
         Me.DisableUpdateTimerCheck.Text = "Disable Update Timer"
-        Me.ToolTipHandler.SetToolTip(Me.DisableUpdateTimerCheck, "Disables periodically checking for updates every few minutes " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "while the program " &
+        Me.ToolTipHandler.SetToolTip(Me.DisableUpdateTimerCheck, "Disables periodically checking for updates every few minutes "&Global.Microsoft.VisualBasic.ChrW(13)&Global.Microsoft.VisualBasic.ChrW(10)&"while the program "& _ 
         "is running.")
-        Me.DisableUpdateTimerCheck.UseVisualStyleBackColor = True
+        Me.DisableUpdateTimerCheck.UseVisualStyleBackColor = true
         '
         'CancelCloseButton
         '
@@ -78,7 +78,7 @@ Partial Class AdtSettingsForm
         Me.CancelCloseButton.Size = New System.Drawing.Size(128, 22)
         Me.CancelCloseButton.TabIndex = 11
         Me.CancelCloseButton.Text = "Cancel"
-        Me.CancelCloseButton.UseVisualStyleBackColor = True
+        Me.CancelCloseButton.UseVisualStyleBackColor = true
         '
         'OpenConfigButton
         '
@@ -87,7 +87,7 @@ Partial Class AdtSettingsForm
         Me.OpenConfigButton.Size = New System.Drawing.Size(128, 23)
         Me.OpenConfigButton.TabIndex = 12
         Me.OpenConfigButton.Text = "Open Config"
-        Me.OpenConfigButton.UseVisualStyleBackColor = True
+        Me.OpenConfigButton.UseVisualStyleBackColor = true
         '
         'Button2
         '
@@ -96,37 +96,37 @@ Partial Class AdtSettingsForm
         Me.Button2.Size = New System.Drawing.Size(154, 34)
         Me.Button2.TabIndex = 14
         Me.Button2.Text = "Search for UO (Potentially Lengthy)"
-        Me.Button2.UseVisualStyleBackColor = True
+        Me.Button2.UseVisualStyleBackColor = true
         '
         'TextBox1
         '
         Me.TextBox1.Location = New System.Drawing.Point(222, 191)
-        Me.TextBox1.Multiline = True
+        Me.TextBox1.Multiline = true
         Me.TextBox1.Name = "TextBox1"
         Me.TextBox1.Size = New System.Drawing.Size(142, 81)
         Me.TextBox1.TabIndex = 15
         '
         'SaveWindowPosCBox
         '
-        Me.SaveWindowPosCBox.AutoSize = True
+        Me.SaveWindowPosCBox.AutoSize = true
         Me.SaveWindowPosCBox.Location = New System.Drawing.Point(12, 58)
         Me.SaveWindowPosCBox.Name = "SaveWindowPosCBox"
         Me.SaveWindowPosCBox.Size = New System.Drawing.Size(117, 17)
         Me.SaveWindowPosCBox.TabIndex = 16
         Me.SaveWindowPosCBox.Text = "Save App Location"
         Me.ToolTipHandler.SetToolTip(Me.SaveWindowPosCBox, "Saves the program's last X and Y location")
-        Me.SaveWindowPosCBox.UseVisualStyleBackColor = True
+        Me.SaveWindowPosCBox.UseVisualStyleBackColor = true
         '
         'GameTimeCheckbox
         '
-        Me.GameTimeCheckbox.AutoSize = True
+        Me.GameTimeCheckbox.AutoSize = true
         Me.GameTimeCheckbox.Location = New System.Drawing.Point(12, 81)
         Me.GameTimeCheckbox.Name = "GameTimeCheckbox"
         Me.GameTimeCheckbox.Size = New System.Drawing.Size(123, 17)
         Me.GameTimeCheckbox.TabIndex = 17
         Me.GameTimeCheckbox.Text = "Track In-Game Time"
         Me.ToolTipHandler.SetToolTip(Me.GameTimeCheckbox, "Saves the program's last X and Y location")
-        Me.GameTimeCheckbox.UseVisualStyleBackColor = True
+        Me.GameTimeCheckbox.UseVisualStyleBackColor = true
         '
         'ClearCacheButton
         '
@@ -135,11 +135,11 @@ Partial Class AdtSettingsForm
         Me.ClearCacheButton.Size = New System.Drawing.Size(128, 23)
         Me.ClearCacheButton.TabIndex = 18
         Me.ClearCacheButton.Text = "Clear Cache"
-        Me.ClearCacheButton.UseVisualStyleBackColor = True
+        Me.ClearCacheButton.UseVisualStyleBackColor = true
         '
         'DTKLLabel
         '
-        Me.DTKLLabel.AutoSize = True
+        Me.DTKLLabel.AutoSize = true
         Me.DTKLLabel.Location = New System.Drawing.Point(9, 101)
         Me.DTKLLabel.Name = "DTKLLabel"
         Me.DTKLLabel.Size = New System.Drawing.Size(100, 13)
@@ -158,10 +158,10 @@ Partial Class AdtSettingsForm
         '
         'AdtSettingsForm
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(6!, 13!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(159, 235)
-        Me.ControlBox = False
+        Me.ClientSize = New System.Drawing.Size(163, 239)
+        Me.ControlBox = false
         Me.Controls.Add(Me.DTKLUD)
         Me.Controls.Add(Me.DTKLLabel)
         Me.Controls.Add(Me.ClearCacheButton)
@@ -176,13 +176,13 @@ Partial Class AdtSettingsForm
         Me.Controls.Add(Me.SaveRestartAppButton)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Name = "AdtSettingsForm"
-        Me.ShowIcon = False
+        Me.ShowIcon = false
         Me.Text = "Additional Settings"
-        CType(Me.DTKLUD, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.ResumeLayout(False)
-        Me.PerformLayout()
+        CType(Me.DTKLUD,System.ComponentModel.ISupportInitialize).EndInit
+        Me.ResumeLayout(false)
+        Me.PerformLayout
 
-    End Sub
+End Sub
     Friend WithEvents SaveRestartAppButton As System.Windows.Forms.Button
     Friend WithEvents FirstRunCheckBox As System.Windows.Forms.CheckBox
     Friend WithEvents DisableUpdateTimerCheck As System.Windows.Forms.CheckBox

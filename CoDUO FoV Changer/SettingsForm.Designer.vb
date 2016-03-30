@@ -44,7 +44,7 @@ Partial Class SettingsForm
         Me.ButtonSelectGamePID = New System.Windows.Forms.Button()
         Me.SetupKeysButton = New System.Windows.Forms.Button()
         Me.HotKeyHandler = New System.Windows.Forms.Timer(Me.components)
-        Me.SuspendLayout()
+        Me.SuspendLayout
         '
         'GamePathButton
         '
@@ -54,16 +54,16 @@ Partial Class SettingsForm
         Me.GamePathButton.TabIndex = 0
         Me.GamePathButton.Text = "Change Game Path"
         Me.ToolTipHandler.SetToolTip(Me.GamePathButton, "Change your game's install location, as according to the FoV Changer.")
-        Me.GamePathButton.UseVisualStyleBackColor = True
+        Me.GamePathButton.UseVisualStyleBackColor = true
         '
         'TextBox1
         '
         Me.TextBox1.Location = New System.Drawing.Point(651, 259)
         Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.ReadOnly = True
+        Me.TextBox1.ReadOnly = true
         Me.TextBox1.Size = New System.Drawing.Size(149, 20)
         Me.TextBox1.TabIndex = 1
-        Me.TextBox1.Visible = False
+        Me.TextBox1.Visible = false
         '
         'CloseSettingsButton
         '
@@ -72,15 +72,15 @@ Partial Class SettingsForm
         Me.CloseSettingsButton.Size = New System.Drawing.Size(173, 23)
         Me.CloseSettingsButton.TabIndex = 2
         Me.CloseSettingsButton.Text = "Close"
-        Me.CloseSettingsButton.UseVisualStyleBackColor = True
+        Me.CloseSettingsButton.UseVisualStyleBackColor = true
         '
         'TextBox5
         '
         Me.TextBox5.Location = New System.Drawing.Point(666, 167)
         Me.TextBox5.MaxLength = 50
-        Me.TextBox5.Multiline = True
+        Me.TextBox5.Multiline = true
         Me.TextBox5.Name = "TextBox5"
-        Me.TextBox5.ReadOnly = True
+        Me.TextBox5.ReadOnly = true
         Me.TextBox5.Size = New System.Drawing.Size(95, 16)
         Me.TextBox5.TabIndex = 10
         '
@@ -88,16 +88,16 @@ Partial Class SettingsForm
         '
         Me.TextBox6.Location = New System.Drawing.Point(666, 237)
         Me.TextBox6.MaxLength = 50
-        Me.TextBox6.Multiline = True
+        Me.TextBox6.Multiline = true
         Me.TextBox6.Name = "TextBox6"
-        Me.TextBox6.ReadOnly = True
+        Me.TextBox6.ReadOnly = true
         Me.TextBox6.Size = New System.Drawing.Size(95, 16)
         Me.TextBox6.TabIndex = 13
         '
         'InformationLabel
         '
-        Me.InformationLabel.AutoSize = True
-        Me.InformationLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.InformationLabel.AutoSize = true
+        Me.InformationLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 9!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0,Byte))
         Me.InformationLabel.Location = New System.Drawing.Point(12, 256)
         Me.InformationLabel.Name = "InformationLabel"
         Me.InformationLabel.Size = New System.Drawing.Size(152, 15)
@@ -106,8 +106,8 @@ Partial Class SettingsForm
         '
         'CustomizationLabel
         '
-        Me.CustomizationLabel.AutoSize = True
-        Me.CustomizationLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.CustomizationLabel.AutoSize = true
+        Me.CustomizationLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0,Byte))
         Me.CustomizationLabel.Location = New System.Drawing.Point(12, 210)
         Me.CustomizationLabel.Name = "CustomizationLabel"
         Me.CustomizationLabel.Size = New System.Drawing.Size(161, 16)
@@ -116,7 +116,7 @@ Partial Class SettingsForm
         '
         'StyleLabel
         '
-        Me.StyleLabel.AutoSize = True
+        Me.StyleLabel.AutoSize = true
         Me.StyleLabel.Location = New System.Drawing.Point(12, 235)
         Me.StyleLabel.Name = "StyleLabel"
         Me.StyleLabel.Size = New System.Drawing.Size(33, 13)
@@ -125,7 +125,7 @@ Partial Class SettingsForm
         '
         'StyleCBox
         '
-        Me.StyleCBox.FormattingEnabled = True
+        Me.StyleCBox.FormattingEnabled = true
         Me.StyleCBox.Items.AddRange(New Object() {"Default", "Light"})
         Me.StyleCBox.Location = New System.Drawing.Point(50, 232)
         Me.StyleCBox.Name = "StyleCBox"
@@ -134,7 +134,7 @@ Partial Class SettingsForm
         '
         'AppBranchLabel
         '
-        Me.AppBranchLabel.AutoSize = True
+        Me.AppBranchLabel.AutoSize = true
         Me.AppBranchLabel.BackColor = System.Drawing.Color.Transparent
         Me.AppBranchLabel.Location = New System.Drawing.Point(12, 271)
         Me.AppBranchLabel.Name = "AppBranchLabel"
@@ -144,7 +144,7 @@ Partial Class SettingsForm
         '
         'AppVersLabel
         '
-        Me.AppVersLabel.AutoSize = True
+        Me.AppVersLabel.AutoSize = true
         Me.AppVersLabel.BackColor = System.Drawing.Color.Transparent
         Me.AppVersLabel.Location = New System.Drawing.Point(12, 284)
         Me.AppVersLabel.Name = "AppVersLabel"
@@ -154,7 +154,7 @@ Partial Class SettingsForm
         '
         'GameVersLabel
         '
-        Me.GameVersLabel.AutoSize = True
+        Me.GameVersLabel.AutoSize = true
         Me.GameVersLabel.BackColor = System.Drawing.Color.Transparent
         Me.GameVersLabel.Location = New System.Drawing.Point(12, 297)
         Me.GameVersLabel.Name = "GameVersLabel"
@@ -164,7 +164,7 @@ Partial Class SettingsForm
         '
         'CDKeyLabel
         '
-        Me.CDKeyLabel.AutoSize = True
+        Me.CDKeyLabel.AutoSize = true
         Me.CDKeyLabel.BackColor = System.Drawing.Color.Transparent
         Me.CDKeyLabel.Location = New System.Drawing.Point(12, 310)
         Me.CDKeyLabel.Name = "CDKeyLabel"
@@ -180,7 +180,7 @@ Partial Class SettingsForm
         Me.ButtonSettingsAdvanced.TabIndex = 59
         Me.ButtonSettingsAdvanced.Text = "Additional Settings"
         Me.ToolTipHandler.SetToolTip(Me.ButtonSettingsAdvanced, "Config file settings, and other more advanced settings.")
-        Me.ButtonSettingsAdvanced.UseVisualStyleBackColor = True
+        Me.ButtonSettingsAdvanced.UseVisualStyleBackColor = true
         '
         'ToolTipHandler
         '
@@ -193,7 +193,7 @@ Partial Class SettingsForm
         Me.RestartAppButton.TabIndex = 63
         Me.RestartAppButton.Text = "Restart App"
         Me.ToolTipHandler.SetToolTip(Me.RestartAppButton, "Restart the program.")
-        Me.RestartAppButton.UseVisualStyleBackColor = True
+        Me.RestartAppButton.UseVisualStyleBackColor = true
         '
         'ButtonBrowseGameFiles
         '
@@ -203,7 +203,7 @@ Partial Class SettingsForm
         Me.ButtonBrowseGameFiles.TabIndex = 64
         Me.ButtonBrowseGameFiles.Text = "Browse Local Game Files"
         Me.ToolTipHandler.SetToolTip(Me.ButtonBrowseGameFiles, "Open an explorer window where CoD is installed.")
-        Me.ButtonBrowseGameFiles.UseVisualStyleBackColor = True
+        Me.ButtonBrowseGameFiles.UseVisualStyleBackColor = true
         '
         'ButtonSelectGamePID
         '
@@ -213,7 +213,7 @@ Partial Class SettingsForm
         Me.ButtonSelectGamePID.TabIndex = 65
         Me.ButtonSelectGamePID.Text = "Select Process ID"
         Me.ToolTipHandler.SetToolTip(Me.ButtonSelectGamePID, "Select the process for the FoV changer to write to.")
-        Me.ButtonSelectGamePID.UseVisualStyleBackColor = True
+        Me.ButtonSelectGamePID.UseVisualStyleBackColor = true
         '
         'SetupKeysButton
         '
@@ -223,19 +223,19 @@ Partial Class SettingsForm
         Me.SetupKeysButton.TabIndex = 66
         Me.SetupKeysButton.Text = "Setup FoV Hot Keys"
         Me.ToolTipHandler.SetToolTip(Me.SetupKeysButton, "Setup hotkeys to quickly change your fov between presets")
-        Me.SetupKeysButton.UseVisualStyleBackColor = True
+        Me.SetupKeysButton.UseVisualStyleBackColor = true
         '
         'HotKeyHandler
         '
-        Me.HotKeyHandler.Enabled = True
+        Me.HotKeyHandler.Enabled = true
         Me.HotKeyHandler.Interval = 150
         '
         'SettingsForm
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(6!, 13!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(196, 324)
-        Me.ControlBox = False
+        Me.ClientSize = New System.Drawing.Size(192, 332)
+        Me.ControlBox = false
         Me.Controls.Add(Me.SetupKeysButton)
         Me.Controls.Add(Me.ButtonSelectGamePID)
         Me.Controls.Add(Me.ButtonBrowseGameFiles)
@@ -256,12 +256,12 @@ Partial Class SettingsForm
         Me.Controls.Add(Me.GamePathButton)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Name = "SettingsForm"
-        Me.ShowIcon = False
+        Me.ShowIcon = false
         Me.Text = "Settings"
-        Me.ResumeLayout(False)
-        Me.PerformLayout()
+        Me.ResumeLayout(false)
+        Me.PerformLayout
 
-    End Sub
+End Sub
     Friend WithEvents GamePathButton As System.Windows.Forms.Button
     Friend WithEvents TextBox1 As System.Windows.Forms.TextBox
     Friend WithEvents SetGamePathDialog As System.Windows.Forms.FolderBrowserDialog

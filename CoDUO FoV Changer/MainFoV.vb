@@ -832,12 +832,12 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
         If fog = "Enabled" Then 'Checks if fog is enabled in the .ini
             FogCheckBox.Checked = True
-            WriteInteger(exename, &H98861C, 1)
+            WriteInteger(exename, &H98856C, 1)
             FogTimer.Stop()
             Log.WriteLine("Stopping Fog Timer, turning fog on, checking Fog CheckBox.")
         ElseIf fog = "Disabled" Then
             FogCheckBox.Checked = False
-            WriteInteger(exename, &H98861C, 0)
+            WriteInteger(exename, &H98856C, 0)
             FogTimer.Start()
             Log.WriteLine("Starting Fog Timer, turning fog off, unchecking Fog CheckBox")
         End If
@@ -1374,15 +1374,22 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles FogCheckBox.CheckedChanged
         Try
+            dim addr = &H98856C
             If FogCheckBox.Checked = True Then
                 FogTimer.Stop()
-                WriteInteger(exename, &H98861C, 1)
+                WriteInteger(exename, addr, 1)
                 ini.WriteValue("Extras", "Fog", "Enabled")
                 FogTimer.Stop()
-                WriteInteger(exename, &H98861C, 1)
+                if pid = 0 Then
+                    WriteInteger(exename, addr, 1)
+                    else
+                    writeintegerpid(pid, addr, 1)
+                End If
+                
+                
             Else
                 FogTimer.Start()
-                WriteInteger(exename, &H98861C, 0)
+                WriteInteger(exename, addr, 0)
                 ini.WriteValue("Extras", "Fog", "Disabled")
             End If
         Catch ex As Exception
@@ -1392,10 +1399,20 @@ My.Computer.FileSystem.GetFileInfo(filename)
     End Sub
     Private Sub Timer11_Tick(sender As Object, e As EventArgs) Handles FogTimer.Tick
         Try
+            dim addr = &H98856C
+            
             If FogCheckBox.Checked = True Then
-                WriteInteger(exename, &H98861C, 1)
+                if (pid = 0) then
+                WriteInteger(exename, addr, 1)
+                    else
+                    writeintegerpid(pid, addr, 1)
+                    end if
             Else
-                WriteInteger(exename, &H98861C, 0)
+                if (pid = 0) then
+                WriteInteger(exename, addr, 0)
+                    else
+                    WriteIntegerpid(pid, addr, 0)
+                    end if
             End If
         Catch ex As Exception
             FogTimer.Stop()
@@ -1530,13 +1547,25 @@ My.Computer.FileSystem.GetFileInfo(filename)
 
     Private Sub CheckBox4_CheckedChanged(sender As Object, e As EventArgs) Handles DvarsCheckBox.CheckedChanged
         If DvarsCheckBox.Checked = True Then
+            if pid = 0 then
             WriteInteger(exename, &H43DD86, 235, nsize:=1)
             WriteInteger(exename, &H43DDA3, 235, nsize:=1)
             WriteInteger(exename, &H43DDC1, 235, nsize:=1)
+                else
+                WriteIntegerpid(pid, &H43DD86, 235, nsize:=1)
+            WriteIntegerpid(pid, &H43DDA3, 235, nsize:=1)
+            WriteIntegerpid(pid, &H43DDC1, 235, nsize:=1)
+                end if
         Else
+            if pid = 0 then
             WriteInteger(exename, &H43DD86, 116, nsize:=1)
             WriteInteger(exename, &H43DDA3, 116, nsize:=1)
             WriteInteger(exename, &H43DDC1, 116, nsize:=1)
+                else
+                  WriteIntegerpid(pid, &H43DD86, 116, nsize:=1)
+            WriteIntegerpid(pid, &H43DDA3, 116, nsize:=1)
+            WriteIntegerpid(pid, &H43DDC1, 116, nsize:=1)
+                end if
         End If
     End Sub
 
