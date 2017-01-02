@@ -901,12 +901,12 @@ namespace CoDUO_FoV_Changer_CSharp
 
         private void ChangelogToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show((new NotImplementedException()).Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("This currently does nothing.");
         }
 
         private void InfoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show((new NotImplementedException()).Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("Created by Shady" + (Environment.NewLine + Environment.NewLine) + "This program is intended to allow you to change the Field of View in Multiplayer for both Call of Duty and Call of Duty: United Offensive, both of which do not normally allow you to do so." + (Environment.NewLine + Environment.NewLine) + "Program version: " + ProductVersion + " (HF: " + hotfix + ")" + Environment.NewLine + "Game version: " + GameVersion, ProductName + " (" + ProductVersion + ", HF " + hotfix + ")", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }
