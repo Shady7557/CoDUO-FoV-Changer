@@ -60,6 +60,7 @@
             this.GamePIDBox = new System.Windows.Forms.ComboBox();
             this.CoDPictureBox = new System.Windows.Forms.PictureBox();
             this.ProccessChecker = new System.Windows.Forms.Timer(this.components);
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.FoVNumeric)).BeginInit();
             this.FoVMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.CoDPictureBox)).BeginInit();
@@ -436,6 +437,7 @@
         internal System.Windows.Forms.Timer UpdateTimer;
         private System.Windows.Forms.ComboBox GamePIDBox;
         internal System.Windows.Forms.Timer ProccessChecker;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }
 

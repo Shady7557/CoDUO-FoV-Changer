@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using CurtLog;
 using System.Security.Principal;
 using System.Windows.Forms;
@@ -26,19 +23,19 @@ namespace CoDUO_FoV_Changer_CSharp
         public static string appdataFoV = appdata + "CoDUO FoV Changer";
         public static string logsPath = appdataFoV + @"\Logs";
         public static string settingsPath = appdataFoV + @"\settings.xml";
-        public static string hotfix = "7.0";
-        public static string ostype = "x64";
-        public static string registryPathX64 = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive";
-        public static string registryPathX86 = registryPathX64.Replace(@"Wow6432Node\", "");
+        public static readonly string hotfix = "7.0";
+        public static readonly string ostype = (Environment.Is64BitOperatingSystem) ? "x64" : "x86";
+        public static readonly string registryPathX64 = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive";
+        public static readonly string registryPathX86 = registryPathX64.Replace(@"Wow6432Node\", "");
         string gameRegistry = string.Empty;
-        public static string cleanVersion = Application.ProductVersion.Substring(0, 3);
+        public static readonly string cleanVersion = Application.ProductVersion.Substring(0, 3);
         public static bool isDev = Debugger.IsAttached;
-        public static bool isElevated = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
+        public static readonly bool isElevated = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
         public bool noLog = false;
         Settings settings = Settings.Instance;
         private Image CoDImage = Properties.Resources.CoD1;
         private Image CoDUOImage = Properties.Resources.CoDUO;
-        public static string cgameDll = "uo_cgame_mp_x86.dll";
+        public static readonly string cgameDll = "uo_cgame_mp_x86.dll";
         public static Point location;
         private int currentSessionTime;
         private ProcessMemory procMem;
@@ -107,14 +104,12 @@ namespace CoDUO_FoV_Changer_CSharp
         {
             var startTime = DateTime.Now;
             CheckForIllegalCrossThreadCalls = true;
-            if (!Environment.Is64BitOperatingSystem) ostype = "x86";
             var argsSB = new StringBuilder();
             for (int i = 0; i < Environment.GetCommandLineArgs().Length; i++)
             {
                 var argu = Environment.GetCommandLineArgs()[i];
                 var arg = argu.ToLower();
-                if (arg == Application.ProductName.ToLower() || arg.Contains(Application.ProductName.ToLower()) || arg.Contains(Application.StartupPath.ToLower())) continue;
-                //    MessageBox.Show(arg);
+                if (arg.Contains(Application.ProductName.ToLower()) || arg.Contains(Application.StartupPath.ToLower())) continue;
                 if (arg == "-nolog") noLog = true;
                 if (arg == "-unlock") DvarsCheckBox.Visible = true;
                 if (arg == "-unlock=1")
@@ -143,12 +138,6 @@ namespace CoDUO_FoV_Changer_CSharp
                 argsSB.Append(argu + " ");
             }
             var args = argsSB.ToString();
-            if (!isElevated && !isDev)
-            {
-                //  MessageBox.Show("This program must be run as an Administrator!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                //    Application.Exit();
-                //      return;
-            }
             DvarsCheckBox.Visible = false;
 
             StartUpdatesThread();
@@ -170,7 +159,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 initLogger.IsBackground = true;
                 initLogger.Start();
             }
-            args = args.TrimEnd();
+            args.TrimEnd();
             if (!string.IsNullOrEmpty(args)) WriteLog("Launched program with args: " + args);
 
             try
@@ -225,10 +214,7 @@ namespace CoDUO_FoV_Changer_CSharp
             UpdateProcessBox();
             var timeTaken = DateTime.Now - startTime;
             WriteLog("Successfully started application, version " + Application.ProductVersion + " (HF " + hotfix + ")");
-            if (timeTaken.TotalMilliseconds >= 400)
-            {
-                WriteLog("Startup took: " + timeTaken.TotalMilliseconds + " (this is too long!)");
-            }
+            if (timeTaken.TotalMilliseconds >= 400) WriteLog("Startup took: " + timeTaken.TotalMilliseconds + " (this is too long!)");
         }
 
         private void StartGame()
@@ -247,6 +233,7 @@ namespace CoDUO_FoV_Changer_CSharp
                         MessageBox.Show("Unable to find " + procName + " in: " + settings.InstallPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
+                
                     var startInfo = new ProcessStartInfo();
                     var startInfoSB = new StringBuilder();
                     startInfoSB.Append("+set r_ignorehwgamma 1 +set vid_xpos 0 +set vid_ypos 0 +set win_allowalttab 1");
@@ -270,12 +257,10 @@ namespace CoDUO_FoV_Changer_CSharp
             var startThread = new Thread(StartGame);
             startThread.IsBackground = true;
             startThread.Start();
-            //    currentSession = DateTime.Now.Ticks;
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            //     if (!isElevated) return; //don't execute closing code if not elevated because we're going to be closing immediately which will result in fucked up values
             if (LaunchParametersTB.Text != settings.CommandLine) settings.CommandLine = LaunchParametersTB.Text;
             if (settings.HasChanged) DatabaseFile.Write(settings, settingsPath);
         }
@@ -295,8 +280,6 @@ namespace CoDUO_FoV_Changer_CSharp
             }
             settings.Fog = FogCheckBox.Checked;
             doFog(Convert.ToInt32(FogCheckBox.Checked));
-            //   var addr = 0x98856C;
-            //  var addr2 = 0x9885F0;
         }
 
         private void CoD1CheckBox_CheckedChanged(object sender, EventArgs e)
@@ -358,10 +341,7 @@ namespace CoDUO_FoV_Changer_CSharp
             var now = DateTime.Now;
             var conv = now - lastHotkey;
             //we can be super responsive when someone is tapping +- while not accidentally moving it up or down twice by doing manual checks while having the timer at ~5-10ms
-            if (lastHotkey == null)
-            {
-                lastHotkey = now;
-            }
+            if (lastHotkey == null) lastHotkey = now;
             else if (conv.TotalMilliseconds < 100) return;
             var modifier = (Keys)0;
             var fogModifier = (Keys)0;
@@ -641,6 +621,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 if (procMem == null)
                 {
                     StatusLabel.Text = "Status: not found or failed to write to memory!";
+                    toolTip1.SetToolTip(StatusLabel, "Unable to write to memory, if this continues, try running this program as an Administrator.");
                     StatusLabel.ForeColor = Color.DarkRed;
                 }
                 else
@@ -650,6 +631,7 @@ namespace CoDUO_FoV_Changer_CSharp
                     if (!CoD1CheckBox.Checked) address = procMem.DllImageAddress(cgameDll) + 0x52F7C8;
                     procMem.WriteFloat(address, value);
                     StatusLabel.Text = "Status: Game found and wrote to memory!";
+                    toolTip1.SetToolTip(StatusLabel, string.Empty);
                     StatusLabel.ForeColor = Color.DarkGreen;
                 }
             }
@@ -702,10 +684,7 @@ namespace CoDUO_FoV_Changer_CSharp
 
         private void CheckUpdatesLabel_TextChanged(object sender, EventArgs e)
         {
-            if (CheckUpdatesLabel.Text == "Update available!")
-            {
-                UpdateButton.Visible = true;
-            }
+            if (CheckUpdatesLabel.Text == "Update available!") UpdateButton.Visible = true;
             else UpdateButton.Visible = isDev;
         }
 
@@ -901,12 +880,12 @@ namespace CoDUO_FoV_Changer_CSharp
 
         private void ChangelogToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("This currently does nothing.");
+            MessageBox.Show((new NotImplementedException()).Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void InfoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Created by Shady" + (Environment.NewLine + Environment.NewLine) + "This program is intended to allow you to change the Field of View in Multiplayer for both Call of Duty and Call of Duty: United Offensive, both of which do not normally allow you to do so." + (Environment.NewLine + Environment.NewLine) + "Program version: " + ProductVersion + " (HF: " + hotfix + ")" + Environment.NewLine + "Game version: " + GameVersion, ProductName + " (" + ProductVersion + ", HF " + hotfix + ")", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show((new NotImplementedException()).Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }
