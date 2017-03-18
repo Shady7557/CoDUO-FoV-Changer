@@ -198,6 +198,7 @@ namespace CoDUO_FoV_Changer_CSharp
             SetFoVNumeric(settings.FoV);
             MinimizeCheckBox.Checked = settings.MinimizeToTray;
             FogCheckBox.Checked = settings.Fog;
+            fogToolStripMenuItem.Checked = settings.Fog;
             if (CoD1CheckBox.Checked) ScalePictureBox(CoDPictureBox, CoDImage);
             else ScalePictureBox(CoDPictureBox, CoDUOImage);
             LaunchParametersTB.Text = settings.CommandLine;
@@ -567,7 +568,7 @@ namespace CoDUO_FoV_Changer_CSharp
         }
         #endregion
         #region Memory
-        private void doFog(int value = 1)
+        private void doFog(int value)
         {
             try
             {
@@ -600,7 +601,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 var aspectHeight = height / GCD(width, height);
                 var aspectStr = aspectWidth + ":" + aspectHeight;
                 if (aspectWidth == 8 && aspectHeight == 5) aspectStr = aspectStr.Replace("8", "16").Replace("5", "10");
-                if (ratio < 1.7 && mode == -1 || mode != -1) FoVNumeric.Maximum = 95;
+                if (ratio < 1.7 && mode == -1 || mode != -1) FoVNumeric.Maximum = 105;
                 else FoVNumeric.Maximum = 130;
                 SetFoVNumeric(FoVNumeric.Value); //will set it to the value if it can, if not, falls back on maximum
             }
@@ -886,6 +887,25 @@ namespace CoDUO_FoV_Changer_CSharp
         private void InfoToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show((new NotImplementedException()).Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Visible = true;
+            WindowState = FormWindowState.Normal;
+            MinimizeIcon.Visible = false;
+        }
+
+        private void exitToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void fogToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fogToolStripMenuItem.Checked = !fogToolStripMenuItem.Checked;
+            settings.Fog = fogToolStripMenuItem.Checked;
+            doFog(Convert.ToInt32(settings.Fog));
         }
     }
 }

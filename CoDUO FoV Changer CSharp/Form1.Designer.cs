@@ -61,9 +61,16 @@
             this.CoDPictureBox = new System.Windows.Forms.PictureBox();
             this.ProccessChecker = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.rcStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.settingsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.fogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.FoVNumeric)).BeginInit();
             this.FoVMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.CoDPictureBox)).BeginInit();
+            this.rcStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // StartGameButton
@@ -256,6 +263,7 @@
             // 
             // MinimizeIcon
             // 
+            this.MinimizeIcon.ContextMenuStrip = this.rcStrip;
             this.MinimizeIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("MinimizeIcon.Icon")));
             this.MinimizeIcon.Text = "CoDUO FoV Changer";
             this.MinimizeIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.MinimizeIcon_MouseDoubleClick);
@@ -364,6 +372,54 @@
             this.ProccessChecker.Interval = 1500;
             this.ProccessChecker.Tick += new System.EventHandler(this.ProccessChecker_Tick);
             // 
+            // rcStrip
+            // 
+            this.rcStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolsToolStripMenuItem,
+            this.fogToolStripMenuItem,
+            this.openToolStripMenuItem,
+            this.exitToolStripMenuItem1});
+            this.rcStrip.Name = "rcStrip";
+            this.rcStrip.Size = new System.Drawing.Size(153, 114);
+            this.rcStrip.Text = "test";
+            // 
+            // openToolStripMenuItem
+            // 
+            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.openToolStripMenuItem.Text = "Open";
+            this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+            // 
+            // exitToolStripMenuItem1
+            // 
+            this.exitToolStripMenuItem1.Name = "exitToolStripMenuItem1";
+            this.exitToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.exitToolStripMenuItem1.Text = "Exit";
+            this.exitToolStripMenuItem1.Click += new System.EventHandler(this.exitToolStripMenuItem1_Click);
+            // 
+            // toolsToolStripMenuItem
+            // 
+            this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.settingsToolStripMenuItem1});
+            this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.toolsToolStripMenuItem.Text = "Tools";
+            // 
+            // settingsToolStripMenuItem1
+            // 
+            this.settingsToolStripMenuItem1.Name = "settingsToolStripMenuItem1";
+            this.settingsToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.settingsToolStripMenuItem1.Text = "Settings";
+            // 
+            // fogToolStripMenuItem
+            // 
+            this.fogToolStripMenuItem.Checked = true;
+            this.fogToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.fogToolStripMenuItem.Name = "fogToolStripMenuItem";
+            this.fogToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.fogToolStripMenuItem.Text = "Fog";
+            this.fogToolStripMenuItem.Click += new System.EventHandler(this.fogToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -400,6 +456,7 @@
             this.FoVMenuStrip.ResumeLayout(false);
             this.FoVMenuStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.CoDPictureBox)).EndInit();
+            this.rcStrip.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -438,6 +495,12 @@
         private System.Windows.Forms.ComboBox GamePIDBox;
         internal System.Windows.Forms.Timer ProccessChecker;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.ContextMenuStrip rcStrip;
+        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem fogToolStripMenuItem;
     }
 }
 
