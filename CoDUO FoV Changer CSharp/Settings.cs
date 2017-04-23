@@ -210,10 +210,8 @@ namespace CoDUO_FoV_Changer_CSharp
 
         public bool HasChanged
         {
-            get
-            {
-                return settingsChanged;
-            }
+            get { return settingsChanged; }
+            set { settingsChanged = value; }
         }
 
   

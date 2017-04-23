@@ -1,31 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CoDUO_FoV_Changer_CSharp
 {
     public partial class Hotkeys : Form
     {
-        string curKeyName;
-        System.Windows.Forms.Keys currentKey;
-        int currentKeyCode;
+        private string curKeyName;
+        private Keys currentKey;
+        private int currentKeyCode;
         Settings settings = Settings.Instance;
-        public Hotkeys()
-        {
-            InitializeComponent();
-        }
+        Settings oldSettings = Settings.Instance;
+        public Hotkeys() => InitializeComponent();
         
         private void Hotkeys_Load(object sender, EventArgs e)
         {
-            if (MainForm.isDev) return;
             try
             {
                 if (!MainForm.isElevated)
@@ -48,13 +38,25 @@ namespace CoDUO_FoV_Changer_CSharp
                     }
                 }
             }
+            catch(System.ComponentModel.Win32Exception win32ex)
+            {
+                if (win32ex.NativeErrorCode == 1223)
+                {
+                    MainForm.WriteLog("User canceled UAC prompt (" + win32ex.Message + " )");
+                    Close();
+                }
+                return; //returns are required to stop the settings code below
+            }
             catch(Exception ex)
             {
                 MainForm.WriteLog("Failed to start hotkeys form: " + ex.Message);
                 MainForm.WriteLog(ex.ToString());
                 MessageBox.Show("Failed to start hot keys form: " + ex.Message + Environment.NewLine + " please refer to the log for more info.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
+                return; //returns are required to stop the settings code below
             }
+            DatabaseFile.Write<Settings>(settings, MainForm.settingsPath); //save current settings
+            settings.HasChanged = false; //force it to not be changed so exit without saving works 'properly'
         }
 
         private void Hotkeys_KeyDown(object sender, KeyEventArgs e)
@@ -62,14 +64,10 @@ namespace CoDUO_FoV_Changer_CSharp
             var keyStr = e.KeyData.ToString();
             if (keyStr == "LWin") return;
             if (keyStr.Contains(",")) keyStr = keyStr.Split(',')[1];
-            //     MessageBox.Show(keyStr);
-            //  if (IsFKey(e.KeyData))
-            //{
             label1.Text = "Key: " + keyStr;
-                currentKey = e.KeyData;
-                currentKeyCode = e.KeyValue;
-                curKeyName = e.KeyData.ToString();
-     //       }
+            currentKey = e.KeyData;
+            currentKeyCode = e.KeyValue;
+            curKeyName = e.KeyData.ToString();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -109,14 +107,15 @@ namespace CoDUO_FoV_Changer_CSharp
 
         private void button3_Click(object sender, EventArgs e)
         {
-            if (settings.HasChanged)
+            var closePrompt = MessageBox.Show("Are you sure you want to close without saving?", ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            if (closePrompt == DialogResult.Yes)
             {
-                var closePrompt = MessageBox.Show("Settings changed! Are you sure you want to close without saving?", ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-                if (closePrompt == DialogResult.Yes) Application.Restart();
+                settings.HasChanged = false;
+                Application.Restart();
             }
         }
 
-        Keys GetKeyFromString(string keyName)
+        private Keys GetKeyFromString(string keyName)
         {
             if (string.IsNullOrEmpty(keyName)) return 0;
             Keys key;

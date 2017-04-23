@@ -27,7 +27,6 @@ namespace CoDUO_FoV_Changer_CSharp
         public static readonly string ostype = (Environment.Is64BitOperatingSystem) ? "x64" : "x86";
         public static readonly string registryPathX64 = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive";
         public static readonly string registryPathX86 = registryPathX64.Replace(@"Wow6432Node\", "");
-        string gameRegistry = string.Empty;
         public static readonly string cleanVersion = Application.ProductVersion.Substring(0, 3);
         public static bool isDev = Debugger.IsAttached;
         public static readonly bool isElevated = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
@@ -41,14 +40,9 @@ namespace CoDUO_FoV_Changer_CSharp
         private ProcessMemory procMem;
         private DateTime lastHotkey;
         private DateTime lastUpdateCheck;
-        public static string RegistryPath
-        {
-            get
-            {
-                if (ostype == "64") return registryPathX64;
-                else return registryPathX86;
-            }
-        }
+        private string ProcName { get { return ((CoD1CheckBox.Checked) ? "CoDMP" : "CoDUOMP"); } }
+        private Process GameProcess { get { return Process.GetProcessesByName(ProcName)?.FirstOrDefault() ?? null; } }
+        public static string RegistryPath { get { return ((ostype == "64") ? registryPathX64 : registryPathX86); } }
         public string GameVersion { get { return Registry.GetValue(RegistryPath, "Version", string.Empty)?.ToString() ?? string.Empty; } }
         [DllImport("user32.dll")]
         static extern ushort GetAsyncKeyState(int vKey);
@@ -71,10 +65,7 @@ namespace CoDUO_FoV_Changer_CSharp
             Log.InitializeLogger(logLocation);
             if (settings.LastLogFile != logLocation)
             {
-                try
-                {
-                    if (File.Exists(settings.LastLogFile)) File.Delete(settings.LastLogFile);
-                }
+                try { if (File.Exists(settings.LastLogFile)) File.Delete(settings.LastLogFile); }
                 catch (Exception ex)
                 {
                     WriteLog("Failed to delete: " + settings.LastLogFile);
@@ -86,11 +77,7 @@ namespace CoDUO_FoV_Changer_CSharp
 
 
 
-        private void CheckConnection()
-        {
-            if (CheckUpdates()) AccessLabel("No updates found. Click to check again.");
-            else AccessLabel("Update available!");
-        }
+        private void CheckConnection() => AccessLabel((CheckUpdates()) ? "No updates found. Click to check again." : "Updates available!");
 
 
         void StartUpdatesThread()
@@ -137,7 +124,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 }
                 argsSB.Append(argu + " ");
             }
-            var args = argsSB.ToString();
+            var args = argsSB.ToString().TrimEnd();
             DvarsCheckBox.Visible = false;
 
             StartUpdatesThread();
@@ -147,8 +134,9 @@ namespace CoDUO_FoV_Changer_CSharp
 
             if (!Directory.Exists(appdata + "CoDUO FoV Changer"))
             {
-                Directory.CreateDirectory(appdata + "CoDUO FoV Changer");
+          //      Directory.CreateDirectory(appdata + "CoDUO FoV Changer");
                 Directory.CreateDirectory(appdata + @"CoDUO FoV Changer\Logs");
+                WriteLog("Created folder(s): " + appdata + @"CoDUO FoV Changer\Logs");
             }
 
             if (!Directory.Exists(appdata + @"CoDUO FoV Changer\Logs")) Directory.CreateDirectory(appdata + @"CoDUO FoV Changer\Logs");
@@ -159,19 +147,18 @@ namespace CoDUO_FoV_Changer_CSharp
                 initLogger.IsBackground = true;
                 initLogger.Start();
             }
-            args.TrimEnd();
             if (!string.IsNullOrEmpty(args)) WriteLog("Launched program with args: " + args);
 
             try
             {
-                gameRegistry = Registry.GetValue(RegistryPath, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+                var regPath = Registry.GetValue(RegistryPath, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
 
                 if (string.IsNullOrEmpty(settings.InstallPath) || !Directory.Exists(settings.InstallPath))
                 {
-                    if (!string.IsNullOrEmpty(gameRegistry) && gameRegistry.Contains("Call of Duty") || gameRegistry.Contains("CoD"))
+                    if (!string.IsNullOrEmpty(regPath) && regPath.Contains("Call of Duty") || regPath.Contains("CoD"))
                     {
-                        if (File.Exists(gameRegistry + @"\CoDUOMP.exe")) MessageBox.Show("CODUOMP found at: " + gameRegistry, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        settings.InstallPath = gameRegistry;
+                        if (File.Exists(regPath + @"\CoDUOMP.exe") || File.Exists(regPath + @"\" + "CoDMP.exe")) MessageBox.Show("Automatically detected game .exe" + regPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        settings.InstallPath = regPath;
                     }
                     else
                     {
@@ -190,17 +177,17 @@ namespace CoDUO_FoV_Changer_CSharp
             }
             catch (Exception ex)
             {
-                MessageBox.Show("An error has occurred: " + ex.Message);
+                MessageBox.Show("An error has occurred: " + ex.Message + Environment.NewLine + "Please refer to the log for more information.");
                 WriteLog("An exception happened on Install Path code:");
                 WriteLog(ex.ToString());
             }
 
-            SetFoVNumeric(settings.FoV);
+            procMem = getProcessMemoryFromBox();
+            SetFoVNumeric(Clamp((int)settings.FoV, 80, 130));
             MinimizeCheckBox.Checked = settings.MinimizeToTray;
             FogCheckBox.Checked = settings.Fog;
             fogToolStripMenuItem.Checked = settings.Fog;
-            if (CoD1CheckBox.Checked) ScalePictureBox(CoDPictureBox, CoDImage);
-            else ScalePictureBox(CoDPictureBox, CoDUOImage);
+            ScalePictureBox(CoDPictureBox, ((CoD1CheckBox.Checked) ? CoDImage : CoDUOImage));
             LaunchParametersTB.Text = settings.CommandLine;
             location = Location;
             if (settings.TrackGameTime) AccessGameTimeLabel();
@@ -210,40 +197,37 @@ namespace CoDUO_FoV_Changer_CSharp
                 CurSessionGT.Visible = false;
                 GameTracker.Enabled = false;
             }
-
             if (isDev) UpdateButton.Visible = true;
             UpdateProcessBox();
-            var timeTaken = DateTime.Now - startTime;
             WriteLog("Successfully started application, version " + Application.ProductVersion + " (HF " + hotfix + ")");
-            if (timeTaken.TotalMilliseconds >= 400) WriteLog("Startup took: " + timeTaken.TotalMilliseconds + " (this is too long!)");
+            var timeTaken = DateTime.Now - startTime;
+            if (timeTaken.TotalMilliseconds >= 300) WriteLog("Startup took: " + timeTaken.TotalMilliseconds + " (this is too long!)");
         }
 
         private void StartGame()
         {
             try
             {
-                    var procName = "CoDUOMP.exe";
-                    if (CoD1CheckBox.Checked) procName = "CoDMP.exe";
-                    if (string.IsNullOrEmpty(settings.InstallPath))
-                    {
-                        MessageBox.Show("Install Path is empty!", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-                    if (!File.Exists(settings.InstallPath + @"\" + procName))
-                    {
-                        MessageBox.Show("Unable to find " + procName + " in: " + settings.InstallPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-                
-                    var startInfo = new ProcessStartInfo();
-                    var startInfoSB = new StringBuilder();
-                    startInfoSB.Append("+set r_ignorehwgamma 1 +set vid_xpos 0 +set vid_ypos 0 +set win_allowalttab 1");
-                    if (!string.IsNullOrEmpty(LaunchParametersTB.Text)) startInfoSB.Append(LaunchParametersTB.Text + " " + startInfo.Arguments);
-                    if (CoD1CheckBox.Checked) startInfoSB.Append(" +set com_hunkmegs 128"); //force 128 hunkmegs if cod1
-                    startInfo.Arguments = startInfoSB.ToString();
-                    startInfo.FileName = settings.InstallPath + @"\" + procName;
-                    startInfo.WorkingDirectory = settings.InstallPath;
-                    Process.Start(startInfo);
+                if (string.IsNullOrEmpty(settings.InstallPath))
+                {
+                    MessageBox.Show("Install Path is empty!", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                if (!File.Exists(settings.InstallPath + @"\" + ProcName))
+                {
+                    MessageBox.Show("Unable to find " + ProcName + " in: " + settings.InstallPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                var startInfo = new ProcessStartInfo();
+                var startInfoSB = new StringBuilder();
+                startInfoSB.Append("+set r_ignorehwgamma 1 +set vid_xpos 0 +set vid_ypos 0 +set win_allowalttab 1");
+                if (!string.IsNullOrEmpty(LaunchParametersTB.Text)) startInfoSB.Append(LaunchParametersTB.Text + " " + startInfo.Arguments);
+                if (CoD1CheckBox.Checked) startInfoSB.Append(" +set com_hunkmegs 128"); //force 128 hunkmegs if cod1
+                startInfo.Arguments = startInfoSB.ToString();
+                startInfo.FileName = settings.InstallPath + @"\" + ProcName;
+                startInfo.WorkingDirectory = settings.InstallPath;
+                Process.Start(startInfo);
             }
             catch(Exception ex)
             {
@@ -280,7 +264,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 return;
             }
             settings.Fog = FogCheckBox.Checked;
-            doFog(Convert.ToInt32(FogCheckBox.Checked));
+            doFog();
         }
 
         private void CoD1CheckBox_CheckedChanged(object sender, EventArgs e)
@@ -299,8 +283,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 DvarsCheckBox.Enabled = true;
                 Text = Application.ProductName;
             }
-            if (CoD1CheckBox.Checked) ScalePictureBox(CoDPictureBox, CoDImage);
-            else ScalePictureBox(CoDPictureBox, CoDUOImage);
+            ScalePictureBox(CoDPictureBox, ((CoD1CheckBox.Checked) ? CoDImage : CoDUOImage));
         }
 
         private void MinimizeCheckBox_CheckedChanged(object sender, EventArgs e) => settings.MinimizeToTray = MinimizeCheckBox.Checked;
@@ -330,7 +313,7 @@ namespace CoDUO_FoV_Changer_CSharp
             procMem = getProcessMemoryFromBox();
             doRAChecks();
             doFoV();
-            doFog(Convert.ToInt32(FogCheckBox.Checked));
+            doFog();
             doDvars();
         }
 
@@ -340,10 +323,9 @@ namespace CoDUO_FoV_Changer_CSharp
         private void HotKeyHandler_Tick(object sender, EventArgs e)
         {
             var now = DateTime.Now;
-            var conv = now - lastHotkey;
             //we can be super responsive when someone is tapping +- while not accidentally moving it up or down twice by doing manual checks while having the timer at ~5-10ms
             if (lastHotkey == null) lastHotkey = now;
-            else if (conv.TotalMilliseconds < 100) return;
+            else if ((now - lastHotkey).TotalMilliseconds < 100) return;
             var modifier = (Keys)0;
             var fogModifier = (Keys)0;
             var up = (Keys)0;
@@ -370,9 +352,7 @@ namespace CoDUO_FoV_Changer_CSharp
             }
             if (IsKeyPushedDown(fogModifier) && IsKeyPushedDown(toggleFog))
             {
-                if (FogCheckBox.Checked) FogCheckBox.Checked = false;
-                else FogCheckBox.Checked = true;
-
+                FogCheckBox.Checked = !FogCheckBox.Checked;
                 lastHotkey = now.AddMilliseconds(110);
             }
 
@@ -389,6 +369,29 @@ namespace CoDUO_FoV_Changer_CSharp
             doDvars();
         }
         #region Util
+
+        public int Clamp(int value, int min, int max)
+        {
+            try
+            {
+                if (value < min) value = min;
+                if (value > max) value = max;
+            }
+            catch (Exception ex) { WriteLog("Failed to complete Clamp: " + ex.ToString()); }
+            return value;
+        }
+
+        private decimal Clamp(decimal value, decimal min, decimal max)
+        {
+            try
+            {
+                if (value < min) value = min;
+                if (value > max) value = max;
+            }
+            catch (Exception ex) { WriteLog("Failed to complete Clamp: " + ex.ToString()); }
+            return value;
+        }
+
         public bool TryParseFloat(string text, ref float value)
         {
             float tmp;
@@ -435,12 +438,7 @@ namespace CoDUO_FoV_Changer_CSharp
         }
         bool IsProcessRunning(int pid)
         {
-            try
-            {
-                var proc = Process.GetProcessById(pid);
-                var id = proc?.Id ?? 0;
-                return (id != 0);
-            }
+            try { return ((Process.GetProcessById(pid)?.Id ?? 0) != 0); }
             catch (ArgumentException argEx)
             {
                 if (argEx.Message.Contains("not running")) return false;
@@ -453,19 +451,12 @@ namespace CoDUO_FoV_Changer_CSharp
             try
             {
                 var response = WebRequest.Create("https://docs.google.com/uc?export=download&id=0B0nCag_Hp76zczRGeU9CZ3NZc3M")?.GetResponse() ?? null;
-                var version = new StreamReader(response?.GetResponseStream())?.ReadToEnd() ?? string.Empty;
-                if (version.Contains(hotfix) || string.IsNullOrEmpty(version)) return true;
-                else return false;
+                var version = new StreamReader(response?.GetResponseStream() ?? null)?.ReadToEnd() ?? string.Empty;
+                return (version.Contains(hotfix) || string.IsNullOrEmpty(version));
             }
-            catch (WebException wex)
+            catch(Exception ex)
             {
-                WriteLog("Unable to check for updates: " + wex.Message);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                WriteLog("Unable to check updates:");
-                WriteLog(ex.ToString());
+                WriteLog("Unable to check for updates: " + ex.Message + Environment.NewLine + ex.ToString());
                 return true;
             }
         }
@@ -473,13 +464,11 @@ namespace CoDUO_FoV_Changer_CSharp
         {
             var value = string.Empty;
             if (CBox == null) return value;
-            if (CBox.Items.Count >= 1 && CBox.SelectedIndex >= 0) value = CBox?.Items[CBox.SelectedIndex]?.ToString() ?? string.Empty;
+            try { if (CBox.Items.Count >= 1 && CBox.SelectedIndex >= 0) value = CBox?.Items[CBox.SelectedIndex]?.ToString() ?? string.Empty; }
+            catch (Exception ex) { WriteLog(ex.ToString()); }
             return value;
         }
-        public static bool IsKeyPushedDown(System.Windows.Forms.Keys vKey)
-        {
-            return 0 != (GetAsyncKeyState((int)vKey) & 0x8000);
-        }
+        public static bool IsKeyPushedDown(System.Windows.Forms.Keys vKey) { return 0 != (GetAsyncKeyState((int)vKey) & 0x8000); }
         delegate void SetTextCallback(string value);
 
         private void AccessLabel(string text)
@@ -497,39 +486,44 @@ namespace CoDUO_FoV_Changer_CSharp
         ProcessMemory getProcessMemory(string processName)
         {
             if (string.IsNullOrEmpty(processName)) return null;
-            var mem = new ProcessMemory(processName);
-            if (mem != null && mem.CheckProcess())
+            try
             {
-                mem.StartProcess();
-                return mem;
+                var mem = new ProcessMemory(processName);
+                if (mem != null && mem.CheckProcess())
+                {
+                    mem.StartProcess();
+                    return mem;
+                }
             }
+            catch(Exception ex) { WriteLog(ex.ToString()); }
             return null;
         }
         ProcessMemory getProcessMemoryFromBox()
         {
-            if (GamePIDBox.Items.Count <= 0)
+            if ((GamePIDBox?.Items?.Count ?? 0) < 1) return null;
+            try
             {
-                return null;
-            }
-            //   var procName = getCBoxString(GamePIDBox).Split('(')[0];
-            var procName = getCBoxString(GamePIDBox).Split('(')[0];
-            var pid = 0;
-            if (!int.TryParse(getCBoxString(GamePIDBox).Split('(')[1].Replace(")", ""), out pid)) return null;
-            if (!IsProcessRunning(pid))
-            {
-                for (int i = 0; i < GamePIDBox.Items.Count; i++)
+                var procName = getCBoxString(GamePIDBox).Split('(')[0];
+                var pid = 0;
+                if (!int.TryParse(getCBoxString(GamePIDBox).Split('(')[1].Replace(")", ""), out pid)) return null;
+                if (!IsProcessRunning(pid))
                 {
-                    var boxItem = GamePIDBox.Items[i];
-                    if (boxItem.ToString().Contains(pid.ToString())) GamePIDBox.Items.Remove(boxItem);
+                    for (int i = 0; i < GamePIDBox.Items.Count; i++)
+                    {
+                        var boxItem = GamePIDBox.Items[i];
+                        if (boxItem.ToString().Contains(pid.ToString())) GamePIDBox.Items.Remove(boxItem);
+                    }
+                    return null;
                 }
-                return null;
+                var mem = new ProcessMemory(pid);
+                if (mem != null)
+                {
+                    if (!mem.StartProcess()) return null;
+                    return mem;
+                }
             }
-            var mem = new ProcessMemory(pid);
-            if (mem != null)
-            {
-                if (!mem.StartProcess()) return null;
-                return mem;
-            }
+            catch(Exception ex) { WriteLog(ex.ToString()); }
+            
             return null;
         }
         int getIntPointerAddress(IntPtr baseAddress, int offset, ProcessMemory procMem)
@@ -548,6 +542,18 @@ namespace CoDUO_FoV_Changer_CSharp
 
         int ReadIntAddress(IntPtr baseAddress, int offset, ProcessMemory procMem, int pSize = 4, int startIndex = 0) { return ReadIntAddress(baseAddress.ToInt32(), offset, procMem, pSize, startIndex); }
 
+        int DllImageAddress(ProcessMemory procMem, string dllName)
+        {
+            if (procMem == null || string.IsNullOrEmpty(dllName)) return -1;
+            try
+            {
+                if (!(procMem?.CheckProcess() ?? false)) return -1;
+                return procMem?.DllImageAddress(cgameDll) ?? -1;
+            }
+            catch (Exception ex) { WriteLog("Failed to complete DllImageAddress: " + Environment.NewLine + ex.ToString()); }
+            return -1;
+        }
+
         private void ScalePictureBox(PictureBox pictureBox, Image initialImage = null)
         {
             Bitmap finalImg = null;
@@ -559,8 +565,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 pictureBox.Image = finalImg;
             }
         }
-
-        private void SetFoVNumeric(decimal FoV) { if (FoV >= FoVNumeric.Minimum && FoV <= FoVNumeric.Maximum) FoVNumeric.Value = FoV; }
+        private void SetFoVNumeric(decimal FoV) => FoVNumeric.Value = Clamp(FoV, FoVNumeric.Minimum, FoVNumeric.Maximum);
 
         public static void WriteLog(string message)
         {
@@ -568,11 +573,12 @@ namespace CoDUO_FoV_Changer_CSharp
         }
         #endregion
         #region Memory
-        private void doFog(int value)
+        private void doFog()
         {
             try
             {
                 if (procMem == null) return;
+                var value = Convert.ToInt32(settings.Fog);
                 var newmpAddr = getIntPointerAddress(0x489A0D4, 0x20, procMem);
                 var fogValue = ReadIntAddress(0x489A0D4, 0x20, procMem);
                 if (fogValue != value) procMem.WriteInt(newmpAddr, value);
@@ -592,17 +598,13 @@ namespace CoDUO_FoV_Changer_CSharp
                 var mode = ReadIntAddress(0x4899D50, 0x20, procMem);
                 var width = ReadIntAddress(0x4899D30, 0x20, procMem);
                 var height = ReadIntAddress(0x4899FCC, 0x20, procMem);
-               // var mode = BitConverter.ToInt32(procMem.ReadMem(getIntPointerAddress(0x4899D50, 0x20, procMem), 4), 0);
-                //var width = BitConverter.ToInt32(procMem.ReadMem(getIntPointerAddress(0x4899D30, 0x20, procMem), 4), 0);
-              //  var height = BitConverter.ToInt32(procMem.ReadMem(getIntPointerAddress(0x4899FCC, 0x20, procMem), 4), 0);
                 if (width == 0 || height == 0) return;
                 var ratio = (double)width / (double)height;
                 var aspectWidth = width / GCD(width, height);
                 var aspectHeight = height / GCD(width, height);
                 var aspectStr = aspectWidth + ":" + aspectHeight;
                 if (aspectWidth == 8 && aspectHeight == 5) aspectStr = aspectStr.Replace("8", "16").Replace("5", "10");
-                if (ratio < 1.7 && mode == -1 || mode != -1) FoVNumeric.Maximum = 105;
-                else FoVNumeric.Maximum = 130;
+                FoVNumeric.Maximum = ((ratio < 1.7 && mode == -1) || mode != 1) ? 130 : 105;
                 SetFoVNumeric(FoVNumeric.Value); //will set it to the value if it can, if not, falls back on maximum
             }
             catch(Exception ex)
@@ -616,10 +618,8 @@ namespace CoDUO_FoV_Changer_CSharp
         {
             try
             {
-                var address = 0x3029CA28;
-                //   var address = 0x3052F7C8; //old static com_hunkmegs 128 only
-                //var mem = getProcessMemory(process);
-                if (procMem == null)
+                var address = (CoD1CheckBox.Checked) ? 0x3029CA28 : (DllImageAddress(procMem, cgameDll) + 0x52F7C8);
+                if (procMem == null || (address == -1))
                 {
                     StatusLabel.Text = "Status: not found or failed to write to memory!";
                     toolTip1.SetToolTip(StatusLabel, "Unable to write to memory, if this continues, try running this program as an Administrator.");
@@ -627,9 +627,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 }
                 else
                 {
-                    var value = 80f;
-                    TryParseFloat(FoVNumeric.Value.ToString(), ref value);
-                    if (!CoD1CheckBox.Checked) address = procMem.DllImageAddress(cgameDll) + 0x52F7C8;
+                    var value = float.Parse(FoVNumeric.Value.ToString());
                     procMem.WriteFloat(address, value);
                     StatusLabel.Text = "Status: Game found and wrote to memory!";
                     toolTip1.SetToolTip(StatusLabel, string.Empty);
@@ -638,8 +636,7 @@ namespace CoDUO_FoV_Changer_CSharp
             }
             catch (Exception ex)
             {
-                WriteLog("An exception happened while trying to read/write FoV addresses!");
-                WriteLog(ex.ToString());
+                WriteLog("An exception happened while trying to read/write FoV addresses: " + Environment.NewLine + ex.ToString());
             }
         }
 
@@ -648,9 +645,8 @@ namespace CoDUO_FoV_Changer_CSharp
             if (procMem == null) return;
             try
             {
-                var val = 116;
+                var val = (DvarsCheckBox.Checked) ? 235 : 116;
                 var curVal = procMem.ReadByte(0x43DD86);
-                if (DvarsCheckBox.Checked) val = 235;
                 if (curVal == val) return; //don't write if it's already the value we want
                 procMem.WriteInt(0x43DD86, val, 1);
                 procMem.WriteInt(0x43DDA3, val, 1);
@@ -683,11 +679,7 @@ namespace CoDUO_FoV_Changer_CSharp
             lastUpdateCheck = now;
         }
 
-        private void CheckUpdatesLabel_TextChanged(object sender, EventArgs e)
-        {
-            if (CheckUpdatesLabel.Text == "Update available!") UpdateButton.Visible = true;
-            else UpdateButton.Visible = isDev;
-        }
+        private void CheckUpdatesLabel_TextChanged(object sender, EventArgs e) => UpdateButton.Visible = (isDev) ? true : (CheckUpdatesLabel.Text == "Update available!");
 
         private void SettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsForm().Show();
 
@@ -722,23 +714,22 @@ namespace CoDUO_FoV_Changer_CSharp
 
         private void GameTracker_Tick(object sender, EventArgs e)
         {
-            var procName = "CoDUOMP";
-            if (CoD1CheckBox.Checked) procName = "CoDMP";
-            var process = Process.GetProcessesByName(procName);
-            if (process.Length <= 0) return;
-            if (settings.GameTime < int.MaxValue - 1) settings.GameTime++;
-            if (currentSessionTime < int.MaxValue - 1) currentSessionTime++;
-            AccessGameTimeLabel();
-
+            try
+            {
+                var process = Process.GetProcessesByName(ProcName);
+                if (process.Length < 1) return;
+                if (settings.GameTime < (int.MaxValue - 1)) settings.GameTime++;
+                if (currentSessionTime < (int.MaxValue - 1)) currentSessionTime++;
+                AccessGameTimeLabel();
+            }
+            catch(Exception ex) { WriteLog(ex.ToString()); }  
         }
 
 
         private void LaunchParametersTB_TextChanged(object sender, EventArgs e)
         {
-            if (LaunchParametersTB.Text.Length >= 36) LaunchParametersTB.Height = 50;
-            else LaunchParametersTB.Height = 20;
-            if (LaunchParametersTB.Text.Length >= 139) LaunchParametersTB.ScrollBars = ScrollBars.Vertical;
-            else LaunchParametersTB.ScrollBars = ScrollBars.None;
+            LaunchParametersTB.Height = (LaunchParametersTB.Text.Length >= 36) ? 50 : 20;
+            LaunchParametersTB.ScrollBars = (LaunchParametersTB.Text.Length >= 139) ? ScrollBars.Vertical : ScrollBars.None;
         }
 
         private void UpdateTimer_Tick(object sender, EventArgs e)
@@ -763,8 +754,7 @@ namespace CoDUO_FoV_Changer_CSharp
             }
             catch (Exception ex)
             {
-                Log.WriteLine("An error happened while trying to write the updater:");
-                Log.WriteLine(ex.ToString());
+                Log.WriteLine("An error happened while trying to write the updater:" + Environment.NewLine + ex.ToString());
                 MessageBox.Show("An error happened while trying to write the updater: " + Environment.NewLine + ex.Message + Environment.NewLine + " Please refer to the log for more info.");
             }
         }
@@ -789,33 +779,14 @@ namespace CoDUO_FoV_Changer_CSharp
                     var pid = 0;
                     var splitPid = boxItem.ToString().Split('(')[1].Replace(")", "");
                     if (!int.TryParse(splitPid, out pid)) continue;
-                    
-                    if (!IsProcessRunning(pid))
-                    {
-                        GamePIDBox.Items.Remove(boxItem);
-                            /*/
-                        if (GamePIDBox.Items.Count < 1) continue;
-                       
-                        //work around to select the next item (this is almost definitely shitty)   
-                        for (int j = 0; j < GamePIDBox.Items.Count; j++)
-                        {
-                            var boxItem2 = GamePIDBox.Items[j];
-                            var boxItemName = boxItem2.ToString();
-                            GamePIDBox.Items.Remove(boxItem2);
-                            GamePIDBox.Items.Add(boxItemName);
-                            if (GamePIDBox.Items.Count > 0) GamePIDBox.SelectedIndex = 0;
-                            else GamePIDBox.SelectedValue = string.Empty;
-                        }/*/
-                    }
+                    if (!IsProcessRunning(pid)) GamePIDBox.Items.Remove(boxItem);
                     
                 }
-                var procName = "CoDUOMP";
-                if (CoD1CheckBox.Checked) procName = "CoDMP";
-                var allProcs = Process.GetProcessesByName(procName);
+                var allProcs = Process.GetProcessesByName(ProcName);
                 for (int i = 0; i < allProcs.Length; i++)
                 {
                     var proc = allProcs[i];
-                    if (proc == null || proc.Id == 0 || !proc.ProcessName.Contains(procName)) continue;
+                    if (proc == null || proc.Id == 0 || !proc.ProcessName.Contains(ProcName)) continue;
 
                     var cont = new Dictionary<int, bool>();
                     cont[proc.Id] = true;
@@ -827,7 +798,6 @@ namespace CoDUO_FoV_Changer_CSharp
                     if (cont[proc.Id])
                     {
                         GamePIDBox.Items.Add(proc.ProcessName + " (" + proc.Id + ")");
-                   //     if (GamePIDBox.SelectedValue == null && GamePIDBox.Items.Count >= 1) GamePIDBox.SelectedIndex = 0;
                     }
                 }
                 GamePIDBox.Visible = (GamePIDBox.Items.Count > 0);
@@ -841,17 +811,9 @@ namespace CoDUO_FoV_Changer_CSharp
                     else
                     {
                         var listItems = new List<object>();
-                        for (int i = 0; i < GamePIDBox.Items.Count; i++)
-                        {
-                            var item = GamePIDBox.Items[i];
-                            listItems.Add(item);
-                        }
+                        for (int i = 0; i < GamePIDBox.Items.Count; i++) listItems.Add(GamePIDBox.Items[i]);
 
-                        if (listItems.Count > 0)
-                        {
-                            GamePIDBox.SelectedItem = listItems.FirstOrDefault();
-                       //     MessageBox.Show("listitems was set");
-                        }
+                        if (listItems.Count > 0) GamePIDBox.SelectedItem = listItems?.FirstOrDefault() ?? null;
                     }
                 }
             }
@@ -905,7 +867,7 @@ namespace CoDUO_FoV_Changer_CSharp
         {
             fogToolStripMenuItem.Checked = !fogToolStripMenuItem.Checked;
             settings.Fog = fogToolStripMenuItem.Checked;
-            doFog(Convert.ToInt32(settings.Fog));
+            doFog();
         }
     }
 }
