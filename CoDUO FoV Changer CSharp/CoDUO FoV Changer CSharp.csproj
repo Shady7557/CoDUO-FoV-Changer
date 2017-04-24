@@ -62,6 +62,7 @@
     <Compile Include="AdvancedSettings.Designer.cs">
       <DependentUpon>AdvancedSettings.cs</DependentUpon>
     </Compile>
+    <Compile Include="ClampEx.cs" />
     <Compile Include="DatabaseFile.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>

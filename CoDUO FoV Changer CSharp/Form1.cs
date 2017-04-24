@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Net;
 using System.Threading;
+using ClampExt;
 
 namespace CoDUO_FoV_Changer_CSharp
 {
@@ -49,16 +50,13 @@ namespace CoDUO_FoV_Changer_CSharp
 
 
 
-        public MainForm()
-        {
-            InitializeComponent();
-        }
+        public MainForm() => InitializeComponent();
 
 
 
         public void InitLog()
         {
-            Log.Settings.CustomLogHeader = "===========CoDUO FoV Changer Log File===========";
+            Log.Settings.CustomLogHeader = "===========" + Application.ProductName + " Log File===========";
             Log.Settings.PerformanceOptions = Log.Performance.StandardPerformance;
             Log.Settings.LogHeaderOptions = Log.LogHeader.CustomHeader;
             var logLocation = logsPath + @"\CFC_" + DateTime.Now.ToString("d").Replace("/", "-") + ".log";
@@ -66,26 +64,14 @@ namespace CoDUO_FoV_Changer_CSharp
             if (settings.LastLogFile != logLocation)
             {
                 try { if (File.Exists(settings.LastLogFile)) File.Delete(settings.LastLogFile); }
-                catch (Exception ex)
-                {
-                    WriteLog("Failed to delete: " + settings.LastLogFile);
-                    WriteLog(ex.ToString());
-                }
+                catch (Exception ex) { WriteLog("Failed to delete: " + settings.LastLogFile + Environment.NewLine + ex.ToString()); }
             }
             settings.LastLogFile = logLocation;
         }
 
 
 
-        private void CheckConnection() => AccessLabel((CheckUpdates()) ? "No updates found. Click to check again." : "Updates available!");
-
-
-        void StartUpdatesThread()
-        {
-            var updatesThread = new Thread(CheckConnection);
-            updatesThread.IsBackground = true;
-            updatesThread.Start();
-        }
+        
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -132,14 +118,11 @@ namespace CoDUO_FoV_Changer_CSharp
 
 
 
-            if (!Directory.Exists(appdata + "CoDUO FoV Changer"))
+            if (!Directory.Exists(appdata + @"CoDUO FoV Changer\Logs"))
             {
-          //      Directory.CreateDirectory(appdata + "CoDUO FoV Changer");
                 Directory.CreateDirectory(appdata + @"CoDUO FoV Changer\Logs");
                 WriteLog("Created folder(s): " + appdata + @"CoDUO FoV Changer\Logs");
             }
-
-            if (!Directory.Exists(appdata + @"CoDUO FoV Changer\Logs")) Directory.CreateDirectory(appdata + @"CoDUO FoV Changer\Logs");
 
             if (!noLog)
             {
@@ -178,12 +161,12 @@ namespace CoDUO_FoV_Changer_CSharp
             catch (Exception ex)
             {
                 MessageBox.Show("An error has occurred: " + ex.Message + Environment.NewLine + "Please refer to the log for more information.");
-                WriteLog("An exception happened on Install Path code:");
-                WriteLog(ex.ToString());
+                WriteLog("An exception happened on Install Path code:" + Environment.NewLine + ex.ToString());
             }
 
             procMem = getProcessMemoryFromBox();
-            SetFoVNumeric(Clamp((int)settings.FoV, 80, 130));
+
+            SetFoVNumeric(ClampEx.Clamp(settings.FoV, 80, 130));
             MinimizeCheckBox.Checked = settings.MinimizeToTray;
             FogCheckBox.Checked = settings.Fog;
             fogToolStripMenuItem.Checked = settings.Fog;
@@ -229,11 +212,10 @@ namespace CoDUO_FoV_Changer_CSharp
                 startInfo.WorkingDirectory = settings.InstallPath;
                 Process.Start(startInfo);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show("Failed to start game: " + ex.Message + Environment.NewLine + " Please refer to the log for more info.");
-                WriteLog("Failed to start process game process!");
-                WriteLog(ex.ToString());
+                WriteLog("Failed to start process game process: " + Environment.NewLine + ex.ToString());
             }
         }
 
@@ -263,8 +245,8 @@ namespace CoDUO_FoV_Changer_CSharp
                 FogCheckBox.Checked = true;
                 return;
             }
-            settings.Fog = FogCheckBox.Checked;
-            doFog();
+            toggleFog();
+            WriteFog(settings.Fog);
         }
 
         private void CoD1CheckBox_CheckedChanged(object sender, EventArgs e)
@@ -313,7 +295,7 @@ namespace CoDUO_FoV_Changer_CSharp
             procMem = getProcessMemoryFromBox();
             doRAChecks();
             doFoV();
-            doFog();
+            WriteFog(settings.Fog);
             doDvars();
         }
 
@@ -336,7 +318,7 @@ namespace CoDUO_FoV_Changer_CSharp
             TryParseKeys(settings.HotKeyUp, ref up);
             TryParseKeys(settings.HotKeyFog, ref toggleFog);
             TryParseKeys(settings.HotKeyDown, ref down);
-            
+
             if (IsKeyPushedDown(modifier))
             {
                 if (IsKeyPushedDown(up))
@@ -355,7 +337,6 @@ namespace CoDUO_FoV_Changer_CSharp
                 FogCheckBox.Checked = !FogCheckBox.Checked;
                 lastHotkey = now.AddMilliseconds(110);
             }
-
         }
 
 
@@ -365,31 +346,16 @@ namespace CoDUO_FoV_Changer_CSharp
             {
                 DvarsCheckBox.Checked = false;
                 return;
-            }
+            } //no support for dvar unlocking (yet) in cod1
             doDvars();
         }
         #region Util
-
-        public int Clamp(int value, int min, int max)
+        private void StartUpdates() => AccessLabel((CheckUpdates()) ? "No updates found. Click to check again." : "Updates available!");
+        void StartUpdatesThread()
         {
-            try
-            {
-                if (value < min) value = min;
-                if (value > max) value = max;
-            }
-            catch (Exception ex) { WriteLog("Failed to complete Clamp: " + ex.ToString()); }
-            return value;
-        }
-
-        private decimal Clamp(decimal value, decimal min, decimal max)
-        {
-            try
-            {
-                if (value < min) value = min;
-                if (value > max) value = max;
-            }
-            catch (Exception ex) { WriteLog("Failed to complete Clamp: " + ex.ToString()); }
-            return value;
+            var updatesThread = new Thread(StartUpdates);
+            updatesThread.IsBackground = true;
+            updatesThread.Start();
         }
 
         public bool TryParseFloat(string text, ref float value)
@@ -439,12 +405,7 @@ namespace CoDUO_FoV_Changer_CSharp
         bool IsProcessRunning(int pid)
         {
             try { return ((Process.GetProcessById(pid)?.Id ?? 0) != 0); }
-            catch (ArgumentException argEx)
-            {
-                if (argEx.Message.Contains("not running")) return false;
-                else WriteLog("An error happened while trying to detect if a process is running (PID: " + pid + ")" + Environment.NewLine + argEx.ToString());
-            }
-            return false;
+            catch (ArgumentException) { return false; }
         }
         private bool CheckUpdates()
         {
@@ -454,7 +415,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 var version = new StreamReader(response?.GetResponseStream() ?? null)?.ReadToEnd() ?? string.Empty;
                 return (version.Contains(hotfix) || string.IsNullOrEmpty(version));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 WriteLog("Unable to check for updates: " + ex.Message + Environment.NewLine + ex.ToString());
                 return true;
@@ -495,7 +456,7 @@ namespace CoDUO_FoV_Changer_CSharp
                     return mem;
                 }
             }
-            catch(Exception ex) { WriteLog(ex.ToString()); }
+            catch (Exception ex) { WriteLog(ex.ToString()); }
             return null;
         }
         ProcessMemory getProcessMemoryFromBox()
@@ -522,8 +483,8 @@ namespace CoDUO_FoV_Changer_CSharp
                     return mem;
                 }
             }
-            catch(Exception ex) { WriteLog(ex.ToString()); }
-            
+            catch (Exception ex) { WriteLog(ex.ToString()); }
+
             return null;
         }
         int getIntPointerAddress(IntPtr baseAddress, int offset, ProcessMemory procMem)
@@ -565,29 +526,34 @@ namespace CoDUO_FoV_Changer_CSharp
                 pictureBox.Image = finalImg;
             }
         }
-        private void SetFoVNumeric(decimal FoV) => FoVNumeric.Value = Clamp(FoV, FoVNumeric.Minimum, FoVNumeric.Maximum);
+        private void SetFoVNumeric(decimal FoV) => FoVNumeric.Value = ClampEx.Clamp(FoV, FoVNumeric.Minimum, FoVNumeric.Maximum);
 
-        public static void WriteLog(string message)
-        {
-            if (Log.IsInitialized) Log.WriteLine(message);
-        }
+        public static void WriteLog(string message) { if (Log.IsInitialized) Log.WriteLine(message); }
         #endregion
         #region Memory
-        private void doFog()
+        private void WriteFog(bool val)
         {
             try
             {
-                if (procMem == null) return;
-                var value = Convert.ToInt32(settings.Fog);
-                var newmpAddr = getIntPointerAddress(0x489A0D4, 0x20, procMem);
-                var fogValue = ReadIntAddress(0x489A0D4, 0x20, procMem);
-                if (fogValue != value) procMem.WriteInt(newmpAddr, value);
+                if (procMem != null)
+                {
+                    var value = Convert.ToInt32(val);
+                    var newmpAddr = getIntPointerAddress(0x489A0D4, 0x20, procMem);
+                    var fogValue = ReadIntAddress(0x489A0D4, 0x20, procMem);
+                    if (fogValue != value) procMem.WriteInt(newmpAddr, value);
+                }
             }
-            catch (Exception ex)
+            catch (Exception ex) { WriteLog("An exception happened while trying to read/write fog values:" + Environment.NewLine + ex.ToString()); }
+        }
+        private void toggleFog()
+        {
+            try
             {
-                WriteLog("An exception happened while trying to read/write fog values!");
-                WriteLog(ex.ToString());
+                settings.Fog = !settings.Fog;
+                FogCheckBox.Checked = settings.Fog;
+                fogToolStripMenuItem.Checked = settings.Fog;
             }
+            catch (Exception ex) { WriteLog("An exception happened while trying to toggle fog values:" + Environment.NewLine + ex.ToString()); }
         }
 
         void doRAChecks()
@@ -607,11 +573,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 FoVNumeric.Maximum = ((ratio < 1.7 && mode == -1) || mode != 1) ? 130 : 105;
                 SetFoVNumeric(FoVNumeric.Value); //will set it to the value if it can, if not, falls back on maximum
             }
-            catch(Exception ex)
-            {
-                WriteLog("An exception happened while trying to get current game resolution!");
-                WriteLog(ex.ToString());
-            }
+            catch (Exception ex) { WriteLog("An exception happened while trying to get current game resolution:" + Environment.NewLine + ex.ToString()); }
         }
 
         private void doFoV()
@@ -634,10 +596,7 @@ namespace CoDUO_FoV_Changer_CSharp
                     StatusLabel.ForeColor = Color.DarkGreen;
                 }
             }
-            catch (Exception ex)
-            {
-                WriteLog("An exception happened while trying to read/write FoV addresses: " + Environment.NewLine + ex.ToString());
-            }
+            catch (Exception ex) { WriteLog("An exception happened while trying to read/write FoV addresses: " + Environment.NewLine + ex.ToString()); }
         }
 
         private void doDvars()
@@ -652,11 +611,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 procMem.WriteInt(0x43DDA3, val, 1);
                 procMem.WriteInt(0x43DDC1, val, 1);
             }
-            catch (Exception ex)
-            {
-                WriteLog("An exception happened while trying to read/write Dvar addresses!");
-                WriteLog(ex.ToString());
-            }
+            catch (Exception ex) { WriteLog("An exception happened while trying to read/write Dvar addresses:" + Environment.NewLine + ex.ToString()); }
         }
         #endregion
 
@@ -687,7 +642,7 @@ namespace CoDUO_FoV_Changer_CSharp
         {
             try
             {
-                if (settings.GameTime >= int.MaxValue)
+                if (settings.GameTime >= (int.MaxValue - 1))
                 {
                     GameTimeLabel.Text = "Game Time: >= 68 Years";
                     settings.GameTime--;
@@ -705,7 +660,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 if (totalMinutesCur >= 1 && totalHoursCur <= 0) CurSessionGT.Text = "Current Session: " + totalMinutesCur + " minutes";
                 if (totalHoursCur >= 1 && totalMinutes >= 60) CurSessionGT.Text = "Current Session: " + totalHoursCur + " hours";
             }
-           catch(Exception ex)
+            catch (Exception ex)
             {
                 WriteLog("An exception happened while trying to get total played time!");
                 WriteLog(ex.ToString());
@@ -722,7 +677,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 if (currentSessionTime < (int.MaxValue - 1)) currentSessionTime++;
                 AccessGameTimeLabel();
             }
-            catch(Exception ex) { WriteLog(ex.ToString()); }  
+            catch (Exception ex) { WriteLog(ex.ToString()); }
         }
 
 
@@ -748,7 +703,11 @@ namespace CoDUO_FoV_Changer_CSharp
                     File.WriteAllBytes(path, Properties.Resources.CoDUO_FoV_Changer_Updater_CSharp);
                     Log.WriteLine("Created updater at: " + path);
                 }
-                Process.Start(path);
+                var updaterInfo = new ProcessStartInfo();
+                updaterInfo.Verb = "runas";
+                updaterInfo.WorkingDirectory = Application.StartupPath;
+                updaterInfo.FileName = path;
+                Process.Start(updaterInfo);
                 Log.WriteLine("Started Updater, shutting down");
                 Application.Exit();
             }
@@ -766,7 +725,7 @@ namespace CoDUO_FoV_Changer_CSharp
             updaterThread.Start();
         }
 
-   
+
 
         void UpdateProcessBox()
         {
@@ -780,7 +739,7 @@ namespace CoDUO_FoV_Changer_CSharp
                     var splitPid = boxItem.ToString().Split('(')[1].Replace(")", "");
                     if (!int.TryParse(splitPid, out pid)) continue;
                     if (!IsProcessRunning(pid)) GamePIDBox.Items.Remove(boxItem);
-                    
+
                 }
                 var allProcs = Process.GetProcessesByName(ProcName);
                 for (int i = 0; i < allProcs.Length; i++)
@@ -795,10 +754,7 @@ namespace CoDUO_FoV_Changer_CSharp
                         var item = GamePIDBox.Items[j];
                         if (item.ToString().Contains(proc.Id.ToString())) cont[proc.Id] = false;
                     }
-                    if (cont[proc.Id])
-                    {
-                        GamePIDBox.Items.Add(proc.ProcessName + " (" + proc.Id + ")");
-                    }
+                    if (cont[proc.Id]) GamePIDBox.Items.Add(proc.ProcessName + " (" + proc.Id + ")");
                 }
                 GamePIDBox.Visible = (GamePIDBox.Items.Count > 0);
                 if (GamePIDBox.SelectedItem == null)
@@ -817,39 +773,20 @@ namespace CoDUO_FoV_Changer_CSharp
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                WriteLog("An error happened while trying to get running Call of Duty/UO processes!");
-                WriteLog(ex.ToString());
+                WriteLog("An error happened while trying to get running Call of Duty/UO processes:" + Environment.NewLine + ex.ToString());
                 MessageBox.Show("An error happend while trying to get running Call of Duty/UO processes: " + ex.Message + Environment.NewLine + "Please refer to the log for more info.");
             }
         }
 
         private void ProccessChecker_Tick(object sender, EventArgs e) => UpdateProcessBox();
 
-        private void CoDPictureBox_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (!CoD1CheckBox.Checked)
-            {
-                CoD1CheckBox.Checked = true;
-                ScalePictureBox(CoDPictureBox, CoDImage);
-            }
-            else
-            {
-                CoD1CheckBox.Checked = false;
-                ScalePictureBox(CoDPictureBox, CoDUOImage);
-            }
-        }
+        private void CoDPictureBox_MouseDown(object sender, MouseEventArgs e) => ScalePictureBox(CoDPictureBox, ((CoD1CheckBox.Checked = !CoD1CheckBox.Checked) ? CoDImage : CoDUOImage));
 
-        private void ChangelogToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show((new NotImplementedException()).Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
+        private void ChangelogToolStripMenuItem_Click(object sender, EventArgs e) => MessageBox.Show((new NotImplementedException()).Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-        private void InfoToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show((new NotImplementedException()).Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
+        private void InfoToolStripMenuItem_Click(object sender, EventArgs e) => MessageBox.Show("Created by Shady" + (Environment.NewLine + Environment.NewLine) + "This program is intended to allow you to change the Field of View in Multiplayer for both Call of Duty and Call of Duty: United Offensive, both of which do not normally allow you to do so." + (Environment.NewLine + Environment.NewLine) + "Program version: " + ProductVersion + " (HF: " + hotfix + ")" + Environment.NewLine + "Game version: " + GameVersion, ProductName + " (" + ProductVersion + ", HF " + hotfix + ")", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -858,16 +795,17 @@ namespace CoDUO_FoV_Changer_CSharp
             MinimizeIcon.Visible = false;
         }
 
-        private void exitToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            Application.Exit();
-        }
+        private void exitToolStripMenuItem1_Click(object sender, EventArgs e) => Application.Exit();
 
         private void fogToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            fogToolStripMenuItem.Checked = !fogToolStripMenuItem.Checked;
-            settings.Fog = fogToolStripMenuItem.Checked;
-            doFog();
+            if (CoD1CheckBox.Checked)
+            {
+                fogToolStripMenuItem.Checked = true;
+                return;
+            }
+            toggleFog();
+            WriteFog(settings.Fog);
         }
     }
 }

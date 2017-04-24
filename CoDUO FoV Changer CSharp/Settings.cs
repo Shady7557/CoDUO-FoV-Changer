@@ -32,14 +32,8 @@ namespace CoDUO_FoV_Changer_CSharp
         {
             string applicationDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\CoDUO FoV Changer";
             settingsFile = applicationDataDirectory + @"\settings.xml";
-            if (!Directory.Exists(applicationDataDirectory))
-            {
-                Directory.CreateDirectory(applicationDataDirectory);
-            }
-            if (File.Exists(settingsFile))
-            {
-                instance = DatabaseFile.Read<Settings>(settingsFile);
-            }
+            if (!Directory.Exists(applicationDataDirectory)) Directory.CreateDirectory(applicationDataDirectory);
+            if (File.Exists(settingsFile)) instance = DatabaseFile.Read<Settings>(settingsFile);
             else
             {
                     instance = new Settings();
