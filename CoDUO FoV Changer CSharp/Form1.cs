@@ -245,8 +245,9 @@ namespace CoDUO_FoV_Changer_CSharp
                 FogCheckBox.Checked = true;
                 return;
             }
-            toggleFog();
-            WriteFog(settings.Fog);
+            settings.Fog = FogCheckBox.Checked;
+            fogToolStripMenuItem.Checked = settings.Fog;
+            doFog(settings.Fog);
         }
 
         private void CoD1CheckBox_CheckedChanged(object sender, EventArgs e)
@@ -295,7 +296,7 @@ namespace CoDUO_FoV_Changer_CSharp
             procMem = getProcessMemoryFromBox();
             doRAChecks();
             doFoV();
-            WriteFog(settings.Fog);
+            doFog(settings.Fog);
             doDvars();
         }
 
@@ -506,11 +507,7 @@ namespace CoDUO_FoV_Changer_CSharp
         int DllImageAddress(ProcessMemory procMem, string dllName)
         {
             if (procMem == null || string.IsNullOrEmpty(dllName)) return -1;
-            try
-            {
-                if (!(procMem?.CheckProcess() ?? false)) return -1;
-                return procMem?.DllImageAddress(cgameDll) ?? -1;
-            }
+            try { return procMem?.DllImageAddress(cgameDll) ?? -1; }
             catch (Exception ex) { WriteLog("Failed to complete DllImageAddress: " + Environment.NewLine + ex.ToString()); }
             return -1;
         }
@@ -531,7 +528,7 @@ namespace CoDUO_FoV_Changer_CSharp
         public static void WriteLog(string message) { if (Log.IsInitialized) Log.WriteLine(message); }
         #endregion
         #region Memory
-        private void WriteFog(bool val)
+        private void doFog(bool val)
         {
             try
             {
@@ -544,16 +541,6 @@ namespace CoDUO_FoV_Changer_CSharp
                 }
             }
             catch (Exception ex) { WriteLog("An exception happened while trying to read/write fog values:" + Environment.NewLine + ex.ToString()); }
-        }
-        private void toggleFog()
-        {
-            try
-            {
-                settings.Fog = !settings.Fog;
-                FogCheckBox.Checked = settings.Fog;
-                fogToolStripMenuItem.Checked = settings.Fog;
-            }
-            catch (Exception ex) { WriteLog("An exception happened while trying to toggle fog values:" + Environment.NewLine + ex.ToString()); }
         }
 
         void doRAChecks()
@@ -589,7 +576,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 }
                 else
                 {
-                    var value = float.Parse(FoVNumeric.Value.ToString());
+                    var value = Convert.ToSingle(FoVNumeric.Value);
                     procMem.WriteFloat(address, value);
                     StatusLabel.Text = "Status: Game found and wrote to memory!";
                     toolTip1.SetToolTip(StatusLabel, string.Empty);
@@ -804,8 +791,9 @@ namespace CoDUO_FoV_Changer_CSharp
                 fogToolStripMenuItem.Checked = true;
                 return;
             }
-            toggleFog();
-            WriteFog(settings.Fog);
+            settings.Fog = fogToolStripMenuItem.Checked;
+            FogCheckBox.Checked = settings.Fog;
+            doFog(settings.Fog);
         }
     }
 }
