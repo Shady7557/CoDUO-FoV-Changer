@@ -161,6 +161,7 @@
             this.Controls.Add(this.AppVersLabel);
             this.Controls.Add(this.InformationLabel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "SettingsForm";
             this.ShowIcon = false;
             this.Text = "Settings";

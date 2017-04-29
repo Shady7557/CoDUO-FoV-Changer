@@ -155,6 +155,7 @@
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.KeyPreview = true;
+            this.MaximizeBox = false;
             this.Name = "Hotkeys";
             this.ShowIcon = false;
             this.Text = "Hotkeys";

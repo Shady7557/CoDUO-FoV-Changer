@@ -37,7 +37,7 @@
             // GameTimeCheckbox
             // 
             this.GameTimeCheckbox.AutoSize = true;
-            this.GameTimeCheckbox.Location = new System.Drawing.Point(12, 45);
+            this.GameTimeCheckbox.Location = new System.Drawing.Point(7, 45);
             this.GameTimeCheckbox.Name = "GameTimeCheckbox";
             this.GameTimeCheckbox.Size = new System.Drawing.Size(123, 17);
             this.GameTimeCheckbox.TabIndex = 21;
@@ -46,7 +46,7 @@
             // 
             // CancelCloseButton
             // 
-            this.CancelCloseButton.Location = new System.Drawing.Point(12, 120);
+            this.CancelCloseButton.Location = new System.Drawing.Point(7, 120);
             this.CancelCloseButton.Name = "CancelCloseButton";
             this.CancelCloseButton.Size = new System.Drawing.Size(128, 22);
             this.CancelCloseButton.TabIndex = 20;
@@ -56,7 +56,7 @@
             // 
             // SaveRestartAppButton
             // 
-            this.SaveRestartAppButton.Location = new System.Drawing.Point(12, 91);
+            this.SaveRestartAppButton.Location = new System.Drawing.Point(7, 91);
             this.SaveRestartAppButton.Name = "SaveRestartAppButton";
             this.SaveRestartAppButton.Size = new System.Drawing.Size(128, 23);
             this.SaveRestartAppButton.TabIndex = 18;
@@ -67,7 +67,7 @@
             // DisableUpdateTimerCBox
             // 
             this.DisableUpdateTimerCBox.AutoSize = true;
-            this.DisableUpdateTimerCBox.Location = new System.Drawing.Point(12, 22);
+            this.DisableUpdateTimerCBox.Location = new System.Drawing.Point(7, 22);
             this.DisableUpdateTimerCBox.Name = "DisableUpdateTimerCBox";
             this.DisableUpdateTimerCBox.Size = new System.Drawing.Size(128, 17);
             this.DisableUpdateTimerCBox.TabIndex = 22;
@@ -78,13 +78,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(143, 144);
+            this.ClientSize = new System.Drawing.Size(139, 147);
             this.ControlBox = false;
             this.Controls.Add(this.DisableUpdateTimerCBox);
             this.Controls.Add(this.GameTimeCheckbox);
             this.Controls.Add(this.CancelCloseButton);
             this.Controls.Add(this.SaveRestartAppButton);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "AdvancedSettings";
             this.ShowIcon = false;
             this.Text = "Advanced Settings";

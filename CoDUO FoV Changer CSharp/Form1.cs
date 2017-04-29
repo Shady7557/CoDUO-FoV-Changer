@@ -42,6 +42,7 @@ namespace CoDUO_FoV_Changer_CSharp
         private DateTime lastHotkey;
         private DateTime lastUpdateCheck;
         private string ProcName { get { return ((CoD1CheckBox.Checked) ? "CoDMP" : "CoDUOMP"); } }
+        private string ProcNameExt { get { return (ProcName + ".exe"); } }
         private Process GameProcess { get { return Process.GetProcessesByName(ProcName)?.FirstOrDefault() ?? null; } }
         public static string RegistryPath { get { return ((ostype == "64") ? registryPathX64 : registryPathX86); } }
         public string GameVersion { get { return Registry.GetValue(RegistryPath, "Version", string.Empty)?.ToString() ?? string.Empty; } }
@@ -196,9 +197,9 @@ namespace CoDUO_FoV_Changer_CSharp
                     MessageBox.Show("Install Path is empty!", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                if (!File.Exists(settings.InstallPath + @"\" + ProcName))
+                if (!File.Exists(settings.InstallPath + @"\" + ProcNameExt))
                 {
-                    MessageBox.Show("Unable to find " + ProcName + " in: " + settings.InstallPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Unable to find " + ProcNameExt + " in: " + settings.InstallPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
@@ -208,7 +209,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 if (!string.IsNullOrEmpty(LaunchParametersTB.Text)) startInfoSB.Append(LaunchParametersTB.Text + " " + startInfo.Arguments);
                 if (CoD1CheckBox.Checked) startInfoSB.Append(" +set com_hunkmegs 128"); //force 128 hunkmegs if cod1
                 startInfo.Arguments = startInfoSB.ToString();
-                startInfo.FileName = settings.InstallPath + @"\" + ProcName;
+                startInfo.FileName = settings.InstallPath + @"\" + ProcNameExt;
                 startInfo.WorkingDirectory = settings.InstallPath;
                 Process.Start(startInfo);
             }
@@ -422,6 +423,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 return true;
             }
         }
+
         string getCBoxString(ComboBox CBox)
         {
             var value = string.Empty;
@@ -680,7 +682,7 @@ namespace CoDUO_FoV_Changer_CSharp
             StartUpdatesThread();
         }
 
-        private void CreateUpdater()
+        private void StartUpdater()
         {
             try
             {
@@ -707,7 +709,7 @@ namespace CoDUO_FoV_Changer_CSharp
 
         private void UpdateButton_Click(object sender, EventArgs e)
         {
-            var updaterThread = new Thread(CreateUpdater);
+            var updaterThread = new Thread(StartUpdater);
             updaterThread.IsBackground = true;
             updaterThread.Start();
         }
@@ -771,9 +773,9 @@ namespace CoDUO_FoV_Changer_CSharp
 
         private void CoDPictureBox_MouseDown(object sender, MouseEventArgs e) => ScalePictureBox(CoDPictureBox, ((CoD1CheckBox.Checked = !CoD1CheckBox.Checked) ? CoDImage : CoDUOImage));
 
-        private void ChangelogToolStripMenuItem_Click(object sender, EventArgs e) => MessageBox.Show((new NotImplementedException()).Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+        private void ChangelogToolStripMenuItem_Click(object sender, EventArgs e) => new ChangelogForm().Show();
 
-        private void InfoToolStripMenuItem_Click(object sender, EventArgs e) => MessageBox.Show("Created by Shady" + (Environment.NewLine + Environment.NewLine) + "This program is intended to allow you to change the Field of View in Multiplayer for both Call of Duty and Call of Duty: United Offensive, both of which do not normally allow you to do so." + (Environment.NewLine + Environment.NewLine) + "Program version: " + ProductVersion + " (HF: " + hotfix + ")" + Environment.NewLine + "Game version: " + GameVersion, ProductName + " (" + ProductVersion + ", HF " + hotfix + ")", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        private void InfoToolStripMenuItem_Click(object sender, EventArgs e) => MessageBox.Show("Created by Shady" + (Environment.NewLine + Environment.NewLine) + "This program is intended to allow you to change the Field of View in Multiplayer for both Call of Duty and Call of Duty: United Offensive, both of which do not normally allow you to do so." + (Environment.NewLine + Environment.NewLine) + "Program version: " + ProductVersion + " (HF: " + hotfix + ")" + Environment.NewLine + "Game version: " + (!string.IsNullOrEmpty(GameVersion) ? GameVersion : "Unknown"), ProductName + " (" + ProductVersion + ", HF " + hotfix + ")", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
