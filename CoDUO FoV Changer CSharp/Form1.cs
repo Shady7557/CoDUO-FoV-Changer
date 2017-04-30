@@ -50,7 +50,6 @@ namespace CoDUO_FoV_Changer_CSharp
         static extern ushort GetAsyncKeyState(int vKey);
 
 
-
         public MainForm() => InitializeComponent();
 
 
@@ -553,13 +552,17 @@ namespace CoDUO_FoV_Changer_CSharp
                 var mode = ReadIntAddress(0x4899D50, 0x20, procMem);
                 var width = ReadIntAddress(0x4899D30, 0x20, procMem);
                 var height = ReadIntAddress(0x4899FCC, 0x20, procMem);
-                if (width == 0 || height == 0) return;
+                if (width == 0 || height == 0)
+                {
+                    WriteLog("Got bad width/height: " + width + ", " + height);
+                    return;
+                }
                 var ratio = (double)width / (double)height;
                 var aspectWidth = width / GCD(width, height);
                 var aspectHeight = height / GCD(width, height);
                 var aspectStr = aspectWidth + ":" + aspectHeight;
                 if (aspectWidth == 8 && aspectHeight == 5) aspectStr = aspectStr.Replace("8", "16").Replace("5", "10");
-                FoVNumeric.Maximum = ((ratio < 1.7 && mode == -1) || mode != 1) ? 130 : 105;
+                FoVNumeric.Maximum = ((ratio < 1.7 && mode == -1) || mode != -1) ? 105 : 130;
                 SetFoVNumeric(FoVNumeric.Value); //will set it to the value if it can, if not, falls back on maximum
             }
             catch (Exception ex) { WriteLog("An exception happened while trying to get current game resolution:" + Environment.NewLine + ex.ToString()); }
@@ -786,16 +789,19 @@ namespace CoDUO_FoV_Changer_CSharp
 
         private void exitToolStripMenuItem1_Click(object sender, EventArgs e) => Application.Exit();
 
-        private void fogToolStripMenuItem_Click(object sender, EventArgs e)
+        private void fogToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
             if (CoD1CheckBox.Checked)
             {
                 fogToolStripMenuItem.Checked = true;
                 return;
             }
-            settings.Fog = fogToolStripMenuItem.Checked;
-            FogCheckBox.Checked = settings.Fog;
+            settings.Fog = FogCheckBox.Checked = fogToolStripMenuItem.Checked;
             doFog(settings.Fog);
         }
+
+        private void fogToolStripMenuItem_Click(object sender, EventArgs e) =>  fogToolStripMenuItem.Checked = !fogToolStripMenuItem.Checked; //idk why this is needed but it seems like it is??
+
+        private void settingsToolStripMenuItem1_Click(object sender, EventArgs e) => new SettingsForm().Show();
     }
 }
