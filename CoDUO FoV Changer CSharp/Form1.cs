@@ -14,6 +14,7 @@ using System.Runtime.InteropServices;
 using System.Net;
 using System.Threading;
 using ClampExt;
+using System.Threading.Tasks;
 
 namespace CoDUO_FoV_Changer_CSharp
 {
@@ -113,23 +114,21 @@ namespace CoDUO_FoV_Changer_CSharp
             var args = argsSB.ToString().TrimEnd();
             DvarsCheckBox.Visible = false;
 
-            StartUpdatesThread();
+            StartUpdates();
 
 
 
-
-            if (!Directory.Exists(appdata + @"CoDUO FoV Changer\Logs"))
+            Task.Factory.StartNew(() =>
             {
-                Directory.CreateDirectory(appdata + @"CoDUO FoV Changer\Logs");
-                WriteLog("Created folder(s): " + appdata + @"CoDUO FoV Changer\Logs");
-            }
+                if (!Directory.Exists(appdata + @"CoDUO FoV Changer\Logs"))
+                {
+                    Directory.CreateDirectory(appdata + @"CoDUO FoV Changer\Logs");
+                    WriteLog("Created folder(s): " + appdata + @"CoDUO FoV Changer\Logs");
+                }
+            });
+          
+            if (!noLog) Task.Factory.StartNew(InitLog);
 
-            if (!noLog)
-            {
-                var initLogger = new Thread(InitLog);
-                initLogger.IsBackground = true;
-                initLogger.Start();
-            }
             if (!string.IsNullOrEmpty(args)) WriteLog("Launched program with args: " + args);
 
             try
@@ -166,7 +165,7 @@ namespace CoDUO_FoV_Changer_CSharp
 
             procMem = getProcessMemoryFromBox();
 
-            SetFoVNumeric(ClampEx.Clamp(settings.FoV, 80, 130));
+            SetFoVNumeric(settings.FoV);
             MinimizeCheckBox.Checked = settings.MinimizeToTray;
             FogCheckBox.Checked = settings.Fog;
             fogToolStripMenuItem.Checked = settings.Fog;
@@ -221,9 +220,7 @@ namespace CoDUO_FoV_Changer_CSharp
 
         private void StartGameButton_Click(object sender, EventArgs e)
         {
-            var startThread = new Thread(StartGame);
-            startThread.IsBackground = true;
-            startThread.Start();
+            Task.Factory.StartNew(StartGame);
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -351,13 +348,7 @@ namespace CoDUO_FoV_Changer_CSharp
             doDvars();
         }
         #region Util
-        private void StartUpdates() => AccessLabel((CheckUpdates()) ? "No updates found. Click to check again." : "Updates available!");
-        void StartUpdatesThread()
-        {
-            var updatesThread = new Thread(StartUpdates);
-            updatesThread.IsBackground = true;
-            updatesThread.Start();
-        }
+        private void StartUpdates() => Task.Factory.StartNew(() => AccessLabel(CheckUpdatesLabel, (CheckUpdates()) ? "No updates found. Click to check again." : "Updates available!"));
 
         public bool TryParseFloat(string text, ref float value)
         {
@@ -432,19 +423,11 @@ namespace CoDUO_FoV_Changer_CSharp
             return value;
         }
         public static bool IsKeyPushedDown(System.Windows.Forms.Keys vKey) { return 0 != (GetAsyncKeyState((int)vKey) & 0x8000); }
-        delegate void SetTextCallback(string value);
 
-        private void AccessLabel(string text)
+        private void AccessLabel(Label label, string text)
         {
-            // InvokeRequired required compares the thread ID of the
-            // calling thread to the thread ID of the creating thread.
-            // If these threads are different, it returns true.
-            if (CheckUpdatesLabel.InvokeRequired)
-            {
-                var d = new SetTextCallback(AccessLabel);
-                Invoke(d, new object[] { text });
-            }
-            else CheckUpdatesLabel.Text = text;
+            if (label.InvokeRequired) label.BeginInvoke((MethodInvoker)delegate () { label.Text = text; });
+            else label.Text = text;
         }
         ProcessMemory getProcessMemory(string processName)
         {
@@ -524,7 +507,13 @@ namespace CoDUO_FoV_Changer_CSharp
                 pictureBox.Image = finalImg;
             }
         }
-        private void SetFoVNumeric(decimal FoV) => FoVNumeric.Value = ClampEx.Clamp(FoV, FoVNumeric.Minimum, FoVNumeric.Maximum);
+
+        private void SetFoVNumeric(decimal fov)
+        {
+            var newVal = ClampEx.Clamp(fov, FoVNumeric.Minimum, FoVNumeric.Maximum);
+            if (FoVNumeric.InvokeRequired) FoVNumeric.BeginInvoke((MethodInvoker)delegate () { FoVNumeric.Value = newVal; });
+            else FoVNumeric.Value = newVal;
+        }
 
         public static void WriteLog(string message) { if (Log.IsInitialized) Log.WriteLine(message); }
         #endregion
@@ -533,13 +522,14 @@ namespace CoDUO_FoV_Changer_CSharp
         {
             try
             {
-                if (procMem != null)
+                if (procMem == null) return;
+                Task.Factory.StartNew(() =>
                 {
                     var value = Convert.ToInt32(val);
                     var newmpAddr = getIntPointerAddress(0x489A0D4, 0x20, procMem);
                     var fogValue = ReadIntAddress(0x489A0D4, 0x20, procMem);
                     if (fogValue != value) procMem.WriteInt(newmpAddr, value);
-                }
+                });
             }
             catch (Exception ex) { WriteLog("An exception happened while trying to read/write fog values:" + Environment.NewLine + ex.ToString()); }
         }
@@ -549,21 +539,24 @@ namespace CoDUO_FoV_Changer_CSharp
             if (procMem == null) return;
             try
             {
-                var mode = ReadIntAddress(0x4899D50, 0x20, procMem);
-                var width = ReadIntAddress(0x4899D30, 0x20, procMem);
-                var height = ReadIntAddress(0x4899FCC, 0x20, procMem);
-                if (width == 0 || height == 0)
+                Task.Factory.StartNew(() =>
                 {
-                    WriteLog("Got bad width/height: " + width + ", " + height);
-                    return;
-                }
-                var ratio = (double)width / (double)height;
-                var aspectWidth = width / GCD(width, height);
-                var aspectHeight = height / GCD(width, height);
-                var aspectStr = aspectWidth + ":" + aspectHeight;
-                if (aspectWidth == 8 && aspectHeight == 5) aspectStr = aspectStr.Replace("8", "16").Replace("5", "10");
-                FoVNumeric.Maximum = ((ratio < 1.7 && mode == -1) || mode != -1) ? 105 : 130;
-                SetFoVNumeric(FoVNumeric.Value); //will set it to the value if it can, if not, falls back on maximum
+                    var mode = ReadIntAddress(0x4899D50, 0x20, procMem);
+                    var width = ReadIntAddress(0x4899D30, 0x20, procMem);
+                    var height = ReadIntAddress(0x4899FCC, 0x20, procMem);
+                    if (width == 0 || height == 0)
+                    {
+                        WriteLog("Got bad width/height: " + width + ", " + height);
+                        return;
+                    }
+                    var ratio = (double)width / (double)height;
+                    var aspectWidth = width / GCD(width, height);
+                    var aspectHeight = height / GCD(width, height);
+                    var aspectStr = aspectWidth + ":" + aspectHeight;
+                    if (aspectWidth == 8 && aspectHeight == 5) aspectStr = aspectStr.Replace("8", "16").Replace("5", "10");
+                    FoVNumeric.Invoke((MethodInvoker)delegate () { FoVNumeric.Maximum = ((ratio < 1.7 && mode == -1) || mode != -1) ? 105 : 130; });
+                    SetFoVNumeric(FoVNumeric.Value); //will set it to the value if it can, if not, falls back on maximum
+                });
             }
             catch (Exception ex) { WriteLog("An exception happened while trying to get current game resolution:" + Environment.NewLine + ex.ToString()); }
         }
@@ -581,8 +574,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 }
                 else
                 {
-                    var value = Convert.ToSingle(FoVNumeric.Value);
-                    procMem.WriteFloat(address, value);
+                    Task.Factory.StartNew(() => procMem.WriteFloat(address, Convert.ToSingle(FoVNumeric.Value)));
                     StatusLabel.Text = "Status: Game found and wrote to memory!";
                     toolTip1.SetToolTip(StatusLabel, string.Empty);
                     StatusLabel.ForeColor = Color.DarkGreen;
@@ -596,12 +588,15 @@ namespace CoDUO_FoV_Changer_CSharp
             if (procMem == null) return;
             try
             {
-                var val = (DvarsCheckBox.Checked) ? 235 : 116;
-                var curVal = procMem.ReadByte(0x43DD86);
-                if (curVal == val) return; //don't write if it's already the value we want
-                procMem.WriteInt(0x43DD86, val, 1);
-                procMem.WriteInt(0x43DDA3, val, 1);
-                procMem.WriteInt(0x43DDC1, val, 1);
+                Task.Factory.StartNew(() =>
+                {
+                    var val = (DvarsCheckBox.Checked) ? 235 : 116;
+                    var curVal = procMem.ReadByte(0x43DD86);
+                    if (curVal == val) return; //don't write if it's already the value we want
+                    procMem.WriteInt(0x43DD86, val, 1);
+                    procMem.WriteInt(0x43DDA3, val, 1);
+                    procMem.WriteInt(0x43DDC1, val, 1);
+                });
             }
             catch (Exception ex) { WriteLog("An exception happened while trying to read/write Dvar addresses:" + Environment.NewLine + ex.ToString()); }
         }
@@ -622,7 +617,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 }
             }
             CheckUpdatesLabel.Text = "Checking for updates...";
-            StartUpdatesThread();
+            StartUpdates();
             lastUpdateCheck = now;
         }
 
@@ -682,7 +677,7 @@ namespace CoDUO_FoV_Changer_CSharp
         private void UpdateTimer_Tick(object sender, EventArgs e)
         {
             CheckUpdatesLabel.Text = "Checking for updates...";
-            StartUpdatesThread();
+            StartUpdates();
         }
 
         private void StartUpdater()
@@ -710,12 +705,7 @@ namespace CoDUO_FoV_Changer_CSharp
             }
         }
 
-        private void UpdateButton_Click(object sender, EventArgs e)
-        {
-            var updaterThread = new Thread(StartUpdater);
-            updaterThread.IsBackground = true;
-            updaterThread.Start();
-        }
+        private void UpdateButton_Click(object sender, EventArgs e) { if ((MessageBox.Show("Are you sure you want to update now?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)) StartUpdater(); }
 
 
 
