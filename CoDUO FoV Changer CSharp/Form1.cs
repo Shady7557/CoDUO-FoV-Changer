@@ -12,7 +12,6 @@ using ReadWriteMemory;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Net;
-using System.Threading;
 using ClampExt;
 using System.Threading.Tasks;
 
@@ -25,7 +24,7 @@ namespace CoDUO_FoV_Changer_CSharp
         public static string appdataFoV = appdata + "CoDUO FoV Changer";
         public static string logsPath = appdataFoV + @"\Logs";
         public static string settingsPath = appdataFoV + @"\settings.xml";
-        public static readonly string hotfix = "7.0";
+        public static readonly string hotfix = "7.1";
         public static readonly string ostype = (Environment.Is64BitOperatingSystem) ? "x64" : "x86";
         public static readonly string registryPathX64 = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive";
         public static readonly string registryPathX86 = registryPathX64.Replace(@"Wow6432Node\", "");
@@ -118,7 +117,7 @@ namespace CoDUO_FoV_Changer_CSharp
 
 
 
-            Task.Factory.StartNew(() =>
+            Task.Run(() =>
             {
                 if (!Directory.Exists(appdata + @"CoDUO FoV Changer\Logs"))
                 {
@@ -127,7 +126,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 }
             });
           
-            if (!noLog) Task.Factory.StartNew(InitLog);
+            if (!noLog) Task.Run(() => InitLog());
 
             if (!string.IsNullOrEmpty(args)) WriteLog("Launched program with args: " + args);
 
@@ -137,9 +136,9 @@ namespace CoDUO_FoV_Changer_CSharp
 
                 if (string.IsNullOrEmpty(settings.InstallPath) || !Directory.Exists(settings.InstallPath))
                 {
-                    if (!string.IsNullOrEmpty(regPath) && regPath.Contains("Call of Duty") || regPath.Contains("CoD"))
+                    if (regPath.Contains("Call of Duty") || regPath.Contains("CoD"))
                     {
-                        if (File.Exists(regPath + @"\CoDUOMP.exe") || File.Exists(regPath + @"\" + "CoDMP.exe")) MessageBox.Show("Automatically detected game .exe" + regPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        if (File.Exists(regPath + @"\CoDUOMP.exe") || File.Exists(regPath + @"\" + "CoDMP.exe") || File.Exists(regPath + @"\mohaa.exe")) MessageBox.Show("Automatically detected game .exe" + regPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                         settings.InstallPath = regPath;
                     }
                     else
@@ -181,7 +180,7 @@ namespace CoDUO_FoV_Changer_CSharp
             }
             if (isDev) UpdateButton.Visible = true;
             UpdateProcessBox();
-            WriteLog("Successfully started application, version " + Application.ProductVersion + " (HF " + hotfix + ")");
+            WriteLog("Successfully started application, version " + Application.ProductVersion);
             var timeTaken = DateTime.Now - startTime;
             if (timeTaken.TotalMilliseconds >= 300) WriteLog("Startup took: " + timeTaken.TotalMilliseconds + " (this is too long!)");
         }
@@ -193,6 +192,11 @@ namespace CoDUO_FoV_Changer_CSharp
                 if (string.IsNullOrEmpty(settings.InstallPath))
                 {
                     MessageBox.Show("Install Path is empty!", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                if (!Directory.Exists(settings.InstallPath))
+                {
+                    MessageBox.Show("Install path: " + settings.InstallPath + " is invalid.");
                     return;
                 }
                 if (!File.Exists(settings.InstallPath + @"\" + ProcNameExt))
@@ -218,10 +222,7 @@ namespace CoDUO_FoV_Changer_CSharp
             }
         }
 
-        private void StartGameButton_Click(object sender, EventArgs e)
-        {
-            Task.Factory.StartNew(StartGame);
-        }
+        private void StartGameButton_Click(object sender, EventArgs e) => Task.Run(() => StartGame());
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -348,7 +349,7 @@ namespace CoDUO_FoV_Changer_CSharp
             doDvars();
         }
         #region Util
-        private void StartUpdates() => Task.Factory.StartNew(() => AccessLabel(CheckUpdatesLabel, (CheckUpdates()) ? "No updates found. Click to check again." : "Updates available!"));
+        private void StartUpdates() => Task.Run(() => AccessLabel(CheckUpdatesLabel, (CheckUpdates()) ? "Updates available!" : "No updates found. Click to check again."));
 
         public bool TryParseFloat(string text, ref float value)
         {
@@ -405,7 +406,14 @@ namespace CoDUO_FoV_Changer_CSharp
             {
                 var response = WebRequest.Create("https://docs.google.com/uc?export=download&id=0B0nCag_Hp76zczRGeU9CZ3NZc3M")?.GetResponse() ?? null;
                 var version = new StreamReader(response?.GetResponseStream() ?? null)?.ReadToEnd() ?? string.Empty;
-                return (version.Contains(hotfix) || string.IsNullOrEmpty(version));
+                if (string.IsNullOrEmpty(version)) return false;
+                decimal hfDec;
+                if (!decimal.TryParse(version, out hfDec))
+                {
+                    WriteLog("Failed to parse: " + version + " (version) as decimal.");
+                    return !version.Contains(hotfix);
+                }
+                return (hfDec > Convert.ToDecimal(hotfix));
             }
             catch (Exception ex)
             {
@@ -429,6 +437,7 @@ namespace CoDUO_FoV_Changer_CSharp
             if (label.InvokeRequired) label.BeginInvoke((MethodInvoker)delegate () { label.Text = text; });
             else label.Text = text;
         }
+
         ProcessMemory getProcessMemory(string processName)
         {
             if (string.IsNullOrEmpty(processName)) return null;
@@ -523,7 +532,7 @@ namespace CoDUO_FoV_Changer_CSharp
             try
             {
                 if (procMem == null) return;
-                Task.Factory.StartNew(() =>
+                Task.Run(() =>
                 {
                     var value = Convert.ToInt32(val);
                     var newmpAddr = getIntPointerAddress(0x489A0D4, 0x20, procMem);
@@ -539,7 +548,7 @@ namespace CoDUO_FoV_Changer_CSharp
             if (procMem == null) return;
             try
             {
-                Task.Factory.StartNew(() =>
+                Task.Run(() =>
                 {
                     var mode = ReadIntAddress(0x4899D50, 0x20, procMem);
                     var width = ReadIntAddress(0x4899D30, 0x20, procMem);
@@ -574,7 +583,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 }
                 else
                 {
-                    Task.Factory.StartNew(() => procMem.WriteFloat(address, Convert.ToSingle(FoVNumeric.Value)));
+                    Task.Run(() => procMem.WriteFloat(address, Convert.ToSingle(FoVNumeric.Value)));
                     StatusLabel.Text = "Status: Game found and wrote to memory!";
                     toolTip1.SetToolTip(StatusLabel, string.Empty);
                     StatusLabel.ForeColor = Color.DarkGreen;
@@ -588,7 +597,7 @@ namespace CoDUO_FoV_Changer_CSharp
             if (procMem == null) return;
             try
             {
-                Task.Factory.StartNew(() =>
+                Task.Run(() =>
                 {
                     var val = (DvarsCheckBox.Checked) ? 235 : 116;
                     var curVal = procMem.ReadByte(0x43DD86);
@@ -658,8 +667,8 @@ namespace CoDUO_FoV_Changer_CSharp
         {
             try
             {
-                var process = Process.GetProcessesByName(ProcName);
-                if (process.Length < 1) return;
+                var processes = Process.GetProcessesByName(ProcName);
+                if (processes.Length < 1) return;
                 if (settings.GameTime < (int.MaxValue - 1)) settings.GameTime++;
                 if (currentSessionTime < (int.MaxValue - 1)) currentSessionTime++;
                 AccessGameTimeLabel();
@@ -768,7 +777,7 @@ namespace CoDUO_FoV_Changer_CSharp
 
         private void ChangelogToolStripMenuItem_Click(object sender, EventArgs e) => new ChangelogForm().Show();
 
-        private void InfoToolStripMenuItem_Click(object sender, EventArgs e) => MessageBox.Show("Created by Shady" + (Environment.NewLine + Environment.NewLine) + "This program is intended to allow you to change the Field of View in Multiplayer for both Call of Duty and Call of Duty: United Offensive, both of which do not normally allow you to do so." + (Environment.NewLine + Environment.NewLine) + "Program version: " + ProductVersion + " (HF: " + hotfix + ")" + Environment.NewLine + "Game version: " + (!string.IsNullOrEmpty(GameVersion) ? GameVersion : "Unknown"), ProductName + " (" + ProductVersion + ", HF " + hotfix + ")", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        private void InfoToolStripMenuItem_Click(object sender, EventArgs e) => MessageBox.Show("Created by Shady" + (Environment.NewLine + Environment.NewLine) + "This program is intended to allow you to change the Field of View in Multiplayer for both Call of Duty and Call of Duty: United Offensive, both of which do not normally allow you to do so." + (Environment.NewLine + Environment.NewLine) + "Program version: " + ProductVersion + Environment.NewLine + "Game version: " + (!string.IsNullOrEmpty(GameVersion) ? GameVersion : "Unknown"), ProductName + " (" + ProductVersion + ")", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {

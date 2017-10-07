@@ -1,10 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System;
-using System.Windows.Forms;
-using System.Media;
 using System.Text;
-using System.Threading;
 //This wasn't written by me (Shady), and quite frankly I can't remember who did but I'm pretty sure it's fairly generic at this point
 namespace ReadWriteMemory
 {

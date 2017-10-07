@@ -111,7 +111,7 @@ namespace CoDUO_FoV_Changer_CSharp
             if (closePrompt == DialogResult.Yes)
             {
                 settings.HasChanged = false;
-                Application.Restart();
+                Close();
             }
         }
 
