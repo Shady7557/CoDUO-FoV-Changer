@@ -77,6 +77,7 @@ namespace CoDUO_FoV_Changer_CSharp
         {
             var startTime = DateTime.Now;
             CheckForIllegalCrossThreadCalls = true;
+            
             var argsSB = new StringBuilder();
             for (int i = 0; i < Environment.GetCommandLineArgs().Length; i++)
             {
@@ -110,13 +111,6 @@ namespace CoDUO_FoV_Changer_CSharp
                 }
                 argsSB.Append(argu + " ");
             }
-            var args = argsSB.ToString().TrimEnd();
-            DvarsCheckBox.Visible = false;
-
-            StartUpdates();
-
-
-
             Task.Run(() =>
             {
                 if (!Directory.Exists(appdata + @"CoDUO FoV Changer\Logs"))
@@ -125,8 +119,17 @@ namespace CoDUO_FoV_Changer_CSharp
                     WriteLog("Created folder(s): " + appdata + @"CoDUO FoV Changer\Logs");
                 }
             });
-          
             if (!noLog) Task.Run(() => InitLog());
+            var args = argsSB.ToString().TrimEnd();
+            DvarsCheckBox.Visible = false;
+
+            StartUpdates();
+
+
+
+          
+          
+            
 
             if (!string.IsNullOrEmpty(args)) WriteLog("Launched program with args: " + args);
 
@@ -697,19 +700,20 @@ namespace CoDUO_FoV_Changer_CSharp
                 if (!File.Exists(path))
                 {
                     File.WriteAllBytes(path, Properties.Resources.CoDUO_FoV_Changer_Updater_CSharp);
-                    Log.WriteLine("Created updater at: " + path);
+                    WriteLog("Created updater at: " + path);
+                    WriteLog("Created updater at: " + path);
                 }
                 var updaterInfo = new ProcessStartInfo();
                 updaterInfo.Verb = "runas";
                 updaterInfo.WorkingDirectory = Application.StartupPath;
                 updaterInfo.FileName = path;
                 Process.Start(updaterInfo);
-                Log.WriteLine("Started Updater, shutting down");
+                WriteLog("Started Updater, shutting down");
                 Application.Exit();
             }
             catch (Exception ex)
             {
-                Log.WriteLine("An error happened while trying to write the updater:" + Environment.NewLine + ex.ToString());
+                WriteLog("An error happened while trying to write the updater:" + Environment.NewLine + ex.ToString());
                 MessageBox.Show("An error happened while trying to write the updater: " + Environment.NewLine + ex.Message + Environment.NewLine + " Please refer to the log for more info.");
             }
         }

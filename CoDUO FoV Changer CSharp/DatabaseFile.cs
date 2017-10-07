@@ -40,7 +40,7 @@ namespace CoDUO_FoV_Changer_CSharp
             }
             catch (Exception ex)
             {
-                Log.WriteLine(" * [" + ex.TargetSite.Name + "] " + ex.Message);
+                if (Log.IsInitialized) Log.WriteLine(" * [" + ex.TargetSite.Name + "] " + ex.Message);
                 return false;
             }
         }
@@ -84,9 +84,9 @@ namespace CoDUO_FoV_Changer_CSharp
             }
             catch (Exception ex)
             {
-              
-           //     Console.WriteLine(" * [" + ex.TargetSite.Name + "] " + ex.Message);
-                Log.WriteLine(" * [" + ex.TargetSite.Name + "] " + ex.Message);
+
+                //     Console.WriteLine(" * [" + ex.TargetSite.Name + "] " + ex.Message);
+                if (Log.IsInitialized) Log.WriteLine(" * [" + ex.TargetSite.Name + "] " + ex.Message);
                 return new T();
             }
         }
