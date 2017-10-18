@@ -11,11 +11,13 @@ namespace CoDUO_FoV_Changer_CSharp
         private Keys currentKey;
         private int currentKeyCode;
         Settings settings = Settings.Instance;
-        Settings oldSettings = Settings.Instance;
+        Settings oldSettings;
         public Hotkeys() => InitializeComponent();
         
         private void Hotkeys_Load(object sender, EventArgs e)
         {
+            oldSettings = new Settings();
+            oldSettings = settings;
             try
             {
                 if (!MainForm.isElevated)
@@ -45,7 +47,7 @@ namespace CoDUO_FoV_Changer_CSharp
                     MainForm.WriteLog("User canceled UAC prompt (" + win32ex.Message + " )");
                     Close();
                 }
-                return; //returns are required to stop the settings code below
+                return;
             }
             catch(Exception ex)
             {
@@ -53,7 +55,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 MainForm.WriteLog(ex.ToString());
                 MessageBox.Show("Failed to start hot keys form: " + ex.Message + Environment.NewLine + " please refer to the log for more info.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
-                return; //returns are required to stop the settings code below
+                return;
             }
             DatabaseFile.Write<Settings>(settings, MainForm.settingsPath); //save current settings
             settings.HasChanged = false; //force it to not be changed so exit without saving works 'properly'
@@ -64,7 +66,7 @@ namespace CoDUO_FoV_Changer_CSharp
             var keyStr = e.KeyData.ToString();
             if (keyStr == "LWin") return;
             if (keyStr.Contains(",")) keyStr = keyStr.Split(',')[1];
-            label1.Text = "Key: " + keyStr;
+            label1.Text = "Key: " + keyStr.TrimStart(' ');
             currentKey = e.KeyData;
             currentKeyCode = e.KeyValue;
             curKeyName = e.KeyData.ToString();
@@ -74,28 +76,28 @@ namespace CoDUO_FoV_Changer_CSharp
         {
             if(FoVUp.Checked)
             {
-                settings.HotKeyUp = curKeyName;
-                MessageBox.Show("Set FoV+ hotkey!");
+                settings.HotKeyUp = currentKeyCode.ToString();
+                MessageBox.Show("Set FoV+ hotkey: " + curKeyName);
             }
             if (FoVDown.Checked)
             {
-                settings.HotKeyDown = curKeyName;
-                MessageBox.Show("Set FoV- hotkey!");
+                settings.HotKeyDown = currentKeyCode.ToString();
+                MessageBox.Show("Set FoV- hotkey: " + curKeyName);
             }
             if (FoVModifier.Checked)
             {
-                settings.HotKeyModifier = curKeyName;
-                MessageBox.Show("Set FoV modifier key!");
+                settings.HotKeyModifier = currentKeyCode.ToString();
+                MessageBox.Show("Set FoV modifier key: " + curKeyName);
             }
             if (FogKey.Checked)
             {
-                settings.HotKeyFog = curKeyName;
+                settings.HotKeyFog = currentKeyCode.ToString();
                 MessageBox.Show("Set fog hotkey: " + curKeyName);
             }
             if (FogModifier.Checked)
             {
-                settings.HotKeyFogModifier = curKeyName;
-                MessageBox.Show("Set fog modifier hotkey!");
+                settings.HotKeyFogModifier = currentKeyCode.ToString();
+                MessageBox.Show("Set fog modifier hotkey: " + curKeyName);
             }
         }
 
@@ -111,11 +113,12 @@ namespace CoDUO_FoV_Changer_CSharp
             if (closePrompt == DialogResult.Yes)
             {
                 settings.HasChanged = false;
+            //    settings = oldSettings;
                 Close();
             }
         }
 
-        private Keys GetKeyFromString(string keyName)
+        private Keys GetKeyFromString(string keyName, bool split = false)
         {
             if (string.IsNullOrEmpty(keyName)) return 0;
             Keys key;
@@ -123,29 +126,37 @@ namespace CoDUO_FoV_Changer_CSharp
             return 0;
         }
 
+        private string GetKeyString(Keys key)
+        {
+            if (key == 0) return string.Empty;
+            var keyStr = key.ToString();
+            if (keyStr.Contains(",")) keyStr = keyStr.Split(',')[1];
+            return keyStr;
+        }
+
         private void FogKey_CheckedChanged(object sender, EventArgs e)
         {
-            if (FogKey.Checked && !string.IsNullOrEmpty(settings.HotKeyFog)) label1.Text = "Key: " + GetKeyFromString(settings.HotKeyFog) + " (current)";
+            if (FogKey.Checked && !string.IsNullOrEmpty(settings.HotKeyFog)) label1.Text = "Key: " + GetKeyString(GetKeyFromString(settings.HotKeyFog)) + " (current)";
         }
 
         private void FoVUp_CheckedChanged(object sender, EventArgs e)
         {
-            if (FoVUp.Checked && !string.IsNullOrEmpty(settings.HotKeyUp)) label1.Text = "Key: " + GetKeyFromString(settings.HotKeyUp) + " (current)";
+            if (FoVUp.Checked && !string.IsNullOrEmpty(settings.HotKeyUp)) label1.Text = "Key: " + GetKeyString(GetKeyFromString(settings.HotKeyUp)) + " (current)";
         }
 
         private void FoVDown_CheckedChanged(object sender, EventArgs e)
         {
-            if (FoVDown.Checked && !string.IsNullOrEmpty(settings.HotKeyDown)) label1.Text = "Key: " + GetKeyFromString(settings.HotKeyDown) + " (current)";
+            if (FoVDown.Checked && !string.IsNullOrEmpty(settings.HotKeyDown)) label1.Text = "Key: " + GetKeyString(GetKeyFromString(settings.HotKeyDown)) + " (current)";
         }
 
         private void FoVModifier_CheckedChanged(object sender, EventArgs e)
         {
-            if (FoVModifier.Checked && !string.IsNullOrEmpty(settings.HotKeyModifier)) label1.Text = "Key: " + GetKeyFromString(settings.HotKeyModifier) + " (current)";
+            if (FoVModifier.Checked && !string.IsNullOrEmpty(settings.HotKeyModifier)) label1.Text = "Key: " + GetKeyString(GetKeyFromString(settings.HotKeyModifier)) + " (current)";
         }
 
         private void FogModifier_CheckedChanged(object sender, EventArgs e)
         {
-            if (FogModifier.Checked && !string.IsNullOrEmpty(settings.HotKeyFogModifier)) label1.Text = "Key: " + GetKeyFromString(settings.HotKeyFogModifier) + " (current)";
+            if (FogModifier.Checked && !string.IsNullOrEmpty(settings.HotKeyFogModifier)) label1.Text = "Key: " + GetKeyString(GetKeyFromString(settings.HotKeyFogModifier)) + " (current)";
         }
     }
 }

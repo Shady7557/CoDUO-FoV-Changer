@@ -24,7 +24,7 @@ namespace CoDUO_FoV_Changer_CSharp
         public static string appdataFoV = appdata + "CoDUO FoV Changer";
         public static string logsPath = appdataFoV + @"\Logs";
         public static string settingsPath = appdataFoV + @"\settings.xml";
-        public static readonly string hotfix = "7.1";
+        public static readonly string hotfix = "7.2";
         public static readonly string ostype = (Environment.Is64BitOperatingSystem) ? "x64" : "x86";
         public static readonly string registryPathX64 = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive";
         public static readonly string registryPathX86 = registryPathX64.Replace(@"Wow6432Node\", "");
@@ -111,15 +111,14 @@ namespace CoDUO_FoV_Changer_CSharp
                 }
                 argsSB.Append(argu + " ");
             }
-            Task.Run(() =>
+
+            if (!Directory.Exists(appdataFoV)) Directory.CreateDirectory(appdataFoV);
+            if (!noLog)
             {
-                if (!Directory.Exists(appdata + @"CoDUO FoV Changer\Logs"))
-                {
-                    Directory.CreateDirectory(appdata + @"CoDUO FoV Changer\Logs");
-                    WriteLog("Created folder(s): " + appdata + @"CoDUO FoV Changer\Logs");
-                }
-            });
-            if (!noLog) Task.Run(() => InitLog());
+                if (!Directory.Exists(logsPath)) Directory.CreateDirectory(logsPath);
+                InitLog();
+            }
+
             var args = argsSB.ToString().TrimEnd();
             DvarsCheckBox.Visible = false;
 
@@ -398,11 +397,8 @@ namespace CoDUO_FoV_Changer_CSharp
 
             return a;
         }
-        bool IsProcessRunning(int pid)
-        {
-            try { return ((Process.GetProcessById(pid)?.Id ?? 0) != 0); }
-            catch (ArgumentException) { return false; }
-        }
+        bool IsProcessRunning(int pid) { return Process.GetProcesses().Any(p => p != null && p.Id == pid); }
+
         private bool CheckUpdates()
         {
             try
@@ -421,7 +417,7 @@ namespace CoDUO_FoV_Changer_CSharp
             catch (Exception ex)
             {
                 WriteLog("Unable to check for updates: " + ex.Message + Environment.NewLine + ex.ToString());
-                return true;
+                return false;
             }
         }
 
@@ -429,14 +425,15 @@ namespace CoDUO_FoV_Changer_CSharp
         {
             var value = string.Empty;
             if (CBox == null) return value;
-            try { if (CBox.Items.Count >= 1 && CBox.SelectedIndex >= 0) value = CBox?.Items[CBox.SelectedIndex]?.ToString() ?? string.Empty; }
+            try { if (CBox.Items.Count > 0 && CBox.SelectedIndex >= 0) value = CBox?.Items[CBox.SelectedIndex]?.ToString() ?? string.Empty; }
             catch (Exception ex) { WriteLog(ex.ToString()); }
             return value;
         }
-        public static bool IsKeyPushedDown(System.Windows.Forms.Keys vKey) { return 0 != (GetAsyncKeyState((int)vKey) & 0x8000); }
+        public static bool IsKeyPushedDown(System.Windows.Forms.Keys vKey) { return (GetAsyncKeyState((int)vKey) & 0x8000) != 0; }
 
         private void AccessLabel(Label label, string text)
         {
+            if (label == null) return;
             if (label.InvokeRequired) label.BeginInvoke((MethodInvoker)delegate () { label.Text = text; });
             else label.Text = text;
         }
@@ -474,11 +471,7 @@ namespace CoDUO_FoV_Changer_CSharp
                     return null;
                 }
                 var mem = new ProcessMemory(pid);
-                if (mem != null)
-                {
-                    if (!mem.StartProcess()) return null;
-                    return mem;
-                }
+                return (mem != null) ? (!mem.StartProcess() ? null : mem) : null;
             }
             catch (Exception ex) { WriteLog(ex.ToString()); }
 
@@ -701,7 +694,6 @@ namespace CoDUO_FoV_Changer_CSharp
                 {
                     File.WriteAllBytes(path, Properties.Resources.CoDUO_FoV_Changer_Updater_CSharp);
                     WriteLog("Created updater at: " + path);
-                    WriteLog("Created updater at: " + path);
                 }
                 var updaterInfo = new ProcessStartInfo();
                 updaterInfo.Verb = "runas";
@@ -741,31 +733,15 @@ namespace CoDUO_FoV_Changer_CSharp
                 {
                     var proc = allProcs[i];
                     if (proc == null || proc.Id == 0 || !proc.ProcessName.Contains(ProcName)) continue;
-
-                    var cont = new Dictionary<int, bool>();
-                    cont[proc.Id] = true;
-                    for (int j = 0; j < GamePIDBox.Items.Count; j++)
-                    {
-                        var item = GamePIDBox.Items[j];
-                        if (item.ToString().Contains(proc.Id.ToString())) cont[proc.Id] = false;
-                    }
-                    if (cont[proc.Id]) GamePIDBox.Items.Add(proc.ProcessName + " (" + proc.Id + ")");
+                    var pidStr = proc.Id.ToString();
+                    var hasPid = GamePIDBox?.Items?.Cast<object>()?.Any(p => p.ToString().Contains(pidStr)) ?? false;
+                    if (!hasPid) GamePIDBox.Items.Add(proc.ProcessName + " (" + pidStr + ")");
                 }
-                GamePIDBox.Visible = (GamePIDBox.Items.Count > 0);
+                GamePIDBox.Visible = GamePIDBox.Items.Count > 0;
                 if (GamePIDBox.SelectedItem == null)
                 {
-                    if (GamePIDBox.Items.Count > 1 && selectedIndex > 0)
-                    {
-                        GamePIDBox.SelectedIndex = (selectedIndex - 1);
-                        MessageBox.Show("items count IS > 1 and selectedIndex is > 0, pre index: " + selectedIndex + " " + (selectedIndex - 1));
-                    }
-                    else
-                    {
-                        var listItems = new List<object>();
-                        for (int i = 0; i < GamePIDBox.Items.Count; i++) listItems.Add(GamePIDBox.Items[i]);
-
-                        if (listItems.Count > 0) GamePIDBox.SelectedItem = listItems?.FirstOrDefault() ?? null;
-                    }
+                    if (GamePIDBox.Items.Count > 1 && selectedIndex > 0) GamePIDBox.SelectedIndex = (selectedIndex - 1);
+                    else { if (GamePIDBox.Items.Count > 0) GamePIDBox.SelectedItem = GamePIDBox.Items.Cast<object>()?.FirstOrDefault() ?? null; }
                 }
             }
             catch (Exception ex)
