@@ -5,7 +5,7 @@ using Microsoft.Win32;
 using System.IO;
 using System.Diagnostics;
 
-namespace CoDUO_FoV_Changer_CSharp
+namespace CoDUO_FoV_Changer
 {
     public partial class SettingsForm : Form
     {

@@ -15,7 +15,7 @@ using System.Net;
 using ClampExt;
 using System.Threading.Tasks;
 
-namespace CoDUO_FoV_Changer_CSharp
+namespace CoDUO_FoV_Changer
 {
     public partial class MainForm : Form
     {
@@ -25,7 +25,6 @@ namespace CoDUO_FoV_Changer_CSharp
         public static string logsPath = appdataFoV + @"\Logs";
         public static string settingsPath = appdataFoV + @"\settings.xml";
         public static readonly string hotfix = "7.2";
-        public static readonly string ostype = (Environment.Is64BitOperatingSystem) ? "x64" : "x86";
         public static readonly string registryPathX64 = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive";
         public static readonly string registryPathX86 = registryPathX64.Replace(@"Wow6432Node\", "");
         public static readonly string cleanVersion = Application.ProductVersion.Substring(0, 3);
@@ -44,7 +43,7 @@ namespace CoDUO_FoV_Changer_CSharp
         private string ProcName { get { return ((CoD1CheckBox.Checked) ? "CoDMP" : "CoDUOMP"); } }
         private string ProcNameExt { get { return (ProcName + ".exe"); } }
         private Process GameProcess { get { return Process.GetProcessesByName(ProcName)?.FirstOrDefault() ?? null; } }
-        public static string RegistryPath { get { return ((ostype == "64") ? registryPathX64 : registryPathX86); } }
+        public static string RegistryPath { get { return ((Environment.Is64BitOperatingSystem) ? registryPathX64 : registryPathX86); } }
         public string GameVersion { get { return Registry.GetValue(RegistryPath, "Version", string.Empty)?.ToString() ?? string.Empty; } }
         [DllImport("user32.dll")]
         static extern ushort GetAsyncKeyState(int vKey);
@@ -83,7 +82,7 @@ namespace CoDUO_FoV_Changer_CSharp
             {
                 var argu = Environment.GetCommandLineArgs()[i];
                 var arg = argu.ToLower();
-                if (arg.Contains(Application.ProductName.ToLower()) || arg.Contains(Application.StartupPath.ToLower())) continue;
+                if (arg.IndexOf(Application.ProductName, StringComparison.OrdinalIgnoreCase) >= 0 || arg.IndexOf(Application.StartupPath, StringComparison.OrdinalIgnoreCase) >= 0) continue;
                 if (arg == "-nolog") noLog = true;
                 if (arg == "-unlock") DvarsCheckBox.Visible = true;
                 if (arg == "-unlock=1")
@@ -247,7 +246,7 @@ namespace CoDUO_FoV_Changer_CSharp
             }
             settings.Fog = FogCheckBox.Checked;
             fogToolStripMenuItem.Checked = settings.Fog;
-            doFog(settings.Fog);
+            ToggleFog(settings.Fog);
         }
 
         private void CoD1CheckBox_CheckedChanged(object sender, EventArgs e)
@@ -294,10 +293,13 @@ namespace CoDUO_FoV_Changer_CSharp
         private void MemoryTimer_Tick(object sender, EventArgs e)
         {
             procMem = getProcessMemoryFromBox();
-            doRAChecks();
-            doFoV();
-            doFog(settings.Fog);
-            doDvars();
+            Task.Run(() =>
+            {
+                doRAChecks();
+                doFoV();
+                ToggleFog(settings.Fog);
+                doDvars();
+            });
         }
 
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();
@@ -351,7 +353,7 @@ namespace CoDUO_FoV_Changer_CSharp
             doDvars();
         }
         #region Util
-        private void StartUpdates() => Task.Run(() => AccessLabel(CheckUpdatesLabel, (CheckUpdates()) ? "Updates available!" : "No updates found. Click to check again."));
+        private void StartUpdates() => Task.Run(() => SetLabelText(CheckUpdatesLabel, (CheckUpdates()) ? "Updates available!" : "No updates found. Click to check again."));
 
         public bool TryParseFloat(string text, ref float value)
         {
@@ -431,7 +433,7 @@ namespace CoDUO_FoV_Changer_CSharp
         }
         public static bool IsKeyPushedDown(System.Windows.Forms.Keys vKey) { return (GetAsyncKeyState((int)vKey) & 0x8000) != 0; }
 
-        private void AccessLabel(Label label, string text)
+        private void SetLabelText(Label label, string text)
         {
             if (label == null) return;
             if (label.InvokeRequired) label.BeginInvoke((MethodInvoker)delegate () { label.Text = text; });
@@ -493,14 +495,6 @@ namespace CoDUO_FoV_Changer_CSharp
 
         int ReadIntAddress(IntPtr baseAddress, int offset, ProcessMemory procMem, int pSize = 4, int startIndex = 0) { return ReadIntAddress(baseAddress.ToInt32(), offset, procMem, pSize, startIndex); }
 
-        int DllImageAddress(ProcessMemory procMem, string dllName)
-        {
-            if (procMem == null || string.IsNullOrEmpty(dllName)) return -1;
-            try { return procMem?.DllImageAddress(cgameDll) ?? -1; }
-            catch (Exception ex) { WriteLog("Failed to complete DllImageAddress: " + Environment.NewLine + ex.ToString()); }
-            return -1;
-        }
-
         private void ScalePictureBox(PictureBox pictureBox, Image initialImage = null)
         {
             Bitmap finalImg = null;
@@ -515,26 +509,23 @@ namespace CoDUO_FoV_Changer_CSharp
 
         private void SetFoVNumeric(decimal fov)
         {
-            var newVal = ClampEx.Clamp(fov, FoVNumeric.Minimum, FoVNumeric.Maximum);
-            if (FoVNumeric.InvokeRequired) FoVNumeric.BeginInvoke((MethodInvoker)delegate () { FoVNumeric.Value = newVal; });
-            else FoVNumeric.Value = newVal;
+            ClampEx.Clamp(ref fov, FoVNumeric.Minimum, FoVNumeric.Maximum);
+            if (FoVNumeric.InvokeRequired) FoVNumeric.BeginInvoke((MethodInvoker)delegate () { FoVNumeric.Value = fov; });
+            else FoVNumeric.Value = fov;
         }
 
         public static void WriteLog(string message) { if (Log.IsInitialized) Log.WriteLine(message); }
         #endregion
         #region Memory
-        private void doFog(bool val)
+        private void ToggleFog(bool val)
         {
             try
             {
                 if (procMem == null) return;
-                Task.Run(() =>
-                {
-                    var value = Convert.ToInt32(val);
-                    var newmpAddr = getIntPointerAddress(0x489A0D4, 0x20, procMem);
-                    var fogValue = ReadIntAddress(0x489A0D4, 0x20, procMem);
-                    if (fogValue != value) procMem.WriteInt(newmpAddr, value);
-                });
+                var value = Convert.ToInt32(val);
+                var newmpAddr = getIntPointerAddress(0x489A0D4, 0x20, procMem);
+                var fogValue = ReadIntAddress(0x489A0D4, 0x20, procMem);
+                if (fogValue != value) procMem.WriteInt(newmpAddr, value);
             }
             catch (Exception ex) { WriteLog("An exception happened while trying to read/write fog values:" + Environment.NewLine + ex.ToString()); }
         }
@@ -544,24 +535,23 @@ namespace CoDUO_FoV_Changer_CSharp
             if (procMem == null) return;
             try
             {
-                Task.Run(() =>
+                var mode = ReadIntAddress(0x4899D50, 0x20, procMem);
+                var width = ReadIntAddress(0x4899D30, 0x20, procMem);
+                var height = ReadIntAddress(0x4899FCC, 0x20, procMem);
+                if (width == 0 || height == 0)
                 {
-                    var mode = ReadIntAddress(0x4899D50, 0x20, procMem);
-                    var width = ReadIntAddress(0x4899D30, 0x20, procMem);
-                    var height = ReadIntAddress(0x4899FCC, 0x20, procMem);
-                    if (width == 0 || height == 0)
-                    {
-                        WriteLog("Got bad width/height: " + width + ", " + height);
-                        return;
-                    }
-                    var ratio = (double)width / (double)height;
-                    var aspectWidth = width / GCD(width, height);
-                    var aspectHeight = height / GCD(width, height);
-                    var aspectStr = aspectWidth + ":" + aspectHeight;
-                    if (aspectWidth == 8 && aspectHeight == 5) aspectStr = aspectStr.Replace("8", "16").Replace("5", "10");
-                    FoVNumeric.Invoke((MethodInvoker)delegate () { FoVNumeric.Maximum = ((ratio < 1.7 && mode == -1) || mode != -1) ? 105 : 130; });
-                    SetFoVNumeric(FoVNumeric.Value); //will set it to the value if it can, if not, falls back on maximum
-                });
+                    WriteLog("Got bad width/height: " + width + ", " + height);
+                    return;
+                }
+                var ratio = (double)width / (double)height;
+                var aspectWidth = width / GCD(width, height);
+                var aspectHeight = height / GCD(width, height);
+                var aspectStr = aspectWidth + ":" + aspectHeight;
+                if (aspectWidth == 8 && aspectHeight == 5) aspectStr = aspectStr.Replace("8", "16").Replace("5", "10");
+                var maxFoV = ((ratio < 1.7 && mode == -1) || mode != -1) ? 105 : 130;
+                if (FoVNumeric.InvokeRequired) FoVNumeric.Invoke((MethodInvoker)delegate () { FoVNumeric.Maximum = maxFoV; });
+                else FoVNumeric.Maximum = maxFoV;
+                SetFoVNumeric(FoVNumeric.Value); //will set it to the value if it can, if not, falls back on maximum
             }
             catch (Exception ex) { WriteLog("An exception happened while trying to get current game resolution:" + Environment.NewLine + ex.ToString()); }
         }
@@ -570,17 +560,17 @@ namespace CoDUO_FoV_Changer_CSharp
         {
             try
             {
-                var address = (CoD1CheckBox.Checked) ? 0x3029CA28 : (DllImageAddress(procMem, cgameDll) + 0x52F7C8);
+                var address = (CoD1CheckBox.Checked) ? 0x3029CA28 : (procMem.DllImageAddress(cgameDll) + 0x52F7C8);
                 if (procMem == null || (address == -1))
                 {
-                    StatusLabel.Text = "Status: not found or failed to write to memory!";
-                    toolTip1.SetToolTip(StatusLabel, "Unable to write to memory, if this continues, try running this program as an Administrator.");
+                    SetLabelText(StatusLabel, "Status: not found or failed to write to memory!");
+                    toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!");
                     StatusLabel.ForeColor = Color.DarkRed;
                 }
                 else
                 {
-                    Task.Run(() => procMem.WriteFloat(address, Convert.ToSingle(FoVNumeric.Value)));
-                    StatusLabel.Text = "Status: Game found and wrote to memory!";
+                    procMem.WriteFloat(address, Convert.ToSingle(FoVNumeric.Value));
+                    SetLabelText(StatusLabel, "Status: Game found and wrote to memory!");
                     toolTip1.SetToolTip(StatusLabel, string.Empty);
                     StatusLabel.ForeColor = Color.DarkGreen;
                 }
@@ -593,15 +583,12 @@ namespace CoDUO_FoV_Changer_CSharp
             if (procMem == null) return;
             try
             {
-                Task.Run(() =>
-                {
-                    var val = (DvarsCheckBox.Checked) ? 235 : 116;
-                    var curVal = procMem.ReadByte(0x43DD86);
-                    if (curVal == val) return; //don't write if it's already the value we want
-                    procMem.WriteInt(0x43DD86, val, 1);
-                    procMem.WriteInt(0x43DDA3, val, 1);
-                    procMem.WriteInt(0x43DDC1, val, 1);
-                });
+                var val = (DvarsCheckBox.Checked) ? 235 : 116;
+                var curVal = procMem.ReadByte(0x43DD86);
+                if (curVal == val) return; //don't write if it's already the value we want
+                procMem.WriteInt(0x43DD86, val, 1);
+                procMem.WriteInt(0x43DDA3, val, 1);
+                procMem.WriteInt(0x43DDC1, val, 1);
             }
             catch (Exception ex) { WriteLog("An exception happened while trying to read/write Dvar addresses:" + Environment.NewLine + ex.ToString()); }
         }
@@ -692,7 +679,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 var path = temp + "CoDUO FoV Changer Updater.exe";
                 if (!File.Exists(path))
                 {
-                    File.WriteAllBytes(path, Properties.Resources.CoDUO_FoV_Changer_Updater_CSharp);
+                    File.WriteAllBytes(path, Properties.Resources.CoDUO_FoV_Changer_Updater);
                     WriteLog("Created updater at: " + path);
                 }
                 var updaterInfo = new ProcessStartInfo();
@@ -776,7 +763,7 @@ namespace CoDUO_FoV_Changer_CSharp
                 return;
             }
             settings.Fog = FogCheckBox.Checked = fogToolStripMenuItem.Checked;
-            doFog(settings.Fog);
+            Task.Run(() => ToggleFog(settings.Fog));
         }
 
         private void fogToolStripMenuItem_Click(object sender, EventArgs e) =>  fogToolStripMenuItem.Checked = !fogToolStripMenuItem.Checked; //idk why this is needed but it seems like it is??

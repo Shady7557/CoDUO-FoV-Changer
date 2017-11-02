@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace CoDUO_FoV_Changer_CSharp.Properties {
+namespace CoDUO_FoV_Changer.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace CoDUO_FoV_Changer_CSharp.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("CoDUO_FoV_Changer_CSharp.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("CoDUO_FoV_Changer.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -83,9 +83,9 @@ namespace CoDUO_FoV_Changer_CSharp.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] CoDUO_FoV_Changer_Updater_CSharp {
+        internal static byte[] CoDUO_FoV_Changer_Updater {
             get {
-                object obj = ResourceManager.GetObject("CoDUO_FoV_Changer_Updater_CSharp", resourceCulture);
+                object obj = ResourceManager.GetObject("CoDUO_FoV_Changer_Updater", resourceCulture);
                 return ((byte[])(obj));
             }
         }

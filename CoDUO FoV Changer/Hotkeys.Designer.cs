@@ -1,4 +1,4 @@
-﻿namespace CoDUO_FoV_Changer_CSharp
+﻿namespace CoDUO_FoV_Changer
 {
     partial class Hotkeys
     {

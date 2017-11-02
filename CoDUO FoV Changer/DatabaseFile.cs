@@ -4,7 +4,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Xml;
 
-namespace CoDUO_FoV_Changer_CSharp
+namespace CoDUO_FoV_Changer
 {
     class DatabaseFile
     {

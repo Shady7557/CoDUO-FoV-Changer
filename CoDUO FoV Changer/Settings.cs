@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace CoDUO_FoV_Changer_CSharp
+namespace CoDUO_FoV_Changer
 {
     [Serializable]
     public sealed class Settings

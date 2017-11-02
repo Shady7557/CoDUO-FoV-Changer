@@ -4,7 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CoDUO_FoV_Changer_CSharp
+namespace CoDUO_FoV_Changer
 {
     public partial class ChangelogForm : Form
     {
