@@ -564,14 +564,14 @@ namespace CoDUO_FoV_Changer
                 if (procMem == null || (address == -1))
                 {
                     SetLabelText(StatusLabel, "Status: not found or failed to write to memory!");
-                    toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!");
+                    StatusLabel.BeginInvoke((MethodInvoker)delegate () { toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!"); });
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.DarkRed; });
                 }
                 else
                 {
                     procMem.WriteFloat(address, Convert.ToSingle(FoVNumeric.Value));
                     SetLabelText(StatusLabel, "Status: Game found and wrote to memory!");
-                    toolTip1.SetToolTip(StatusLabel, string.Empty);
+                    StatusLabel.BeginInvoke((MethodInvoker)delegate () { toolTip1.SetToolTip(StatusLabel, string.Empty); });
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.DarkGreen; });
                 }
             }
