@@ -560,19 +560,19 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                var address = (CoD1CheckBox.Checked) ? 0x3029CA28 : (procMem.DllImageAddress(cgameDll) + 0x52F7C8);
+                var address = (CoD1CheckBox.Checked) ? 0x3029CA28 : (procMem != null ? (procMem.DllImageAddress(cgameDll) + 0x52F7C8) : -1);
                 if (procMem == null || (address == -1))
                 {
                     SetLabelText(StatusLabel, "Status: not found or failed to write to memory!");
                     toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!");
-                    StatusLabel.ForeColor = Color.DarkRed;
+                    StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.DarkRed; });
                 }
                 else
                 {
                     procMem.WriteFloat(address, Convert.ToSingle(FoVNumeric.Value));
                     SetLabelText(StatusLabel, "Status: Game found and wrote to memory!");
                     toolTip1.SetToolTip(StatusLabel, string.Empty);
-                    StatusLabel.ForeColor = Color.DarkGreen;
+                    StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.DarkGreen; });
                 }
             }
             catch (Exception ex) { WriteLog("An exception happened while trying to read/write FoV addresses: " + Environment.NewLine + ex.ToString()); }
