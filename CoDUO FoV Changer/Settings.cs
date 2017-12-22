@@ -27,6 +27,7 @@ namespace CoDUO_FoV_Changer
         private string hotkeyModifier;
         private string hotkeyToggleFog;
         private string hotkeyFogModifier;
+        private bool cod1;
 
         static Settings()
         {
@@ -80,6 +81,17 @@ namespace CoDUO_FoV_Changer
                 cmdline = value;
             }
         }
+
+        public bool CoD1
+        {
+            get { return cod1; }
+            set
+            {
+                settingsChanged = true;
+                cod1 = value;
+            }
+        }
+        
 
         public string LastLogFile
         {

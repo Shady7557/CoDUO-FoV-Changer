@@ -25,13 +25,11 @@ namespace CoDUO_FoV_Changer
         public static string logsPath = appdataFoV + @"\Logs";
         public static string settingsPath = appdataFoV + @"\settings.xml";
         public static readonly string hotfix = "7.2";
-        public static readonly string registryPathX64 = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive";
-        public static readonly string registryPathX86 = registryPathX64.Replace(@"Wow6432Node\", "");
         public static readonly string cleanVersion = Application.ProductVersion.Substring(0, 3);
         public static bool isDev = Debugger.IsAttached;
         public static readonly bool isElevated = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
         public bool noLog = false;
-        Settings settings = Settings.Instance;
+        public static Settings settings = Settings.Instance;
         private Image CoDImage = Properties.Resources.CoD1;
         private Image CoDUOImage = Properties.Resources.CoDUO;
         public static readonly string cgameDll = "uo_cgame_mp_x86.dll";
@@ -40,13 +38,19 @@ namespace CoDUO_FoV_Changer
         private Memory memory;
         private DateTime lastHotkey;
         private DateTime lastUpdateCheck;
-        private string ProcName { get { return ((CoD1CheckBox.Checked) ? "CoDMP" : "CoDUOMP"); } }
+        private string ProcName { get { return (settings.CoD1 ? "CoDMP" : "CoDUOMP"); } }
         private string ProcNameExt { get { return (ProcName + ".exe"); } }
-        public static string RegistryPath { get { return ((Environment.Is64BitOperatingSystem) ? registryPathX64 : registryPathX86); } }
-        public string GameVersion { get { return Registry.GetValue(RegistryPath, "Version", string.Empty)?.ToString() ?? string.Empty; } }
+        public string GameVersion { get { return Registry.GetValue(GetRegistryPath(), "Version", string.Empty)?.ToString() ?? string.Empty; } }
         [DllImport("user32.dll")]
         static extern ushort GetAsyncKeyState(int vKey);
 
+        public static string GetRegistryPath()
+        {
+            var path = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive";
+            if (!Environment.Is64BitOperatingSystem) path = path.Replace(@"Wow6432Node\", "");
+            if(Registry.LocalMachine.OpenSubKey(path.Replace(@"HKEY_LOCAL_MACHINE\", "")) == null || settings.CoD1) path = path.Replace("United Offensive", "");
+            return path;
+        }
 
         public MainForm() => InitializeComponent();
 
@@ -111,7 +115,7 @@ namespace CoDUO_FoV_Changer
                 }
                 argsSB.Append(argu + " ");
             }
-
+            CoD1CheckBox.Checked = settings.CoD1;
             if (!Directory.Exists(appdataFoV)) Directory.CreateDirectory(appdataFoV);
             if (!noLog)
             {
@@ -129,13 +133,13 @@ namespace CoDUO_FoV_Changer
 
             try
             {
-                var regPath = Registry.GetValue(RegistryPath, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+                var regPath = Registry.GetValue(GetRegistryPath(), "InstallPath", string.Empty)?.ToString() ?? string.Empty;
 
                 if (string.IsNullOrEmpty(settings.InstallPath) || !Directory.Exists(settings.InstallPath))
                 {
                     if (regPath.Contains("Call of Duty") || regPath.Contains("CoD"))
                     {
-                        if (File.Exists(regPath + @"\CoDUOMP.exe") || File.Exists(regPath + @"\" + "CoDMP.exe") || File.Exists(regPath + @"\mohaa.exe")) MessageBox.Show("Automatically detected game .exe" + regPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        if (File.Exists(regPath + @"\CoDUOMP.exe") || File.Exists(regPath + @"\" + "CoDMP.exe") || File.Exists(regPath + @"\mohaa.exe")) MessageBox.Show("Automatically detected game .exe:" + Environment.NewLine + regPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                         settings.InstallPath = regPath;
                     }
                     else
@@ -158,20 +162,14 @@ namespace CoDUO_FoV_Changer
                 MessageBox.Show("An error has occurred: " + ex.Message + Environment.NewLine + "Please refer to the log for more information.");
                 WriteLog("An exception happened on Install Path code:" + Environment.NewLine + ex.ToString());
             }
-            var memWatch = new Stopwatch();
-            memWatch.Start();
             UpdateProcessBox();
-            memWatch.Stop();
-            var memWatch2 = new Stopwatch();
-            memWatch2.Start();
             memory = GetProcessMemoryFromBox();
-            memWatch2.Stop();
 
             SetFoVNumeric(settings.FoV);
             MinimizeCheckBox.Checked = settings.MinimizeToTray;
             FogCheckBox.Checked = settings.Fog;
             fogToolStripMenuItem.Checked = settings.Fog;
-            ScalePictureBox(CoDPictureBox, ((CoD1CheckBox.Checked) ? CoDImage : CoDUOImage));
+            ScalePictureBox(CoDPictureBox, ((settings.CoD1) ? CoDImage : CoDUOImage));
             LaunchParametersTB.Text = settings.CommandLine;
             location = Location;
             if (settings.TrackGameTime) AccessGameTimeLabel();
@@ -187,7 +185,6 @@ namespace CoDUO_FoV_Changer
             watch.Stop();
             var timeTaken = watch.Elapsed;
             if (timeTaken.TotalMilliseconds >= 300) WriteLog("Startup took: " + timeTaken.TotalMilliseconds + "ms (this is too long!)");
-            MessageBox.Show("Startup took: " + watch.Elapsed.TotalMilliseconds + "ms" + Environment.NewLine + "memWatch took: " + memWatch.Elapsed.TotalMilliseconds + "ms" + Environment.NewLine + ", memWatch2: " + memWatch2.Elapsed.TotalMilliseconds + "ms");
         }
 
         private void StartGame()
@@ -214,7 +211,7 @@ namespace CoDUO_FoV_Changer
                 var startInfoSB = new StringBuilder();
                 startInfoSB.Append("+set r_ignorehwgamma 1 +set vid_xpos 0 +set vid_ypos 0 +set win_allowalttab 1");
                 if (!string.IsNullOrEmpty(LaunchParametersTB.Text)) startInfoSB.Append(LaunchParametersTB.Text + " " + startInfo.Arguments);
-                if (CoD1CheckBox.Checked) startInfoSB.Append(" +set com_hunkmegs 128"); //force 128 hunkmegs if cod1
+                if (settings.CoD1) startInfoSB.Append(" +set com_hunkmegs 128"); //force 128 hunkmegs if cod1
                 startInfo.Arguments = startInfoSB.ToString();
                 startInfo.FileName = settings.InstallPath + @"\" + ProcNameExt;
                 startInfo.WorkingDirectory = settings.InstallPath;
@@ -243,7 +240,7 @@ namespace CoDUO_FoV_Changer
 
         private void FogCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (CoD1CheckBox.Checked)
+            if (settings.CoD1)
             {
                 FogCheckBox.Checked = true;
                 return;
@@ -269,7 +266,8 @@ namespace CoDUO_FoV_Changer
                 DvarsCheckBox.Enabled = true;
                 Text = Application.ProductName;
             }
-            ScalePictureBox(CoDPictureBox, ((CoD1CheckBox.Checked) ? CoDImage : CoDUOImage));
+            settings.CoD1 = CoD1CheckBox.Checked;
+            ScalePictureBox(CoDPictureBox, (CoD1CheckBox.Checked ? CoDImage : CoDUOImage));
         }
 
         private void MinimizeCheckBox_CheckedChanged(object sender, EventArgs e) => settings.MinimizeToTray = MinimizeCheckBox.Checked;
@@ -350,7 +348,7 @@ namespace CoDUO_FoV_Changer
 
         private void DvarsCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (CoD1CheckBox.Checked)
+            if (settings.CoD1)
             {
                 DvarsCheckBox.Checked = false;
                 return;
@@ -499,10 +497,9 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                var address = (CoD1CheckBox.Checked) ? 0x3029CA28 : (memory != null && memory.IsRunning() ? (memory.ProcMemory.DllImageAddress(cgameDll) + 0x52F7C8) : -1);
+                var address = (settings.CoD1) ? 0x3029CA28 : (memory != null && memory.IsRunning() ? (memory.ProcMemory.DllImageAddress(cgameDll) + 0x52F7C8) : -1);
                 if (memory == null || !memory.IsRunning() || (address == -1))
                 {
-                    MessageBox.Show("Memory null?: " + (memory == null) + ", is running: " + (memory?.IsRunning() ?? false) + ", address: " + address);
                     SetLabelText(StatusLabel, "Status: not found or failed to write to memory!");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!"); });
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.DarkRed; });
@@ -671,7 +668,7 @@ namespace CoDUO_FoV_Changer
                     if (!hasPid) GamePIDBox.Items.Add(proc.ProcessName + " (" + pidStr + ")");
                 }
                 GamePIDBox.Visible = GamePIDBox.Items.Count > 0;
-                if (GamePIDBox.SelectedItem == null) GamePIDBox.SelectedIndex = ClampEx.Clamp(selectedIndex - 1, 0, GamePIDBox.Items.Count);
+                if (GamePIDBox.SelectedItem == null && GamePIDBox.Items.Count > 0) GamePIDBox.SelectedIndex = ClampEx.Clamp(selectedIndex - 1, 0, GamePIDBox.Items.Count);
             }
             catch (Exception ex)
             {
@@ -699,7 +696,7 @@ namespace CoDUO_FoV_Changer
 
         private void fogToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            if (CoD1CheckBox.Checked)
+            if (settings.CoD1)
             {
                 fogToolStripMenuItem.Checked = true;
                 return;

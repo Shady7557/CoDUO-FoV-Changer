@@ -10,7 +10,7 @@ namespace CoDUO_FoV_Changer
     public partial class SettingsForm : Form
     {
         string CDKey = string.Empty;
-        string RegistryPath = MainForm.RegistryPath;
+        string RegistryPath = MainForm.GetRegistryPath();
         string GameVersion = string.Empty;
         Settings settings = Settings.Instance;
         public SettingsForm() => InitializeComponent();
