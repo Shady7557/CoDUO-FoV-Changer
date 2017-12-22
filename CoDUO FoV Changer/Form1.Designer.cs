@@ -33,7 +33,6 @@
             this.StartGameButton = new System.Windows.Forms.Button();
             this.FoVNumeric = new System.Windows.Forms.NumericUpDown();
             this.FoVLabel = new System.Windows.Forms.Label();
-            this.CoD1CheckBox = new System.Windows.Forms.CheckBox();
             this.MinimizeCheckBox = new System.Windows.Forms.CheckBox();
             this.FogCheckBox = new System.Windows.Forms.CheckBox();
             this.CheckUpdatesLabel = new System.Windows.Forms.Label();
@@ -67,6 +66,7 @@
             this.CoDPictureBox = new System.Windows.Forms.PictureBox();
             this.ProccessChecker = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.ipFDialog = new System.Windows.Forms.OpenFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.FoVNumeric)).BeginInit();
             this.FoVMenuStrip.SuspendLayout();
             this.rcStrip.SuspendLayout();
@@ -119,19 +119,6 @@
             this.FoVLabel.Size = new System.Drawing.Size(70, 13);
             this.FoVLabel.TabIndex = 60;
             this.FoVLabel.Text = "Field of View:";
-            // 
-            // CoD1CheckBox
-            // 
-            this.CoD1CheckBox.AutoSize = true;
-            this.CoD1CheckBox.BackColor = System.Drawing.Color.Transparent;
-            this.CoD1CheckBox.ForeColor = System.Drawing.Color.Transparent;
-            this.CoD1CheckBox.Location = new System.Drawing.Point(316, 27);
-            this.CoD1CheckBox.Name = "CoD1CheckBox";
-            this.CoD1CheckBox.Size = new System.Drawing.Size(78, 17);
-            this.CoD1CheckBox.TabIndex = 66;
-            this.CoD1CheckBox.Text = "VCoD v1.5";
-            this.CoD1CheckBox.UseVisualStyleBackColor = false;
-            this.CoD1CheckBox.CheckedChanged += new System.EventHandler(this.CoD1CheckBox_CheckedChanged);
             // 
             // MinimizeCheckBox
             // 
@@ -250,7 +237,7 @@
             // 
             this.StatusLabel.AutoSize = true;
             this.StatusLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.StatusLabel.ForeColor = System.Drawing.Color.DarkRed;
+            this.StatusLabel.ForeColor = System.Drawing.Color.Red;
             this.StatusLabel.Location = new System.Drawing.Point(-3, 170);
             this.StatusLabel.Name = "StatusLabel";
             this.StatusLabel.Size = new System.Drawing.Size(307, 18);
@@ -356,7 +343,7 @@
             // 
             this.DvarsCheckBox.AutoSize = true;
             this.DvarsCheckBox.ForeColor = System.Drawing.Color.Transparent;
-            this.DvarsCheckBox.Location = new System.Drawing.Point(316, 7);
+            this.DvarsCheckBox.Location = new System.Drawing.Point(316, 27);
             this.DvarsCheckBox.Name = "DvarsCheckBox";
             this.DvarsCheckBox.Size = new System.Drawing.Size(105, 17);
             this.DvarsCheckBox.TabIndex = 72;
@@ -407,6 +394,7 @@
             this.GamePIDBox.Size = new System.Drawing.Size(116, 21);
             this.GamePIDBox.TabIndex = 75;
             this.GamePIDBox.SelectedIndexChanged += new System.EventHandler(this.GamePIDBox_SelectedIndexChanged);
+            this.GamePIDBox.VisibleChanged += new System.EventHandler(this.GamePIDBox_VisibleChanged);
             // 
             // CoDPictureBox
             // 
@@ -438,7 +426,6 @@
             this.Controls.Add(this.StatusLabel);
             this.Controls.Add(this.FoVMenuStrip);
             this.Controls.Add(this.CoDPictureBox);
-            this.Controls.Add(this.CoD1CheckBox);
             this.Controls.Add(this.MinimizeCheckBox);
             this.Controls.Add(this.FogCheckBox);
             this.Controls.Add(this.CheckUpdatesLabel);
@@ -470,7 +457,6 @@
         internal System.Windows.Forms.Button StartGameButton;
         internal System.Windows.Forms.NumericUpDown FoVNumeric;
         internal System.Windows.Forms.Label FoVLabel;
-        internal System.Windows.Forms.CheckBox CoD1CheckBox;
         internal System.Windows.Forms.CheckBox MinimizeCheckBox;
         internal System.Windows.Forms.CheckBox FogCheckBox;
         internal System.Windows.Forms.Label CheckUpdatesLabel;
@@ -504,6 +490,7 @@
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem fogToolStripMenuItem;
+        private System.Windows.Forms.OpenFileDialog ipFDialog;
     }
 }
 

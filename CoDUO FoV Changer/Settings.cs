@@ -14,6 +14,7 @@ namespace CoDUO_FoV_Changer
         private bool settingsChanged;
 
         private string gamePath;
+        private string gameExe;
         private decimal fov;
         private string cmdline;
         private bool minimize;
@@ -27,7 +28,6 @@ namespace CoDUO_FoV_Changer
         private string hotkeyModifier;
         private string hotkeyToggleFog;
         private string hotkeyFogModifier;
-        private bool cod1;
 
         static Settings()
         {
@@ -46,6 +46,7 @@ namespace CoDUO_FoV_Changer
         {
             settingsChanged = false;
             gamePath = string.Empty;
+            gameExe = string.Empty;
             fov = 80;
             cmdline = string.Empty;
             minimize = true;
@@ -72,6 +73,19 @@ namespace CoDUO_FoV_Changer
             }
         }
 
+        public string InstallPathExe { get { return gamePath + @"\" + gameExe; } }
+
+        public string ExeName
+        {
+            get { return gameExe; }
+            set
+            {
+                settingsChanged = true;
+                gameExe = value;
+            }
+        }
+        
+
         public string CommandLine
         {
             get { return cmdline; }
@@ -81,17 +95,6 @@ namespace CoDUO_FoV_Changer
                 cmdline = value;
             }
         }
-
-        public bool CoD1
-        {
-            get { return cod1; }
-            set
-            {
-                settingsChanged = true;
-                cod1 = value;
-            }
-        }
-        
 
         public string LastLogFile
         {
@@ -220,11 +223,6 @@ namespace CoDUO_FoV_Changer
             set { settingsChanged = value; }
         }
 
-  
-
-        public static Settings Instance
-        {
-            get { return instance; }
-        }
+        public static Settings Instance { get { return instance; } }
     }
 }

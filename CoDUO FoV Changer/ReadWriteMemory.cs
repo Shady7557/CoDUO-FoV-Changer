@@ -31,24 +31,28 @@ namespace ReadWriteMemory
 
         // Methods
         public ProcessMemory(string pProcessName) { ProcessName = !string.IsNullOrEmpty(pProcessName) ? pProcessName.Replace(".exe", "") : string.Empty; }
-        public ProcessMemory(int pPid) { ProcessPID = pPid; }
 
-        public bool CheckProcess() { return (Process.GetProcessesByName(ProcessName).Length > 0 || Process.GetProcessById(ProcessPID) != null); }
+        public ProcessMemory(int pPid) { ProcessPID = pPid; }
+        
+
+        public bool CheckProcess() { return (Process.GetProcessesByName(ProcessName).Length > 0 || Process.GetProcesses().Any(p => p != null && p.Id == ProcessPID)); }
 
         public bool StartProcess()
         {
             var proc = (ProcessPID != 0) ? Process.GetProcessById(ProcessPID) : !string.IsNullOrEmpty(ProcessName) ? Process.GetProcessesByName(ProcessName)?.FirstOrDefault() ?? null : null;
             if (proc == null || proc.Id == 0) return false;
             _Process = proc;
+            if (string.IsNullOrEmpty(ProcessName)) ProcessName = proc.ProcessName;
+            if (ProcessPID == 0) ProcessPID = proc.Id;
             processHandle = OpenProcess(2035711, false, proc.Id);
             return (processHandle != 0);
         }
 
         public int DllImageAddress(string dllname)
         {
-            if (string.IsNullOrEmpty(dllname)) return -1;
-            ProcessModuleCollection modules = _Process.Modules;
-            return (int)(modules?.Cast<ProcessModule>()?.Where(p => p?.ModuleName == dllname)?.FirstOrDefault()?.BaseAddress ?? null);
+            if (string.IsNullOrEmpty(dllname) || _Process?.Modules == null) return -1;
+            var addr = _Process?.Modules?.Cast<ProcessModule>()?.Where(p => p != null && p.ModuleName == dllname)?.FirstOrDefault()?.BaseAddress ?? null;
+            return (addr == null) ? 0 : (int)addr;
         }
 
         public int ImageAddress()

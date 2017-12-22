@@ -1,10 +1,5 @@
 ﻿using ReadWriteMemory;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace CoDUO_FoV_Changer
 {
     internal class Memory
@@ -26,10 +21,7 @@ namespace CoDUO_FoV_Changer
         
         public bool IsRunning() { return (_memory != null && _memory.CheckProcess()); }
 
-
-
         #region Reading
-
         public int GetIntPointerAddress(IntPtr baseAddress, int offset) { return !IsRunning() ? 0 : IntPtr.Add((IntPtr)Convert.ToInt32(BitConverter.ToInt32(_memory.ReadMem(baseAddress.ToInt32(), 4), 0).ToString("X"), 16), offset).ToInt32(); }
         public int GetIntPointerAddress(int baseAddress, int offset) { return GetIntPointerAddress((IntPtr)baseAddress, offset); }
         public int ReadIntAddress(IntPtr baseAddress, int offset, int pSize = 4, int startIndex = 0) { return ReadIntAddress(baseAddress.ToInt32(), offset, pSize, startIndex); }
