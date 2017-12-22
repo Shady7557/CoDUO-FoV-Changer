@@ -33,34 +33,22 @@ namespace ReadWriteMemory
         public ProcessMemory(string pProcessName) { ProcessName = !string.IsNullOrEmpty(pProcessName) ? pProcessName.Replace(".exe", "") : string.Empty; }
         public ProcessMemory(int pPid) { ProcessPID = pPid; }
 
-        public bool CheckProcess() { return (Process.GetProcessesByName(ProcessName).Length > 0); }
+        public bool CheckProcess() { return (Process.GetProcessesByName(ProcessName).Length > 0 || Process.GetProcessById(ProcessPID) != null); }
 
         public bool StartProcess()
         {
-            if (ProcessPID != 0)
-            {
-                var proc = Process.GetProcessById(ProcessPID);
-                if (proc == null || proc.Id == 0) return false;
-                _Process = proc;
-                processHandle = OpenProcess(2035711, false, proc.Id);
-                return (processHandle != 0);
-            }
-            if (string.IsNullOrEmpty(ProcessName))
-            {
-                var proc = Process.GetProcessesByName(ProcessName)?.FirstOrDefault() ?? null;
-                if (proc == null || proc.Id == 0) return false;
-                _Process = proc;
-                processHandle = OpenProcess(2035711, false, _Process.Id);
-                return (processHandle != 0);
-            }
-            return false;
+            var proc = (ProcessPID != 0) ? Process.GetProcessById(ProcessPID) : !string.IsNullOrEmpty(ProcessName) ? Process.GetProcessesByName(ProcessName)?.FirstOrDefault() ?? null : null;
+            if (proc == null || proc.Id == 0) return false;
+            _Process = proc;
+            processHandle = OpenProcess(2035711, false, proc.Id);
+            return (processHandle != 0);
         }
 
         public int DllImageAddress(string dllname)
         {
             if (string.IsNullOrEmpty(dllname)) return -1;
             ProcessModuleCollection modules = _Process.Modules;
-            return (int)(modules?.Cast<ProcessModule>()?.Where(p => p.ModuleName == dllname)?.FirstOrDefault()?.BaseAddress ?? null);
+            return (int)(modules?.Cast<ProcessModule>()?.Where(p => p?.ModuleName == dllname)?.FirstOrDefault()?.BaseAddress ?? null);
         }
 
         public int ImageAddress()

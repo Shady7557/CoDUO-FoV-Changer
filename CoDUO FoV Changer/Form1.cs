@@ -37,12 +37,11 @@ namespace CoDUO_FoV_Changer
         public static readonly string cgameDll = "uo_cgame_mp_x86.dll";
         public static Point location;
         private int currentSessionTime;
-        private ProcessMemory procMem;
+        private Memory memory;
         private DateTime lastHotkey;
         private DateTime lastUpdateCheck;
         private string ProcName { get { return ((CoD1CheckBox.Checked) ? "CoDMP" : "CoDUOMP"); } }
         private string ProcNameExt { get { return (ProcName + ".exe"); } }
-        private Process GameProcess { get { return Process.GetProcessesByName(ProcName)?.FirstOrDefault() ?? null; } }
         public static string RegistryPath { get { return ((Environment.Is64BitOperatingSystem) ? registryPathX64 : registryPathX86); } }
         public string GameVersion { get { return Registry.GetValue(RegistryPath, "Version", string.Empty)?.ToString() ?? string.Empty; } }
         [DllImport("user32.dll")]
@@ -74,13 +73,15 @@ namespace CoDUO_FoV_Changer
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            var startTime = DateTime.Now;
+            var watch = new Stopwatch();
+            watch.Start();
             CheckForIllegalCrossThreadCalls = true;
             
             var argsSB = new StringBuilder();
-            for (int i = 0; i < Environment.GetCommandLineArgs().Length; i++)
+            var cmdArgs = Environment.GetCommandLineArgs();
+            for (int i = 0; i < cmdArgs.Length; i++)
             {
-                var argu = Environment.GetCommandLineArgs()[i];
+                var argu = cmdArgs[i];
                 var arg = argu.ToLower();
                 if (arg.IndexOf(Application.ProductName, StringComparison.OrdinalIgnoreCase) >= 0 || arg.IndexOf(Application.StartupPath, StringComparison.OrdinalIgnoreCase) >= 0) continue;
                 if (arg == "-nolog") noLog = true;
@@ -124,11 +125,6 @@ namespace CoDUO_FoV_Changer
             StartUpdates();
 
 
-
-          
-          
-            
-
             if (!string.IsNullOrEmpty(args)) WriteLog("Launched program with args: " + args);
 
             try
@@ -162,8 +158,14 @@ namespace CoDUO_FoV_Changer
                 MessageBox.Show("An error has occurred: " + ex.Message + Environment.NewLine + "Please refer to the log for more information.");
                 WriteLog("An exception happened on Install Path code:" + Environment.NewLine + ex.ToString());
             }
-
-            procMem = getProcessMemoryFromBox();
+            var memWatch = new Stopwatch();
+            memWatch.Start();
+            UpdateProcessBox();
+            memWatch.Stop();
+            var memWatch2 = new Stopwatch();
+            memWatch2.Start();
+            memory = GetProcessMemoryFromBox();
+            memWatch2.Stop();
 
             SetFoVNumeric(settings.FoV);
             MinimizeCheckBox.Checked = settings.MinimizeToTray;
@@ -180,10 +182,12 @@ namespace CoDUO_FoV_Changer
                 GameTracker.Enabled = false;
             }
             if (isDev) UpdateButton.Visible = true;
-            UpdateProcessBox();
+            
             WriteLog("Successfully started application, version " + Application.ProductVersion);
-            var timeTaken = DateTime.Now - startTime;
-            if (timeTaken.TotalMilliseconds >= 300) WriteLog("Startup took: " + timeTaken.TotalMilliseconds + " (this is too long!)");
+            watch.Stop();
+            var timeTaken = watch.Elapsed;
+            if (timeTaken.TotalMilliseconds >= 300) WriteLog("Startup took: " + timeTaken.TotalMilliseconds + "ms (this is too long!)");
+            MessageBox.Show("Startup took: " + watch.Elapsed.TotalMilliseconds + "ms" + Environment.NewLine + "memWatch took: " + memWatch.Elapsed.TotalMilliseconds + "ms" + Environment.NewLine + ", memWatch2: " + memWatch2.Elapsed.TotalMilliseconds + "ms");
         }
 
         private void StartGame()
@@ -292,7 +296,7 @@ namespace CoDUO_FoV_Changer
 
         private void MemoryTimer_Tick(object sender, EventArgs e)
         {
-            procMem = getProcessMemoryFromBox();
+            memory = GetProcessMemoryFromBox();
             Task.Run(() =>
             {
                 doRAChecks();
@@ -316,6 +320,7 @@ namespace CoDUO_FoV_Changer
             var up = (Keys)0;
             var toggleFog = (Keys)0;
             var down = (Keys)0;
+            
             TryParseKeys(settings.HotKeyModifier, ref modifier);
             TryParseKeys(settings.HotKeyFogModifier, ref fogModifier);
             TryParseKeys(settings.HotKeyUp, ref up);
@@ -355,52 +360,6 @@ namespace CoDUO_FoV_Changer
         #region Util
         private void StartUpdates() => Task.Run(() => SetLabelText(CheckUpdatesLabel, (CheckUpdates()) ? "Updates available!" : "No updates found. Click to check again."));
 
-        public bool TryParseFloat(string text, ref float value)
-        {
-            float tmp;
-            if (float.TryParse(text, out tmp))
-            {
-                value = tmp;
-                return true;
-            }
-            else return false;
-        }
-
-        public bool TryParseInt(string text, ref int value)
-        {
-            int tmp;
-            if (int.TryParse(text, out tmp))
-            {
-                value = tmp;
-                return true;
-            }
-            else return false;
-        }
-        public bool TryParseKeys(string text, ref Keys value)
-        {
-            Keys tmp;
-            if (Enum.TryParse<Keys>(text, out tmp))
-            {
-                value = tmp;
-                return true;
-            }
-            else return false;
-        }
-        static int GCD(int a, int b)
-        {
-            int Remainder;
-
-            while (b != 0)
-            {
-                Remainder = a % b;
-                a = b;
-                b = Remainder;
-            }
-
-            return a;
-        }
-        bool IsProcessRunning(int pid) { return Process.GetProcesses().Any(p => p != null && p.Id == pid); }
-
         private bool CheckUpdates()
         {
             try
@@ -423,77 +382,56 @@ namespace CoDUO_FoV_Changer
             }
         }
 
-        string getCBoxString(ComboBox CBox)
-        {
-            var value = string.Empty;
-            if (CBox == null) return value;
-            try { if (CBox.Items.Count > 0 && CBox.SelectedIndex >= 0) value = CBox?.Items[CBox.SelectedIndex]?.ToString() ?? string.Empty; }
-            catch (Exception ex) { WriteLog(ex.ToString()); }
-            return value;
-        }
+        
         public static bool IsKeyPushedDown(System.Windows.Forms.Keys vKey) { return (GetAsyncKeyState((int)vKey) & 0x8000) != 0; }
 
-        private void SetLabelText(Label label, string text)
+        public bool IsProcessRunning(int pid) { return Process.GetProcesses().Any(p => p != null && p.Id == pid); }
+        public string GetComboBoxString(ComboBox CBox) { return (CBox == null || CBox.Items.Count < 1 || CBox.SelectedIndex < 0) ? string.Empty : CBox?.Items[CBox.SelectedIndex]?.ToString() ?? string.Empty; }
+
+        public void SetLabelText(Label label, string text)
         {
             if (label == null) return;
             if (label.InvokeRequired) label.BeginInvoke((MethodInvoker)delegate () { label.Text = text; });
             else label.Text = text;
         }
 
-        ProcessMemory getProcessMemory(string processName)
+        public bool TryParseKeys(string text, ref Keys value)
         {
-            if (string.IsNullOrEmpty(processName)) return null;
-            try
+            Keys tmp;
+            if (Enum.TryParse(text, out tmp))
             {
-                var mem = new ProcessMemory(processName);
-                if (mem != null && mem.CheckProcess())
-                {
-                    mem.StartProcess();
-                    return mem;
-                }
+                value = tmp;
+                return true;
             }
-            catch (Exception ex) { WriteLog(ex.ToString()); }
-            return null;
+            else return false;
         }
-        ProcessMemory getProcessMemoryFromBox()
+
+        public int GCD(int a, int b)
         {
-            if ((GamePIDBox?.Items?.Count ?? 0) < 1) return null;
+            int Remainder;
+            while (b != 0)
+            {
+                Remainder = a % b;
+                a = b;
+                b = Remainder;
+            }
+            return a;
+        }
+
+        Memory GetProcessMemoryFromBox()
+        {
             try
             {
-                var procName = getCBoxString(GamePIDBox).Split('(')[0];
+                var cbString = GetComboBoxString(GamePIDBox);
+                if (string.IsNullOrEmpty(cbString)) return null;
                 var pid = 0;
-                if (!int.TryParse(getCBoxString(GamePIDBox).Split('(')[1].Replace(")", ""), out pid)) return null;
-                if (!IsProcessRunning(pid))
-                {
-                    for (int i = 0; i < GamePIDBox.Items.Count; i++)
-                    {
-                        var boxItem = GamePIDBox.Items[i];
-                        if (boxItem.ToString().Contains(pid.ToString())) GamePIDBox.Items.Remove(boxItem);
-                    }
-                    return null;
-                }
-                var mem = new ProcessMemory(pid);
-                return (mem != null) ? (!mem.StartProcess() ? null : mem) : null;
+                if (!int.TryParse(cbString.Split('(')[1].Replace(")", ""), out pid)) return null;
+                var mem = new Memory(pid);
+                return (mem != null && mem.IsRunning()) ? mem : null;
             }
             catch (Exception ex) { WriteLog(ex.ToString()); }
-
             return null;
         }
-        int getIntPointerAddress(IntPtr baseAddress, int offset, ProcessMemory procMem)
-        {
-            if (procMem == null) return 0;
-            var pointer = 0;
-            var pointedTo = BitConverter.ToInt32(procMem.ReadMem(baseAddress.ToInt32(), 4), 0);
-            pointer = IntPtr.Add((IntPtr)Convert.ToInt32(pointedTo.ToString("X"), 16), offset).ToInt32();
-            return pointer;
-        }
-
-
-        int getIntPointerAddress(int baseAddress, int offset, ProcessMemory procMem) { return getIntPointerAddress((IntPtr)baseAddress, offset, procMem); }
-
-        int ReadIntAddress(int baseAddress, int offset, ProcessMemory procMem, int pSize = 4, int startIndex = 0) { return BitConverter.ToInt32(procMem.ReadMem(getIntPointerAddress(baseAddress, offset, procMem), pSize), startIndex); }
-
-        int ReadIntAddress(IntPtr baseAddress, int offset, ProcessMemory procMem, int pSize = 4, int startIndex = 0) { return ReadIntAddress(baseAddress.ToInt32(), offset, procMem, pSize, startIndex); }
 
         private void ScalePictureBox(PictureBox pictureBox, Image initialImage = null)
         {
@@ -521,23 +459,24 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                if (procMem == null) return;
+                if (memory == null || !memory.IsRunning()) return;
                 var value = Convert.ToInt32(val);
-                var newmpAddr = getIntPointerAddress(0x489A0D4, 0x20, procMem);
-                var fogValue = ReadIntAddress(0x489A0D4, 0x20, procMem);
-                if (fogValue != value) procMem.WriteInt(newmpAddr, value);
+                var newmpAddr = memory.GetIntPointerAddress(0x489A0D4, 0x20);
+                var fogValue = memory.ReadIntAddress(0x489A0D4, 0x20);
+                if (fogValue != value) memory.ProcMemory.WriteInt(newmpAddr, value);
             }
             catch (Exception ex) { WriteLog("An exception happened while trying to read/write fog values:" + Environment.NewLine + ex.ToString()); }
         }
 
         void doRAChecks()
         {
-            if (procMem == null) return;
+            if (memory == null || !memory.IsRunning()) return;
             try
             {
-                var mode = ReadIntAddress(0x4899D50, 0x20, procMem);
-                var width = ReadIntAddress(0x4899D30, 0x20, procMem);
-                var height = ReadIntAddress(0x4899FCC, 0x20, procMem);
+
+                var mode = memory.ReadIntAddress(0x4899D50, 0x20);
+                var width = memory.ReadIntAddress(0x4899D30, 0x20);
+                var height = memory.ReadIntAddress(0x4899FCC, 0x20);
                 if (width == 0 || height == 0)
                 {
                     WriteLog("Got bad width/height: " + width + ", " + height);
@@ -560,16 +499,18 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                var address = (CoD1CheckBox.Checked) ? 0x3029CA28 : (procMem != null ? (procMem.DllImageAddress(cgameDll) + 0x52F7C8) : -1);
-                if (procMem == null || (address == -1))
+                var address = (CoD1CheckBox.Checked) ? 0x3029CA28 : (memory != null && memory.IsRunning() ? (memory.ProcMemory.DllImageAddress(cgameDll) + 0x52F7C8) : -1);
+                if (memory == null || !memory.IsRunning() || (address == -1))
                 {
+                    MessageBox.Show("Memory null?: " + (memory == null) + ", is running: " + (memory?.IsRunning() ?? false) + ", address: " + address);
                     SetLabelText(StatusLabel, "Status: not found or failed to write to memory!");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!"); });
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.DarkRed; });
                 }
                 else
                 {
-                    procMem.WriteFloat(address, Convert.ToSingle(FoVNumeric.Value));
+                    memory.ProcMemory.WriteFloat(address, Convert.ToSingle(FoVNumeric.Value));
+                    
                     SetLabelText(StatusLabel, "Status: Game found and wrote to memory!");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { toolTip1.SetToolTip(StatusLabel, string.Empty); });
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.DarkGreen; });
@@ -580,15 +521,15 @@ namespace CoDUO_FoV_Changer
 
         private void doDvars()
         {
-            if (procMem == null) return;
+            if (memory == null || !memory.IsRunning()) return;
             try
             {
                 var val = (DvarsCheckBox.Checked) ? 235 : 116;
-                var curVal = procMem.ReadByte(0x43DD86);
+                var curVal = memory.ProcMemory.ReadByte(0x43DD86);
                 if (curVal == val) return; //don't write if it's already the value we want
-                procMem.WriteInt(0x43DD86, val, 1);
-                procMem.WriteInt(0x43DDA3, val, 1);
-                procMem.WriteInt(0x43DDC1, val, 1);
+                memory.ProcMemory.WriteInt(0x43DD86, val, 1);
+                memory.ProcMemory.WriteInt(0x43DDA3, val, 1);
+                memory.ProcMemory.WriteInt(0x43DDC1, val, 1);
             }
             catch (Exception ex) { WriteLog("An exception happened while trying to read/write Dvar addresses:" + Environment.NewLine + ex.ToString()); }
         }
@@ -699,8 +640,6 @@ namespace CoDUO_FoV_Changer
 
         private void UpdateButton_Click(object sender, EventArgs e) { if ((MessageBox.Show("Are you sure you want to update now?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)) StartUpdater(); }
 
-
-
         void UpdateProcessBox()
         {
             try
@@ -710,26 +649,29 @@ namespace CoDUO_FoV_Changer
                 {
                     var boxItem = GamePIDBox.Items[i];
                     var pid = 0;
-                    var splitPid = boxItem.ToString().Split('(')[1].Replace(")", "");
+                    var splitPid = (boxItem as string).Split('(')[1].Replace(")", "");
                     if (!int.TryParse(splitPid, out pid)) continue;
                     if (!IsProcessRunning(pid)) GamePIDBox.Items.Remove(boxItem);
-
                 }
                 var allProcs = Process.GetProcessesByName(ProcName);
                 for (int i = 0; i < allProcs.Length; i++)
                 {
                     var proc = allProcs[i];
-                    if (proc == null || proc.Id == 0 || !proc.ProcessName.Contains(ProcName)) continue;
+                    if (proc?.Id == 0) continue;
                     var pidStr = proc.Id.ToString();
-                    var hasPid = GamePIDBox?.Items?.Cast<object>()?.Any(p => p.ToString().Contains(pidStr)) ?? false;
+                    var hasPid = false;
+                    for(int j = 0; j < GamePIDBox.Items.Count; j++)
+                    {
+                        if ((GamePIDBox.Items[j] as string).Contains(pidStr))
+                        {
+                            hasPid = true;
+                            break;
+                        }
+                    }
                     if (!hasPid) GamePIDBox.Items.Add(proc.ProcessName + " (" + pidStr + ")");
                 }
                 GamePIDBox.Visible = GamePIDBox.Items.Count > 0;
-                if (GamePIDBox.SelectedItem == null)
-                {
-                    if (GamePIDBox.Items.Count > 1 && selectedIndex > 0) GamePIDBox.SelectedIndex = (selectedIndex - 1);
-                    else { if (GamePIDBox.Items.Count > 0) GamePIDBox.SelectedItem = GamePIDBox.Items.Cast<object>()?.FirstOrDefault() ?? null; }
-                }
+                if (GamePIDBox.SelectedItem == null) GamePIDBox.SelectedIndex = ClampEx.Clamp(selectedIndex - 1, 0, GamePIDBox.Items.Count);
             }
             catch (Exception ex)
             {
@@ -769,5 +711,8 @@ namespace CoDUO_FoV_Changer
         private void fogToolStripMenuItem_Click(object sender, EventArgs e) =>  fogToolStripMenuItem.Checked = !fogToolStripMenuItem.Checked; //idk why this is needed but it seems like it is??
 
         private void settingsToolStripMenuItem1_Click(object sender, EventArgs e) => new SettingsForm().Show();
+
+        private void GamePIDBox_SelectedIndexChanged(object sender, EventArgs e) => memory = GetProcessMemoryFromBox();
+        
     }
 }
