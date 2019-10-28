@@ -501,7 +501,7 @@ namespace CoDUO_FoV_Changer
 
         void doRAChecks()
         {
-            if (memory == null || !memory.IsRunning()) return;
+            if ((!memory?.IsRunning() ?? false) || memory.ProcMemory.RequiresElevation()) return;
             try
             {
                 var mode = memory.ReadIntAddress(0x4899D50, 0x20);
