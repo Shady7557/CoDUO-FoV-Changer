@@ -28,7 +28,7 @@ namespace CoDUO_FoV_Changer
         public static Settings settings = Settings.Instance;
         private Image CoDImage = Properties.Resources.CoD1;
         private Image CoDUOImage = Properties.Resources.CoDUO;
-        public static readonly string cgameDll = "uo_cgame_mp_x86.dll";
+        public const string cgameDll = "uo_cgame_mp_x86.dll";
         public static Point location;
         private int currentSessionTime;
         private Memory memory;
