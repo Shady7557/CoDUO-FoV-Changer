@@ -12,6 +12,17 @@ namespace CoDUO_FoV_Changer
         private int currentKeyCode;
         Settings settings = Settings.Instance;
         Settings oldSettings;
+
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.ExStyle |= 0x02000000;  // Turn on WS_EX_COMPOSITED
+                return cp;
+            }
+        } //makes the loading look less shitty
+
         public Hotkeys() => InitializeComponent();
         
         private void Hotkeys_Load(object sender, EventArgs e)

@@ -43,7 +43,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(21, 37);
+            this.label1.Location = new System.Drawing.Point(8, 50);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(39, 20);
             this.label1.TabIndex = 0;
@@ -111,38 +111,42 @@
             // 
             // button1
             // 
+            this.button1.BackColor = System.Drawing.Color.DarkGray;
             this.button1.Location = new System.Drawing.Point(128, 12);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(109, 25);
             this.button1.TabIndex = 6;
             this.button1.Text = "Apply current key";
-            this.button1.UseVisualStyleBackColor = true;
+            this.button1.UseVisualStyleBackColor = false;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // button2
             // 
+            this.button2.BackColor = System.Drawing.Color.DarkGray;
             this.button2.Location = new System.Drawing.Point(128, 214);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(109, 25);
             this.button2.TabIndex = 7;
             this.button2.Text = "Save and exit";
-            this.button2.UseVisualStyleBackColor = true;
+            this.button2.UseVisualStyleBackColor = false;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // button3
             // 
+            this.button3.BackColor = System.Drawing.Color.DarkGray;
             this.button3.Location = new System.Drawing.Point(128, 252);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(109, 25);
             this.button3.TabIndex = 8;
             this.button3.Text = "Exit without saving";
-            this.button3.UseVisualStyleBackColor = true;
+            this.button3.UseVisualStyleBackColor = false;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // Hotkeys
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.DimGray;
             this.ClientSize = new System.Drawing.Size(249, 289);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
@@ -153,6 +157,7 @@
             this.Controls.Add(this.FoVDown);
             this.Controls.Add(this.FoVUp);
             this.Controls.Add(this.label1);
+            this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.KeyPreview = true;
             this.MaximizeBox = false;

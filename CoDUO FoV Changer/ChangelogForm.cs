@@ -8,6 +8,16 @@ namespace CoDUO_FoV_Changer
 {
     public partial class ChangelogForm : Form
     {
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.ExStyle |= 0x02000000;  // Turn on WS_EX_COMPOSITED
+                return cp;
+            }
+        } //makes the loading look less shitty
+
         public static ChangelogForm Instance;
         public ChangelogForm()
         {

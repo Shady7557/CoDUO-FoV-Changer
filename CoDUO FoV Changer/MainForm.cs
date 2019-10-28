@@ -419,11 +419,8 @@ namespace CoDUO_FoV_Changer
             finally { IsCheckingForUpdates = false; }
         }
 
-        
-       
 
-        public bool IsProcessRunning(int pid) { return Process.GetProcesses().Any(p => p?.Id == pid); }
-
+      
         public void SetLabelText(Label label, string text)
         {
             if (label == null) return;

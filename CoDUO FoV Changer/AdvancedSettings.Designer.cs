@@ -37,53 +37,61 @@
             // GameTimeCheckbox
             // 
             this.GameTimeCheckbox.AutoSize = true;
-            this.GameTimeCheckbox.Location = new System.Drawing.Point(7, 45);
+            this.GameTimeCheckbox.BackColor = System.Drawing.Color.Transparent;
+            this.GameTimeCheckbox.ForeColor = System.Drawing.Color.Black;
+            this.GameTimeCheckbox.Location = new System.Drawing.Point(12, 33);
             this.GameTimeCheckbox.Name = "GameTimeCheckbox";
             this.GameTimeCheckbox.Size = new System.Drawing.Size(123, 17);
             this.GameTimeCheckbox.TabIndex = 21;
             this.GameTimeCheckbox.Text = "Track In-Game Time";
-            this.GameTimeCheckbox.UseVisualStyleBackColor = true;
+            this.GameTimeCheckbox.UseVisualStyleBackColor = false;
             // 
             // CancelCloseButton
             // 
-            this.CancelCloseButton.Location = new System.Drawing.Point(7, 120);
+            this.CancelCloseButton.BackColor = System.Drawing.Color.DarkGray;
+            this.CancelCloseButton.Location = new System.Drawing.Point(12, 108);
             this.CancelCloseButton.Name = "CancelCloseButton";
             this.CancelCloseButton.Size = new System.Drawing.Size(128, 22);
             this.CancelCloseButton.TabIndex = 20;
             this.CancelCloseButton.Text = "Cancel";
-            this.CancelCloseButton.UseVisualStyleBackColor = true;
+            this.CancelCloseButton.UseVisualStyleBackColor = false;
             this.CancelCloseButton.Click += new System.EventHandler(this.CancelCloseButton_Click);
             // 
             // SaveRestartAppButton
             // 
-            this.SaveRestartAppButton.Location = new System.Drawing.Point(7, 91);
+            this.SaveRestartAppButton.BackColor = System.Drawing.Color.DarkGray;
+            this.SaveRestartAppButton.Location = new System.Drawing.Point(12, 79);
             this.SaveRestartAppButton.Name = "SaveRestartAppButton";
             this.SaveRestartAppButton.Size = new System.Drawing.Size(128, 23);
             this.SaveRestartAppButton.TabIndex = 18;
             this.SaveRestartAppButton.Text = "Save And Restart";
-            this.SaveRestartAppButton.UseVisualStyleBackColor = true;
+            this.SaveRestartAppButton.UseVisualStyleBackColor = false;
             this.SaveRestartAppButton.Click += new System.EventHandler(this.SaveRestartAppButton_Click);
             // 
             // DisableUpdateTimerCBox
             // 
             this.DisableUpdateTimerCBox.AutoSize = true;
-            this.DisableUpdateTimerCBox.Location = new System.Drawing.Point(7, 22);
+            this.DisableUpdateTimerCBox.BackColor = System.Drawing.Color.Transparent;
+            this.DisableUpdateTimerCBox.ForeColor = System.Drawing.Color.Black;
+            this.DisableUpdateTimerCBox.Location = new System.Drawing.Point(12, 10);
             this.DisableUpdateTimerCBox.Name = "DisableUpdateTimerCBox";
             this.DisableUpdateTimerCBox.Size = new System.Drawing.Size(128, 17);
             this.DisableUpdateTimerCBox.TabIndex = 22;
             this.DisableUpdateTimerCBox.Text = "Disable Update Timer";
-            this.DisableUpdateTimerCBox.UseVisualStyleBackColor = true;
+            this.DisableUpdateTimerCBox.UseVisualStyleBackColor = false;
             // 
             // AdvancedSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(139, 147);
+            this.BackColor = System.Drawing.Color.DimGray;
+            this.ClientSize = new System.Drawing.Size(156, 133);
             this.ControlBox = false;
             this.Controls.Add(this.DisableUpdateTimerCBox);
             this.Controls.Add(this.GameTimeCheckbox);
             this.Controls.Add(this.CancelCloseButton);
             this.Controls.Add(this.SaveRestartAppButton);
+            this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "AdvancedSettings";

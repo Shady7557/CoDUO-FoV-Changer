@@ -13,6 +13,18 @@ namespace CoDUO_FoV_Changer
         string RegistryPath = MainForm.GetRegistryPath();
         string GameVersion = string.Empty;
         Settings settings = Settings.Instance;
+
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.ExStyle |= 0x02000000;  // Turn on WS_EX_COMPOSITED
+                return cp;
+            }
+        } //makes the loading look less shitty
+
+
         public SettingsForm() => InitializeComponent();
 
         void WriteLog(string message) => MainForm.WriteLog(message);
