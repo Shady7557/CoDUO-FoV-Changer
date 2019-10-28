@@ -46,6 +46,8 @@ namespace CoDUO_FoV_Changer
                 return _gameVersion;
             }
         }
+
+        public bool IsCheckingForUpdates { get; set; } = false;
       
         public MainForm() => InitializeComponent();
 
@@ -261,6 +263,8 @@ namespace CoDUO_FoV_Changer
 
         private void FoVNumeric_ValueChanged(object sender, EventArgs e)
         {
+            if (FoVNumeric.Value != ((int)FoVNumeric.Value)) FoVNumeric.DecimalPlaces = 1;
+            else FoVNumeric.DecimalPlaces = 0;
             settings.FoV = FoVNumeric.Value;
             doFoV();
         }
@@ -301,7 +305,7 @@ namespace CoDUO_FoV_Changer
 
         private void MemoryTimer_Tick(object sender, EventArgs e)
         {
-            memory = GetProcessMemoryFromBox();
+            if (memory == null || !memory.IsRunning()) memory = GetProcessMemoryFromBox();
             if (memory != null && memory.IsRunning() && !IsUO())
             {
                 DvarsCheckBox.Checked = false;
@@ -316,7 +320,7 @@ namespace CoDUO_FoV_Changer
             });
         }
 
-        private void ExitToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();
+        private void ExitToolStripMenuItem_Click(object sender, EventArgs e) => Close();
 
         private void HotKeyHandler_Tick(object sender, EventArgs e)
         {
@@ -352,7 +356,7 @@ namespace CoDUO_FoV_Changer
             if (HotkeyHandler.IsKeyPushedDown(fogModifier) && HotkeyHandler.IsKeyPushedDown(toggleFog))
             {
                 FogCheckBox.Checked = !FogCheckBox.Checked;
-                lastHotkey = now.AddMilliseconds(110);
+                lastHotkey = now;
             }
         }
 
@@ -412,6 +416,7 @@ namespace CoDUO_FoV_Changer
                 WriteLog("Unable to check for updates: " + ex.Message + Environment.NewLine + ex.ToString());
                 return false;
             }
+            finally { IsCheckingForUpdates = false; }
         }
 
         
@@ -490,7 +495,7 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                if (memory == null || !memory.IsRunning()) return;
+                if (memory == null || !memory.IsRunning() || memory.ProcMemory.RequiresElevation()) return;
                 var value = Convert.ToInt32(val);
                 var newmpAddr = memory.GetIntPointerAddress(0x489A0D4, 0x20);
                 var fogValue = memory.ReadIntAddress(0x489A0D4, 0x20);
@@ -501,7 +506,7 @@ namespace CoDUO_FoV_Changer
 
         void doRAChecks()
         {
-            if ((!memory?.IsRunning() ?? false) || memory.ProcMemory.RequiresElevation()) return;
+            if (!(memory?.IsRunning() ?? false) || memory.ProcMemory.RequiresElevation()) return;
             try
             {
                 var mode = memory.ReadIntAddress(0x4899D50, 0x20);
@@ -556,7 +561,7 @@ namespace CoDUO_FoV_Changer
 
         private void doDvars()
         {
-            if (memory == null || !memory.IsRunning()) return;
+            if (memory == null || !memory.IsRunning() || memory.ProcMemory.RequiresElevation()) return;
             try
             {
                 var val = (DvarsCheckBox.Checked) ? 235 : 116;
@@ -572,7 +577,8 @@ namespace CoDUO_FoV_Changer
 
         private void CheckUpdatesLabel_Click(object sender, EventArgs e)
         {
-            if (CheckUpdatesLabel.Text == "Checking for updates...") return;
+            if (IsCheckingForUpdates) return;
+            //if (CheckUpdatesLabel.Text == "Checking for updates...") return;
             var now = DateTime.Now;
             if (lastUpdateCheck == null) lastUpdateCheck = now;
             else
@@ -585,6 +591,7 @@ namespace CoDUO_FoV_Changer
                 }
             }
             CheckUpdatesLabel.Text = "Checking for updates...";
+            IsCheckingForUpdates = true;
             StartUpdates();
             lastUpdateCheck = now;
         }
@@ -624,14 +631,17 @@ namespace CoDUO_FoV_Changer
 
         private void GameTracker_Tick(object sender, EventArgs e)
         {
-            try
+            Task.Run(() =>
             {
-                var processes = GetAllGameProcesses();
-                if (processes.Count < 1) return;
-                if (settings.GameTime < (int.MaxValue - 1)) settings.GameTime++;
-                AccessGameTimeLabel();
-            }
-            catch (Exception ex) { WriteLog(ex.ToString()); }
+                try
+                {
+                    var processes = GetAllGameProcesses();
+                    if (processes.Count < 1) return;
+                    if (settings.GameTime < (int.MaxValue - 1)) settings.GameTime++;
+                    BeginInvoke((MethodInvoker)delegate { AccessGameTimeLabel(); });
+                }
+                catch (Exception ex) { WriteLog(ex.ToString()); }
+            });
         }
 
 
@@ -682,13 +692,23 @@ namespace CoDUO_FoV_Changer
             {
                 var selectedIndex = GamePIDBox.SelectedIndex;
                 GamePIDBox.BeginUpdate();
+                var procs = Process.GetProcesses();
                 for (int i = 0; i < GamePIDBox.Items.Count; i++)
                 {
                     var boxItem = GamePIDBox.Items[i];
                     var pid = 0;
                     var splitPid = (boxItem as string).Split('(')[1].Replace(")", "");
                     if (!int.TryParse(splitPid, out pid)) continue;
-                    if (!IsProcessRunning(pid)) GamePIDBox.Items.Remove(boxItem);
+                    var isRunning = false;
+                    for(int j = 0; j < procs.Length; j++)
+                    {
+                        if (procs[j]?.Id == pid)
+                        {
+                            isRunning = true;
+                            break;
+                        }
+                    }
+                    if (!isRunning) GamePIDBox.Items.Remove(boxItem);
                 }
                 var allProcs = GetAllGameProcesses();
                 for (int i = 0; i < allProcs.Count; i++)

@@ -209,7 +209,7 @@
             this.SettingsToolStripMenuItem,
             this.ChangelogToolStripMenuItem});
             this.ToolStripMenuItem1.Name = "ToolStripMenuItem1";
-            this.ToolStripMenuItem1.Size = new System.Drawing.Size(47, 20);
+            this.ToolStripMenuItem1.Size = new System.Drawing.Size(46, 20);
             this.ToolStripMenuItem1.Text = "Tools";
             // 
             // SettingsToolStripMenuItem
@@ -229,7 +229,7 @@
             // ExitToolStripMenuItem
             // 
             this.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem";
-            this.ExitToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.ExitToolStripMenuItem.Size = new System.Drawing.Size(38, 20);
             this.ExitToolStripMenuItem.Text = "Exit";
             this.ExitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
             // 
@@ -336,7 +336,7 @@
             // HotKeyHandler
             // 
             this.HotKeyHandler.Enabled = true;
-            this.HotKeyHandler.Interval = 10;
+            this.HotKeyHandler.Interval = 30;
             this.HotKeyHandler.Tick += new System.EventHandler(this.HotKeyHandler_Tick);
             // 
             // DvarsCheckBox
