@@ -529,6 +529,13 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
+                if ((memory?.IsRunning() ?? false) && (memory?.ProcMemory?.RequiresElevation() ?? true))
+                {
+                    SetLabelText(StatusLabel, "Status: game requires elevation!");
+                    StatusLabel.BeginInvoke((MethodInvoker)delegate () { toolTip1.SetToolTip(StatusLabel, "Process requires elevation!"); });
+                    StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.Red; });
+                    return;
+                }
                 var address = (!IsUO()) ? 0x3029CA28 : (memory != null && memory.IsRunning() ? (memory.ProcMemory.DllImageAddress(cgameDll) + 0x52F7C8) : -1);
                 if (memory == null || !memory.IsRunning() || (address == -1))
                 {
@@ -707,7 +714,7 @@ namespace CoDUO_FoV_Changer
             catch (Exception ex)
             {
                 WriteLog("An error happened while trying to get running Call of Duty/UO processes:" + Environment.NewLine + ex.ToString());
-                MessageBox.Show("An error happend while trying to get running Call of Duty/UO processes: " + ex.Message + Environment.NewLine + "Please refer to the log for more info.");
+                MessageBox.Show("An error happend while trying to get running Call of Duty/UO processes: " + ex.Message + Environment.NewLine + "Please refer to the log for more info.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

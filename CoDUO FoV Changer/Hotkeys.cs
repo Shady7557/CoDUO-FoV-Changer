@@ -40,13 +40,10 @@ namespace CoDUO_FoV_Changer
                     }
                 }
             }
-            catch(System.ComponentModel.Win32Exception win32ex)
+            catch(System.ComponentModel.Win32Exception win32ex) when(win32ex.NativeErrorCode == 1223)
             {
-                if (win32ex.NativeErrorCode == 1223)
-                {
-                    MainForm.WriteLog("User canceled UAC prompt (" + win32ex.Message + " )");
-                    Close();
-                }
+                MainForm.WriteLog("User canceled UAC prompt (" + win32ex.Message + " )");
+                Close();
                 return;
             }
             catch(Exception ex)

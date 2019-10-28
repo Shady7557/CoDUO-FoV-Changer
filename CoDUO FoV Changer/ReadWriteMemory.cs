@@ -69,7 +69,7 @@ namespace ReadWriteMemory
 
         public int DllImageAddress(string dllname)
         {
-            if (string.IsNullOrEmpty(dllname) || _Process?.Modules == null) return -1;
+            if (string.IsNullOrEmpty(dllname) || RequiresElevation()) return 0;
             IntPtr? addr = null;
             var modules = _Process?.Modules?.Cast<ProcessModule>() ?? null;
             if (modules != null && modules.Count() > 0)
@@ -84,8 +84,21 @@ namespace ReadWriteMemory
                 }
             }
 
+
+
             //  var addr = _Process?.Modules?.Cast<ProcessModule>()?.Where(p => p != null && p.ModuleName == dllname)?.FirstOrDefault()?.BaseAddress ?? null;
             return (addr == null) ? 0 : (int)addr;
+        }
+
+        public bool RequiresElevation()
+        {
+            if (_Process == null) return false;
+            try
+            {
+                if (_Process?.Modules != null) return false;
+            }
+            catch(System.ComponentModel.Win32Exception win32ex) when(win32ex.NativeErrorCode == 5) { return true; }
+            return false;
         }
 
         public int ImageAddress()
