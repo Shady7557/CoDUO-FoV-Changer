@@ -88,9 +88,9 @@
             // 
             this.CloseSettingsButton.BackColor = System.Drawing.Color.DarkGray;
             this.CloseSettingsButton.ForeColor = System.Drawing.Color.Transparent;
-            this.CloseSettingsButton.Location = new System.Drawing.Point(15, 244);
+            this.CloseSettingsButton.Location = new System.Drawing.Point(15, 245);
             this.CloseSettingsButton.Name = "CloseSettingsButton";
-            this.CloseSettingsButton.Size = new System.Drawing.Size(183, 22);
+            this.CloseSettingsButton.Size = new System.Drawing.Size(183, 24);
             this.CloseSettingsButton.TabIndex = 57;
             this.CloseSettingsButton.Text = "Close";
             this.CloseSettingsButton.UseVisualStyleBackColor = false;
@@ -102,7 +102,7 @@
             this.RestartAppButton.ForeColor = System.Drawing.Color.Transparent;
             this.RestartAppButton.Location = new System.Drawing.Point(15, 216);
             this.RestartAppButton.Name = "RestartAppButton";
-            this.RestartAppButton.Size = new System.Drawing.Size(183, 22);
+            this.RestartAppButton.Size = new System.Drawing.Size(183, 24);
             this.RestartAppButton.TabIndex = 64;
             this.RestartAppButton.Text = "Restart App";
             this.RestartAppButton.UseVisualStyleBackColor = false;
@@ -114,7 +114,7 @@
             this.ButtonBrowseGameFiles.ForeColor = System.Drawing.Color.Transparent;
             this.ButtonBrowseGameFiles.Location = new System.Drawing.Point(15, 8);
             this.ButtonBrowseGameFiles.Name = "ButtonBrowseGameFiles";
-            this.ButtonBrowseGameFiles.Size = new System.Drawing.Size(183, 23);
+            this.ButtonBrowseGameFiles.Size = new System.Drawing.Size(183, 24);
             this.ButtonBrowseGameFiles.TabIndex = 65;
             this.ButtonBrowseGameFiles.Text = "Browse Local Game Files";
             this.ButtonBrowseGameFiles.UseVisualStyleBackColor = false;
@@ -126,7 +126,7 @@
             this.ButtonSettingsAdvanced.ForeColor = System.Drawing.Color.Transparent;
             this.ButtonSettingsAdvanced.Location = new System.Drawing.Point(15, 37);
             this.ButtonSettingsAdvanced.Name = "ButtonSettingsAdvanced";
-            this.ButtonSettingsAdvanced.Size = new System.Drawing.Size(183, 22);
+            this.ButtonSettingsAdvanced.Size = new System.Drawing.Size(183, 24);
             this.ButtonSettingsAdvanced.TabIndex = 66;
             this.ButtonSettingsAdvanced.Text = "Advanced Settings";
             this.ButtonSettingsAdvanced.UseVisualStyleBackColor = false;
@@ -137,9 +137,9 @@
             this.hotKeysButton.BackColor = System.Drawing.Color.DarkGray;
             this.hotKeysButton.ForeColor = System.Drawing.Color.Transparent;
             this.hotKeysButton.ImageAlign = System.Drawing.ContentAlignment.BottomLeft;
-            this.hotKeysButton.Location = new System.Drawing.Point(15, 65);
+            this.hotKeysButton.Location = new System.Drawing.Point(15, 66);
             this.hotKeysButton.Name = "hotKeysButton";
-            this.hotKeysButton.Size = new System.Drawing.Size(183, 22);
+            this.hotKeysButton.Size = new System.Drawing.Size(183, 24);
             this.hotKeysButton.TabIndex = 67;
             this.hotKeysButton.Text = "Hotkeys";
             this.hotKeysButton.UseVisualStyleBackColor = false;
@@ -150,7 +150,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
-            this.ClientSize = new System.Drawing.Size(210, 328);
+            this.ClientSize = new System.Drawing.Size(224, 340);
             this.Controls.Add(this.hotKeysButton);
             this.Controls.Add(this.ButtonSettingsAdvanced);
             this.Controls.Add(this.ButtonBrowseGameFiles);

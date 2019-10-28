@@ -20,7 +20,7 @@ namespace CoDUO_FoV_Changer
             oldSettings = settings;
             try
             {
-                if (!MainForm.isElevated)
+                if (!Program.IsElevated)
                 {
                     var fileNameDir = Application.StartupPath + @"\" + AppDomain.CurrentDomain.FriendlyName;
                     if (!File.Exists(fileNameDir))

@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System;
-using System.Text;
-using System.Collections;
 using System.Linq;
 //This wasn't written by me (Shady), and quite frankly I can't remember who did but I'm pretty sure it's fairly generic at this point
 //I have made changes to this, rewriting some of the code and deleting some

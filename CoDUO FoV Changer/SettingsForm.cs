@@ -9,7 +9,7 @@ namespace CoDUO_FoV_Changer
 {
     public partial class SettingsForm : Form
     {
-        string CDKey = string.Empty;
+        private string keyLabelText = string.Empty;
         string RegistryPath = MainForm.GetRegistryPath();
         string GameVersion = string.Empty;
         Settings settings = Settings.Instance;
@@ -25,8 +25,13 @@ namespace CoDUO_FoV_Changer
 
             this.Location = new Point(MainForm.location.X - 250, MainForm.location.Y - 60);
             ButtonBrowseGameFiles.Enabled = (!string.IsNullOrEmpty(settings.InstallPath) && Directory.Exists(settings.InstallPath));
-            CDKeyLabel.Text = "CD-Key: " + (CDKey = GetCDKey());
-            if (!MainForm.isElevated) hotKeysButton.Image = ResizeImage(SystemIcons.Shield.ToBitmap(), new Size(16, 16));
+            CDKeyLabel.Text = "CD-Key: Hidden";
+
+           // CDKeyLabel.Text = "CD-Key: " + GetCDKey();
+            var vcKey = GetVCoDCDKey();
+            //if (!string.IsNullOrEmpty(vcKey)) CDKeyLabel.Text += Environment.NewLine + "VCoD Key: " + vcKey;
+            keyLabelText = "CD-Key: " + GetCDKey() + (!string.IsNullOrEmpty(vcKey) ? (Environment.NewLine + "VCoD Key: " + vcKey) : string.Empty);
+            if (!Program.IsElevated) hotKeysButton.Image = ResizeImage(SystemIcons.Shield.ToBitmap(), new Size(16, 16));
         }
 
         #region Buttons
@@ -49,13 +54,13 @@ namespace CoDUO_FoV_Changer
         private void hotKeysButton_Click(object sender, EventArgs e) => new Hotkeys().Show();
         #endregion
 
-        private void CDKeyLabel_MouseDown(object sender, MouseEventArgs e) => CDKeyLabel.Text = "CD-Key: " + ((CDKeyLabel.Text.Contains(CDKey) && !string.IsNullOrEmpty(CDKey)) ? "Hidden" : CDKey);
+        private void CDKeyLabel_MouseDown(object sender, MouseEventArgs e) => CDKeyLabel.Text = !CDKeyLabel.Text.Contains("Hidden") ? "CD-Key: Hidden" : keyLabelText;
 
         #region Util
         public static Bitmap ResizeImage(Bitmap imgToResize, Size size)
         {
             var b = new Bitmap(size.Width, size.Height);
-            using (var g = Graphics.FromImage((Image)b))
+            using (var g = Graphics.FromImage(b))
             {
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
                 g.DrawImage(imgToResize, 0, 0, size.Width, size.Height);
@@ -63,9 +68,9 @@ namespace CoDUO_FoV_Changer
             return b;
         }
 
-
         private string GetCDKey() { return Registry.GetValue(RegistryPath, "key", string.Empty)?.ToString() ?? string.Empty; }
-        private string GetGameVersion() { return Registry.GetValue(RegistryPath, "Version", string.Empty)?.ToString() ?? string.Empty; }
+        private string GetVCoDCDKey() { return Registry.GetValue(RegistryPath.Replace("United Offensive", "").TrimEnd(' '), "key", string.Empty)?.ToString() ?? string.Empty; }
+        private string GetGameVersion() { return Registry.GetValue(RegistryPath, "version", string.Empty)?.ToString() ?? string.Empty; }
         #endregion
 
     }

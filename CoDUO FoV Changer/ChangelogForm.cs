@@ -8,19 +8,32 @@ namespace CoDUO_FoV_Changer
 {
     public partial class ChangelogForm : Form
     {
-        public ChangelogForm() => InitializeComponent();
+        public static ChangelogForm Instance;
+        public ChangelogForm()
+        {
+            Instance = this;
+            InitializeComponent();
+        }
 
         private void GetChangelog()
         {
             try
             {
-                var response = WebRequest.Create("https://drive.google.com/uc?export=download&id=0B0nCag_Hp76za3Y3dW9KYU5kQlE")?.GetResponse() ?? null;
-                var respFinal = new StreamReader(response?.GetResponseStream() ?? null)?.ReadToEnd() ?? string.Empty;
-                var str = (!string.IsNullOrEmpty(respFinal)) ? respFinal : "Changelog response was empty!";
-                textBox1.BeginInvoke((MethodInvoker)delegate () { textBox1.Text = str; });
+                var request = (HttpWebRequest)WebRequest.Create("https://drive.google.com/uc?export=download&id=0B0nCag_Hp76za3Y3dW9KYU5kQlE");
+                request.Timeout = 1000;
+                using (var stream = request.GetResponse().GetResponseStream())
+                {
+                    using (var readResponse = new StreamReader(stream))
+                    {
+                        var responseStr = readResponse.ReadToEnd();
+                        var str = (!string.IsNullOrEmpty(responseStr)) ? responseStr : "Changelog response was empty!";
+                        textBox1.BeginInvoke((MethodInvoker)delegate () { textBox1.Text = str; });
+                    }
+                }
             }
-            catch (Exception ex)
+            catch (WebException ex) when (ex.Status == WebExceptionStatus.Timeout || ex.Status == WebExceptionStatus.NameResolutionFailure)
             {
+                Console.WriteLine(ex.ToString());
                 textBox1.BeginInvoke((MethodInvoker)delegate () { textBox1.Text = "Failed to get changelog: " + ex.Message + " (read log for more info)"; });
                 MainForm.WriteLog("Unable to get changelog: " + ex.Message + Environment.NewLine + ex.ToString());
             }
