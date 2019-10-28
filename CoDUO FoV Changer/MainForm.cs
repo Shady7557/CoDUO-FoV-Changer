@@ -7,10 +7,12 @@ using System.Windows.Forms;
 using System.IO;
 using Microsoft.Win32;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Net;
 using ClampExt;
 using System.Threading.Tasks;
+using HotkeyHandling;
+using SessionHandling;
+using System.Collections.Generic;
 
 namespace CoDUO_FoV_Changer
 {
@@ -30,14 +32,21 @@ namespace CoDUO_FoV_Changer
         private Image CoDUOImage = Properties.Resources.CoDUO;
         public const string cgameDll = "uo_cgame_mp_x86.dll";
         public static Point location;
-        private int currentSessionTime;
+        private SessionHandler currentSession = new SessionHandler();
+        //private int currentSessionTime;
         private Memory memory;
         private DateTime lastHotkey;
         private DateTime lastUpdateCheck;
-        public string GameVersion { get { return Registry.GetValue(GetRegistryPath(), "Version", string.Empty)?.ToString() ?? string.Empty; } }
-        [DllImport("user32.dll")]
-        static extern ushort GetAsyncKeyState(int vKey);
-
+        private string _gameVersion = string.Empty;
+        public string GameVersion
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_gameVersion)) _gameVersion = Registry.GetValue(GetRegistryPath(), "Version", string.Empty)?.ToString() ?? string.Empty;
+                return _gameVersion;
+            }
+        }
+      
         public MainForm() => InitializeComponent();
 
         protected override CreateParams CreateParams
@@ -68,55 +77,56 @@ namespace CoDUO_FoV_Changer
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            var watch = new Stopwatch();
-            watch.Start();
+            var watch = Stopwatch.StartNew();
             CheckForIllegalCrossThreadCalls = true;
+
             Task.Run(() =>
             {
-                var argsSB = new StringBuilder();
-                var cmdArgs = Environment.GetCommandLineArgs();
-                for (int i = 0; i < cmdArgs.Length; i++)
-                {
-                    var argu = cmdArgs[i];
-                    var arg = argu.ToLower();
-                    if (arg.IndexOf(Application.ProductName, StringComparison.OrdinalIgnoreCase) >= 0 || arg.IndexOf(Application.StartupPath, StringComparison.OrdinalIgnoreCase) >= 0) continue;
-                    if (arg == "-nolog") noLog = true;
-                    if (arg == "-unlock") DvarsCheckBox.Visible = true;
-                    if (arg == "-unlock=1")
-                    {
-                        DvarsCheckBox.Visible = true;
-                        DvarsCheckBox.Checked = true;
-                    }
-
-                    if (arg == "-fog=1") settings.Fog = true;
-                    else if (arg == "-fog=0") settings.Fog = false;
-
-                    if (arg == "-launch") StartGameButton.PerformClick();
-
-                    if (arg == "-debug") isDev = true;
-
-                    if (arg == "-hotkeys" && Program.IsElevated) new Hotkeys().Show();
-
-                    if (arg.Contains("-fov="))
-                    {
-                        var FoVStr = arg.Split('=')[1];
-                        var FoV = 80;
-                        if (int.TryParse(FoVStr, out FoV)) SetFoVNumeric(FoV);
-                    }
-                    argsSB.Append(argu + " ");
-                }
                 if (!Directory.Exists(appdataFoV)) Directory.CreateDirectory(appdataFoV);
                 if (!noLog)
                 {
                     if (!Directory.Exists(logsPath)) Directory.CreateDirectory(logsPath);
                     InitLog();
                 }
-
-                var args = argsSB.ToString().TrimEnd();
-                if (!string.IsNullOrEmpty(args)) WriteLog("Launched program with args: " + args);
             });
-         
+
             DvarsCheckBox.Visible = false;
+
+            var argsSB = new StringBuilder();
+            var cmdArgs = Environment.GetCommandLineArgs();
+            for (int i = 0; i < cmdArgs.Length; i++)
+            {
+                var argu = cmdArgs[i];
+                var arg = argu.ToLower();
+                if (arg.IndexOf(Application.ProductName, StringComparison.OrdinalIgnoreCase) >= 0 || arg.IndexOf(Application.StartupPath, StringComparison.OrdinalIgnoreCase) >= 0) continue;
+                if (arg == "-nolog") noLog = true;
+                if (arg == "-unlock") DvarsCheckBox.Visible = true;
+                if (arg == "-unlock=1")
+                {
+                    DvarsCheckBox.Visible = true;
+                    DvarsCheckBox.Checked = true;
+                }
+
+                if (arg == "-fog=1") settings.Fog = true;
+                else if (arg == "-fog=0") settings.Fog = false;
+
+                if (arg == "-launch") StartGameButton.PerformClick();
+
+                if (arg == "-debug") isDev = true;
+
+                if (arg == "-hotkeys" && Program.IsElevated) new Hotkeys().Show();
+
+                if (arg.Contains("-fov="))
+                {
+                    decimal FoV;
+                    if (decimal.TryParse(arg.Split('=')[1], out FoV)) SetFoVNumeric(FoV);
+                }
+                argsSB.Append(argu + " ");
+            }
+
+
+            var args = argsSB.ToString().TrimEnd();
+            if (!string.IsNullOrEmpty(args)) WriteLog("Launched program with args: " + args);
 
             StartUpdates();
 
@@ -326,20 +336,20 @@ namespace CoDUO_FoV_Changer
             TryParseKeys(settings.HotKeyFog, ref toggleFog);
             TryParseKeys(settings.HotKeyDown, ref down);
 
-            if (IsKeyPushedDown(modifier))
+            if (HotkeyHandler.IsKeyPushedDown(modifier))
             {
-                if (IsKeyPushedDown(up))
+                if (HotkeyHandler.IsKeyPushedDown(up))
                 {
                     SetFoVNumeric(FoVNumeric.Value + 1);
                     lastHotkey = now;
                 }
-                if (IsKeyPushedDown(down))
+                if (HotkeyHandler.IsKeyPushedDown(down))
                 {
                     SetFoVNumeric(FoVNumeric.Value - 1);
                     lastHotkey = now;
                 }
             }
-            if (IsKeyPushedDown(fogModifier) && IsKeyPushedDown(toggleFog))
+            if (HotkeyHandler.IsKeyPushedDown(fogModifier) && HotkeyHandler.IsKeyPushedDown(toggleFog))
             {
                 FogCheckBox.Checked = !FogCheckBox.Checked;
                 lastHotkey = now.AddMilliseconds(110);
@@ -368,7 +378,18 @@ namespace CoDUO_FoV_Changer
         public bool IsUO() { return (memory == null || !memory.IsRunning()) ? false : (memory.ProcMemory?.DllImageAddress(cgameDll) ?? 0) != 0 || (memory.ProcMemory?.DllImageAddress("uo_ui_mp_x86.dll") ?? 0) != 0; }
         
 
-        private Process[] GetAllGameProcesses() { return Process.GetProcessesByName("CoDUOMP").Concat(Process.GetProcessesByName("CoDMP")).Concat(Process.GetProcessesByName("mohaa")).ToArray(); }
+        private List<Process> GetAllGameProcesses()
+        {
+            var allProcs = Process.GetProcesses();
+            var procs = new List<Process>();
+            for(int i = 0; i < allProcs.Length; i++)
+            {
+                var proc = allProcs[i];
+                if (proc?.ProcessName == "CoDUOMP" || proc?.ProcessName == "CoDMP" || proc?.ProcessName == "mohaa") procs.Add(proc);
+            }
+            return procs;
+            //return Process.GetProcessesByName("CoDUOMP").Concat(Process.GetProcessesByName("CoDMP")).Concat(Process.GetProcessesByName("mohaa")).ToArray();
+        }
 
         private void StartUpdates() => Task.Run(() => SetLabelText(CheckUpdatesLabel, (CheckUpdates()) ? "Updates available!" : "No updates found. Click to check again."));
 
@@ -394,7 +415,7 @@ namespace CoDUO_FoV_Changer
         }
 
         
-        public static bool IsKeyPushedDown(Keys vKey) { return (GetAsyncKeyState((int)vKey) & 0x8000) != 0; }
+       
 
         public bool IsProcessRunning(int pid) { return Process.GetProcesses().Any(p => p?.Id == pid); }
 
@@ -575,17 +596,17 @@ namespace CoDUO_FoV_Changer
                     settings.GameTime--;
                 }
                 var span = TimeSpan.FromSeconds(settings.GameTime);
-                var spanCurrent = TimeSpan.FromSeconds(currentSessionTime);
+                var spanCurrent = currentSession.GetSessionTime();
                 var totalMinutes = Math.Floor(span.TotalMinutes);
                 var totalHours = Math.Floor(span.TotalHours);
                 var totalMinutesCur = Math.Floor(spanCurrent.TotalMinutes);
                 var totalHoursCur = Math.Floor(spanCurrent.TotalHours);
-                if (settings.GameTime >= 1 && totalMinutes <= 0) GameTimeLabel.Text = "Game Time: " + settings.GameTime + " seconds";
-                if (totalMinutes >= 1 && totalHours <= 0) GameTimeLabel.Text = "Game Time: " + totalMinutes + " minutes";
-                if (totalHours >= 1 && totalMinutes >= 60) GameTimeLabel.Text = "Game Time: " + totalHours + " hours";
-                if (currentSessionTime >= 1 && totalMinutesCur <= 0) CurSessionGT.Text = "Current Session: " + currentSessionTime + " seconds";
-                if (totalMinutesCur >= 1 && totalHoursCur <= 0) CurSessionGT.Text = "Current Session: " + totalMinutesCur + " minutes";
-                if (totalHoursCur >= 1 && totalMinutes >= 60) CurSessionGT.Text = "Current Session: " + totalHoursCur + " hours";
+                if (settings.GameTime >= 1 && totalMinutes <= 0) GameTimeLabel.Text = "Game Time: " + settings.GameTime.ToString("N0") + " seconds";
+                if (totalMinutes >= 1 && totalHours <= 0) GameTimeLabel.Text = "Game Time: " + totalMinutes.ToString("N0") + " minutes";
+                if (totalHours >= 1 && totalMinutes >= 60) GameTimeLabel.Text = "Game Time: " + totalHours.ToString("N0") + " hours";
+                if (spanCurrent.TotalSeconds > 0 && totalMinutesCur <= 0) CurSessionGT.Text = "Current Session: " + spanCurrent.TotalSeconds.ToString("N0") + " seconds";
+                if (totalMinutesCur >= 1 && totalHoursCur <= 0) CurSessionGT.Text = "Current Session: " + totalMinutesCur.ToString("N0") + " minutes";
+                if (totalHoursCur >= 1 && totalMinutes >= 60) CurSessionGT.Text = "Current Session: " + totalHoursCur.ToString("N0") + " hours";
             }
             catch (Exception ex)
             {
@@ -599,9 +620,8 @@ namespace CoDUO_FoV_Changer
             try
             {
                 var processes = GetAllGameProcesses();
-                if (processes.Length < 1) return;
+                if (processes.Count < 1) return;
                 if (settings.GameTime < (int.MaxValue - 1)) settings.GameTime++;
-                if (currentSessionTime < (int.MaxValue - 1)) currentSessionTime++;
                 AccessGameTimeLabel();
             }
             catch (Exception ex) { WriteLog(ex.ToString()); }
@@ -654,6 +674,7 @@ namespace CoDUO_FoV_Changer
             try
             {
                 var selectedIndex = GamePIDBox.SelectedIndex;
+                GamePIDBox.BeginUpdate();
                 for (int i = 0; i < GamePIDBox.Items.Count; i++)
                 {
                     var boxItem = GamePIDBox.Items[i];
@@ -663,7 +684,7 @@ namespace CoDUO_FoV_Changer
                     if (!IsProcessRunning(pid)) GamePIDBox.Items.Remove(boxItem);
                 }
                 var allProcs = GetAllGameProcesses();
-                for (int i = 0; i < allProcs.Length; i++)
+                for (int i = 0; i < allProcs.Count; i++)
                 {
                     var proc = allProcs[i];
                     if (proc?.Id == 0) continue;
@@ -681,6 +702,7 @@ namespace CoDUO_FoV_Changer
                 }
                 GamePIDBox.Visible = GamePIDBox.Items.Count > 0;
                 if (GamePIDBox.SelectedItem == null && GamePIDBox.Items.Count > 0) GamePIDBox.SelectedIndex = ClampEx.Clamp(selectedIndex - 1, 0, GamePIDBox.Items.Count);
+                GamePIDBox.EndUpdate();
             }
             catch (Exception ex)
             {

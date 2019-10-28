@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System;
 using System.Linq;
 //This wasn't written by me (Shady), and quite frankly I can't remember who did but I'm pretty sure it's fairly generic at this point
-//I have made changes to this, rewriting some of the code and deleting some
+//I have made some significant changes to this, rewriting some of the code and deleting some
 namespace ReadWriteMemory
 {
     internal class ProcessMemory
@@ -28,16 +28,37 @@ namespace ReadWriteMemory
         public int ProcessPID { get; protected set; }
 
         // Methods
-        public ProcessMemory(string pProcessName) { ProcessName = !string.IsNullOrEmpty(pProcessName) ? pProcessName.Replace(".exe", "") : string.Empty; }
+        public ProcessMemory(string pProcessName) { ProcessName = !string.IsNullOrEmpty(pProcessName) ? pProcessName.Replace(".exe", string.Empty) : string.Empty; }
 
         public ProcessMemory(int pPid) { ProcessPID = pPid; }
         
 
-        public bool CheckProcess() { return (Process.GetProcessesByName(ProcessName).Length > 0 || Process.GetProcesses().Any(p => p != null && p.Id == ProcessPID)); }
+        public bool CheckProcess()
+        {
+            var procs = Process.GetProcesses();
+            for(int i = 0; i < procs.Length; i++)
+            {
+                var p = procs[i];
+                if ((ProcessPID != 0 && p?.Id == ProcessPID) || p.ProcessName.Equals(ProcessName, StringComparison.OrdinalIgnoreCase)) return true;
+            }
+            return false;
+        }
 
         public bool StartProcess()
         {
-            var proc = (ProcessPID != 0) ? Process.GetProcessById(ProcessPID) : !string.IsNullOrEmpty(ProcessName) ? Process.GetProcessesByName(ProcessName)?.FirstOrDefault() ?? null : null;
+            Process proc = null;
+            var procs = Process.GetProcesses();
+            for (int i = 0; i < procs.Length; i++)
+            {
+                var p = procs[i];
+                if ((ProcessPID != 0 && p?.Id == ProcessPID) || p.ProcessName.Equals(ProcessName, StringComparison.OrdinalIgnoreCase))
+                {
+                    proc = p;
+                    break;
+                }
+            }
+
+            //var proc = (ProcessPID != 0) ? Process.GetProcessById(ProcessPID) : !string.IsNullOrEmpty(ProcessName) ? Process.GetProcessesByName(ProcessName)?.FirstOrDefault() ?? null : null;
             if (proc == null || proc.Id == 0) return false;
             _Process = proc;
             if (string.IsNullOrEmpty(ProcessName)) ProcessName = proc.ProcessName;
@@ -49,7 +70,21 @@ namespace ReadWriteMemory
         public int DllImageAddress(string dllname)
         {
             if (string.IsNullOrEmpty(dllname) || _Process?.Modules == null) return -1;
-            var addr = _Process?.Modules?.Cast<ProcessModule>()?.Where(p => p != null && p.ModuleName == dllname)?.FirstOrDefault()?.BaseAddress ?? null;
+            IntPtr? addr = null;
+            var modules = _Process?.Modules?.Cast<ProcessModule>() ?? null;
+            if (modules != null && modules.Count() > 0)
+            {
+                foreach (var module in modules)
+                {
+                    if (module?.ModuleName == dllname)
+                    {
+                        addr = module.BaseAddress;
+                        break;
+                    }
+                }
+            }
+
+            //  var addr = _Process?.Modules?.Cast<ProcessModule>()?.Where(p => p != null && p.ModuleName == dllname)?.FirstOrDefault()?.BaseAddress ?? null;
             return (addr == null) ? 0 : (int)addr;
         }
 
