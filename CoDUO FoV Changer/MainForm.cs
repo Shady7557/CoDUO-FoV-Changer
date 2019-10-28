@@ -1,20 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using CurtLog;
-using System.Security.Principal;
 using System.Windows.Forms;
 using System.IO;
 using Microsoft.Win32;
-using ReadWriteMemory;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Net;
 using ClampExt;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace CoDUO_FoV_Changer
 {
@@ -25,7 +21,7 @@ namespace CoDUO_FoV_Changer
         public static string appdataFoV = appdata + "CoDUO FoV Changer";
         public static string logsPath = appdataFoV + @"\Logs";
         public static string settingsPath = appdataFoV + @"\settings.xml";
-        public static readonly string hotfix = "7.2";
+        public const decimal hotfix = 7.2M;
         public static readonly string cleanVersion = Application.ProductVersion.Substring(0, 3);
         public static bool isDev = Debugger.IsAttached;
         public bool noLog = false;
@@ -75,85 +71,92 @@ namespace CoDUO_FoV_Changer
             var watch = new Stopwatch();
             watch.Start();
             CheckForIllegalCrossThreadCalls = true;
-            
-            var argsSB = new StringBuilder();
-            var cmdArgs = Environment.GetCommandLineArgs();
-            for (int i = 0; i < cmdArgs.Length; i++)
+            Task.Run(() =>
             {
-                var argu = cmdArgs[i];
-                var arg = argu.ToLower();
-                if (arg.IndexOf(Application.ProductName, StringComparison.OrdinalIgnoreCase) >= 0 || arg.IndexOf(Application.StartupPath, StringComparison.OrdinalIgnoreCase) >= 0) continue;
-                if (arg == "-nolog") noLog = true;
-                if (arg == "-unlock") DvarsCheckBox.Visible = true;
-                if (arg == "-unlock=1")
+                var argsSB = new StringBuilder();
+                var cmdArgs = Environment.GetCommandLineArgs();
+                for (int i = 0; i < cmdArgs.Length; i++)
                 {
-                    DvarsCheckBox.Visible = true;
-                    DvarsCheckBox.Checked = true;
+                    var argu = cmdArgs[i];
+                    var arg = argu.ToLower();
+                    if (arg.IndexOf(Application.ProductName, StringComparison.OrdinalIgnoreCase) >= 0 || arg.IndexOf(Application.StartupPath, StringComparison.OrdinalIgnoreCase) >= 0) continue;
+                    if (arg == "-nolog") noLog = true;
+                    if (arg == "-unlock") DvarsCheckBox.Visible = true;
+                    if (arg == "-unlock=1")
+                    {
+                        DvarsCheckBox.Visible = true;
+                        DvarsCheckBox.Checked = true;
+                    }
+
+                    if (arg == "-fog=1") settings.Fog = true;
+                    else if (arg == "-fog=0") settings.Fog = false;
+
+                    if (arg == "-launch") StartGameButton.PerformClick();
+
+                    if (arg == "-debug") isDev = true;
+
+                    if (arg == "-hotkeys" && Program.IsElevated) new Hotkeys().Show();
+
+                    if (arg.Contains("-fov="))
+                    {
+                        var FoVStr = arg.Split('=')[1];
+                        var FoV = 80;
+                        if (int.TryParse(FoVStr, out FoV)) SetFoVNumeric(FoV);
+                    }
+                    argsSB.Append(argu + " ");
+                }
+                if (!Directory.Exists(appdataFoV)) Directory.CreateDirectory(appdataFoV);
+                if (!noLog)
+                {
+                    if (!Directory.Exists(logsPath)) Directory.CreateDirectory(logsPath);
+                    InitLog();
                 }
 
-                if (arg == "-fog=1") settings.Fog = true;
-                else if (arg == "-fog=0") settings.Fog = false;
-
-                if (arg == "-launch") StartGameButton.PerformClick();
-
-                if (arg == "-debug") isDev = true;
-
-                if (arg == "-hotkeys" && Program.IsElevated) new Hotkeys().Show();
-
-                if (arg.Contains("-fov="))
-                {
-                    var FoVStr = arg.Split('=')[1];
-                    var FoV = 80;
-                    if (int.TryParse(FoVStr, out FoV)) SetFoVNumeric(FoV);
-                }
-                argsSB.Append(argu + " ");
-            }
-            if (!Directory.Exists(appdataFoV)) Directory.CreateDirectory(appdataFoV);
-            if (!noLog)
-            {
-                if (!Directory.Exists(logsPath)) Directory.CreateDirectory(logsPath);
-                InitLog();
-            }
-
-            var args = argsSB.ToString().TrimEnd();
+                var args = argsSB.ToString().TrimEnd();
+                if (!string.IsNullOrEmpty(args)) WriteLog("Launched program with args: " + args);
+            });
+         
             DvarsCheckBox.Visible = false;
 
             StartUpdates();
 
 
-            if (!string.IsNullOrEmpty(args)) WriteLog("Launched program with args: " + args);
 
-            try
+            Task.Run(() =>
             {
-                var regPath = Registry.GetValue(GetRegistryPath(), "InstallPath", string.Empty)?.ToString() ?? string.Empty;
-
-                if (string.IsNullOrEmpty(settings.InstallPath) || !Directory.Exists(settings.InstallPath))
+                try
                 {
-                    if (regPath.Contains("Call of Duty") || regPath.Contains("CoD"))
+                    var regPath = Registry.GetValue(GetRegistryPath(), "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+
+                    if (string.IsNullOrEmpty(settings.InstallPath) || !Directory.Exists(settings.InstallPath))
                     {
-                        MessageBox.Show("Automatically detected game path: " + Environment.NewLine + regPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        settings.InstallPath = regPath;
-                    }
-                    else
-                    {
-                        ipDialog.Description = "Locate your Call of Duty installation directory";
-                        var ipResult = ipDialog.ShowDialog();
-                        if (ipResult == DialogResult.Cancel)
+                        if (regPath.Contains("Call of Duty") || regPath.Contains("CoD"))
                         {
-                            Application.Exit();
-                            return;
+                            MessageBox.Show("Automatically detected game path: " + Environment.NewLine + regPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            settings.InstallPath = regPath;
                         }
-                        var selectedPath = ipDialog.SelectedPath;
-                        settings.InstallPath = selectedPath;
-                        MessageBox.Show("Set install path to: " + selectedPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        else
+                        {
+                            ipDialog.Description = "Locate your Call of Duty installation directory";
+                            var ipResult = ipDialog.ShowDialog();
+                            if (ipResult == DialogResult.Cancel)
+                            {
+                                Application.Exit();
+                                return;
+                            }
+                            var selectedPath = ipDialog.SelectedPath;
+                            settings.InstallPath = selectedPath;
+                            MessageBox.Show("Set install path to: " + selectedPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("An error has occurred: " + ex.Message + Environment.NewLine + "Please refer to the log for more information.");
-                WriteLog("An exception happened on Install Path code:" + Environment.NewLine + ex.ToString());
-            }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("An error has occurred: " + ex.Message + Environment.NewLine + "Please refer to the log for more information.");
+                    WriteLog("An exception happened on Install Path code:" + Environment.NewLine + ex.ToString());
+                }
+            });
+            
             UpdateProcessBox();
             memory = GetProcessMemoryFromBox();
 
@@ -379,9 +382,9 @@ namespace CoDUO_FoV_Changer
                 if (!decimal.TryParse(version, out hfDec))
                 {
                     WriteLog("Failed to parse: " + version + " (version) as decimal.");
-                    return !version.Contains(hotfix);
+                    return !version.Contains(hotfix.ToString());
                 }
-                return (hfDec > Convert.ToDecimal(hotfix));
+                return hfDec > hotfix;
             }
             catch (Exception ex)
             {
@@ -391,7 +394,7 @@ namespace CoDUO_FoV_Changer
         }
 
         
-        public static bool IsKeyPushedDown(System.Windows.Forms.Keys vKey) { return (GetAsyncKeyState((int)vKey) & 0x8000) != 0; }
+        public static bool IsKeyPushedDown(Keys vKey) { return (GetAsyncKeyState((int)vKey) & 0x8000) != 0; }
 
         public bool IsProcessRunning(int pid) { return Process.GetProcesses().Any(p => p?.Id == pid); }
 

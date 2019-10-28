@@ -57,7 +57,7 @@ namespace CoDUO_FoV_Changer
                 Close();
                 return;
             }
-            DatabaseFile.Write<Settings>(settings, MainForm.settingsPath); //save current settings
+            DatabaseFile.Write(settings, MainForm.settingsPath); //save current settings
             settings.HasChanged = false; //force it to not be changed so exit without saving works 'properly'
         }
 
@@ -103,7 +103,7 @@ namespace CoDUO_FoV_Changer
 
         private void button2_Click(object sender, EventArgs e)
         {
-            DatabaseFile.Write<Settings>(settings, MainForm.settingsPath);
+            DatabaseFile.Write(settings, MainForm.settingsPath);
             Close();
         }
 

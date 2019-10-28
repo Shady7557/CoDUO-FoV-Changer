@@ -20,7 +20,7 @@ namespace CoDUO_FoV_Changer
             settings.DisableUpdateTimer = DisableUpdateTimerCBox.Checked;
             if (settings.HasChanged)
             {
-                DatabaseFile.Write<Settings>(settings, MainForm.settingsPath);
+                DatabaseFile.Write(settings, MainForm.settingsPath);
                 Application.Restart();
             }
             else Close();
