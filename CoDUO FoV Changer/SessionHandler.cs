@@ -32,6 +32,7 @@ namespace SessionHandling
                     LastSessionTime = now;
                 }
             });
+            procAct.Invoke();
             TimerEx.Every(1f, procAct);
         }
         

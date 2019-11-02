@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 using System.Security.Principal;
 using System.Windows.Forms;
 
@@ -30,9 +32,33 @@ namespace CoDUO_FoV_Changer
         [STAThread]
         static void Main()
         {
+            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(AssemblyResolve);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());
+        }
+        private static Assembly AssemblyResolve(object sender, ResolveEventArgs e)
+        {
+            try
+            {
+                var name = @"CoDUO_FoV_Changer.Resources." + e.Name.Split(',')[0] + ".dll";
+                Console.WriteLine("name: " + name + Environment.NewLine + "e.name: " + e.Name);
+                using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(name))
+                {
+                    if (stream == null) return null;
+                   // if (stream == null) throw new FileLoadException(name);
+                    var data = new byte[stream.Length];
+                    stream.Read(data, 0, data.Length);
+                    return Assembly.Load(data);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                MessageBox.Show(ex.ToString(), Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            return null;
         }
     }
 }

@@ -7,6 +7,8 @@ namespace CoDUO_FoV_Changer
     {
         Settings settings = Settings.Instance;
 
+        public static AdvancedSettings Instance = null;
+
         protected override CreateParams CreateParams
         {
             get
@@ -17,7 +19,11 @@ namespace CoDUO_FoV_Changer
             }
         } //makes the loading look less shitty
 
-        public AdvancedSettings() => InitializeComponent();
+        public AdvancedSettings()
+        {
+            Instance = this;
+            InitializeComponent();
+        }
 
         private void AdvancedSettings_Load(object sender, EventArgs e)
         {

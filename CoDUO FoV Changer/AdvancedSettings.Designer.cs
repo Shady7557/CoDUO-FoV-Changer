@@ -49,7 +49,7 @@
             // CancelCloseButton
             // 
             this.CancelCloseButton.BackColor = System.Drawing.Color.DarkGray;
-            this.CancelCloseButton.Location = new System.Drawing.Point(12, 108);
+            this.CancelCloseButton.Location = new System.Drawing.Point(12, 99);
             this.CancelCloseButton.Name = "CancelCloseButton";
             this.CancelCloseButton.Size = new System.Drawing.Size(128, 22);
             this.CancelCloseButton.TabIndex = 20;
@@ -60,7 +60,7 @@
             // SaveRestartAppButton
             // 
             this.SaveRestartAppButton.BackColor = System.Drawing.Color.DarkGray;
-            this.SaveRestartAppButton.Location = new System.Drawing.Point(12, 79);
+            this.SaveRestartAppButton.Location = new System.Drawing.Point(12, 70);
             this.SaveRestartAppButton.Name = "SaveRestartAppButton";
             this.SaveRestartAppButton.Size = new System.Drawing.Size(128, 23);
             this.SaveRestartAppButton.TabIndex = 18;

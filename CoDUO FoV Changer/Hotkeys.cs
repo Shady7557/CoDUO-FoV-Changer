@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Windows.Forms;
 
 namespace CoDUO_FoV_Changer
@@ -13,6 +14,8 @@ namespace CoDUO_FoV_Changer
         Settings settings = Settings.Instance;
         Settings oldSettings;
 
+        public static Hotkeys Instance = null;
+
         protected override CreateParams CreateParams
         {
             get
@@ -23,7 +26,11 @@ namespace CoDUO_FoV_Changer
             }
         } //makes the loading look less shitty
 
-        public Hotkeys() => InitializeComponent();
+        public Hotkeys()
+        {
+            Instance = this;
+            InitializeComponent();
+        }
         
         private void Hotkeys_Load(object sender, EventArgs e)
         {
@@ -33,10 +40,11 @@ namespace CoDUO_FoV_Changer
             {
                 if (!Program.IsElevated)
                 {
-                    var fileNameDir = Application.StartupPath + @"\" + AppDomain.CurrentDomain.FriendlyName;
-                    if (!File.Exists(fileNameDir))
+                    var currentProc = Process.GetCurrentProcess();
+                    var fileNameDir = currentProc?.MainModule?.FileName ?? string.Empty;
+                    if (string.IsNullOrEmpty(fileNameDir) || !File.Exists(fileNameDir))
                     {
-                        MessageBox.Show("Application has been renamed? Cannot start: " + fileNameDir + Environment.NewLine + " Please manually run the program as an Admin if you wish to change your hotkeys.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show("Application path doesn't exist. Cannot start: " + fileNameDir + Environment.NewLine + " Please manually run the program as an Admin if you wish to change your hotkeys.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         Close();
                     }
                     else
@@ -67,6 +75,13 @@ namespace CoDUO_FoV_Changer
             }
             DatabaseFile.Write(settings, MainForm.settingsPath); //save current settings
             settings.HasChanged = false; //force it to not be changed so exit without saving works 'properly'
+
+            //transparent label backcolor
+            var pos = this.PointToScreen(label2.Location);
+            pos = pictureBox1.PointToClient(pos);
+            label2.Parent = pictureBox1;
+            label2.Location = pos;
+            label2.BackColor = System.Drawing.Color.Transparent;
         }
 
         private void Hotkeys_KeyDown(object sender, KeyEventArgs e)
@@ -74,10 +89,12 @@ namespace CoDUO_FoV_Changer
             var keyStr = e.KeyData.ToString();
             if (keyStr == "LWin") return;
             if (keyStr.Contains(",")) keyStr = keyStr.Split(',')[1];
-            label1.Text = "Key: " + keyStr.TrimStart(' ');
+           
             currentKey = e.KeyData;
             currentKeyCode = e.KeyValue;
-            curKeyName = e.KeyData.ToString();
+            curKeyName = GetShortKeyString(e.KeyData);
+            label1.Text = "Key: " + curKeyName;
+            label2.Text = curKeyName;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -139,7 +156,20 @@ namespace CoDUO_FoV_Changer
             if (key == 0) return string.Empty;
             var keyStr = key.ToString();
             if (keyStr.Contains(",")) keyStr = keyStr.Split(',')[1];
-            return keyStr;
+            var keySB = new StringBuilder(keyStr);
+            keySB.Replace("Oem", string.Empty).Replace("Decimal", "DEC").Replace("comma", ",").Replace("Period", ".").Replace("NumPad", "N").Replace("Minus", "-").Replace("plus", "+");
+            return keySB.ToString();
+        }
+
+        private string GetShortKeyString(Keys key)
+        {
+            if (key == 0) return string.Empty;
+            var keyStr = key.ToString();
+            if (keyStr.Contains(",")) keyStr = keyStr.Split(',')[1];
+            var keySB = new StringBuilder(keyStr);
+            keySB.Replace("Oem", string.Empty).Replace("Decimal", "DEC").Replace("comma", ",").Replace("Period", ".").Replace("NumPad", "N").Replace("Minus", "-").Replace("plus", "+");
+            if (keySB.Length > 4) keySB = keySB.Remove(3, keySB.Length - 3).Append(".");
+            return keySB.ToString();
         }
 
         private void FogKey_CheckedChanged(object sender, EventArgs e)
@@ -165,6 +195,12 @@ namespace CoDUO_FoV_Changer
         private void FogModifier_CheckedChanged(object sender, EventArgs e)
         {
             if (FogModifier.Checked && !string.IsNullOrEmpty(settings.HotKeyFogModifier)) label1.Text = "Key: " + GetKeyString(GetKeyFromString(settings.HotKeyFogModifier)) + " (current)";
+        }
+
+        private void Label2_TextChanged(object sender, EventArgs e)
+        {
+            if (label2.Text.Length > 2) label2.Font = new System.Drawing.Font(label2.Font.Name, 9, label2.Font.Bold ? System.Drawing.FontStyle.Bold : System.Drawing.FontStyle.Regular);
+            else label2.Font = new System.Drawing.Font(label2.Font.Name, 12, label2.Font.Bold ? System.Drawing.FontStyle.Bold : System.Drawing.FontStyle.Regular);
         }
     }
 }

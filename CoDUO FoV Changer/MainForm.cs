@@ -374,8 +374,8 @@ namespace CoDUO_FoV_Changer
         public static string GetRegistryPath()
         {
             var path = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive";
-            if (!Environment.Is64BitOperatingSystem) path = path.Replace(@"Wow6432Node\", "");
-            if (Registry.LocalMachine.OpenSubKey(path.Replace(@"HKEY_LOCAL_MACHINE\", "")) == null) path = path.Replace("United Offensive", ""); //if UO key is null, use cod1 (if it exists)
+            if (!Environment.Is64BitOperatingSystem) path = path.Replace(@"Wow6432Node\", string.Empty);
+            if (Registry.LocalMachine.OpenSubKey(path.Replace(@"HKEY_LOCAL_MACHINE\", string.Empty)) == null) path = path.Replace("United Offensive", string.Empty); //if UO key is null, use cod1 (if it exists)
             return path;
         }
 
@@ -458,7 +458,7 @@ namespace CoDUO_FoV_Changer
                 var cbString = GamePIDBox?.SelectedItem?.ToString() ?? string.Empty;
                 if (string.IsNullOrEmpty(cbString)) return null;
                 var pid = 0;
-                if (!int.TryParse(cbString.Split('(')[1].Replace(")", ""), out pid)) return null;
+                if (!int.TryParse(cbString.Split('(')[1].Replace(")", string.Empty), out pid)) return null;
                 var mem = new Memory(pid);
                 return (mem != null && mem.IsRunning()) ? mem : null;
             }
@@ -539,7 +539,7 @@ namespace CoDUO_FoV_Changer
                     return;
                 }
                 var address = (!IsUO()) ? 0x3029CA28 : (memory != null && memory.IsRunning() ? (memory.ProcMemory.DllImageAddress(cgameDll) + 0x52F7C8) : -1);
-                if (memory == null || !memory.IsRunning() || (address == -1))
+                if (memory == null || !memory.IsRunning() || (address <= 0))
                 {
                     SetLabelText(StatusLabel, "Status: not found or failed to write to memory!");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!"); });
@@ -595,7 +595,11 @@ namespace CoDUO_FoV_Changer
 
         private void CheckUpdatesLabel_TextChanged(object sender, EventArgs e) => UpdateButton.Visible = (isDev) ? true : (CheckUpdatesLabel.Text == "Update available!");
 
-        private void SettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsForm().Show();
+        private void SettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (SettingsForm.Instance != null && !SettingsForm.Instance.Disposing && !SettingsForm.Instance.IsDisposed) SettingsForm.Instance.Show();
+            else new SettingsForm().Show();
+        }
 
         private void AccessGameTimeLabel()
         {
@@ -694,7 +698,7 @@ namespace CoDUO_FoV_Changer
                 {
                     var boxItem = GamePIDBox.Items[i];
                     var pid = 0;
-                    var splitPid = (boxItem as string).Split('(')[1].Replace(")", "");
+                    var splitPid = (boxItem as string).Split('(')[1].Replace(")", string.Empty);
                     if (!int.TryParse(splitPid, out pid)) continue;
                     var isRunning = false;
                     for(int j = 0; j < procs.Length; j++)
@@ -771,7 +775,11 @@ namespace CoDUO_FoV_Changer
 
         private void fogToolStripMenuItem_Click(object sender, EventArgs e) =>  fogToolStripMenuItem.Checked = !fogToolStripMenuItem.Checked; //idk why this is needed but it seems like it is??
 
-        private void settingsToolStripMenuItem1_Click(object sender, EventArgs e) => new SettingsForm().Show();
+        private void settingsToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (SettingsForm.Instance != null && !SettingsForm.Instance.Disposing && !SettingsForm.Instance.IsDisposed) SettingsForm.Instance.Show();
+            else new SettingsForm().Show();
+        }
 
         private void GamePIDBox_SelectedIndexChanged(object sender, EventArgs e)
         {

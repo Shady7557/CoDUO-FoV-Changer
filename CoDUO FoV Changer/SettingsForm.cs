@@ -14,6 +14,8 @@ namespace CoDUO_FoV_Changer
         string GameVersion = string.Empty;
         Settings settings = Settings.Instance;
 
+        public static SettingsForm Instance = null;
+
         protected override CreateParams CreateParams
         {
             get
@@ -25,7 +27,11 @@ namespace CoDUO_FoV_Changer
         } //makes the loading look less shitty
 
 
-        public SettingsForm() => InitializeComponent();
+        public SettingsForm()
+        {
+            Instance = this;
+            InitializeComponent();
+        }
 
         void WriteLog(string message) => MainForm.WriteLog(message);
 
@@ -61,9 +67,17 @@ namespace CoDUO_FoV_Changer
             }
         }
 
-        private void ButtonSettingsAdvanced_Click(object sender, EventArgs e) => new AdvancedSettings().Show();
+        private void ButtonSettingsAdvanced_Click(object sender, EventArgs e)
+        {
+            if (AdvancedSettings.Instance != null && !AdvancedSettings.Instance.IsDisposed && !AdvancedSettings.Instance.Disposing) AdvancedSettings.Instance.BringToFront();
+            else new AdvancedSettings().Show();
+        }
 
-        private void hotKeysButton_Click(object sender, EventArgs e) => new Hotkeys().Show();
+        private void hotKeysButton_Click(object sender, EventArgs e)
+        {
+            if (Hotkeys.Instance != null && !Hotkeys.Instance.IsDisposed && !Hotkeys.Instance.Disposing) Hotkeys.Instance.BringToFront();
+            else new Hotkeys().Show();
+        }
         #endregion
 
         private void CDKeyLabel_MouseDown(object sender, MouseEventArgs e) => CDKeyLabel.Text = !CDKeyLabel.Text.Contains("Hidden") ? "CD-Key: Hidden" : keyLabelText;
