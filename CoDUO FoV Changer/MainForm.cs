@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.Linq;
 using System.Text;
 using CurtLog;
 using System.Windows.Forms;
@@ -13,6 +12,7 @@ using System.Threading.Tasks;
 using HotkeyHandling;
 using SessionHandling;
 using System.Collections.Generic;
+using BitmapExtension;
 
 namespace CoDUO_FoV_Changer
 {
@@ -81,7 +81,8 @@ namespace CoDUO_FoV_Changer
         {
             var watch = Stopwatch.StartNew();
             CheckForIllegalCrossThreadCalls = true;
-
+            AdminLaunchButton.Visible = false;
+            if (!Program.IsElevated) AdminLaunchButton.Image = BitmapHelper.ResizeImage(SystemIcons.Shield.ToBitmap(), new Size(16, 16));
             Task.Run(() =>
             {
                 if (!Directory.Exists(appdataFoV)) Directory.CreateDirectory(appdataFoV);
@@ -171,6 +172,7 @@ namespace CoDUO_FoV_Changer
             
             UpdateProcessBox();
             memory = GetProcessMemoryFromBox();
+            AdminLaunchButton.Visible = !Program.IsElevated && (memory?.IsRunning() ?? false) && (memory?.ProcMemory?.RequiresElevation() ?? false);
 
             SetFoVNumeric(settings.FoV);
             MinimizeCheckBox.Checked = settings.MinimizeToTray;
@@ -311,6 +313,7 @@ namespace CoDUO_FoV_Changer
                 DvarsCheckBox.Checked = false;
                 FogCheckBox.Checked = false;
             }
+            AdminLaunchButton.Visible = !Program.IsElevated && (memory?.IsRunning() ?? false) && (memory?.ProcMemory?.RequiresElevation() ?? false);
             Task.Run(() =>
             {
                 doRAChecks();
@@ -535,7 +538,7 @@ namespace CoDUO_FoV_Changer
                 {
                     SetLabelText(StatusLabel, "Status: game requires elevation!");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { toolTip1.SetToolTip(StatusLabel, "Process requires elevation!"); });
-                    StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.Red; });
+                    StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.Orange; });
                     return;
                 }
                 var address = (!IsUO()) ? 0x3029CA28 : (memory != null && memory.IsRunning() ? (memory.ProcMemory.DllImageAddress(cgameDll) + 0x52F7C8) : -1);
@@ -543,7 +546,7 @@ namespace CoDUO_FoV_Changer
                 {
                     SetLabelText(StatusLabel, "Status: not found or failed to write to memory!");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!"); });
-                    StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.Red; });
+                    StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.Orange; });
                 }
                 else
                 {
@@ -788,6 +791,39 @@ namespace CoDUO_FoV_Changer
         }
 
         private void GamePIDBox_VisibleChanged(object sender, EventArgs e) => CoDPictureBox.Visible = GamePIDBox.Visible;
-        
+
+        private void AdminLaunchButton_Click(object sender, EventArgs e)
+        {
+            if (Program.IsElevated)
+            {
+                MessageBox.Show("Program is already running as an administrator!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            var currentProc = Process.GetCurrentProcess();
+            var fileNameDir = currentProc?.MainModule?.FileName ?? string.Empty;
+            if (string.IsNullOrEmpty(fileNameDir) || !File.Exists(fileNameDir))
+            {
+                MessageBox.Show("Application path doesn't exist. Cannot start: " + fileNameDir + Environment.NewLine + " Please manually run the program as an Admin if you wish to change your hotkeys.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Close();
+            }
+            else
+            {
+                var startInfo = new ProcessStartInfo();
+                startInfo.Verb = "runas";
+                startInfo.Arguments = string.Join(" ", Environment.GetCommandLineArgs());
+                startInfo.WorkingDirectory = Application.StartupPath;
+                startInfo.FileName = fileNameDir;
+                try
+                {
+                    Process.Start(startInfo);
+                    Close();
+                }
+                catch (System.ComponentModel.Win32Exception win32ex) when (win32ex.NativeErrorCode == 1223)
+                {
+                    WriteLog("User canceled UAC prompt (" + win32ex.Message + " )");
+                    return;
+                }
+            }
+        }
     }
 }

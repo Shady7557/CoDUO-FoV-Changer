@@ -67,6 +67,7 @@
             this.ProccessChecker = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.ipFDialog = new System.Windows.Forms.OpenFileDialog();
+            this.AdminLaunchButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.FoVNumeric)).BeginInit();
             this.FoVMenuStrip.SuspendLayout();
             this.rcStrip.SuspendLayout();
@@ -237,7 +238,7 @@
             // 
             this.StatusLabel.AutoSize = true;
             this.StatusLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.StatusLabel.ForeColor = System.Drawing.Color.Red;
+            this.StatusLabel.ForeColor = System.Drawing.Color.Orange;
             this.StatusLabel.Location = new System.Drawing.Point(-3, 170);
             this.StatusLabel.Name = "StatusLabel";
             this.StatusLabel.Size = new System.Drawing.Size(307, 18);
@@ -410,12 +411,27 @@
             this.ProccessChecker.Interval = 1500;
             this.ProccessChecker.Tick += new System.EventHandler(this.ProccessChecker_Tick);
             // 
+            // AdminLaunchButton
+            // 
+            this.AdminLaunchButton.BackColor = System.Drawing.Color.DarkGray;
+            this.AdminLaunchButton.ForeColor = System.Drawing.Color.Transparent;
+            this.AdminLaunchButton.ImageAlign = System.Drawing.ContentAlignment.BottomLeft;
+            this.AdminLaunchButton.Location = new System.Drawing.Point(10, 142);
+            this.AdminLaunchButton.Name = "AdminLaunchButton";
+            this.AdminLaunchButton.Size = new System.Drawing.Size(272, 25);
+            this.AdminLaunchButton.TabIndex = 76;
+            this.AdminLaunchButton.Text = "Launch program as Administrator";
+            this.AdminLaunchButton.UseVisualStyleBackColor = false;
+            this.AdminLaunchButton.Visible = false;
+            this.AdminLaunchButton.Click += new System.EventHandler(this.AdminLaunchButton_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
             this.ClientSize = new System.Drawing.Size(419, 216);
+            this.Controls.Add(this.AdminLaunchButton);
             this.Controls.Add(this.GamePIDBox);
             this.Controls.Add(this.CurSessionGT);
             this.Controls.Add(this.GameTimeLabel);
@@ -491,6 +507,7 @@
         private System.Windows.Forms.ToolStripMenuItem fogToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem1;
+        internal System.Windows.Forms.Button AdminLaunchButton;
     }
 }
 
