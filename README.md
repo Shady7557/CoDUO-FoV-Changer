@@ -1,7 +1,7 @@
 # CoDUO-FoV-Changer
-A field of view changer for Call of Duty 1 and United Offensive.
+A Field of View (FoV) changer for Call of Duty and Call of Duty: United Offensive.
 
-Useful for playing in 16:9 resolutions in a game that only natively supports 4:3. This prevents your screen from being zoomed in, when playing in Widescreen.
+Useful for playing in widescreen resolutions in a game that only natively supports 4:3 aspect ratios. This allows you to set your FoV manually, to prevent your screen from being overly zoomed in when playing in widescreen. It also works as an FoV changer even if you want to keep the 4:3 resolution.
 
 
 Official Download Link: https://github.com/Shady7557/CoDUO-FoV-Changer/releases
