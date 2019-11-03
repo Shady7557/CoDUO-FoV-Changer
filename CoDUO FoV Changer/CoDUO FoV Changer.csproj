@@ -177,9 +177,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="cod.ico" />
+    <None Include="Resources\Mover.exe" />
     <EmbeddedResource Include="Resources\CurtLog.dll" />
     <None Include="Resources\empty_key_big_3.png" />
-    <None Include="Resources\CoDUO FoV Changer Updater CSharp.exe" />
     <None Include="Resources\CoD1.png" />
     <None Include="Resources\CoDUO.png" />
   </ItemGroup>

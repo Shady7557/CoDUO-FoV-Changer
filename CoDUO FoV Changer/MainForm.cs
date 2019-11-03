@@ -30,6 +30,7 @@ namespace CoDUO_FoV_Changer
         public static Settings settings = Settings.Instance;
         private Image CoDImage = Properties.Resources.CoD1;
         private Image CoDUOImage = Properties.Resources.CoDUO;
+        private const string LatestDownloadURI = @"https://github.com/Shady7557/CoDUO-FoV-Changer/releases/latest/download/CoDUO.FoV.Changer.exe";
         public const string cgameDll = "uo_cgame_mp_x86.dll";
         public static Point location;
         private SessionHandler currentSession = new SessionHandler();
@@ -665,24 +666,43 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                var path = temp + "CoDUO FoV Changer Updater.exe";
+                var tempFoVPath = temp + "coduofovchanger_temp.exe";
+                var currentProc = Process.GetCurrentProcess();
+                var fileNameDir = currentProc?.MainModule?.FileName ?? string.Empty;
+                if (string.IsNullOrEmpty(fileNameDir) || !File.Exists(fileNameDir))
+                {
+                    MessageBox.Show("Application path doesn't exist. Cannot update: " + fileNameDir, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                if (File.Exists(tempFoVPath)) File.Delete(tempFoVPath);
+                
+                var wc = new WebClient();
+                wc.Headers.Add("user-agent", "CoDUO FoV Changer/" + Application.ProductVersion);
+                wc.DownloadFile(LatestDownloadURI, tempFoVPath);
+
+
+                var path = temp + "Mover.exe";
+                if (File.Exists(path)) File.Delete(path);
                 if (!File.Exists(path))
                 {
-                    File.WriteAllBytes(path, Properties.Resources.CoDUO_FoV_Changer_Updater);
-                    WriteLog("Created updater at: " + path);
+                    File.WriteAllBytes(path, Properties.Resources.Mover);
+                    WriteLog("Created mover at: " + path);
                 }
+               
+
                 var updaterInfo = new ProcessStartInfo();
-                updaterInfo.Verb = "runas";
                 updaterInfo.WorkingDirectory = Application.StartupPath;
                 updaterInfo.FileName = path;
+                updaterInfo.Arguments = "-movefrom=\"" + tempFoVPath + "\" -moveto=\"" + fileNameDir + "\" -wait=1000 -autostart -waitstart=1000 -exitwait=1000 -waitforpid=" + currentProc.Id;
                 Process.Start(updaterInfo);
-                WriteLog("Started Updater, shutting down");
-                Application.Exit();
+                WriteLog("Started mover with args: " + updaterInfo.Arguments + ", now shutting down");
+                Close();
             }
             catch (Exception ex)
             {
-                WriteLog("An error happened while trying to write the updater:" + Environment.NewLine + ex.ToString());
-                MessageBox.Show("An error happened while trying to write the updater: " + Environment.NewLine + ex.Message + Environment.NewLine + " Please refer to the log for more info.");
+                Console.WriteLine(ex.ToString());
+                WriteLog("An error happened while trying to update:" + Environment.NewLine + ex.ToString());
+                MessageBox.Show("An error happened while trying to update: " + Environment.NewLine + ex.Message + Environment.NewLine + "Please refer to the log for more info.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

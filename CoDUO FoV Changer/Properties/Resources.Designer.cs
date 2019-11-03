@@ -83,16 +83,6 @@ namespace CoDUO_FoV_Changer.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] CoDUO_FoV_Changer_Updater {
-            get {
-                object obj = ResourceManager.GetObject("CoDUO_FoV_Changer_Updater", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
         internal static byte[] CurtLog {
             get {
                 object obj = ResourceManager.GetObject("CurtLog", resourceCulture);
@@ -107,6 +97,16 @@ namespace CoDUO_FoV_Changer.Properties {
             get {
                 object obj = ResourceManager.GetObject("empty_key_big_3", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] Mover {
+            get {
+                object obj = ResourceManager.GetObject("Mover", resourceCulture);
+                return ((byte[])(obj));
             }
         }
     }

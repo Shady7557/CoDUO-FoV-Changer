@@ -124,13 +124,13 @@
   <data name="CoDUO" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\CoDUO.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="CoDUO_FoV_Changer_Updater" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\CoDUO FoV Changer Updater.exe;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="CurtLog" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\CurtLog.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="empty_key_big_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\empty_key_big_3.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Mover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Mover.exe;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>
