@@ -18,11 +18,7 @@ namespace CoDUO_FoV_Changer
 {
     public partial class MainForm : Form
     {
-        public static string appdata = Environment.GetEnvironmentVariable("appdata") + @"\";
-        public static string temp = Environment.GetEnvironmentVariable("temp") + @"\";
-        public static string appdataFoV = appdata + "CoDUO FoV Changer";
-        public static string logsPath = appdataFoV + @"\Logs";
-        public static string settingsPath = appdataFoV + @"\settings.xml";
+
         public const decimal hotfix = 7.2M;
         public static readonly string cleanVersion = Application.ProductVersion.Substring(0, 3);
         public static bool isDev = Debugger.IsAttached;
@@ -63,36 +59,13 @@ namespace CoDUO_FoV_Changer
         } //makes the loading look less shitty
 
 
-        public void InitLog()
-        {
-            Log.Settings.CustomLogHeader = "===========" + Application.ProductName + " Log File===========";
-            Log.Settings.PerformanceOptions = Log.Performance.StandardPerformance;
-            Log.Settings.LogHeaderOptions = Log.LogHeader.CustomHeader;
-            var logLocation = logsPath + @"\CFC_" + DateTime.Now.ToString("d").Replace("/", "-") + ".log";
-            Log.InitializeLogger(logLocation);
-            if (settings.LastLogFile != logLocation)
-            {
-                try { if (File.Exists(settings.LastLogFile)) File.Delete(settings.LastLogFile); }
-                catch (Exception ex) { WriteLog("Failed to delete: " + settings.LastLogFile + Environment.NewLine + ex.ToString()); }
-            }
-            settings.LastLogFile = logLocation;
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
+        private void MainForm_Load(object sender, EventArgs e)
         {
             var watch = Stopwatch.StartNew();
             CheckForIllegalCrossThreadCalls = true;
             AdminLaunchButton.Visible = false;
             if (!Program.IsElevated) AdminLaunchButton.Image = BitmapHelper.ResizeImage(SystemIcons.Shield.ToBitmap(), new Size(16, 16));
-            Task.Run(() =>
-            {
-                if (!Directory.Exists(appdataFoV)) Directory.CreateDirectory(appdataFoV);
-                if (!noLog)
-                {
-                    if (!Directory.Exists(logsPath)) Directory.CreateDirectory(logsPath);
-                    InitLog();
-                }
-            });
+
 
             DvarsCheckBox.Visible = false;
 
@@ -130,7 +103,7 @@ namespace CoDUO_FoV_Changer
 
 
             var args = argsSB.ToString().TrimEnd();
-            if (!string.IsNullOrEmpty(args)) WriteLog("Launched program with args: " + args);
+            if (!string.IsNullOrEmpty(args)) Log.WriteLine("Launched program with args: " + args);
 
             StartUpdates();
 
@@ -167,7 +140,7 @@ namespace CoDUO_FoV_Changer
                 catch (Exception ex)
                 {
                     MessageBox.Show("An error has occurred: " + ex.Message + Environment.NewLine + "Please refer to the log for more information.");
-                    WriteLog("An exception happened on Install Path code:" + Environment.NewLine + ex.ToString());
+                    Log.WriteLine("An exception happened on Install Path code:" + Environment.NewLine + ex.ToString());
                 }
             });
             
@@ -190,10 +163,10 @@ namespace CoDUO_FoV_Changer
             }
             if (isDev) UpdateButton.Visible = true;
             
-            WriteLog("Successfully started application, version " + Application.ProductVersion);
+            Log.WriteLine("Successfully started application, version " + Application.ProductVersion);
             watch.Stop();
             var timeTaken = watch.Elapsed;
-            if (timeTaken.TotalMilliseconds >= 300) WriteLog("Startup took: " + timeTaken.TotalMilliseconds + "ms (this is too long!)");
+            if (timeTaken.TotalMilliseconds >= 300) Log.WriteLine("Startup took: " + timeTaken.TotalMilliseconds + "ms (this is too long!)");
         }
 
         private void StartGame()
@@ -232,7 +205,7 @@ namespace CoDUO_FoV_Changer
             catch (Exception ex)
             {
                 MessageBox.Show("Failed to start game: " + ex.Message + Environment.NewLine + " Please refer to the log for more info.");
-                WriteLog("Failed to start process game process: " + Environment.NewLine + ex.ToString());
+                Log.WriteLine("Failed to start process game process: " + Environment.NewLine + ex.ToString());
             }
         }
 
@@ -258,10 +231,10 @@ namespace CoDUO_FoV_Changer
             Task.Run(() => StartGame());
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (LaunchParametersTB.Text != settings.CommandLine) settings.CommandLine = LaunchParametersTB.Text;
-            if (settings.HasChanged) DatabaseFile.Write(settings, settingsPath);
+            if (settings.HasChanged) DatabaseFile.Write(settings, PathInfos.SettingsPath);
         }
 
         private void FoVNumeric_ValueChanged(object sender, EventArgs e)
@@ -286,7 +259,7 @@ namespace CoDUO_FoV_Changer
 
         private void MinimizeCheckBox_CheckedChanged(object sender, EventArgs e) => settings.MinimizeToTray = MinimizeCheckBox.Checked;
 
-        private void Form1_Resize(object sender, EventArgs e)
+        private void MainForm_Resize(object sender, EventArgs e)
         {
             if (MinimizeCheckBox.Checked && WindowState == FormWindowState.Minimized)
             {
@@ -410,14 +383,14 @@ namespace CoDUO_FoV_Changer
                 decimal hfDec;
                 if (!decimal.TryParse(version, out hfDec))
                 {
-                    WriteLog("Failed to parse: " + version + " (version) as decimal.");
+                    Log.WriteLine("Failed to parse: " + version + " (version) as decimal.");
                     return !version.Contains(hotfix.ToString());
                 }
                 return hfDec > hotfix;
             }
             catch (Exception ex)
             {
-                WriteLog("Unable to check for updates: " + ex.Message + Environment.NewLine + ex.ToString());
+                Log.WriteLine("Unable to check for updates: " + ex.Message + Environment.NewLine + ex.ToString());
                 return false;
             }
             finally { IsCheckingForUpdates = false; }
@@ -466,21 +439,10 @@ namespace CoDUO_FoV_Changer
                 var mem = new Memory(pid);
                 return (mem != null && mem.IsRunning()) ? mem : null;
             }
-            catch (Exception ex) { WriteLog(ex.ToString()); }
+            catch (Exception ex) { Log.WriteLine(ex.ToString()); }
             return null;
         }
 
-        private void ScalePictureBox(PictureBox pictureBox, Image initialImage = null)
-        {
-            Bitmap finalImg = null;
-            if (pictureBox.Image != null) finalImg = new Bitmap(pictureBox.Image, pictureBox.Width, pictureBox.Height);
-            if (initialImage != null) finalImg = new Bitmap(initialImage, pictureBox.Width, pictureBox.Height);
-            if (finalImg != null)
-            {
-                pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
-                pictureBox.Image = finalImg;
-            }
-        }
 
         private void SetFoVNumeric(decimal fov)
         {
@@ -489,7 +451,6 @@ namespace CoDUO_FoV_Changer
             else FoVNumeric.Value = fov;
         }
 
-        public static void WriteLog(string message) { if (Log.IsInitialized) Log.WriteLine(message); }
         #endregion
         #region Memory
         private void ToggleFog(bool val)
@@ -502,7 +463,7 @@ namespace CoDUO_FoV_Changer
                 var fogValue = memory.ReadIntAddress(0x489A0D4, 0x20);
                 if (fogValue != value) memory.ProcMemory.WriteInt(newmpAddr, value);
             }
-            catch (Exception ex) { WriteLog("An exception happened while trying to read/write fog values:" + Environment.NewLine + ex.ToString()); }
+            catch (Exception ex) { Log.WriteLine("An exception happened while trying to read/write fog values:" + Environment.NewLine + ex.ToString()); }
         }
 
         void doRAChecks()
@@ -515,7 +476,7 @@ namespace CoDUO_FoV_Changer
                 var height = memory.ReadIntAddress(0x4899FCC, 0x20);
                 if (width == 0 || height == 0)
                 {
-                    WriteLog("Got bad width/height: " + width + ", " + height);
+                    Log.WriteLine("Got bad width/height: " + width + ", " + height);
                     return;
                 }
                 var ratio = (double)width / (double)height;
@@ -528,7 +489,7 @@ namespace CoDUO_FoV_Changer
                 else FoVNumeric.Maximum = maxFoV;
                 SetFoVNumeric(FoVNumeric.Value); //will set it to the value if it can, if not, falls back on maximum
             }
-            catch (Exception ex) { WriteLog("An exception happened while trying to get current game resolution:" + Environment.NewLine + ex.ToString()); }
+            catch (Exception ex) { Log.WriteLine("An exception happened while trying to get current game resolution:" + Environment.NewLine + ex.ToString()); }
         }
 
         private void doFoV()
@@ -557,7 +518,7 @@ namespace CoDUO_FoV_Changer
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.DarkGreen; });
                 }
             }
-            catch (Exception ex) { WriteLog("An exception happened while trying to read/write FoV addresses: " + Environment.NewLine + ex.ToString()); }
+            catch (Exception ex) { Log.WriteLine("An exception happened while trying to read/write FoV addresses: " + Environment.NewLine + ex.ToString()); }
         }
 
         private void doDvars()
@@ -572,7 +533,7 @@ namespace CoDUO_FoV_Changer
                 memory.ProcMemory.WriteInt(0x43DDA3, val, 1);
                 memory.ProcMemory.WriteInt(0x43DDC1, val, 1);
             }
-            catch (Exception ex) { WriteLog("An exception happened while trying to read/write Dvar addresses:" + Environment.NewLine + ex.ToString()); }
+            catch (Exception ex) { Log.WriteLine("An exception happened while trying to read/write Dvar addresses:" + Environment.NewLine + ex.ToString()); }
         }
         #endregion
 
@@ -628,8 +589,8 @@ namespace CoDUO_FoV_Changer
             }
             catch (Exception ex)
             {
-                WriteLog("An exception happened while trying to get total played time!");
-                WriteLog(ex.ToString());
+                Log.WriteLine("An exception happened while trying to get total played time!");
+                Log.WriteLine(ex.ToString());
             }
         }
 
@@ -644,7 +605,7 @@ namespace CoDUO_FoV_Changer
                     if (settings.GameTime < (int.MaxValue - 1)) settings.GameTime++;
                     BeginInvoke((MethodInvoker)delegate { AccessGameTimeLabel(); });
                 }
-                catch (Exception ex) { WriteLog(ex.ToString()); }
+                catch (Exception ex) { Log.WriteLine(ex.ToString()); }
             });
         }
 
@@ -665,7 +626,7 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                var tempFoVPath = temp + "coduofovchanger_temp.exe";
+                var tempFoVPath = PathInfos.Temp + "coduofovchanger_temp.exe";
                 var currentProc = Process.GetCurrentProcess();
                 var fileNameDir = currentProc?.MainModule?.FileName ?? string.Empty;
                 if (string.IsNullOrEmpty(fileNameDir) || !File.Exists(fileNameDir))
@@ -680,12 +641,12 @@ namespace CoDUO_FoV_Changer
                 wc.DownloadFile(LatestDownloadURI, tempFoVPath);
 
 
-                var path = temp + "Mover.exe";
+                var path = PathInfos.Temp + "Mover.exe";
                 if (File.Exists(path)) File.Delete(path);
                 if (!File.Exists(path))
                 {
                     File.WriteAllBytes(path, Properties.Resources.Mover);
-                    WriteLog("Created mover at: " + path);
+                    Log.WriteLine("Created mover at: " + path);
                 }
                
 
@@ -694,13 +655,13 @@ namespace CoDUO_FoV_Changer
                 updaterInfo.FileName = path;
                 updaterInfo.Arguments = "-movefrom=\"" + tempFoVPath + "\" -moveto=\"" + fileNameDir + "\" -wait=1000 -autostart -waitstart=1000 -exitwait=1000 -waitforpid=" + currentProc.Id;
                 Process.Start(updaterInfo);
-                WriteLog("Started mover with args: " + updaterInfo.Arguments + ", now shutting down");
+                Log.WriteLine("Started mover with args: " + updaterInfo.Arguments + ", now shutting down");
                 Close();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                WriteLog("An error happened while trying to update:" + Environment.NewLine + ex.ToString());
+                Log.WriteLine("An error happened while trying to update:" + Environment.NewLine + ex.ToString());
                 MessageBox.Show("An error happened while trying to update: " + Environment.NewLine + ex.Message + Environment.NewLine + "Please refer to the log for more info.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -756,7 +717,7 @@ namespace CoDUO_FoV_Changer
             }
             catch (Exception ex)
             {
-                WriteLog("An error happened while trying to get running Call of Duty/UO processes:" + Environment.NewLine + ex.ToString());
+                Log.WriteLine("An error happened while trying to get running Call of Duty/UO processes:" + Environment.NewLine + ex.ToString());
                 MessageBox.Show("An error happend while trying to get running Call of Duty/UO processes: " + ex.Message + Environment.NewLine + "Please refer to the log for more info.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -764,7 +725,7 @@ namespace CoDUO_FoV_Changer
         private void ProccessChecker_Tick(object sender, EventArgs e)
         {
             UpdateProcessBox();
-            if (memory != null && memory.IsRunning()) ScalePictureBox(CoDPictureBox, IsUO() ? CoDUOImage : CoDImage);
+            if (memory != null && memory.IsRunning()) BitmapHelper.ScalePictureBox(CoDPictureBox, IsUO() ? CoDUOImage : CoDImage);
         }
 
         private void ChangelogToolStripMenuItem_Click(object sender, EventArgs e)
@@ -806,7 +767,7 @@ namespace CoDUO_FoV_Changer
         private void GamePIDBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             memory = GetProcessMemoryFromBox();
-            if (memory != null && memory.IsRunning()) ScalePictureBox(CoDPictureBox, IsUO() ? CoDUOImage : CoDImage);
+            if (memory != null && memory.IsRunning()) BitmapHelper.ScalePictureBox(CoDPictureBox, IsUO() ? CoDUOImage : CoDImage);
         }
 
         private void GamePIDBox_VisibleChanged(object sender, EventArgs e) => CoDPictureBox.Visible = GamePIDBox.Visible;
@@ -839,7 +800,7 @@ namespace CoDUO_FoV_Changer
                 }
                 catch (System.ComponentModel.Win32Exception win32ex) when (win32ex.NativeErrorCode == 1223)
                 {
-                    WriteLog("User canceled UAC prompt (" + win32ex.Message + " )");
+                    Log.WriteLine("User canceled UAC prompt (" + win32ex.Message + " )");
                     return;
                 }
             }

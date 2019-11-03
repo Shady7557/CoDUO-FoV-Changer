@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using System.IO;
 using System.Diagnostics;
 using BitmapExtension;
+using CurtLog;
 
 namespace CoDUO_FoV_Changer
 {
@@ -34,8 +35,6 @@ namespace CoDUO_FoV_Changer
             InitializeComponent();
         }
 
-        void WriteLog(string message) => MainForm.WriteLog(message);
-
         private void SettingsForm_Load(object sender, EventArgs e)
         {
             AppVersLabel.Text = "App. Version: " + Application.ProductVersion;
@@ -63,8 +62,8 @@ namespace CoDUO_FoV_Changer
             try { Process.Start(settings.InstallPath); }
             catch(Exception ex)
             {
-                WriteLog("An error happened while trying to browse local game files:");
-                WriteLog(ex.ToString());
+                Log.WriteLine("An error happened while trying to browse local game files:");
+                Log.WriteLine(ex.ToString());
             }
         }
 

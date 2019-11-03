@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CurtLog;
+using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -36,7 +37,7 @@ namespace CoDUO_FoV_Changer
                     using (var readResponse = new StreamReader(stream))
                     {
                         var responseStr = readResponse.ReadToEnd();
-                        var str = (!string.IsNullOrEmpty(responseStr)) ? responseStr : "Changelog response was empty!";
+                        var str = !string.IsNullOrEmpty(responseStr) ? responseStr : "Changelog response was empty!";
                         textBox1.BeginInvoke((MethodInvoker)delegate () { textBox1.Text = str; });
                     }
                 }
@@ -45,7 +46,7 @@ namespace CoDUO_FoV_Changer
             {
                 Console.WriteLine(ex.ToString());
                 textBox1.BeginInvoke((MethodInvoker)delegate () { textBox1.Text = "Failed to get changelog: " + ex.Message + " (read log for more info)"; });
-                MainForm.WriteLog("Unable to get changelog: " + ex.Message + Environment.NewLine + ex.ToString());
+                Log.WriteLine("Unable to get changelog: " + ex.Message + Environment.NewLine + ex.ToString());
             }
         }
 

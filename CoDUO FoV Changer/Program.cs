@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CurtLog;
+using System;
 using System.IO;
 using System.Net;
 using System.Reflection;
@@ -27,16 +28,33 @@ namespace CoDUO_FoV_Changer
             }
         }
 
+        private static void InitLog()
+        {
+            Log.Settings.CustomLogHeader = "===========" + Application.ProductName + " Log File===========";
+            Log.Settings.PerformanceOptions = Log.Performance.StandardPerformance;
+            Log.Settings.LogHeaderOptions = Log.LogHeader.CustomHeader;
+            var logLocation = PathInfos.LogsPath + @"\CFC_" + DateTime.Now.ToString("d").Replace("/", "-") + ".log";
+            Log.InitializeLogger(logLocation);
+            var settings = Settings.Instance;
+            if (settings.LastLogFile != logLocation)
+            {
+                try { if (File.Exists(settings.LastLogFile)) File.Delete(settings.LastLogFile); }
+                catch (Exception ex) { Log.WriteLine("Failed to delete: " + settings.LastLogFile + Environment.NewLine + ex.ToString()); }
+            }
+            settings.LastLogFile = logLocation;
+        }
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
         static void Main()
         {
+            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(AssemblyResolve);
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
+            InitLog();
 
-            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(AssemblyResolve);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());

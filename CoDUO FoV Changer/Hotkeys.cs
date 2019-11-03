@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CurtLog;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -61,19 +62,19 @@ namespace CoDUO_FoV_Changer
             }
             catch(System.ComponentModel.Win32Exception win32ex) when(win32ex.NativeErrorCode == 1223)
             {
-                MainForm.WriteLog("User canceled UAC prompt (" + win32ex.Message + " )");
+                Log.WriteLine("User canceled UAC prompt (" + win32ex.Message + " )");
                 Close();
                 return;
             }
             catch(Exception ex)
             {
-                MainForm.WriteLog("Failed to start hotkeys form: " + ex.Message);
-                MainForm.WriteLog(ex.ToString());
+                Log.WriteLine("Failed to start hotkeys form: " + ex.Message);
+                Log.WriteLine(ex.ToString());
                 MessageBox.Show("Failed to start hot keys form: " + ex.Message + Environment.NewLine + " please refer to the log for more info.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
                 return;
             }
-            DatabaseFile.Write(settings, MainForm.settingsPath); //save current settings
+            DatabaseFile.Write(settings, PathInfos.SettingsPath); //save current settings
             settings.HasChanged = false; //force it to not be changed so exit without saving works 'properly'
 
             //transparent label backcolor
@@ -128,7 +129,7 @@ namespace CoDUO_FoV_Changer
 
         private void button2_Click(object sender, EventArgs e)
         {
-            DatabaseFile.Write(settings, MainForm.settingsPath);
+            DatabaseFile.Write(settings, PathInfos.SettingsPath);
             Close();
         }
 
