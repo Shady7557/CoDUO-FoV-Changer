@@ -18,35 +18,51 @@ namespace CoDUO_FoV_Changer
 {
     public partial class MainForm : Form
     {
-
         public const decimal hotfix = 7.2M;
-        public static readonly string cleanVersion = Application.ProductVersion.Substring(0, 3);
         public static bool isDev = Debugger.IsAttached;
-        public bool noLog = false;
         public static Settings settings = Settings.Instance;
         private Image CoDImage = Properties.Resources.CoD1;
         private Image CoDUOImage = Properties.Resources.CoDUO;
         private const string LatestDownloadURI = @"https://github.com/Shady7557/CoDUO-FoV-Changer/releases/latest/download/CoDUO.FoV.Changer.exe";
         public const string cgameDll = "uo_cgame_mp_x86.dll";
-        public static Point location;
         private SessionHandler currentSession = new SessionHandler();
-        //private int currentSessionTime;
         private Memory memory;
         private DateTime lastHotkey;
         private DateTime lastUpdateCheck;
         private string _gameVersion = string.Empty;
+        private string _registryPath = string.Empty;
+        public static MainForm Instance = null;
+        public string RegistryPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_registryPath))
+                {
+                    var path = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive";
+                    if (!Environment.Is64BitOperatingSystem) path = path.Replace(@"Wow6432Node\", string.Empty);
+                    if (Registry.LocalMachine.OpenSubKey(path.Replace(@"HKEY_LOCAL_MACHINE\", string.Empty)) == null) path = path.Replace("United Offensive", string.Empty); //if UO key is null, use cod1 (if it exists)
+                    _registryPath = path;
+                }
+                return _registryPath;
+            }
+        }
+
         public string GameVersion
         {
             get
             {
-                if (string.IsNullOrEmpty(_gameVersion)) _gameVersion = Registry.GetValue(GetRegistryPath(), "Version", string.Empty)?.ToString() ?? string.Empty;
+                if (string.IsNullOrEmpty(_gameVersion)) _gameVersion = Registry.GetValue(RegistryPath, "Version", string.Empty)?.ToString() ?? string.Empty;
                 return _gameVersion;
             }
         }
 
         public bool IsCheckingForUpdates { get; set; } = false;
-      
-        public MainForm() => InitializeComponent();
+
+        public MainForm()
+        {
+            Instance = this;
+            InitializeComponent();
+        }
 
         protected override CreateParams CreateParams
         {
@@ -76,7 +92,6 @@ namespace CoDUO_FoV_Changer
                 var argu = cmdArgs[i];
                 var arg = argu.ToLower();
                 if (arg.IndexOf(Application.ProductName, StringComparison.OrdinalIgnoreCase) >= 0 || arg.IndexOf(Application.StartupPath, StringComparison.OrdinalIgnoreCase) >= 0) continue;
-                if (arg == "-nolog") noLog = true;
                 if (arg == "-unlock") DvarsCheckBox.Visible = true;
                 if (arg == "-unlock=1")
                 {
@@ -91,7 +106,7 @@ namespace CoDUO_FoV_Changer
 
                 if (arg == "-debug") isDev = true;
 
-                if (arg == "-hotkeys" && Program.IsElevated) new Hotkeys().Show();
+                if (arg == "-hotkeys") new Hotkeys().Show();
 
                 if (arg.Contains("-fov="))
                 {
@@ -113,7 +128,7 @@ namespace CoDUO_FoV_Changer
             {
                 try
                 {
-                    var regPath = Registry.GetValue(GetRegistryPath(), "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+                    var regPath = Registry.GetValue(RegistryPath, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
 
                     if (string.IsNullOrEmpty(settings.InstallPath) || !Directory.Exists(settings.InstallPath))
                     {
@@ -153,7 +168,6 @@ namespace CoDUO_FoV_Changer
             FogCheckBox.Checked = settings.Fog;
             fogToolStripMenuItem.Checked = settings.Fog;
             LaunchParametersTB.Text = settings.CommandLine;
-            location = Location;
             if (settings.TrackGameTime) AccessGameTimeLabel();
             else
             {
@@ -166,7 +180,8 @@ namespace CoDUO_FoV_Changer
             Log.WriteLine("Successfully started application, version " + Application.ProductVersion);
             watch.Stop();
             var timeTaken = watch.Elapsed;
-            if (timeTaken.TotalMilliseconds >= 300) Log.WriteLine("Startup took: " + timeTaken.TotalMilliseconds + "ms (this is too long!)");
+            Console.WriteLine("Form load took: " + timeTaken.TotalMilliseconds + "ms");
+            if (timeTaken.TotalMilliseconds > 100) Log.WriteLine("Startup took: " + timeTaken.TotalMilliseconds + "ms (this is too long!)");
         }
 
         private void StartGame()
@@ -348,13 +363,6 @@ namespace CoDUO_FoV_Changer
             doDvars();
         }
         #region Util
-        public static string GetRegistryPath()
-        {
-            var path = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive";
-            if (!Environment.Is64BitOperatingSystem) path = path.Replace(@"Wow6432Node\", string.Empty);
-            if (Registry.LocalMachine.OpenSubKey(path.Replace(@"HKEY_LOCAL_MACHINE\", string.Empty)) == null) path = path.Replace("United Offensive", string.Empty); //if UO key is null, use cod1 (if it exists)
-            return path;
-        }
 
         public bool IsUO() { return (memory == null || !memory.IsRunning()) ? false : (memory.ProcMemory?.DllImageAddress(cgameDll) ?? 0) != 0 || (memory.ProcMemory?.DllImageAddress("uo_ui_mp_x86.dll") ?? 0) != 0; }
         
@@ -513,7 +521,7 @@ namespace CoDUO_FoV_Changer
                 else
                 {
                     memory.ProcMemory.WriteFloat(address, Convert.ToSingle(FoVNumeric.Value));
-                    SetLabelText(StatusLabel, "Status: Game found and wrote to memory!");
+                    SetLabelText(StatusLabel, "Status: game found and wrote to memory!");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { toolTip1.SetToolTip(StatusLabel, string.Empty); });
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.DarkGreen; });
                 }
@@ -666,7 +674,7 @@ namespace CoDUO_FoV_Changer
             }
         }
 
-        private void UpdateButton_Click(object sender, EventArgs e) { if ((MessageBox.Show("Are you sure you want to update now?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)) StartUpdater(); }
+        private void UpdateButton_Click(object sender, EventArgs e) { if ((MessageBox.Show("Are you sure you want to update now?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)) Task.Run(() => StartUpdater()); }
 
         
 

@@ -78,7 +78,7 @@ namespace CoDUO_FoV_Changer
             settings.HasChanged = false; //force it to not be changed so exit without saving works 'properly'
 
             //transparent label backcolor
-            var pos = this.PointToScreen(label2.Location);
+            var pos = PointToScreen(label2.Location);
             pos = pictureBox1.PointToClient(pos);
             label2.Parent = pictureBox1;
             label2.Location = pos;

@@ -12,9 +12,30 @@ namespace CoDUO_FoV_Changer
     public partial class SettingsForm : Form
     {
         private string keyLabelText = string.Empty;
-        string RegistryPath = MainForm.GetRegistryPath();
-        string GameVersion = string.Empty;
-        Settings settings = Settings.Instance;
+        private string RegistryPath = MainForm.Instance.RegistryPath;
+        private string GameVersion = MainForm.Instance.GameVersion;
+        private Settings settings = Settings.Instance;
+
+        private string _cdKeyUO = string.Empty;
+        private string CDKeyUO
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_cdKeyUO)) _cdKeyUO = Registry.GetValue(RegistryPath, "key", string.Empty)?.ToString() ?? string.Empty;
+                return _cdKeyUO;
+            }
+        }
+
+        private string _cdKey = string.Empty;
+        private string CDKey
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_cdKey)) _cdKey = Registry.GetValue(RegistryPath.Replace("United Offensive", "").TrimEnd(' '), "key", string.Empty)?.ToString() ?? string.Empty;
+                return _cdKey;
+            }
+        }
+
 
         public static SettingsForm Instance = null;
 
@@ -38,17 +59,14 @@ namespace CoDUO_FoV_Changer
         private void SettingsForm_Load(object sender, EventArgs e)
         {
             AppVersLabel.Text = "App. Version: " + Application.ProductVersion;
-            GameVersion = GetGameVersion();
-            GameVersLabel.Text = "Game Version: " + ((!string.IsNullOrEmpty(GameVersion)) ? GameVersion : "Unknown");
+            GameVersLabel.Text = "Game Version: " + (!string.IsNullOrEmpty(GameVersion) ? GameVersion : "Unknown");
 
-            this.Location = new Point(MainForm.location.X - 250, MainForm.location.Y - 60);
+            Location = new Point(MainForm.Instance.Location.X - 250, MainForm.Instance.Location.Y - 60);
             ButtonBrowseGameFiles.Enabled = (!string.IsNullOrEmpty(settings.InstallPath) && Directory.Exists(settings.InstallPath));
             CDKeyLabel.Text = "CD-Key: Hidden";
 
-           // CDKeyLabel.Text = "CD-Key: " + GetCDKey();
-            var vcKey = GetVCoDCDKey();
-            //if (!string.IsNullOrEmpty(vcKey)) CDKeyLabel.Text += Environment.NewLine + "VCoD Key: " + vcKey;
-            keyLabelText = "CD-Key: " + GetCDKey() + (!string.IsNullOrEmpty(vcKey) ? (Environment.NewLine + "VCoD Key: " + vcKey) : string.Empty);
+            var vcKey = CDKey;
+            keyLabelText = "CD-Key: " + CDKeyUO + (!string.IsNullOrEmpty(vcKey) ? (Environment.NewLine + "VCoD Key: " + vcKey) : string.Empty);
             if (!Program.IsElevated) hotKeysButton.Image = BitmapHelper.ResizeImage(SystemIcons.Shield.ToBitmap(), new Size(16, 16));
         }
 
@@ -81,12 +99,5 @@ namespace CoDUO_FoV_Changer
         #endregion
 
         private void CDKeyLabel_MouseDown(object sender, MouseEventArgs e) => CDKeyLabel.Text = !CDKeyLabel.Text.Contains("Hidden") ? "CD-Key: Hidden" : keyLabelText;
-
-        #region Util
-        private string GetCDKey() { return Registry.GetValue(RegistryPath, "key", string.Empty)?.ToString() ?? string.Empty; }
-        private string GetVCoDCDKey() { return Registry.GetValue(RegistryPath.Replace("United Offensive", "").TrimEnd(' '), "key", string.Empty)?.ToString() ?? string.Empty; }
-        private string GetGameVersion() { return Registry.GetValue(RegistryPath, "version", string.Empty)?.ToString() ?? string.Empty; }
-        #endregion
-
     }
 }
