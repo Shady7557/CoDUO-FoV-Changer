@@ -579,7 +579,6 @@ namespace CoDUO_FoV_Changer
         private void CheckUpdatesLabel_Click(object sender, EventArgs e)
         {
             if (IsCheckingForUpdates) return;
-            //if (CheckUpdatesLabel.Text == "Checking for updates...") return;
             var now = DateTime.Now;
             if (lastUpdateCheck == null) lastUpdateCheck = now;
             else
