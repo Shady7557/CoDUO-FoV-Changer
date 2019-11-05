@@ -12,17 +12,6 @@ namespace ReadWriteMemory
         public int BaseAddress { get; protected set; }
         public Process _Process { get; protected set; }
         public ProcessModule ProcessModule { get; protected set; }
-        private const uint PAGE_EXECUTE = 16;
-        private const uint PAGE_EXECUTE_READ = 32;
-        private const uint PAGE_EXECUTE_READWRITE = 64;
-        private const uint PAGE_EXECUTE_WRITECOPY = 128;
-        private const uint PAGE_GUARD = 256;
-        private const uint PAGE_NOACCESS = 1;
-        private const uint PAGE_NOCACHE = 512;
-        private const uint PAGE_READONLY = 2;
-        private const uint PAGE_READWRITE = 4;
-        private const uint PAGE_WRITECOPY = 8;
-        private const uint PROCESS_ALL_ACCESS = 2035711;
         public int processHandle { get; protected set; }
         public string ProcessName { get; protected set; }
         public int ProcessPID { get; protected set; }
@@ -35,12 +24,22 @@ namespace ReadWriteMemory
 
         public bool CheckProcess()
         {
-            var procs = Process.GetProcesses();
-            for(int i = 0; i < procs.Length; i++)
+            Console.WriteLine("CheckProcess()");
+            if (ProcessPID > 0 && ProcessExtensions.ProcessExtension.IsProcessAlive(ProcessPID)) return true;
+            if (!string.IsNullOrEmpty(ProcessName))
             {
-                var p = procs[i];
-                if ((ProcessPID != 0 && p?.Id == ProcessPID) || p.ProcessName.Equals(ProcessName, StringComparison.OrdinalIgnoreCase)) return true;
+                var procs = Process.GetProcesses();
+                for (int i = 0; i < procs.Length; i++)
+                {
+                    var procName = procs[i].ProcessName;
+                    if (procName.Equals(ProcessName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.WriteLine("returning true ProcessName with procName: " + procName);
+                        return true;
+                    }
+                }
             }
+        
             return false;
         }
 
@@ -64,7 +63,7 @@ namespace ReadWriteMemory
             if (string.IsNullOrEmpty(ProcessName)) ProcessName = proc.ProcessName;
             if (ProcessPID == 0) ProcessPID = proc.Id;
             processHandle = OpenProcess(2035711, false, proc.Id);
-            return (processHandle != 0);
+            return processHandle != 0;
         }
 
         public int DllImageAddress(string dllname)
@@ -84,9 +83,6 @@ namespace ReadWriteMemory
                 }
             }
 
-
-
-            //  var addr = _Process?.Modules?.Cast<ProcessModule>()?.Where(p => p != null && p.ModuleName == dllname)?.FirstOrDefault()?.BaseAddress ?? null;
             return (addr == null) ? 0 : (int)addr;
         }
 

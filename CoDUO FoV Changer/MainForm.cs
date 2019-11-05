@@ -32,6 +32,7 @@ namespace CoDUO_FoV_Changer
         private string _gameVersion = string.Empty;
         private string _registryPath = string.Empty;
         private bool needsUpdate = false;
+        private string selectedProcStr = string.Empty;
         public static MainForm Instance = null;
         public string RegistryPath
         {
@@ -162,7 +163,7 @@ namespace CoDUO_FoV_Changer
             
             UpdateProcessBox();
             memory = GetProcessMemoryFromBox();
-            AdminLaunchButton.Visible = !Program.IsElevated && (memory?.IsRunning() ?? false) && (memory?.ProcMemory?.RequiresElevation() ?? false);
+            AdminLaunchButton.Visible = !Program.IsElevated && (memory == null ? false : memory?.IsRunning() ?? false) && (memory?.ProcMemory?.RequiresElevation() ?? false);
 
             SetFoVNumeric(settings.FoV);
             MinimizeCheckBox.Checked = settings.MinimizeToTray;
@@ -257,8 +258,11 @@ namespace CoDUO_FoV_Changer
         {
             if (FoVNumeric.Value != ((int)FoVNumeric.Value)) FoVNumeric.DecimalPlaces = 1;
             else FoVNumeric.DecimalPlaces = 0;
-            settings.FoV = FoVNumeric.Value;
-            doFoV();
+            Task.Run(() =>
+            {
+                settings.FoV = FoVNumeric.Value;
+                doFoV();
+            });
         }
 
         private void FogCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -270,7 +274,7 @@ namespace CoDUO_FoV_Changer
             }
             settings.Fog = FogCheckBox.Checked;
             fogToolStripMenuItem.Checked = settings.Fog;
-            ToggleFog(settings.Fog);
+            Task.Run(() => ToggleFog(settings.Fog));
         }
 
         private void MinimizeCheckBox_CheckedChanged(object sender, EventArgs e) => settings.MinimizeToTray = MinimizeCheckBox.Checked;
@@ -297,15 +301,19 @@ namespace CoDUO_FoV_Changer
 
         private void MemoryTimer_Tick(object sender, EventArgs e)
         {
-            if (memory == null || !memory.IsRunning()) memory = GetProcessMemoryFromBox();
-            if (memory != null && memory.IsRunning() && !IsUO())
-            {
-                DvarsCheckBox.Checked = false;
-                FogCheckBox.Checked = false;
-            }
-            AdminLaunchButton.Visible = !Program.IsElevated && (memory?.IsRunning() ?? false) && (memory?.ProcMemory?.RequiresElevation() ?? false);
             Task.Run(() =>
             {
+                memory = GetProcessMemoryFromBox();
+                if (memory == null || !memory.IsRunning()) return;
+                if (!IsUO())
+                {
+                    BeginInvoke((MethodInvoker)delegate
+                    {
+                        DvarsCheckBox.Checked = false;
+                        FogCheckBox.Checked = false;
+                    });
+                }
+                AdminLaunchButton.BeginInvoke((MethodInvoker)delegate { AdminLaunchButton.Visible = !Program.IsElevated && (memory?.ProcMemory?.RequiresElevation() ?? false); });
                 doRAChecks();
                 doFoV();
                 ToggleFog(settings.Fog);
@@ -361,7 +369,7 @@ namespace CoDUO_FoV_Changer
                 DvarsCheckBox.Checked = false;
                 return;
             } //no support for dvar unlocking (yet) in cod1
-            doDvars();
+            Task.Run(() => doDvars());
         }
         #region Util
 
@@ -448,12 +456,10 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                var cbString = GamePIDBox?.SelectedItem?.ToString() ?? string.Empty;
-                if (string.IsNullOrEmpty(cbString)) return null;
+                if (string.IsNullOrEmpty(selectedProcStr)) return null;
                 var pid = 0;
-                if (!int.TryParse(cbString.Split('(')[1].Replace(")", string.Empty), out pid)) return null;
-                var mem = new Memory(pid);
-                return (mem != null && mem.IsRunning()) ? mem : null;
+                if (!int.TryParse(selectedProcStr.Split('(')[1].Replace(")", string.Empty), out pid)) return null;
+                return new Memory(pid);
             }
             catch (Exception ex) { Log.WriteLine(ex.ToString()); }
             return null;
@@ -484,7 +490,7 @@ namespace CoDUO_FoV_Changer
 
         void doRAChecks()
         {
-            if (!(memory?.IsRunning() ?? false) || memory.ProcMemory.RequiresElevation()) return;
+            if (memory == null || memory.IsRunning() || memory.ProcMemory.RequiresElevation()) return;
             try
             {
                 var mode = memory.ReadIntAddress(0x4899D50, 0x20);
@@ -512,15 +518,18 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                if ((memory?.IsRunning() ?? false) && (memory?.ProcMemory?.RequiresElevation() ?? true))
+                var isRunning = memory == null ? true : memory?.IsRunning() ?? false;
+                if (isRunning && (memory?.ProcMemory?.RequiresElevation() ?? true))
                 {
                     SetLabelText(StatusLabel, "Status: game requires elevation!");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { toolTip1.SetToolTip(StatusLabel, "Process requires elevation!"); });
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.Orange; });
                     return;
                 }
-                var address = (!IsUO()) ? 0x3029CA28 : (memory != null && memory.IsRunning() ? (memory.ProcMemory.DllImageAddress(cgameDll) + 0x52F7C8) : -1);
-                if (memory == null || !memory.IsRunning() || (address <= 0))
+
+                var address = !isRunning ? -1 : (!IsUO()) ? 0x3029CA28 : (isRunning ? (memory.ProcMemory.DllImageAddress(cgameDll) + 0x52F7C8) : -1);
+                Console.WriteLine("address: " + address + ", isUO: " + IsUO());
+                if (!isRunning || address <= 0)
                 {
                     SetLabelText(StatusLabel, "Status: not found or failed to write to memory!");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!"); });
@@ -534,7 +543,11 @@ namespace CoDUO_FoV_Changer
                     StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.DarkGreen; });
                 }
             }
-            catch (Exception ex) { Log.WriteLine("An exception happened while trying to read/write FoV addresses: " + Environment.NewLine + ex.ToString()); }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                Log.WriteLine("An exception happened while trying to read/write FoV addresses: " + Environment.NewLine + ex.ToString());
+            }
         }
 
         private void doDvars()
@@ -691,23 +704,13 @@ namespace CoDUO_FoV_Changer
             {
                 var selectedIndex = GamePIDBox.SelectedIndex;
                 GamePIDBox.BeginUpdate();
-                var procs = Process.GetProcesses();
                 for (int i = 0; i < GamePIDBox.Items.Count; i++)
                 {
                     var boxItem = GamePIDBox.Items[i];
                     var pid = 0;
                     var splitPid = (boxItem as string).Split('(')[1].Replace(")", string.Empty);
                     if (!int.TryParse(splitPid, out pid)) continue;
-                    var isRunning = false;
-                    for(int j = 0; j < procs.Length; j++)
-                    {
-                        if (procs[j]?.Id == pid)
-                        {
-                            isRunning = true;
-                            break;
-                        }
-                    }
-                    if (!isRunning) GamePIDBox.Items.Remove(boxItem);
+                    if (!ProcessExtensions.ProcessExtension.IsProcessAlive(pid)) GamePIDBox.Items.Remove(boxItem);
                 }
                 var allProcs = GetAllGameProcesses();
                 for (int i = 0; i < allProcs.Count; i++)
@@ -781,6 +784,7 @@ namespace CoDUO_FoV_Changer
 
         private void GamePIDBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            selectedProcStr = GamePIDBox?.SelectedItem?.ToString() ?? string.Empty;
             memory = GetProcessMemoryFromBox();
             if (memory != null && memory.IsRunning()) BitmapHelper.ScalePictureBox(CoDPictureBox, IsUO() ? CoDUOImage : CoDImage);
         }
