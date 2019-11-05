@@ -159,7 +159,6 @@
             this.CheckUpdatesLabel.Size = new System.Drawing.Size(117, 13);
             this.CheckUpdatesLabel.TabIndex = 63;
             this.CheckUpdatesLabel.Text = "Checking for updates...";
-            this.CheckUpdatesLabel.TextChanged += new System.EventHandler(this.CheckUpdatesLabel_TextChanged);
             this.CheckUpdatesLabel.Click += new System.EventHandler(this.CheckUpdatesLabel_Click);
             // 
             // UpdateButton

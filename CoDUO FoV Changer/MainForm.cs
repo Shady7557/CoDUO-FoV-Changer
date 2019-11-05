@@ -18,7 +18,7 @@ namespace CoDUO_FoV_Changer
 {
     public partial class MainForm : Form
     {
-        public const decimal hotfix = 7.3M;
+        public const decimal hotfix = 7.4M;
         public static bool isDev = Debugger.IsAttached;
         public static Settings settings = Settings.Instance;
         private Image CoDImage = Properties.Resources.CoD1;
@@ -31,6 +31,7 @@ namespace CoDUO_FoV_Changer
         private DateTime lastUpdateCheck;
         private string _gameVersion = string.Empty;
         private string _registryPath = string.Empty;
+        private bool needsUpdate = false;
         public static MainForm Instance = null;
         public string RegistryPath
         {
@@ -377,10 +378,17 @@ namespace CoDUO_FoV_Changer
                 if (proc?.ProcessName == "CoDUOMP" || proc?.ProcessName == "CoDMP" || proc?.ProcessName == "mohaa") procs.Add(proc);
             }
             return procs;
-            //return Process.GetProcessesByName("CoDUOMP").Concat(Process.GetProcessesByName("CoDMP")).Concat(Process.GetProcessesByName("mohaa")).ToArray();
         }
-
-        private void StartUpdates() => Task.Run(() => SetLabelText(CheckUpdatesLabel, (CheckUpdates()) ? "Updates available!" : "No updates found. Click to check again."));
+        private void StartUpdates()
+        {
+            Task.Run(() =>
+            {
+                needsUpdate = CheckUpdates();
+                if (UpdateButton.InvokeRequired) UpdateButton.BeginInvoke((MethodInvoker)delegate { UpdateButton.Visible = needsUpdate; });
+                else UpdateButton.Visible = needsUpdate;
+                SetLabelText(CheckUpdatesLabel, needsUpdate ? "Updates available!" : "No updates found. Click to check again.");
+            });
+        }
 
         private bool CheckUpdates()
         {
@@ -564,8 +572,6 @@ namespace CoDUO_FoV_Changer
             StartUpdates();
             lastUpdateCheck = now;
         }
-
-        private void CheckUpdatesLabel_TextChanged(object sender, EventArgs e) => UpdateButton.Visible = (isDev) ? true : (CheckUpdatesLabel.Text == "Update available!");
 
         private void SettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
