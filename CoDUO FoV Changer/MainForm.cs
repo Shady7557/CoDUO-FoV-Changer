@@ -18,7 +18,7 @@ namespace CoDUO_FoV_Changer
 {
     public partial class MainForm : Form
     {
-        public const decimal hotfix = 7.4M;
+        public const decimal hotfix = 7.5M;
         public static bool isDev = Debugger.IsAttached;
         public static Settings settings = Settings.Instance;
         private Image CoDImage = Properties.Resources.CoD1;
