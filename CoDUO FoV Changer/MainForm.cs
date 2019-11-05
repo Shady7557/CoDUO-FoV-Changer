@@ -18,7 +18,7 @@ namespace CoDUO_FoV_Changer
 {
     public partial class MainForm : Form
     {
-        public const decimal hotfix = 7.2M;
+        public const decimal hotfix = 7.3M;
         public static bool isDev = Debugger.IsAttached;
         public static Settings settings = Settings.Instance;
         private Image CoDImage = Properties.Resources.CoD1;
@@ -664,7 +664,8 @@ namespace CoDUO_FoV_Changer
                 updaterInfo.Arguments = "-movefrom=\"" + tempFoVPath + "\" -moveto=\"" + fileNameDir + "\" -wait=1000 -autostart -waitstart=1000 -exitwait=1000 -waitforpid=" + currentProc.Id;
                 Process.Start(updaterInfo);
                 Log.WriteLine("Started mover with args: " + updaterInfo.Arguments + ", now shutting down");
-                Close();
+                if (InvokeRequired) BeginInvoke((MethodInvoker)delegate { Close(); });
+                else Close();
             }
             catch (Exception ex)
             {
