@@ -9,7 +9,7 @@ namespace CoDUO_FoV_Changer
         [NonSerialized]
         private static readonly Settings instance;
         [NonSerialized]
-        private static string settingsFile;
+        private static readonly string settingsFile;
         [NonSerialized]
         private bool settingsChanged;
 

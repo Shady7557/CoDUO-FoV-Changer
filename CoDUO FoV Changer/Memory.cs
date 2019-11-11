@@ -19,7 +19,7 @@ namespace CoDUO_FoV_Changer
             ProcMemory.StartProcess();
         }
         
-        public bool IsRunning() { return (ProcMemory != null && ProcMemory.CheckProcess()); }
+        public bool IsRunning() { return ProcMemory?.CheckProcess() ?? false; }
 
         #region Reading
         public int GetIntPointerAddress(IntPtr baseAddress, int offset) { return !IsRunning() ? 0 : IntPtr.Add((IntPtr)Convert.ToInt32(BitConverter.ToInt32(ProcMemory.ReadMem(baseAddress.ToInt32(), 4), 0).ToString("X"), 16), offset).ToInt32(); }

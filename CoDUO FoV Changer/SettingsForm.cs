@@ -12,9 +12,9 @@ namespace CoDUO_FoV_Changer
     public partial class SettingsForm : Form
     {
         private string keyLabelText = string.Empty;
-        private string RegistryPath = MainForm.Instance.RegistryPath;
-        private string GameVersion = MainForm.Instance.GameVersion;
-        private Settings settings = Settings.Instance;
+        private readonly string RegistryPath = MainForm.Instance.RegistryPath;
+        private readonly string GameVersion = MainForm.Instance.GameVersion;
+        private readonly Settings settings = Settings.Instance;
 
         private string _cdKeyUO = string.Empty;
         private string CDKeyUO

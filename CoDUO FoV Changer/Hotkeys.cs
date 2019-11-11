@@ -12,7 +12,7 @@ namespace CoDUO_FoV_Changer
         private string curKeyName;
         private Keys currentKey;
         private int currentKeyCode;
-        Settings settings = Settings.Instance;
+        readonly Settings settings = Settings.Instance;
         Settings oldSettings;
 
         public static Hotkeys Instance = null;

@@ -20,12 +20,12 @@ namespace CoDUO_FoV_Changer
     {
         public const decimal hotfix = 7.5M;
         public static bool isDev = Debugger.IsAttached;
-        public static Settings settings = Settings.Instance;
-        private Image CoDImage = Properties.Resources.CoD1;
-        private Image CoDUOImage = Properties.Resources.CoDUO;
+        private readonly Settings settings = Settings.Instance;
+        private readonly Image CoDImage = Properties.Resources.CoD1;
+        private readonly Image CoDUOImage = Properties.Resources.CoDUO;
         private const string LatestDownloadURI = @"https://github.com/Shady7557/CoDUO-FoV-Changer/releases/latest/download/CoDUO.FoV.Changer.exe";
         public const string cgameDll = "uo_cgame_mp_x86.dll";
-        private SessionHandler currentSession = new SessionHandler();
+        private readonly SessionHandler currentSession = new SessionHandler();
         private Memory memory;
         private DateTime lastHotkey;
         private DateTime lastUpdateCheck;
@@ -304,7 +304,16 @@ namespace CoDUO_FoV_Changer
             Task.Run(() =>
             {
                 memory = GetProcessMemoryFromBox();
-                if (memory == null || !memory.IsRunning()) return;
+                if (memory == null || !memory.IsRunning())
+                {
+                    SetLabelText(StatusLabel, "Status: not found or failed to write to memory!");
+                    StatusLabel.BeginInvoke((MethodInvoker)delegate
+                    {
+                        toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!");
+                        StatusLabel.ForeColor = Color.Orange;
+                    });
+                    return;
+                }
                 if (!IsUO())
                 {
                     BeginInvoke((MethodInvoker)delegate
@@ -518,29 +527,37 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                var isRunning = memory == null ? true : memory?.IsRunning() ?? false;
-                if (isRunning && (memory?.ProcMemory?.RequiresElevation() ?? true))
+                var isRunning = memory?.IsRunning() ?? false;
+                if (isRunning && (memory?.ProcMemory?.RequiresElevation() ?? false))
                 {
                     SetLabelText(StatusLabel, "Status: game requires elevation!");
-                    StatusLabel.BeginInvoke((MethodInvoker)delegate () { toolTip1.SetToolTip(StatusLabel, "Process requires elevation!"); });
-                    StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.Orange; });
+                    StatusLabel.BeginInvoke((MethodInvoker)delegate
+                    {
+                        toolTip1.SetToolTip(StatusLabel, "Process requires elevation!");
+                        StatusLabel.ForeColor = Color.Orange;
+                    });
                     return;
                 }
 
                 var address = !isRunning ? -1 : (!IsUO()) ? 0x3029CA28 : (isRunning ? (memory.ProcMemory.DllImageAddress(cgameDll) + 0x52F7C8) : -1);
-                Console.WriteLine("address: " + address + ", isUO: " + IsUO());
                 if (!isRunning || address <= 0)
                 {
                     SetLabelText(StatusLabel, "Status: not found or failed to write to memory!");
-                    StatusLabel.BeginInvoke((MethodInvoker)delegate () { toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!"); });
-                    StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.Orange; });
+                    StatusLabel.BeginInvoke((MethodInvoker)delegate
+                    {
+                        toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!");
+                        StatusLabel.ForeColor = Color.Orange;
+                    });
                 }
                 else
                 {
                     memory.ProcMemory.WriteFloat(address, Convert.ToSingle(FoVNumeric.Value));
                     SetLabelText(StatusLabel, "Status: game found and wrote to memory!");
-                    StatusLabel.BeginInvoke((MethodInvoker)delegate () { toolTip1.SetToolTip(StatusLabel, string.Empty); });
-                    StatusLabel.BeginInvoke((MethodInvoker)delegate () { StatusLabel.ForeColor = Color.DarkGreen; });
+                    StatusLabel.BeginInvoke((MethodInvoker)delegate ()
+                    {
+                        toolTip1.SetToolTip(StatusLabel, string.Empty);
+                        StatusLabel.ForeColor = Color.DarkGreen;
+                    });
                 }
             }
             catch (Exception ex)

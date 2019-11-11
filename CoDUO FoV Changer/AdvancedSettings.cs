@@ -5,7 +5,7 @@ namespace CoDUO_FoV_Changer
 {
     public partial class AdvancedSettings : Form
     {
-        Settings settings = Settings.Instance;
+        readonly Settings settings = Settings.Instance;
 
         public static AdvancedSettings Instance = null;
 
