@@ -21,21 +21,20 @@ namespace TimerExtensions
                 {
                     if (timer != null) timer = null;
                     _timerAction = value;
-                    if (Interval > 0)
+                    if (Interval <= 0) return;
+
+                    Action loopAct = null;
+                    loopAct = new Action(() =>
                     {
-                        Action loopAct = null;
-                        loopAct = new Action(() =>
-                        {
-                            if (timer != null) timer = null;
-                            if (TimerAction == null) return;
-                            TimerAction.Invoke();
-                            if (Loops > 0 && _currentLoops >= Loops) return;
-                            timer = Once(Interval, loopAct);
-                            _currentLoops++;
-                        });
+                        if (timer != null) timer = null;
+                        if (TimerAction == null) return;
+                        TimerAction.Invoke();
+                        if (Loops > 0 && _currentLoops >= Loops) return;
                         timer = Once(Interval, loopAct);
-                    }
-                   
+                        _currentLoops++;
+                    });
+                    timer = Once(Interval, loopAct);
+
                 }
             }
             public RepeatingTimer() { }
