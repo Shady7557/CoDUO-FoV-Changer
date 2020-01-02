@@ -24,19 +24,13 @@ namespace ReadWriteMemory
 
         public bool CheckProcess()
         {
-            Console.WriteLine("CheckProcess()");
             if (ProcessPID > 0 && ProcessExtensions.ProcessExtension.IsProcessAlive(ProcessPID)) return true;
             if (!string.IsNullOrEmpty(ProcessName))
             {
                 var procs = Process.GetProcesses();
                 for (int i = 0; i < procs.Length; i++)
                 {
-                    var procName = procs[i].ProcessName;
-                    if (procName.Equals(ProcessName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        Console.WriteLine("returning true ProcessName with procName: " + procName);
-                        return true;
-                    }
+                    if (procs[i].ProcessName.Equals(ProcessName, StringComparison.OrdinalIgnoreCase)) return true;
                 }
             }
         
@@ -57,7 +51,6 @@ namespace ReadWriteMemory
                 }
             }
 
-            //var proc = (ProcessPID != 0) ? Process.GetProcessById(ProcessPID) : !string.IsNullOrEmpty(ProcessName) ? Process.GetProcessesByName(ProcessName)?.FirstOrDefault() ?? null : null;
             if (proc == null || proc.Id == 0) return false;
             _Process = proc;
             if (string.IsNullOrEmpty(ProcessName)) ProcessName = proc.ProcessName;
