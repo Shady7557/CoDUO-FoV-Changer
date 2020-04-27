@@ -163,7 +163,7 @@ namespace CoDUO_FoV_Changer
             
             UpdateProcessBox();
             memory = GetProcessMemoryFromBox();
-            AdminLaunchButton.Visible = !Program.IsElevated && (memory == null ? false : memory?.IsRunning() ?? false) && (memory?.ProcMemory?.RequiresElevation() ?? false);
+            AdminLaunchButton.Visible = !Program.IsElevated && (memory?.ProcMemory?.RequiresElevation() ?? false);
 
             SetFoVNumeric(settings.FoV);
             MinimizeCheckBox.Checked = settings.MinimizeToTray;
@@ -303,6 +303,8 @@ namespace CoDUO_FoV_Changer
         {
             Task.Run(() =>
             {
+                var wantedButtonState = false;
+
                 memory = GetProcessMemoryFromBox();
                 if (memory == null || !memory.IsRunning())
                 {
@@ -312,21 +314,30 @@ namespace CoDUO_FoV_Changer
                         toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!");
                         StatusLabel.ForeColor = Color.Orange;
                     });
-                    return;
                 }
-                if (!IsUO())
+                else
                 {
-                    BeginInvoke((MethodInvoker)delegate
+                    wantedButtonState = !Program.IsElevated && (memory?.ProcMemory?.RequiresElevation() ?? false);
+
+                    if (!IsUO())
                     {
-                        DvarsCheckBox.Checked = false;
-                        FogCheckBox.Checked = false;
-                    });
+                        BeginInvoke((MethodInvoker)delegate
+                        {
+                            DvarsCheckBox.Checked = false;
+                            FogCheckBox.Checked = false;
+                        });
+                    }
+
+                    doRAChecks();
+                    doFoV();
+                    ToggleFog(settings.Fog);
+                    doDvars();
                 }
-                AdminLaunchButton.BeginInvoke((MethodInvoker)delegate { AdminLaunchButton.Visible = !Program.IsElevated && (memory?.ProcMemory?.RequiresElevation() ?? false); });
-                doRAChecks();
-                doFoV();
-                ToggleFog(settings.Fog);
-                doDvars();
+
+                if (AdminLaunchButton.Visible != wantedButtonState)
+                {
+                    AdminLaunchButton.BeginInvoke((MethodInvoker)delegate { AdminLaunchButton.Visible = wantedButtonState; });
+                }
             });
         }
 
@@ -572,7 +583,7 @@ namespace CoDUO_FoV_Changer
             if (memory == null || !memory.IsRunning() || memory.ProcMemory.RequiresElevation()) return;
             try
             {
-                var val = (DvarsCheckBox.Checked) ? 235 : 116;
+                var val = DvarsCheckBox.Checked ? 235 : 116;
                 var curVal = memory.ProcMemory.ReadByte(0x43DD86);
                 if (curVal == val) return; //don't write if it's already the value we want
                 memory.ProcMemory.WriteInt(0x43DD86, val, 1);
