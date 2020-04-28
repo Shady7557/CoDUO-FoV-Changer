@@ -6,7 +6,7 @@ using System.Xml;
 
 namespace CoDUO_FoV_Changer
 {
-    class DatabaseFile
+    internal class DatabaseFile
     {
         /// <summary>
         /// Writes the given object instance to an XML file.

@@ -31,7 +31,7 @@ namespace CoDUO_FoV_Changer
             try
             {
                 var request = (HttpWebRequest)WebRequest.Create("https://drive.google.com/uc?export=download&id=0B0nCag_Hp76za3Y3dW9KYU5kQlE");
-                request.Timeout = 1000;
+                request.Timeout = 4000;
                 using (var stream = request.GetResponse().GetResponseStream())
                 {
                     using (var readResponse = new StreamReader(stream))
@@ -58,5 +58,11 @@ namespace CoDUO_FoV_Changer
         }
 
         private void button1_Click(object sender, EventArgs e) => Close();
+
+        private void ChangelogForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true;
+            Hide();
+        }
     }
 }

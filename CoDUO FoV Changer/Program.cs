@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace CoDUO_FoV_Changer
 {
-    static class Program
+    internal static class Program
     {
         private static bool? _isElevated;
         public static bool IsElevated
@@ -48,7 +48,7 @@ namespace CoDUO_FoV_Changer
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        private static void Main()
         {
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(AssemblyResolve);
             ServicePointManager.Expect100Continue = true;

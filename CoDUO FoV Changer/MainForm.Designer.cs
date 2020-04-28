@@ -68,6 +68,7 @@
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.ipFDialog = new System.Windows.Forms.OpenFileDialog();
             this.AdminLaunchButton = new System.Windows.Forms.Button();
+            this.GameTimeLabelTimer = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.FoVNumeric)).BeginInit();
             this.FoVMenuStrip.SuspendLayout();
             this.rcStrip.SuspendLayout();
@@ -215,14 +216,14 @@
             // SettingsToolStripMenuItem
             // 
             this.SettingsToolStripMenuItem.Name = "SettingsToolStripMenuItem";
-            this.SettingsToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
+            this.SettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.SettingsToolStripMenuItem.Text = "Settings";
             this.SettingsToolStripMenuItem.Click += new System.EventHandler(this.SettingsToolStripMenuItem_Click);
             // 
             // ChangelogToolStripMenuItem
             // 
             this.ChangelogToolStripMenuItem.Name = "ChangelogToolStripMenuItem";
-            this.ChangelogToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
+            this.ChangelogToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.ChangelogToolStripMenuItem.Text = "Changelog";
             this.ChangelogToolStripMenuItem.Click += new System.EventHandler(this.ChangelogToolStripMenuItem_Click);
             // 
@@ -354,7 +355,7 @@
             // GameTracker
             // 
             this.GameTracker.Enabled = true;
-            this.GameTracker.Interval = 1000;
+            this.GameTracker.Interval = 5000;
             this.GameTracker.Tick += new System.EventHandler(this.GameTracker_Tick);
             // 
             // CurSessionGT
@@ -423,6 +424,12 @@
             this.AdminLaunchButton.UseVisualStyleBackColor = false;
             this.AdminLaunchButton.Visible = false;
             this.AdminLaunchButton.Click += new System.EventHandler(this.AdminLaunchButton_Click);
+            // 
+            // GameTimeLabelTimer
+            // 
+            this.GameTimeLabelTimer.Enabled = true;
+            this.GameTimeLabelTimer.Interval = 1000;
+            this.GameTimeLabelTimer.Tick += new System.EventHandler(this.GameTimeLabelTimer_Tick);
             // 
             // MainForm
             // 
@@ -507,6 +514,7 @@
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem1;
         internal System.Windows.Forms.Button AdminLaunchButton;
+        private System.Windows.Forms.Timer GameTimeLabelTimer;
     }
 }
 

@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace BitmapExtension
 {
-    class BitmapHelper
+    internal class BitmapHelper
     {
         public static Bitmap ResizeImage(Bitmap imgToResize, Size size, InterpolationMode interopMode = InterpolationMode.HighQualityBicubic)
         {

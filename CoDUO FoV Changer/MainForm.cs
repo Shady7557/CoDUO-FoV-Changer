@@ -18,7 +18,7 @@ namespace CoDUO_FoV_Changer
 {
     public partial class MainForm : Form
     {
-        public const decimal hotfix = 7.5M;
+        public const decimal hotfix = 7.6M;
         public static bool isDev = Debugger.IsAttached;
         private readonly Settings settings = Settings.Instance;
         private readonly Image CoDImage = Properties.Resources.CoD1;
@@ -27,33 +27,21 @@ namespace CoDUO_FoV_Changer
         public const string cgameDll = "uo_cgame_mp_x86.dll";
         private readonly SessionHandler currentSession = new SessionHandler();
         private Memory memory;
+        private TimeSpan _lastGameTimeSpan;
         private DateTime lastHotkey;
         private DateTime lastUpdateCheck;
         private string _gameVersion = string.Empty;
-        private string _registryPath = string.Empty;
+       
         private bool needsUpdate = false;
         private string selectedProcStr = string.Empty;
         public static MainForm Instance = null;
-        public string RegistryPath
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_registryPath))
-                {
-                    var path = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive";
-                    if (!Environment.Is64BitOperatingSystem) path = path.Replace(@"Wow6432Node\", string.Empty);
-                    if (Registry.LocalMachine.OpenSubKey(path.Replace(@"HKEY_LOCAL_MACHINE\", string.Empty)) == null) path = path.Replace("United Offensive", string.Empty); //if UO key is null, use cod1 (if it exists)
-                    _registryPath = path;
-                }
-                return _registryPath;
-            }
-        }
+      
 
         public string GameVersion
         {
             get
             {
-                if (string.IsNullOrEmpty(_gameVersion)) _gameVersion = Registry.GetValue(RegistryPath, "Version", string.Empty)?.ToString() ?? string.Empty;
+                if (string.IsNullOrEmpty(_gameVersion)) _gameVersion = Registry.GetValue(PathScanner.RegistryPath, "Version", string.Empty)?.ToString() ?? string.Empty;
                 return _gameVersion;
             }
         }
@@ -91,31 +79,29 @@ namespace CoDUO_FoV_Changer
             var cmdArgs = Environment.GetCommandLineArgs();
             for (int i = 0; i < cmdArgs.Length; i++)
             {
-                var argu = cmdArgs[i];
-                var arg = argu.ToLower();
+                var arg = cmdArgs[i];
                 if (arg.IndexOf(Application.ProductName, StringComparison.OrdinalIgnoreCase) >= 0 || arg.IndexOf(Application.StartupPath, StringComparison.OrdinalIgnoreCase) >= 0) continue;
-                if (arg == "-unlock") DvarsCheckBox.Visible = true;
-                if (arg == "-unlock=1")
+                if (arg.Equals("-unlock", StringComparison.OrdinalIgnoreCase)) DvarsCheckBox.Visible = true;
+                if (arg.Equals("-unlock=1", StringComparison.OrdinalIgnoreCase))
                 {
                     DvarsCheckBox.Visible = true;
                     DvarsCheckBox.Checked = true;
                 }
 
-                if (arg == "-fog=1") settings.Fog = true;
-                else if (arg == "-fog=0") settings.Fog = false;
+                if (arg.Equals("-fog=1", StringComparison.OrdinalIgnoreCase)) settings.Fog = true;
+                else if (arg.Equals("-fog=0", StringComparison.OrdinalIgnoreCase)) settings.Fog = false;
 
-                if (arg == "-launch") StartGameButton.PerformClick();
+                if (arg.Equals("-launch", StringComparison.OrdinalIgnoreCase)) StartGameButton.PerformClick();
 
-                if (arg == "-debug") isDev = true;
+                if (arg.Equals("-debug", StringComparison.OrdinalIgnoreCase)) isDev = true;
 
-                if (arg == "-hotkeys") new Hotkeys().Show();
+                if (arg.Equals("-hotkeys", StringComparison.OrdinalIgnoreCase)) new Hotkeys().Show();
 
-                if (arg.Contains("-fov="))
+                if (arg.IndexOf("-fov=", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
-                    decimal FoV;
-                    if (decimal.TryParse(arg.Split('=')[1], out FoV)) SetFoVNumeric(FoV);
+                    if (decimal.TryParse(arg.Split('=')[1], out decimal FoV)) SetFoVNumeric(FoV);
                 }
-                argsSB.Append(argu + " ");
+                argsSB.Append(arg + " ");
             }
 
 
@@ -124,20 +110,19 @@ namespace CoDUO_FoV_Changer
 
             StartUpdates();
 
-
-
             Task.Run(() =>
             {
                 try
                 {
-                    var regPath = Registry.GetValue(RegistryPath, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+                  
 
                     if (string.IsNullOrEmpty(settings.InstallPath) || !Directory.Exists(settings.InstallPath))
                     {
-                        if (regPath.Contains("Call of Duty") || regPath.Contains("CoD"))
+                        var scannedPath = PathScanner.ScanForGamePath();
+                        if (!string.IsNullOrEmpty(scannedPath))
                         {
-                            MessageBox.Show("Automatically detected game path: " + Environment.NewLine + regPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            settings.InstallPath = regPath;
+                            MessageBox.Show("Automatically detected game path: " + Environment.NewLine + scannedPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            settings.InstallPath = scannedPath;
                         }
                         else
                         {
@@ -228,7 +213,7 @@ namespace CoDUO_FoV_Changer
 
         private void StartGameButton_Click(object sender, EventArgs e)
         {
-            var shiftMod = Control.ModifierKeys == Keys.Shift;
+            var shiftMod = ModifierKeys == Keys.Shift;
             if (string.IsNullOrEmpty(settings.ExeName) || shiftMod)
             {
                 ipFDialog.DefaultExt = ".exe";
@@ -424,8 +409,7 @@ namespace CoDUO_FoV_Changer
             {
                 var response = WebRequest.Create("https://docs.google.com/uc?export=download&id=0B0nCag_Hp76zczRGeU9CZ3NZc3M")?.GetResponse() ?? null;
                 var version = new StreamReader(response?.GetResponseStream() ?? null)?.ReadToEnd() ?? string.Empty;
-                decimal hfDec;
-                if (!decimal.TryParse(version, out hfDec))
+                if (!decimal.TryParse(version, out decimal hfDec))
                 {
                     Log.WriteLine("Failed to parse: " + version + " (version) as decimal.");
                     return !version.Contains(hotfix.ToString());
@@ -451,8 +435,7 @@ namespace CoDUO_FoV_Changer
 
         public bool TryParseKeys(string text, ref Keys value)
         {
-            Keys tmp;
-            if (Enum.TryParse(text, out tmp))
+            if (Enum.TryParse(text, out Keys tmp))
             {
                 value = tmp;
                 return true;
@@ -472,13 +455,12 @@ namespace CoDUO_FoV_Changer
             return a;
         }
 
-        Memory GetProcessMemoryFromBox()
+        private Memory GetProcessMemoryFromBox()
         {
             try
             {
                 if (string.IsNullOrEmpty(selectedProcStr)) return null;
-                var pid = 0;
-                if (!int.TryParse(selectedProcStr.Split('(')[1].Replace(")", string.Empty), out pid)) return null;
+                if (!int.TryParse(selectedProcStr.Split('(')[1].Replace(")", string.Empty), out int pid)) return null;
                 return new Memory(pid);
             }
             catch (Exception ex) { Log.WriteLine(ex.ToString()); }
@@ -508,7 +490,7 @@ namespace CoDUO_FoV_Changer
             catch (Exception ex) { Log.WriteLine("An exception happened while trying to read/write fog values:" + Environment.NewLine + ex.ToString()); }
         }
 
-        void doRAChecks()
+        private void doRAChecks()
         {
             if (memory == null || memory.IsRunning() || memory.ProcMemory.RequiresElevation()) return;
             try
@@ -635,12 +617,12 @@ namespace CoDUO_FoV_Changer
                 var totalHours = Math.Floor(span.TotalHours);
                 var totalMinutesCur = Math.Floor(spanCurrent.TotalMinutes);
                 var totalHoursCur = Math.Floor(spanCurrent.TotalHours);
-                if (settings.GameTime >= 1 && totalMinutes <= 0) GameTimeLabel.Text = "Game Time: " + settings.GameTime.ToString("N0") + " seconds";
-                if (totalMinutes >= 1 && totalHours <= 0) GameTimeLabel.Text = "Game Time: " + totalMinutes.ToString("N0") + " minutes";
-                if (totalHours >= 1 && totalMinutes >= 60) GameTimeLabel.Text = "Game Time: " + totalHours.ToString("N0") + " hours";
-                if (spanCurrent.TotalSeconds > 0 && totalMinutesCur <= 0) CurSessionGT.Text = "Current Session: " + spanCurrent.TotalSeconds.ToString("N0") + " seconds";
-                if (totalMinutesCur >= 1 && totalHoursCur <= 0) CurSessionGT.Text = "Current Session: " + totalMinutesCur.ToString("N0") + " minutes";
-                if (totalHoursCur >= 1 && totalMinutes >= 60) CurSessionGT.Text = "Current Session: " + totalHoursCur.ToString("N0") + " hours";
+                if (settings.GameTime >= 1 && totalMinutes < 1) GameTimeLabel.Text = "Game Time: " + settings.GameTime.ToString("N0") + " seconds";
+                if (totalMinutes >= 1 && totalHours < 1) GameTimeLabel.Text = "Game Time: " + totalMinutes.ToString("N0") + " minutes";
+                if (totalHours >= 1) GameTimeLabel.Text = "Game Time: " + totalHours.ToString("N0") + " hours";
+                if (spanCurrent.TotalSeconds > 0 && totalMinutesCur < 1) CurSessionGT.Text = "Current Session: " + spanCurrent.TotalSeconds.ToString("N0") + " seconds";
+                if (totalMinutesCur >= 1 && totalHoursCur < 1) CurSessionGT.Text = "Current Session: " + totalMinutesCur.ToString("N0") + " minutes";
+                if (totalHoursCur >= 1) CurSessionGT.Text = "Current Session: " + totalHoursCur.ToString("N0") + " hours";
             }
             catch (Exception ex)
             {
@@ -649,20 +631,21 @@ namespace CoDUO_FoV_Changer
             }
         }
 
+        
         private void GameTracker_Tick(object sender, EventArgs e)
         {
             Task.Run(() =>
             {
-                try
-                {
-                    var processes = GetAllGameProcesses();
-                    if (processes.Count < 1) return;
-                    if (settings.GameTime < (int.MaxValue - 1)) settings.GameTime++;
-                    BeginInvoke((MethodInvoker)delegate { AccessGameTimeLabel(); });
-                }
-                catch (Exception ex) { Log.WriteLine(ex.ToString()); }
+                var span = currentSession.GetSessionTime();
+
+                var newSecs = (span - _lastGameTimeSpan).TotalSeconds;
+                if (newSecs > 0) settings.GameTime += newSecs;
+
+                _lastGameTimeSpan = span;
             });
         }
+
+        private void GameTimeLabelTimer_Tick(object sender, EventArgs e) => AccessGameTimeLabel();
 
 
         private void LaunchParametersTB_TextChanged(object sender, EventArgs e)
@@ -722,11 +705,9 @@ namespace CoDUO_FoV_Changer
             }
         }
 
-        private void UpdateButton_Click(object sender, EventArgs e) { if ((MessageBox.Show("Are you sure you want to update now?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)) Task.Run(() => StartUpdater()); }
+        private void UpdateButton_Click(object sender, EventArgs e) { if (MessageBox.Show("Are you sure you want to update now?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes) Task.Run(() => StartUpdater()); }
 
-        
-
-        void UpdateProcessBox()
+        private void UpdateProcessBox()
         {
             try
             {
@@ -735,9 +716,8 @@ namespace CoDUO_FoV_Changer
                 for (int i = 0; i < GamePIDBox.Items.Count; i++)
                 {
                     var boxItem = GamePIDBox.Items[i];
-                    var pid = 0;
                     var splitPid = (boxItem as string).Split('(')[1].Replace(")", string.Empty);
-                    if (!int.TryParse(splitPid, out pid)) continue;
+                    if (!int.TryParse(splitPid, out int pid)) continue;
                     if (!ProcessExtensions.ProcessExtension.IsProcessAlive(pid)) GamePIDBox.Items.Remove(boxItem);
                 }
                 var allProcs = GetAllGameProcesses();
@@ -776,11 +756,15 @@ namespace CoDUO_FoV_Changer
 
         private void ChangelogToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (ChangelogForm.Instance != null && !ChangelogForm.Instance.IsDisposed) ChangelogForm.Instance.BringToFront();
+            if (ChangelogForm.Instance != null && !ChangelogForm.Instance.IsDisposed)
+            {
+                ChangelogForm.Instance.Show();
+                ChangelogForm.Instance.BringToFront();
+            }
             else new ChangelogForm().Show();
         }
 
-        private void InfoToolStripMenuItem_Click(object sender, EventArgs e) => MessageBox.Show("Created by Shady" + (Environment.NewLine + Environment.NewLine) + "This program is intended to allow you to change the Field of View in Multiplayer for both Call of Duty and Call of Duty: United Offensive, both of which do not normally allow you to do so." + (Environment.NewLine + Environment.NewLine) + "Program version: " + ProductVersion + Environment.NewLine + "Game version: " + (!string.IsNullOrEmpty(GameVersion) ? GameVersion : "Unknown"), ProductName + " (" + ProductVersion + ")", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        private void InfoToolStripMenuItem_Click(object sender, EventArgs e) => MessageBox.Show("Created by Shady" + Environment.NewLine + Environment.NewLine + "This program is intended to allow you to change the Field of View in Multiplayer for both Call of Duty and Call of Duty: United Offensive, both of which do not normally allow you to do so." + Environment.NewLine + Environment.NewLine + "Program version: " + ProductVersion + Environment.NewLine + "Game version: " + (!string.IsNullOrEmpty(GameVersion) ? GameVersion : "Unknown"), ProductName + " (" + ProductVersion + ")", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -852,5 +836,7 @@ namespace CoDUO_FoV_Changer
                 }
             }
         }
+
+      
     }
 }

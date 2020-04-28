@@ -15,8 +15,8 @@ namespace SessionHandling
             var procs = Process.GetProcesses();
             for(int i = 0; i < procs.Length; i++)
             {
-                var procName = procs[i]?.ProcessName ?? string.Empty;
-                if (procName == "CoDUOMP" || procName == "CoDMP" || procName == "mohaa") return true;
+                var procName = procs[i]?.ProcessName;
+                if (procName.Equals("CoDUOMP", StringComparison.OrdinalIgnoreCase) || procName.Equals("CoDMP", StringComparison.OrdinalIgnoreCase) || procName.Equals("mohaa", StringComparison.OrdinalIgnoreCase)) return true;
             }
             return false;
         }

@@ -21,7 +21,7 @@ namespace CoDUO_FoV_Changer
         private string lastlog;
         private bool fog;
         private bool trackTime;
-        private int gameTime;
+        private double gameTime;
         private bool disableUpdateTimer;
         private string hotkeyUp;
         private string hotkeyDown;
@@ -55,11 +55,11 @@ namespace CoDUO_FoV_Changer
             trackTime = true;
             gameTime = 0;
             disableUpdateTimer = false;
-            hotkeyUp = (107).ToString();
-            hotkeyDown = (109).ToString();
-            hotkeyModifier = (17).ToString();
-            hotkeyFogModifier = (18).ToString();
-            hotkeyToggleFog = (70).ToString();
+            hotkeyUp = 107.ToString();
+            hotkeyDown = 109.ToString();
+            hotkeyModifier = 17.ToString();
+            hotkeyFogModifier = 18.ToString();
+            hotkeyToggleFog = 70.ToString();
         }
 
    
@@ -116,7 +116,7 @@ namespace CoDUO_FoV_Changer
             }
         }
 
-        public int GameTime
+        public double GameTime
         {
             get { return gameTime; }
             set

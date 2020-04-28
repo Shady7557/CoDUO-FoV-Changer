@@ -12,7 +12,7 @@ namespace CoDUO_FoV_Changer
     public partial class SettingsForm : Form
     {
         private string keyLabelText = string.Empty;
-        private readonly string RegistryPath = MainForm.Instance.RegistryPath;
+        private readonly string RegistryPath = PathScanner.RegistryPath;
         private readonly string GameVersion = MainForm.Instance.GameVersion;
         private readonly Settings settings = Settings.Instance;
 
@@ -31,7 +31,7 @@ namespace CoDUO_FoV_Changer
         {
             get
             {
-                if (string.IsNullOrEmpty(_cdKey)) _cdKey = Registry.GetValue(RegistryPath.Replace("United Offensive", "").TrimEnd(' '), "key", string.Empty)?.ToString() ?? string.Empty;
+                if (string.IsNullOrEmpty(_cdKey)) _cdKey = Registry.GetValue(RegistryPath.Replace("United Offensive", string.Empty).TrimEnd(' '), "key", string.Empty)?.ToString() ?? string.Empty;
                 return _cdKey;
             }
         }
@@ -62,7 +62,7 @@ namespace CoDUO_FoV_Changer
             GameVersLabel.Text = "Game Version: " + (!string.IsNullOrEmpty(GameVersion) ? GameVersion : "Unknown");
 
             Location = new Point(MainForm.Instance.Location.X - 250, MainForm.Instance.Location.Y - 60);
-            ButtonBrowseGameFiles.Enabled = (!string.IsNullOrEmpty(settings.InstallPath) && Directory.Exists(settings.InstallPath));
+            ButtonBrowseGameFiles.Enabled = !string.IsNullOrEmpty(settings.InstallPath) && Directory.Exists(settings.InstallPath);
             CDKeyLabel.Text = "CD-Key: Hidden";
 
             var vcKey = CDKey;

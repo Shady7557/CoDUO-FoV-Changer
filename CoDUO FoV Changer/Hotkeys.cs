@@ -12,8 +12,8 @@ namespace CoDUO_FoV_Changer
         private string curKeyName;
         private Keys currentKey;
         private int currentKeyCode;
-        readonly Settings settings = Settings.Instance;
-        Settings oldSettings;
+        private readonly Settings settings = Settings.Instance;
+        private Settings oldSettings;
 
         public static Hotkeys Instance = null;
 
@@ -147,8 +147,7 @@ namespace CoDUO_FoV_Changer
         private Keys GetKeyFromString(string keyName, bool split = false)
         {
             if (string.IsNullOrEmpty(keyName)) return 0;
-            Keys key;
-            if (Enum.TryParse(keyName, out key)) return key;
+            if (Enum.TryParse(keyName, out Keys key)) return key;
             return 0;
         }
 

@@ -1,4 +1,8 @@
-﻿using System;
+﻿using CurtLog;
+using DirectoryExtensions;
+using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 //This wasn't written by me. I found it on stackoverflow and nobody seems to have claimed "ownership" of it. I did make some slight modifications
 namespace ProcessExtensions
@@ -6,14 +10,14 @@ namespace ProcessExtensions
     public class ProcessExtension
     {
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern IntPtr OpenProcess(ProcessAccessFlags access, bool inheritHandle, int procId);
+        private static IntPtr OpenProcess(ProcessAccessFlags access, bool inheritHandle, int procId);
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool CloseHandle(IntPtr hObject);
+        private static bool CloseHandle(IntPtr hObject);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool GetExitCodeProcess(IntPtr hProcess, out uint lpExitCode);
+        private static bool GetExitCodeProcess(IntPtr hProcess, out uint lpExitCode);
 
         [Flags]
         public enum ProcessAccessFlags : uint
@@ -45,14 +49,35 @@ namespace ProcessExtensions
 
             if (h == IntPtr.Zero) return false;
 
-            uint code;
-            var b = GetExitCodeProcess(h, out code);
+            var b = GetExitCodeProcess(h, out uint code);
             CloseHandle(h);
 
             if (b)
-                b = (code == 259) /* STILL_ACTIVE  */;
+                b = code == 259 /* STILL_ACTIVE  */;
 
             return b;
+        }
+
+        /*/This part below was added by myself (Shady)/*/
+        public static string GetFileNameFromProcess(string processName)
+        {
+            if (string.IsNullOrEmpty(processName)) throw new ArgumentNullException(nameof(processName));
+
+            var procs = Process.GetProcessesByName(processName);
+            if (procs != null && procs.Length > 0)
+            {
+                var proc = procs.OrderByDescending(p => p.StartTime).FirstOrDefault();
+                if (proc != null && !proc.HasExited)
+                {
+                    var fileName = DirectoryExtension.GetMainModuleFileName(proc);
+                    var logTxt = "DirectoryExtension.GetMainModuleFileName returned: " + fileName;
+                    Console.WriteLine(logTxt);
+                    Log.WriteLine(logTxt);
+                    return fileName;
+                }
+            }
+
+            return string.Empty;
         }
     }
 }

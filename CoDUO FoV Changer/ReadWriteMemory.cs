@@ -103,7 +103,7 @@ namespace ReadWriteMemory
             BaseAddress = 0;
             ProcessModule = _Process.MainModule;
             BaseAddress = (int)ProcessModule.BaseAddress;
-            return (pOffset + BaseAddress);
+            return pOffset + BaseAddress;
         }
         #region Reading
         public byte ReadByte(int pOffset)
@@ -153,7 +153,7 @@ namespace ReadWriteMemory
         
 
         public void WriteMem(int pOffset, byte[] pBytes) => WriteProcessMemory(processHandle, pOffset, pBytes, pBytes.Length, 0);
-        public void WriteMem(int pOffset, byte[] pBytes, bool AddToImageAddress) => WriteProcessMemory(processHandle, (AddToImageAddress ? ImageAddress(pOffset) : pOffset), pBytes, pBytes.Length, 0);
+        public void WriteMem(int pOffset, byte[] pBytes, bool AddToImageAddress) => WriteProcessMemory(processHandle, AddToImageAddress ? ImageAddress(pOffset) : pOffset, pBytes, pBytes.Length, 0);
         public void WriteMem(int pOffset, byte[] pBytes, int nsize) => WriteProcessMemory(processHandle, pOffset, pBytes, nsize, 0);
         #endregion
         #region Imports

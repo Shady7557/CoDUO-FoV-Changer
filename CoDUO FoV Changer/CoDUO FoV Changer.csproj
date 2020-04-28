@@ -108,6 +108,7 @@
     </Compile>
     <Compile Include="ClampEx.cs" />
     <Compile Include="DatabaseFile.cs" />
+    <Compile Include="DirectoryExtensions.cs" />
     <Compile Include="HotkeyHandler.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -123,6 +124,7 @@
     </Compile>
     <Compile Include="Memory.cs" />
     <Compile Include="PathInfos.cs" />
+    <Compile Include="PathScanner.cs" />
     <Compile Include="ProcessExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
