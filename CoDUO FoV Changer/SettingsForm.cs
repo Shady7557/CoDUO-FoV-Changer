@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Microsoft.Win32;
 using System.IO;
 using System.Diagnostics;
 using BitmapExtension;
@@ -11,42 +10,10 @@ namespace CoDUO_FoV_Changer
 {
     public partial class SettingsForm : Form
     {
-        private readonly string RegistryPath = PathScanner.RegistryPath;
         private readonly string GameVersion = MainForm.Instance.GameVersion;
         private readonly Settings settings = Settings.Instance;
 
-        private string _cdKeyUO = string.Empty;
-        private string CDKeyUO
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_cdKeyUO)) _cdKeyUO = Registry.GetValue(RegistryPath, "key", string.Empty)?.ToString() ?? string.Empty;
-                return _cdKeyUO;
-            }
-        }
-
-        private string _cdKey = string.Empty;
-        private string CDKey
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_cdKey)) _cdKey = Registry.GetValue(RegistryPath.Replace("United Offensive", string.Empty).TrimEnd(' '), "key", string.Empty)?.ToString() ?? string.Empty;
-                return _cdKey;
-            }
-        }
-
-        private string GetCDKeyTest()
-        {
-            var val = string.Empty;
-
-            var regPath = @"HKEY_USERS\" + Program.CurrentUserSID + @"\SOFTWARE\Classes\VirtualStore\MACHINE\SOFTWARE\WOW6432Node\Activision\Call of Duty United Offensive";
-            Console.WriteLine("sid: " + Program.CurrentUserSID + Environment.NewLine + regPath);
-            val = Registry.GetValue(regPath, "key", string.Empty)?.ToString() ?? string.Empty;
-
-            return val;
-        }
-
-
+     
         public static SettingsForm Instance = null;
 
         protected override CreateParams CreateParams
@@ -68,7 +35,8 @@ namespace CoDUO_FoV_Changer
 
         private void SettingsForm_Load(object sender, EventArgs e)
         {
-            Location = new Point(MainForm.Instance.Location.X - 250, MainForm.Instance.Location.Y - 60);
+            if (MainForm.Instance.Visible && MainForm.Instance.WindowState != FormWindowState.Minimized) 
+                Location = new Point(MainForm.Instance.Location.X - 250, MainForm.Instance.Location.Y - 60);
 
             AppVersLabel.Text = "App. Version: " + Application.ProductVersion;
             GameVersLabel.Text = "Game Version: " + (!string.IsNullOrEmpty(GameVersion) ? GameVersion : "Unknown");
