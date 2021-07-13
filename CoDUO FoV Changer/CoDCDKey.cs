@@ -5,11 +5,10 @@
         public enum KeyType : ushort
         {
             CoD = 0,
-            UO = 1,
-            None = 2
+            UO = 1
         }
 
-        public KeyType TypeOfKey { get; set; } = KeyType.None;
+        public KeyType TypeOfKey { get; set; } = KeyType.CoD;
         public string CDKey { get; set; } = string.Empty;
 
         public CoDCDKey() { }

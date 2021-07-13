@@ -12,15 +12,16 @@ namespace CoDUO_FoV_Changer
 
         public Memory(string processName)
         {
-            if (string.IsNullOrEmpty(processName)) throw new ArgumentNullException();
-            ProcMemory = new ProcessMemory(processName);
-            ProcMemory.StartProcess();
+            if (string.IsNullOrEmpty(processName)) throw new ArgumentNullException(nameof(processName));
+
+            (ProcMemory = new ProcessMemory(processName)).StartProcess();
         }
 
         public Memory(int processID)
         {
-            ProcMemory = new ProcessMemory(processID);
-            ProcMemory.StartProcess();
+            if (processID <= 0) throw new ArgumentOutOfRangeException(nameof(processID));
+
+            (ProcMemory = new ProcessMemory(processID)).StartProcess();
         }
 
         public bool IsRunning() { return ProcMemory?.CheckProcess() ?? false; }

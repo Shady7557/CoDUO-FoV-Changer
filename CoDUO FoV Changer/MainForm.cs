@@ -280,36 +280,50 @@ namespace CoDUO_FoV_Changer
         private void StartGameButton_Click(object sender, EventArgs e)
         {
             var shiftMod = ModifierKeys == Keys.Shift;
+
             if (string.IsNullOrEmpty(settings.ExeName) || shiftMod)
             {
                 ipFDialog.InitialDirectory = settings.InstallPath;
                 ipFDialog.DefaultExt = ".exe";
                 ipFDialog.Filter = "|*.exe";
+
                 if (!shiftMod) MessageBox.Show("Please select the exe to launch (this will be saved)", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+
                 var ipfResult = ipFDialog.ShowDialog();
                 if (ipfResult != DialogResult.OK) return;
+
                 if (!ipFDialog.FileName.EndsWith(".exe"))
                 {
                     MessageBox.Show("Selected file is not an executable.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+
                 var filePath = Path.GetDirectoryName(ipFDialog.FileName);
                 if (settings.InstallPath != filePath) settings.InstallPath = filePath;
+
                 MessageBox.Show("Selected: " + (settings.ExeName = ipFDialog.SafeFileName) + Environment.NewLine + "You can change this at any time by holding shift then clicking this button again", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+
             Task.Run(() => StartGame());
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (LaunchParametersTB.Text != settings.CommandLine) settings.CommandLine = LaunchParametersTB.Text;
-            if (settings.HasChanged) DatabaseFile.Write(settings, PathInfos.SettingsPath);
+
+            if (settings.HasChanged)
+            {
+                Log.WriteLine(nameof(settings.HasChanged) + ", so writing to disk");
+                DatabaseFile.Write(settings, PathInfos.SettingsPath);
+                Log.WriteLine("Wrote settings to disk");
+            }
         }
 
         private void FoVNumeric_ValueChanged(object sender, EventArgs e)
         {
-            if (FoVNumeric.Value != ((int)FoVNumeric.Value)) FoVNumeric.DecimalPlaces = 1;
-            else FoVNumeric.DecimalPlaces = 0;
+            FoVNumeric.DecimalPlaces = FoVNumeric.Value != (int)FoVNumeric.Value ? 1 : 0; //decimal places if the value isn't an int
+
+
             Task.Run(() =>
             {
                 CurrentFoV = Convert.ToSingle(FoVNumeric.Value);
@@ -325,8 +339,10 @@ namespace CoDUO_FoV_Changer
                 FogCheckBox.Checked = true;
                 return;
             }
+
             settings.Fog = FogCheckBox.Checked;
             fogToolStripMenuItem.Checked = settings.Fog;
+
             Task.Run(() => ToggleFog(settings.Fog));
         }
 
@@ -360,7 +376,7 @@ namespace CoDUO_FoV_Changer
 
                 if (SelectedMemory == null || !SelectedMemory.IsRunning())
                 {
-                    SetLabelText(StatusLabel, "Status: not found or failed to write to memory!");
+                    SetLabelText(StatusLabel, "Status: Not running");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate
                     {
                         toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!");
@@ -602,7 +618,7 @@ namespace CoDUO_FoV_Changer
                 var address = !isRunning ? -1 : !IsUO() ? MemoryAddresses.COD_FOV_ADDRESS : (isRunning ? (SelectedMemory.ProcMemory.DllImageAddress(MemoryAddresses.UO_CGAME_MP_DLL) + MemoryAddresses.UO_FOV_OFFSET) : -1);
                 if (!isRunning || address <= 0)
                 {
-                    SetLabelText(StatusLabel, "Status: not found or failed to write to memory!");
+                    SetLabelText(StatusLabel, "Status: Not running");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate
                     {
                         toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!");
@@ -612,7 +628,7 @@ namespace CoDUO_FoV_Changer
                 else
                 {
                     SelectedMemory.ProcMemory.WriteFloat(address, CurrentFoV);
-                    SetLabelText(StatusLabel, "Status: game found and wrote to memory!");
+                    SetLabelText(StatusLabel, "Status: Success!");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate ()
                     {
                         toolTip1.SetToolTip(StatusLabel, string.Empty);
