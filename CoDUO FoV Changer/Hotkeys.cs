@@ -1,7 +1,4 @@
-﻿using CurtLog;
-using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System;
 using System.Text;
 using System.Windows.Forms;
 
@@ -32,48 +29,12 @@ namespace CoDUO_FoV_Changer
             Instance = this;
             InitializeComponent();
         }
-        
+
         private void Hotkeys_Load(object sender, EventArgs e)
         {
             oldSettings = new Settings();
             oldSettings = settings;
-            try
-            {
-                if (!Program.IsElevated)
-                {
-                    var currentProc = Process.GetCurrentProcess();
-                    var fileNameDir = currentProc?.MainModule?.FileName ?? string.Empty;
-                    if (string.IsNullOrEmpty(fileNameDir) || !File.Exists(fileNameDir))
-                    {
-                        MessageBox.Show("Application path doesn't exist. Cannot start: " + fileNameDir + Environment.NewLine + " Please manually run the program as an Admin if you wish to change your hotkeys.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        Close();
-                    }
-                    else
-                    {
-                        var startInfo = new ProcessStartInfo();
-                        startInfo.Verb = "runas";
-                        startInfo.Arguments = "-hotkeys";
-                        startInfo.WorkingDirectory = Application.StartupPath;
-                        startInfo.FileName = fileNameDir;
-                        Process.Start(startInfo);
-                        Application.Exit();
-                    }
-                }
-            }
-            catch(System.ComponentModel.Win32Exception win32ex) when(win32ex.NativeErrorCode == 1223)
-            {
-                Log.WriteLine("User canceled UAC prompt (" + win32ex.Message + " )");
-                Close();
-                return;
-            }
-            catch(Exception ex)
-            {
-                Log.WriteLine("Failed to start hotkeys form: " + ex.Message);
-                Log.WriteLine(ex.ToString());
-                MessageBox.Show("Failed to start hot keys form: " + ex.Message + Environment.NewLine + " please refer to the log for more info.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Close();
-                return;
-            }
+
             DatabaseFile.Write(settings, PathInfos.SettingsPath); //save current settings
             settings.HasChanged = false; //force it to not be changed so exit without saving works 'properly'
 
@@ -90,7 +51,7 @@ namespace CoDUO_FoV_Changer
             var keyStr = e.KeyData.ToString();
             if (keyStr == "LWin") return;
             if (keyStr.Contains(",")) keyStr = keyStr.Split(',')[1];
-           
+
             currentKey = e.KeyData;
             currentKeyCode = e.KeyValue;
             curKeyName = GetShortKeyString(e.KeyData);
@@ -100,7 +61,7 @@ namespace CoDUO_FoV_Changer
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if(FoVUp.Checked)
+            if (FoVUp.Checked)
             {
                 settings.HotKeyUp = currentKeyCode.ToString();
                 MessageBox.Show("Set FoV+ hotkey: " + curKeyName);
@@ -139,7 +100,7 @@ namespace CoDUO_FoV_Changer
             if (closePrompt == DialogResult.Yes)
             {
                 settings.HasChanged = false;
-            //    settings = oldSettings;
+                //    settings = oldSettings;
                 Close();
             }
         }

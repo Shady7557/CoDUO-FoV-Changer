@@ -1,10 +1,13 @@
 ﻿using CurtLog;
 using Microsoft.Win32;
 using ProcessExtensions;
+using ShadyPool;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 
 namespace CoDUO_FoV_Changer
@@ -12,18 +15,60 @@ namespace CoDUO_FoV_Changer
     internal class PathScanner
     {
         private static string _registryPath = string.Empty;
+        private static string _registryPathVS = string.Empty;
+
+        private static string _registryPathCoD = string.Empty;
+        private static string _registryPathCoDVS = string.Empty;
+
+        private static readonly StringBuilder _stringBuilder = new StringBuilder();
+
         public static string RegistryPath
         {
             get
             {
                 if (string.IsNullOrEmpty(_registryPath))
                 {
-                    var path = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive";
-                    if (!Environment.Is64BitOperatingSystem) path = path.Replace(@"Wow6432Node\", string.Empty);
-                    if (Registry.LocalMachine.OpenSubKey(path.Replace(@"HKEY_LOCAL_MACHINE\", string.Empty)) == null) path = path.Replace("United Offensive", string.Empty); //if UO key is null, use cod1 (if it exists)
-                    _registryPath = path;
+                    _registryPath = _stringBuilder.Clear().Append(Environment.Is64BitOperatingSystem ? @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive" : @"HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive").ToString();
+
                 }
                 return _registryPath;
+            }
+        }
+
+        public static string RegistryPathVirtualStore
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_registryPathVS))
+                {
+                    _registryPathVS = _stringBuilder.Clear().Append(@"HKEY_USERS\").Append(Program.CurrentUserSID).Append(@"\SOFTWARE\Classes\VirtualStore\MACHINE\SOFTWARE\").Append(Environment.Is64BitOperatingSystem ? @"WOW6432Node\" : string.Empty).Append(@"Activision\Call of Duty").ToString();
+                }
+                return _registryPathVS;
+            }
+        }
+
+        public static string RegistryPathCoD
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_registryPathCoD))
+                {
+                    _registryPathCoD = _stringBuilder.Clear().Append(Environment.Is64BitOperatingSystem ? @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty" : @"HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty").ToString();
+
+                }
+                return _registryPathCoD;
+            }
+        }
+
+        public static string RegistryPathCoDVirtualStore
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_registryPathCoDVS))
+                {
+                    _registryPathCoDVS = _stringBuilder.Clear().Append(@"HKEY_USERS\").Append(Program.CurrentUserSID).Append(@"\SOFTWARE\Classes\VirtualStore\MACHINE\SOFTWARE\").Append(Environment.Is64BitOperatingSystem ? @"WOW6432Node\" : string.Empty).Append(@"Activision\Call of Duty United Offensive").ToString();
+                }
+                return _registryPathCoDVS;
             }
         }
 
@@ -47,7 +92,7 @@ namespace CoDUO_FoV_Changer
                                 for (int i = 0; i < subKeyNames.Length; i++)
                                 {
                                     var name = subKeyNames[i];
-                                    var fullName = subKey + @"\" + name;
+                                    var fullName = _stringBuilder.Clear().Append(subKey).Append(@"\").Append(name).ToString();
                                     using (var key2 = regKey.OpenSubKey(fullName))
                                     {
                                         if (key2 == null)
@@ -145,19 +190,44 @@ namespace CoDUO_FoV_Changer
             return paths;
         }
 
-      
+
 
         public static string ScanForGamePath()
         {
+         
+
             try
             {
 
-                var uoFileName = ProcessExtension.GetFileNameFromProcess("CoDUOMP");
+                var uoFileName = ProcessExtension.GetFileNameFromProcessName("CoDUOMP");
                 if (!string.IsNullOrEmpty(uoFileName)) return uoFileName;
 
-                var codFileName = ProcessExtension.GetFileNameFromProcess("CoDMP");
+                var codFileName = ProcessExtension.GetFileNameFromProcessName("CoDMP");
                 if (!string.IsNullOrEmpty(codFileName)) return codFileName;
 
+                var mohaaFileName = ProcessExtension.GetFileNameFromProcessName("mohaa");
+                if (!string.IsNullOrEmpty(mohaaFileName)) return mohaaFileName;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                Log.WriteLine(ex.ToString());
+            }
+
+            try
+            {
+                var procs = Process.GetProcesses();
+                for (int i = 0; i < procs.Length; i++)
+                {
+                    var proc = procs[i];
+                    if ((proc?.MainWindowTitle ?? string.Empty).IndexOf("CoD:United Offensive Multiplayer", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        var fileName = ProcessExtension.GetFileNameFromProcess(proc);
+                        if (!string.IsNullOrEmpty(fileName)) return fileName;
+                        break;
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -170,10 +240,10 @@ namespace CoDUO_FoV_Changer
                 var filesInStartup = Directory.GetFiles(Application.StartupPath);
                 if (filesInStartup?.Length > 0)
                 {
-                    for (int i = 0; i < filesInStartup.Length; i++) 
+                    for (int i = 0; i < filesInStartup.Length; i++)
                     {
                         var fileName = Path.GetFileName(filesInStartup[i]);
-                        if (fileName.Equals("CoDUOMP.exe", StringComparison.OrdinalIgnoreCase) || fileName.Equals("CoDMP.exe", StringComparison.Ordinal)) return Application.StartupPath;
+                        if (fileName.Equals("CoDUOMP.exe", StringComparison.OrdinalIgnoreCase) || fileName.Equals("CoDMP.exe", StringComparison.OrdinalIgnoreCase) || fileName.Equals("mohaa.exe", StringComparison.OrdinalIgnoreCase)) return Application.StartupPath;
                     }
                 }
             }
@@ -184,6 +254,8 @@ namespace CoDUO_FoV_Changer
             }
 
             var registryInstallPath = Registry.GetValue(RegistryPath, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+            if (string.IsNullOrEmpty(registryInstallPath)) registryInstallPath = Registry.GetValue(RegistryPathVirtualStore, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+
             if (!string.IsNullOrEmpty(registryInstallPath)) return registryInstallPath;
 
             var paths1 = GetPotentialPathsFromSubkey(@"Software\Classes\VirtualStore\MACHINE\SOFTWARE\NVIDIA Corporation\Global\NVTweak\NvCplAppNamesStored", Registry.CurrentUser);
@@ -191,29 +263,35 @@ namespace CoDUO_FoV_Changer
             var paths3 = GetPotentialPathsFromSubkey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\FeatureUsage\ShowJumpView", Registry.CurrentUser);
             var paths4 = GetPotentialPathsFromSubkey(@"Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Compatibility Assistant\Store", Registry.CurrentUser);
             var paths5 = GetPotentialPathsFromSubkey(@"System\GameConfigStore\Children", Registry.CurrentUser, true);
-            var allPaths = new List<string>();
-            allPaths.AddRange(paths1);
-            allPaths.AddRange(paths2);
-            allPaths.AddRange(paths3);
-            allPaths.AddRange(paths4);
-            allPaths.AddRange(paths5);
 
-           
-            if (allPaths.Count < 1)
+            var allPaths = Pool.GetList<string>();
+            try 
             {
-                var noRegPathStr = "allPaths was empty, so we were unable to grab any install info from registry.";
-                Console.WriteLine(noRegPathStr);
-                Log.WriteLine(noRegPathStr);
-                return string.Empty;
+                allPaths.AddRange(paths1);
+                allPaths.AddRange(paths2);
+                allPaths.AddRange(paths3);
+                allPaths.AddRange(paths4);
+                allPaths.AddRange(paths5);
+
+                if (allPaths.Count < 1)
+                {
+                    var noRegPathStr = "allPaths was empty, so we were unable to grab any install info from registry.";
+                    Console.WriteLine(noRegPathStr);
+                    Log.WriteLine(noRegPathStr);
+                    return string.Empty;
+                }
+                else
+                {
+                    if (allPaths.Count == 1) return allPaths[0];
+
+                    var distinctPaths = allPaths.Distinct();
+                    var allPathStr = "distinctPaths contains: " + distinctPaths.Count().ToString("N0") + " paths: " + Environment.NewLine + string.Join(", ", distinctPaths);
+                    Console.WriteLine(allPathStr);
+                    Log.WriteLine(allPathStr);
+                    return distinctPaths.Count() == 1 ? distinctPaths.FirstOrDefault() : distinctPaths.OrderByDescending(p => File.GetLastAccessTimeUtc(p)).FirstOrDefault();
+                }
             }
-            else
-            {
-                var distinctPaths = allPaths.Distinct();
-                var allPathStr = "distinctPaths contains: " + distinctPaths.Count().ToString("N0") + " paths: " + Environment.NewLine + string.Join(", ", distinctPaths);
-                Console.WriteLine(allPathStr);
-                Log.WriteLine(allPathStr);
-                return distinctPaths.OrderByDescending(p => File.GetLastAccessTimeUtc(p)).FirstOrDefault();
-            }
+            finally { Pool.FreeList(ref allPaths); }
         }
     }
 }

@@ -1,23 +1,25 @@
 ﻿using CurtLog;
 using DirectoryExtensions;
+using ShadyPool;
 using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 //This wasn't written by me. I found it on stackoverflow and nobody seems to have claimed "ownership" of it. I did make some slight modifications
 namespace ProcessExtensions
 {
     public class ProcessExtension
     {
         [DllImport("kernel32.dll", SetLastError = true)]
-        private static IntPtr OpenProcess(ProcessAccessFlags access, bool inheritHandle, int procId);
+        private static extern IntPtr OpenProcess(ProcessAccessFlags access, bool inheritHandle, int procId);
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        private static bool CloseHandle(IntPtr hObject);
+        private static extern bool CloseHandle(IntPtr hObject);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        private static bool GetExitCodeProcess(IntPtr hProcess, out uint lpExitCode);
+        private static extern bool GetExitCodeProcess(IntPtr hProcess, out uint lpExitCode);
 
         [Flags]
         public enum ProcessAccessFlags : uint
@@ -59,25 +61,52 @@ namespace ProcessExtensions
         }
 
         /*/This part below was added by myself (Shady)/*/
-        public static string GetFileNameFromProcess(string processName)
+        public static string GetFileNameFromProcessName(string processName)
         {
-            if (string.IsNullOrEmpty(processName)) throw new ArgumentNullException(nameof(processName));
+            if (string.IsNullOrEmpty(processName)) 
+                throw new ArgumentNullException(nameof(processName));
 
             var procs = Process.GetProcessesByName(processName);
             if (procs != null && procs.Length > 0)
             {
-                var proc = procs.OrderByDescending(p => p.StartTime).FirstOrDefault();
-                if (proc != null && !proc.HasExited)
+
+                var activeProcesses = Pool.GetList<Process>();
+                try 
                 {
-                    var fileName = DirectoryExtension.GetMainModuleFileName(proc);
-                    var logTxt = "DirectoryExtension.GetMainModuleFileName returned: " + fileName;
-                    Console.WriteLine(logTxt);
-                    Log.WriteLine(logTxt);
-                    return fileName;
+                    for(int i = 0; i < procs.Length; i++)
+                    {
+                        var p = procs[i];
+                        if (!(p?.HasExited ?? true))
+                        {
+                            activeProcesses.Add(p);
+                        }
+                    }
+
+                    return GetFileNameFromProcess(activeProcesses.OrderByDescending(p => p.StartTime).FirstOrDefault());
                 }
+                finally { Pool.FreeList(ref activeProcesses); }
             }
 
             return string.Empty;
+        }
+
+        public static string GetFileNameFromProcess(Process process)
+        {
+            if (process == null) throw new ArgumentNullException(nameof(process));
+            if (process.HasExited) throw new InvalidOperationException(nameof(process));
+
+            var fileName = DirectoryExtension.GetMainModuleFileName(process);
+
+            var sb = Pool.Get<StringBuilder>();
+            try 
+            {
+                var logTxt = sb.Clear().Append(nameof(GetFileNameFromProcess)).Append(" returned: ").Append(fileName).ToString();
+                Console.WriteLine(logTxt);
+                Log.WriteLine(logTxt);
+            }
+            finally { Pool.Free(ref sb); }
+           
+            return fileName;
         }
     }
 }

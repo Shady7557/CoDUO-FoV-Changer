@@ -62,7 +62,7 @@
             this.CurSessionGT = new System.Windows.Forms.Label();
             this.GameTimeLabel = new System.Windows.Forms.Label();
             this.UpdateTimer = new System.Windows.Forms.Timer(this.components);
-            this.GamePIDBox = new System.Windows.Forms.ComboBox();
+            this.GamePIDBox = new ProcessMemoryBox();
             this.CoDPictureBox = new System.Windows.Forms.PictureBox();
             this.ProccessChecker = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
@@ -132,6 +132,7 @@
             this.MinimizeCheckBox.Size = new System.Drawing.Size(98, 17);
             this.MinimizeCheckBox.TabIndex = 65;
             this.MinimizeCheckBox.Text = "Minimize to tray";
+            this.toolTip1.SetToolTip(this.MinimizeCheckBox, "Toggle whether or not this app should minimize to the tray");
             this.MinimizeCheckBox.UseVisualStyleBackColor = false;
             this.MinimizeCheckBox.CheckedChanged += new System.EventHandler(this.MinimizeCheckBox_CheckedChanged);
             // 
@@ -147,6 +148,9 @@
             this.FogCheckBox.Size = new System.Drawing.Size(44, 17);
             this.FogCheckBox.TabIndex = 64;
             this.FogCheckBox.Text = "Fog";
+            this.toolTip1.SetToolTip(this.FogCheckBox, "Toggles the visibility of fog in the distance. \r\nNOTE: Players are NOT rendered b" +
+        "eyond fog, and this does NOT act as a cheat.\r\nThis setting only affects United O" +
+        "ffensive.");
             this.FogCheckBox.UseVisualStyleBackColor = false;
             this.FogCheckBox.CheckedChanged += new System.EventHandler(this.FogCheckBox_CheckedChanged);
             // 
@@ -216,14 +220,14 @@
             // SettingsToolStripMenuItem
             // 
             this.SettingsToolStripMenuItem.Name = "SettingsToolStripMenuItem";
-            this.SettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.SettingsToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
             this.SettingsToolStripMenuItem.Text = "Settings";
             this.SettingsToolStripMenuItem.Click += new System.EventHandler(this.SettingsToolStripMenuItem_Click);
             // 
             // ChangelogToolStripMenuItem
             // 
             this.ChangelogToolStripMenuItem.Name = "ChangelogToolStripMenuItem";
-            this.ChangelogToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.ChangelogToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
             this.ChangelogToolStripMenuItem.Text = "Changelog";
             this.ChangelogToolStripMenuItem.Click += new System.EventHandler(this.ChangelogToolStripMenuItem_Click);
             // 
@@ -349,6 +353,8 @@
             this.DvarsCheckBox.Size = new System.Drawing.Size(105, 17);
             this.DvarsCheckBox.TabIndex = 72;
             this.DvarsCheckBox.Text = "Unlock All Dvars";
+            this.toolTip1.SetToolTip(this.DvarsCheckBox, "Toggle accessibility of all in-game cvars/dvars.\r\nThis setting only affects Unite" +
+        "d Offensive.");
             this.DvarsCheckBox.UseVisualStyleBackColor = true;
             this.DvarsCheckBox.CheckedChanged += new System.EventHandler(this.DvarsCheckBox_CheckedChanged);
             // 
@@ -503,7 +509,7 @@
         internal System.Windows.Forms.Label CurSessionGT;
         internal System.Windows.Forms.Label GameTimeLabel;
         internal System.Windows.Forms.Timer UpdateTimer;
-        private System.Windows.Forms.ComboBox GamePIDBox;
+        private ProcessMemoryBox GamePIDBox;
         internal System.Windows.Forms.Timer ProccessChecker;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.OpenFileDialog ipFDialog;

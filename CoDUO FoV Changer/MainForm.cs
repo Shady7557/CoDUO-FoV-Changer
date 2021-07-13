@@ -13,40 +13,58 @@ using HotkeyHandling;
 using SessionHandling;
 using System.Collections.Generic;
 using BitmapExtension;
+using ShadyPool;
 
 namespace CoDUO_FoV_Changer
 {
     public partial class MainForm : Form
     {
-        public const decimal hotfix = 7.6M;
-        public static bool isDev = Debugger.IsAttached;
+        public const decimal HOTFIX = 7.6M;
+
+        public static bool IsDev { get; private set; } = Debugger.IsAttached;
+
         private readonly Settings settings = Settings.Instance;
-        private readonly Image CoDImage = Properties.Resources.CoD1;
-        private readonly Image CoDUOImage = Properties.Resources.CoDUO;
-        private const string LatestDownloadURI = @"https://github.com/Shady7557/CoDUO-FoV-Changer/releases/latest/download/CoDUO.FoV.Changer.exe";
-        public const string cgameDll = "uo_cgame_mp_x86.dll";
-        private readonly SessionHandler currentSession = new SessionHandler();
-        private Memory memory;
+
+        private readonly Image _codImage = Properties.Resources.CoD1;
+        private readonly Image _codUOImage = Properties.Resources.CoDUO;
+
+        public SessionHandler CurrentSession { get; private set; } = new SessionHandler();
+
+        public Memory SelectedMemory { get; private set; }
+
+
         private TimeSpan _lastGameTimeSpan;
-        private DateTime lastHotkey;
-        private DateTime lastUpdateCheck;
+        private DateTime _lastHotkey;
+        private DateTime _lastUpdateCheck;
         private string _gameVersion = string.Empty;
-       
-        private bool needsUpdate = false;
-        private string selectedProcStr = string.Empty;
+
+        private bool _needsUpdate = false;
+
         public static MainForm Instance = null;
-      
+
+        private const string LATEST_DOWNLOAD_URI = @"https://github.com/Shady7557/CoDUO-FoV-Changer/releases/latest/download/CoDUO.FoV.Changer.exe";
+        private const string UPDATE_URI = @"https://raw.githubusercontent.com/Shady7557/CoDUO-FoV-Changer/master/HOTFIX";
+
+        public float CurrentFoV
+        {
+            get;
+            private set;
+        }
 
         public string GameVersion
         {
             get
             {
-                if (string.IsNullOrEmpty(_gameVersion)) _gameVersion = Registry.GetValue(PathScanner.RegistryPath, "Version", string.Empty)?.ToString() ?? string.Empty;
+                if (string.IsNullOrEmpty(_gameVersion))
+                {
+                    _gameVersion = Registry.GetValue(PathScanner.RegistryPath, "Version", string.Empty)?.ToString() ?? string.Empty;
+                    if (string.IsNullOrEmpty(_gameVersion)) _gameVersion = Registry.GetValue(PathScanner.RegistryPathVirtualStore, "Version", string.Empty)?.ToString() ?? string.Empty;
+                }
                 return _gameVersion;
             }
         }
 
-        public bool IsCheckingForUpdates { get; set; } = false;
+        public bool IsCheckingForUpdates { get; private set; } = false;
 
         public MainForm()
         {
@@ -67,108 +85,155 @@ namespace CoDUO_FoV_Changer
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            var watch = Stopwatch.StartNew();
-            CheckForIllegalCrossThreadCalls = true;
-            AdminLaunchButton.Visible = false;
-            if (!Program.IsElevated) AdminLaunchButton.Image = BitmapHelper.ResizeImage(SystemIcons.Shield.ToBitmap(), new Size(16, 16));
-
-
-            DvarsCheckBox.Visible = false;
-
-            var argsSB = new StringBuilder();
-            var cmdArgs = Environment.GetCommandLineArgs();
-            for (int i = 0; i < cmdArgs.Length; i++)
+          
+            var watch = Pool.Get<Stopwatch>();
+          
+            try 
             {
-                var arg = cmdArgs[i];
-                if (arg.IndexOf(Application.ProductName, StringComparison.OrdinalIgnoreCase) >= 0 || arg.IndexOf(Application.StartupPath, StringComparison.OrdinalIgnoreCase) >= 0) continue;
-                if (arg.Equals("-unlock", StringComparison.OrdinalIgnoreCase)) DvarsCheckBox.Visible = true;
-                if (arg.Equals("-unlock=1", StringComparison.OrdinalIgnoreCase))
-                {
-                    DvarsCheckBox.Visible = true;
-                    DvarsCheckBox.Checked = true;
-                }
+                watch.Restart();
 
-                if (arg.Equals("-fog=1", StringComparison.OrdinalIgnoreCase)) settings.Fog = true;
-                else if (arg.Equals("-fog=0", StringComparison.OrdinalIgnoreCase)) settings.Fog = false;
-
-                if (arg.Equals("-launch", StringComparison.OrdinalIgnoreCase)) StartGameButton.PerformClick();
-
-                if (arg.Equals("-debug", StringComparison.OrdinalIgnoreCase)) isDev = true;
-
-                if (arg.Equals("-hotkeys", StringComparison.OrdinalIgnoreCase)) new Hotkeys().Show();
-
-                if (arg.IndexOf("-fov=", StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    if (decimal.TryParse(arg.Split('=')[1], out decimal FoV)) SetFoVNumeric(FoV);
-                }
-                argsSB.Append(arg + " ");
-            }
+                AdminLaunchButton.Visible = false;
+                if (!Program.IsElevated) AdminLaunchButton.Image = BitmapHelper.ResizeImage(SystemIcons.Shield.ToBitmap(), new Size(16, 16));
 
 
-            var args = argsSB.ToString().TrimEnd();
-            if (!string.IsNullOrEmpty(args)) Log.WriteLine("Launched program with args: " + args);
+                DvarsCheckBox.Visible = Debugger.IsAttached;
 
-            StartUpdates();
-
-            Task.Run(() =>
-            {
+                var argsSB = Pool.Get<StringBuilder>();
                 try
                 {
-                  
+                    argsSB.Clear();
 
-                    if (string.IsNullOrEmpty(settings.InstallPath) || !Directory.Exists(settings.InstallPath))
+                    var cmdArgs = Environment.GetCommandLineArgs();
+                    for (int i = 0; i < cmdArgs.Length; i++)
                     {
-                        var scannedPath = PathScanner.ScanForGamePath();
-                        if (!string.IsNullOrEmpty(scannedPath))
+                        var arg = cmdArgs[i];
+                        if (arg.IndexOf(Application.ProductName, StringComparison.OrdinalIgnoreCase) >= 0 || arg.IndexOf(Application.StartupPath, StringComparison.OrdinalIgnoreCase) >= 0) continue;
+                        if (arg.Equals("-unlock", StringComparison.OrdinalIgnoreCase)) DvarsCheckBox.Visible = true;
+                        if (arg.Equals("-unlock=1", StringComparison.OrdinalIgnoreCase))
                         {
-                            MessageBox.Show("Automatically detected game path: " + Environment.NewLine + scannedPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            settings.InstallPath = scannedPath;
+                            DvarsCheckBox.Visible = true;
+                            DvarsCheckBox.Checked = true;
                         }
-                        else
+
+                        if (arg.Equals("-fog=1", StringComparison.OrdinalIgnoreCase)) settings.Fog = true;
+                        else if (arg.Equals("-fog=0", StringComparison.OrdinalIgnoreCase)) settings.Fog = false;
+
+                        if (arg.Equals("-launch", StringComparison.OrdinalIgnoreCase)) StartGameButton.PerformClick();
+
+                        if (arg.Equals("-debug", StringComparison.OrdinalIgnoreCase)) IsDev = true;
+
+                        if (Program.IsElevated) //ensure elevation before checking these args, otherwise a user could potentially make these forms appear without being elevated & cause an exception
                         {
-                            ipDialog.Description = "Locate your Call of Duty installation directory";
-                            var ipResult = ipDialog.ShowDialog();
-                            if (ipResult == DialogResult.Cancel)
+                            if (arg.Equals("-hotkeys", StringComparison.OrdinalIgnoreCase)) new Hotkeys().Show();
+
+                            if (arg.Equals("-cdkeymanager", StringComparison.OrdinalIgnoreCase))
                             {
-                                Application.Exit();
-                                return;
+                                var form = new CDKeyManagerForm();
+                                form.Show();
+                                form.BeginInvoke((MethodInvoker)delegate
+                                {
+                                    form.BringToFront();
+                                    form.Select();
+                                });
+                                form.Location = new Point((int)(Location.X / 3.25f), (int)(Location.Y / 3f));
                             }
-                            var selectedPath = ipDialog.SelectedPath;
-                            settings.InstallPath = selectedPath;
-                            MessageBox.Show("Set install path to: " + selectedPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
+
+
+
+                        if (arg.IndexOf("-fov=", StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            if (decimal.TryParse(arg.Split('=')[1], out decimal FoV)) SetFoVNumeric(FoV);
+                        }
+
+                        argsSB.Append(arg).Append(" ");
+                    }
+
+                    if (argsSB.Length > 1)
+                    {
+                        argsSB.Length -= 1;
+                        var argStr = argsSB.ToString();
+                        Log.WriteLine(argsSB.Clear().Append("Launched program with args: ").Append(argStr).ToString());
                     }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("An error has occurred: " + ex.Message + Environment.NewLine + "Please refer to the log for more information.");
-                    Log.WriteLine("An exception happened on Install Path code:" + Environment.NewLine + ex.ToString());
-                }
-            });
-            
-            UpdateProcessBox();
-            memory = GetProcessMemoryFromBox();
-            AdminLaunchButton.Visible = !Program.IsElevated && (memory?.ProcMemory?.RequiresElevation() ?? false);
+                finally { Pool.Free(ref argsSB); }
 
-            SetFoVNumeric(settings.FoV);
-            MinimizeCheckBox.Checked = settings.MinimizeToTray;
-            FogCheckBox.Checked = settings.Fog;
-            fogToolStripMenuItem.Checked = settings.Fog;
-            LaunchParametersTB.Text = settings.CommandLine;
-            if (settings.TrackGameTime) AccessGameTimeLabel();
-            else
-            {
-                GameTimeLabel.Visible = false;
-                CurSessionGT.Visible = false;
-                GameTracker.Enabled = false;
+                StartUpdates();
+
+                Task.Run(() =>
+                {
+                    try
+                    {
+
+
+                        if (string.IsNullOrEmpty(settings.InstallPath) || !Directory.Exists(settings.InstallPath))
+                        {
+                            var scannedPath = PathScanner.ScanForGamePath();
+                            if (!string.IsNullOrEmpty(scannedPath))
+                            {
+                                MessageBox.Show("Automatically detected game path: " + Environment.NewLine + scannedPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                settings.InstallPath = scannedPath;
+                            }
+                            else
+                            {
+                                ipDialog.Description = "Locate your Call of Duty installation directory";
+                                var ipResult = ipDialog.ShowDialog();
+                                if (ipResult == DialogResult.Cancel)
+                                {
+                                    Application.Exit();
+                                    return;
+                                }
+                                var selectedPath = ipDialog.SelectedPath;
+                                settings.InstallPath = selectedPath;
+                                MessageBox.Show("Set install path to: " + selectedPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("An error has occurred: " + ex.Message + Environment.NewLine + "Please refer to the log for more information.");
+                        Log.WriteLine("An exception happened on Install Path code:" + Environment.NewLine + ex.ToString());
+                    }
+                });
+
+                UpdateProcessBox();
+
+                AdminLaunchButton.Visible = !Program.IsElevated && (SelectedMemory?.ProcMemory?.RequiresElevation() ?? false);
+
+                SetFoVNumeric(settings.FoV);
+
+                MinimizeCheckBox.Checked = settings.MinimizeToTray;
+                FogCheckBox.Checked = settings.Fog;
+                fogToolStripMenuItem.Checked = settings.Fog;
+                LaunchParametersTB.Text = settings.CommandLine;
+
+                if (settings.TrackGameTime) AccessGameTimeLabel();
+                else
+                {
+                    GameTimeLabel.Visible = false;
+                    CurSessionGT.Visible = false;
+                    GameTracker.Enabled = false;
+                }
+
+                if (IsDev) UpdateButton.Visible = true;
             }
-            if (isDev) UpdateButton.Visible = true;
-            
-            Log.WriteLine("Successfully started application, version " + Application.ProductVersion);
-            watch.Stop();
-            var timeTaken = watch.Elapsed;
-            Console.WriteLine("Form load took: " + timeTaken.TotalMilliseconds + "ms");
-            if (timeTaken.TotalMilliseconds > 100) Log.WriteLine("Startup took: " + timeTaken.TotalMilliseconds + "ms (this is too long!)");
+            finally
+            {
+                watch.Stop();
+
+                var sb = Pool.Get<StringBuilder>();
+                try 
+                {
+                    var timeTaken = watch.Elapsed;
+                    Console.WriteLine(sb.Clear().Append("Form load took: ").Append(timeTaken.TotalMilliseconds).Append("ms").ToString());
+
+                    if (timeTaken.TotalMilliseconds > 100) Log.WriteLine(sb.Clear().Append("Startup took: ").Append(timeTaken.TotalMilliseconds).Append("ms (this is too long!)").ToString());
+
+                    Log.WriteLine(sb.Clear().Append("Successfully started application, version ").Append(Application.ProductVersion).ToString());
+                }
+                finally { Pool.Free(ref sb); }
+
+            }
         }
 
         private void StartGame()
@@ -196,12 +261,13 @@ namespace CoDUO_FoV_Changer
                     return;
                 }
 
-                var startInfo = new ProcessStartInfo();
-                var startInfoSB = new StringBuilder("+set r_ignorehwgamma 1 +set vid_xpos 0 +set vid_ypos 0 +set win_allowalttab 1");
-                if (!string.IsNullOrEmpty(LaunchParametersTB.Text)) startInfoSB.Append(LaunchParametersTB.Text + " " + startInfo.Arguments);
-                startInfo.Arguments = startInfoSB.ToString();
-                startInfo.FileName = settings.InstallPathExe;
-                startInfo.WorkingDirectory = settings.InstallPath;
+                var startInfo = new ProcessStartInfo
+                {
+                    Arguments = !string.IsNullOrEmpty(LaunchParametersTB.Text) ? LaunchParametersTB.Text : string.Empty,
+                    FileName = settings.InstallPathExe,
+                    WorkingDirectory = settings.InstallPath
+                };
+
                 Process.Start(startInfo);
             }
             catch (Exception ex)
@@ -216,6 +282,7 @@ namespace CoDUO_FoV_Changer
             var shiftMod = ModifierKeys == Keys.Shift;
             if (string.IsNullOrEmpty(settings.ExeName) || shiftMod)
             {
+                ipFDialog.InitialDirectory = settings.InstallPath;
                 ipFDialog.DefaultExt = ".exe";
                 ipFDialog.Filter = "|*.exe";
                 if (!shiftMod) MessageBox.Show("Please select the exe to launch (this will be saved)", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -245,14 +312,15 @@ namespace CoDUO_FoV_Changer
             else FoVNumeric.DecimalPlaces = 0;
             Task.Run(() =>
             {
+                CurrentFoV = Convert.ToSingle(FoVNumeric.Value);
                 settings.FoV = FoVNumeric.Value;
-                doFoV();
+                DoFoV();
             });
         }
 
         private void FogCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (memory != null && memory.IsRunning() && !IsUO())
+            if (SelectedMemory != null && SelectedMemory.IsRunning() && !IsUO())
             {
                 FogCheckBox.Checked = true;
                 return;
@@ -290,8 +358,7 @@ namespace CoDUO_FoV_Changer
             {
                 var wantedButtonState = false;
 
-                memory = GetProcessMemoryFromBox();
-                if (memory == null || !memory.IsRunning())
+                if (SelectedMemory == null || !SelectedMemory.IsRunning())
                 {
                     SetLabelText(StatusLabel, "Status: not found or failed to write to memory!");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate
@@ -302,21 +369,12 @@ namespace CoDUO_FoV_Changer
                 }
                 else
                 {
-                    wantedButtonState = !Program.IsElevated && (memory?.ProcMemory?.RequiresElevation() ?? false);
+                    wantedButtonState = !Program.IsElevated && (SelectedMemory?.ProcMemory?.RequiresElevation() ?? false);
 
-                    if (!IsUO())
-                    {
-                        BeginInvoke((MethodInvoker)delegate
-                        {
-                            DvarsCheckBox.Checked = false;
-                            FogCheckBox.Checked = false;
-                        });
-                    }
-
-                    doRAChecks();
-                    doFoV();
+                    DoRAChecks();
+                    DoFoV();
                     ToggleFog(settings.Fog);
-                    doDvars();
+                    DoDvars();
                 }
 
                 if (AdminLaunchButton.Visible != wantedButtonState)
@@ -331,15 +389,17 @@ namespace CoDUO_FoV_Changer
         private void HotKeyHandler_Tick(object sender, EventArgs e)
         {
             var now = DateTime.Now;
+
             //we can be super responsive when someone is tapping +- while not accidentally moving it up or down twice by doing manual checks while having the timer at ~5-10ms
-            if (lastHotkey == null) lastHotkey = now;
-            else if ((now - lastHotkey).TotalMilliseconds < 100) return;
+            if (_lastHotkey == null) _lastHotkey = now;
+            else if ((now - _lastHotkey).TotalMilliseconds < 100) return;
+
             var modifier = (Keys)0;
             var fogModifier = (Keys)0;
             var up = (Keys)0;
             var toggleFog = (Keys)0;
             var down = (Keys)0;
-            
+
             TryParseKeys(settings.HotKeyModifier, ref modifier);
             TryParseKeys(settings.HotKeyFogModifier, ref fogModifier);
             TryParseKeys(settings.HotKeyUp, ref up);
@@ -351,55 +411,69 @@ namespace CoDUO_FoV_Changer
                 if (HotkeyHandler.IsKeyPushedDown(up))
                 {
                     SetFoVNumeric(FoVNumeric.Value + 1);
-                    lastHotkey = now;
+                    _lastHotkey = now;
                 }
                 if (HotkeyHandler.IsKeyPushedDown(down))
                 {
                     SetFoVNumeric(FoVNumeric.Value - 1);
-                    lastHotkey = now;
+                    _lastHotkey = now;
                 }
             }
             if (HotkeyHandler.IsKeyPushedDown(fogModifier) && HotkeyHandler.IsKeyPushedDown(toggleFog))
             {
                 FogCheckBox.Checked = !FogCheckBox.Checked;
-                lastHotkey = now;
+                _lastHotkey = now;
             }
         }
 
 
         private void DvarsCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (memory != null && memory.IsRunning() && !IsUO())
+            if (SelectedMemory != null && SelectedMemory.IsRunning() && !IsUO())
             {
                 DvarsCheckBox.Checked = false;
                 return;
             } //no support for dvar unlocking (yet) in cod1
-            Task.Run(() => doDvars());
+            Task.Run(() => DoDvars());
         }
         #region Util
 
-        public bool IsUO() { return (memory == null || !memory.IsRunning()) ? false : (memory.ProcMemory?.DllImageAddress(cgameDll) ?? 0) != 0 || (memory.ProcMemory?.DllImageAddress("uo_ui_mp_x86.dll") ?? 0) != 0; }
-        
-
-        private List<Process> GetAllGameProcesses()
+        public bool IsUO()
         {
+            if (SelectedMemory == null || !SelectedMemory.IsRunning()) return false; //I don't get why a null operator doesn't work here, but it doesn't. so we have this full 'check' here instead
+
+            return (SelectedMemory.ProcMemory?.DllImageAddress(MemoryAddresses.UO_UI_MP_DLL) ?? 0) != 0 || (SelectedMemory.ProcMemory?.DllImageAddress(MemoryAddresses.UO_CGAME_MP_DLL) ?? 0) != 0;
+        }
+
+
+        private void GetAllGameProcessesNoAlloc(ref List<Process> list)
+        {
+            if (list == null)
+                throw new ArgumentNullException(nameof(list));
+
             var allProcs = Process.GetProcesses();
-            var procs = new List<Process>();
-            for(int i = 0; i < allProcs.Length; i++)
+            for (int i = 0; i < allProcs.Length; i++)
             {
                 var proc = allProcs[i];
-                if (proc?.ProcessName == "CoDUOMP" || proc?.ProcessName == "CoDMP" || proc?.ProcessName == "mohaa") procs.Add(proc);
+                if (proc == null) continue;
+
+                if (proc.ProcessName.Equals("CoDUOMP", StringComparison.OrdinalIgnoreCase) || proc.ProcessName.Equals("CoDMP", StringComparison.OrdinalIgnoreCase) || proc.ProcessName.Equals("mohaa", StringComparison.OrdinalIgnoreCase)) list.Add(proc);
             }
-            return procs;
         }
+
         private void StartUpdates()
         {
             Task.Run(() =>
             {
-                needsUpdate = CheckUpdates();
-                if (UpdateButton.InvokeRequired) UpdateButton.BeginInvoke((MethodInvoker)delegate { UpdateButton.Visible = needsUpdate; });
-                else UpdateButton.Visible = needsUpdate;
-                SetLabelText(CheckUpdatesLabel, needsUpdate ? "Updates available!" : "No updates found. Click to check again.");
+                _needsUpdate = CheckUpdates();
+
+                if (!IsDev)
+                {
+                    if (UpdateButton.InvokeRequired) UpdateButton.BeginInvoke((MethodInvoker)delegate { UpdateButton.Visible = _needsUpdate; });
+                    else UpdateButton.Visible = _needsUpdate;
+                }
+               
+                SetLabelText(CheckUpdatesLabel, _needsUpdate ? "Updates available!" : "No updates found. Click to check again.");
             });
         }
 
@@ -407,14 +481,20 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                var response = WebRequest.Create("https://docs.google.com/uc?export=download&id=0B0nCag_Hp76zczRGeU9CZ3NZc3M")?.GetResponse() ?? null;
-                var version = new StreamReader(response?.GetResponseStream() ?? null)?.ReadToEnd() ?? string.Empty;
+                IsCheckingForUpdates = true;
+                string version;
+                using (var reader = new StreamReader(WebRequest.Create(UPDATE_URI)?.GetResponse()?.GetResponseStream() ?? null))
+                {
+                    try { version = reader?.ReadToEnd() ?? string.Empty; }
+                    finally { reader.Close(); }
+                }
+
                 if (!decimal.TryParse(version, out decimal hfDec))
                 {
                     Log.WriteLine("Failed to parse: " + version + " (version) as decimal.");
-                    return !version.Contains(hotfix.ToString());
+                    return !version.Contains(HOTFIX.ToString());
                 }
-                return hfDec > hotfix;
+                return hfDec > HOTFIX;
             }
             catch (Exception ex)
             {
@@ -425,16 +505,19 @@ namespace CoDUO_FoV_Changer
         }
 
 
-      
-        public void SetLabelText(Label label, string text)
+
+        private void SetLabelText(Label label, string text)
         {
-            if (label == null) return;
+            if (label == null) throw new ArgumentNullException(nameof(label));
+
             if (label.InvokeRequired) label.BeginInvoke((MethodInvoker)delegate () { label.Text = text; });
             else label.Text = text;
         }
 
-        public bool TryParseKeys(string text, ref Keys value)
+        private bool TryParseKeys(string text, ref Keys value)
         {
+            if (string.IsNullOrEmpty(text)) throw new ArgumentNullException(nameof(text));
+
             if (Enum.TryParse(text, out Keys tmp))
             {
                 value = tmp;
@@ -442,31 +525,6 @@ namespace CoDUO_FoV_Changer
             }
             else return false;
         }
-
-        public int GCD(int a, int b)
-        {
-            int Remainder;
-            while (b != 0)
-            {
-                Remainder = a % b;
-                a = b;
-                b = Remainder;
-            }
-            return a;
-        }
-
-        private Memory GetProcessMemoryFromBox()
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(selectedProcStr)) return null;
-                if (!int.TryParse(selectedProcStr.Split('(')[1].Replace(")", string.Empty), out int pid)) return null;
-                return new Memory(pid);
-            }
-            catch (Exception ex) { Log.WriteLine(ex.ToString()); }
-            return null;
-        }
-
 
         private void SetFoVNumeric(decimal fov)
         {
@@ -481,47 +539,56 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                if (memory == null || !memory.IsRunning() || memory.ProcMemory.RequiresElevation()) return;
-                var value = Convert.ToInt32(val);
-                var newmpAddr = memory.GetIntPointerAddress(0x489A0D4, 0x20);
-                var fogValue = memory.ReadIntAddress(0x489A0D4, 0x20);
-                if (fogValue != value) memory.ProcMemory.WriteInt(newmpAddr, value);
+                if (SelectedMemory == null || !SelectedMemory.IsRunning() || SelectedMemory.ProcMemory.RequiresElevation()) return;
+                var value = val ? 1 : 0; // Convert.ToInt32(val);
+
+                var fogValue = SelectedMemory.ReadIntAddress(MemoryAddresses.UO_FOG_POINTER_ADDRESS, 0x20);
+                if (fogValue != value) SelectedMemory.ProcMemory.WriteInt(SelectedMemory.GetIntPointerAddress(MemoryAddresses.UO_FOG_POINTER_ADDRESS, 0x20), value);
             }
             catch (Exception ex) { Log.WriteLine("An exception happened while trying to read/write fog values:" + Environment.NewLine + ex.ToString()); }
         }
 
-        private void doRAChecks()
+        private void DoRAChecks() //this is where we do aspect ratio checks to ensure we limit FoV at non-widescreen values to reduce potential for any cheating
         {
-            if (memory == null || memory.IsRunning() || memory.ProcMemory.RequiresElevation()) return;
+            if (SelectedMemory == null || !SelectedMemory.IsRunning() || SelectedMemory.ProcMemory.RequiresElevation() || CurrentSession == null || CurrentSession.GetSessionTime().TotalSeconds < 30) return; //if you do aspect ratio checks too soon, they'll return invalid values
+
             try
             {
-                var mode = memory.ReadIntAddress(0x4899D50, 0x20);
-                var width = memory.ReadIntAddress(0x4899D30, 0x20);
-                var height = memory.ReadIntAddress(0x4899FCC, 0x20);
-                if (width == 0 || height == 0)
+                var mode = SelectedMemory.ReadIntAddress(MemoryAddresses.UO_R_MODE_ADDRESS, 0x20);
+                var ratio = 0d;
+
+
+                if (mode == -1)
                 {
-                    Log.WriteLine("Got bad width/height: " + width + ", " + height);
-                    return;
+                    var width = SelectedMemory.ReadIntAddress(MemoryAddresses.UO_R_WIDTH_ADDRESS, 0x20);
+                    var height = SelectedMemory.ReadIntAddress(MemoryAddresses.UO_R_HEIGHT_ADDRESS, 0x20);
+
+                    if (width <= 0 || height <= 0)
+                    {
+                        Log.WriteLine("Got bad width/height: " + width + ", " + height);
+                        return;
+                    }
+
+                    ratio = width / (double)height;
                 }
-                var ratio = (double)width / (double)height;
-                var aspectWidth = width / GCD(width, height);
-                var aspectHeight = height / GCD(width, height);
-                var aspectStr = aspectWidth + ":" + aspectHeight;
-                if (aspectWidth == 8 && aspectHeight == 5) aspectStr = aspectStr.Replace("8", "16").Replace("5", "10");
-                var maxFoV = ((ratio < 1.7 && mode == -1) || mode != -1) ? 105 : 130;
+
+
+                var maxFoV = (mode != -1 || (ratio < 1.7 && mode == -1)) ? 105 : 130;
+
                 if (FoVNumeric.InvokeRequired) FoVNumeric.Invoke((MethodInvoker)delegate () { FoVNumeric.Maximum = maxFoV; });
                 else FoVNumeric.Maximum = maxFoV;
+
                 SetFoVNumeric(FoVNumeric.Value); //will set it to the value if it can, if not, falls back on maximum
             }
             catch (Exception ex) { Log.WriteLine("An exception happened while trying to get current game resolution:" + Environment.NewLine + ex.ToString()); }
         }
 
-        private void doFoV()
+        private void DoFoV()
         {
             try
             {
-                var isRunning = memory?.IsRunning() ?? false;
-                if (isRunning && (memory?.ProcMemory?.RequiresElevation() ?? false))
+                var isRunning = SelectedMemory?.IsRunning() ?? false;
+                if (isRunning && (SelectedMemory?.ProcMemory?.RequiresElevation() ?? false))
                 {
                     SetLabelText(StatusLabel, "Status: game requires elevation!");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate
@@ -532,7 +599,7 @@ namespace CoDUO_FoV_Changer
                     return;
                 }
 
-                var address = !isRunning ? -1 : (!IsUO()) ? 0x3029CA28 : (isRunning ? (memory.ProcMemory.DllImageAddress(cgameDll) + 0x52F7C8) : -1);
+                var address = !isRunning ? -1 : !IsUO() ? MemoryAddresses.COD_FOV_ADDRESS : (isRunning ? (SelectedMemory.ProcMemory.DllImageAddress(MemoryAddresses.UO_CGAME_MP_DLL) + MemoryAddresses.UO_FOV_OFFSET) : -1);
                 if (!isRunning || address <= 0)
                 {
                     SetLabelText(StatusLabel, "Status: not found or failed to write to memory!");
@@ -544,7 +611,7 @@ namespace CoDUO_FoV_Changer
                 }
                 else
                 {
-                    memory.ProcMemory.WriteFloat(address, Convert.ToSingle(FoVNumeric.Value));
+                    SelectedMemory.ProcMemory.WriteFloat(address, CurrentFoV);
                     SetLabelText(StatusLabel, "Status: game found and wrote to memory!");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate ()
                     {
@@ -560,17 +627,19 @@ namespace CoDUO_FoV_Changer
             }
         }
 
-        private void doDvars()
+        private void DoDvars()
         {
-            if (memory == null || !memory.IsRunning() || memory.ProcMemory.RequiresElevation()) return;
+            if (SelectedMemory == null || !SelectedMemory.IsRunning() || SelectedMemory.ProcMemory.RequiresElevation()) return;
             try
             {
                 var val = DvarsCheckBox.Checked ? 235 : 116;
-                var curVal = memory.ProcMemory.ReadByte(0x43DD86);
+
+                var curVal = SelectedMemory.ProcMemory.ReadByte(MemoryAddresses.UO_DVAR_ADDRESS_1);
                 if (curVal == val) return; //don't write if it's already the value we want
-                memory.ProcMemory.WriteInt(0x43DD86, val, 1);
-                memory.ProcMemory.WriteInt(0x43DDA3, val, 1);
-                memory.ProcMemory.WriteInt(0x43DDC1, val, 1);
+
+                SelectedMemory.ProcMemory.WriteInt(MemoryAddresses.UO_DVAR_ADDRESS_1, val, 1);
+                SelectedMemory.ProcMemory.WriteInt(MemoryAddresses.UO_DVAR_ADDRESS_2, val, 1);
+                SelectedMemory.ProcMemory.WriteInt(MemoryAddresses.UO_DVAR_ADDRESS_3, val, 1);
             }
             catch (Exception ex) { Log.WriteLine("An exception happened while trying to read/write Dvar addresses:" + Environment.NewLine + ex.ToString()); }
         }
@@ -580,10 +649,10 @@ namespace CoDUO_FoV_Changer
         {
             if (IsCheckingForUpdates) return;
             var now = DateTime.Now;
-            if (lastUpdateCheck == null) lastUpdateCheck = now;
+            if (_lastUpdateCheck == null) _lastUpdateCheck = now;
             else
             {
-                var time = now - lastUpdateCheck;
+                var time = now - _lastUpdateCheck;
                 if (time.TotalSeconds < 30)
                 {
                     MessageBox.Show("You're checking for updates too quickly!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -591,9 +660,8 @@ namespace CoDUO_FoV_Changer
                 }
             }
             CheckUpdatesLabel.Text = "Checking for updates...";
-            IsCheckingForUpdates = true;
             StartUpdates();
-            lastUpdateCheck = now;
+            _lastUpdateCheck = now;
         }
 
         private void SettingsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -612,7 +680,7 @@ namespace CoDUO_FoV_Changer
                     settings.GameTime--;
                 }
                 var span = TimeSpan.FromSeconds(settings.GameTime);
-                var spanCurrent = currentSession.GetSessionTime();
+                var spanCurrent = CurrentSession.GetSessionTime();
                 var totalMinutes = Math.Floor(span.TotalMinutes);
                 var totalHours = Math.Floor(span.TotalHours);
                 var totalMinutesCur = Math.Floor(spanCurrent.TotalMinutes);
@@ -631,12 +699,12 @@ namespace CoDUO_FoV_Changer
             }
         }
 
-        
+
         private void GameTracker_Tick(object sender, EventArgs e)
         {
             Task.Run(() =>
             {
-                var span = currentSession.GetSessionTime();
+                var span = CurrentSession.GetSessionTime();
 
                 var newSecs = (span - _lastGameTimeSpan).TotalSeconds;
                 if (newSecs > 0) settings.GameTime += newSecs;
@@ -664,38 +732,51 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                var tempFoVPath = PathInfos.Temp + "coduofovchanger_temp.exe";
-                var currentProc = Process.GetCurrentProcess();
-                var fileNameDir = currentProc?.MainModule?.FileName ?? string.Empty;
-                if (string.IsNullOrEmpty(fileNameDir) || !File.Exists(fileNameDir))
+                var sb = Pool.Get<StringBuilder>();
+                try 
                 {
-                    MessageBox.Show("Application path doesn't exist. Cannot update: " + fileNameDir, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                if (File.Exists(tempFoVPath)) File.Delete(tempFoVPath);
-                
-                var wc = new WebClient();
-                wc.Headers.Add("user-agent", "CoDUO FoV Changer/" + Application.ProductVersion);
-                wc.DownloadFile(LatestDownloadURI, tempFoVPath);
+                   
+                    var currentProc = Process.GetCurrentProcess();
+                    var fileNameDir = currentProc?.MainModule?.FileName ?? string.Empty;
 
+                    if (string.IsNullOrEmpty(fileNameDir) || !File.Exists(fileNameDir))
+                    {
+                        MessageBox.Show("Application path doesn't exist. Cannot update: " + fileNameDir, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
 
-                var path = PathInfos.Temp + "Mover.exe";
-                if (File.Exists(path)) File.Delete(path);
-                if (!File.Exists(path))
-                {
+                    var tempFoVPath = sb.Clear().Append(PathInfos.Temp).Append(@"\coduofovchanger_temp.exe").ToString();
+                    if (File.Exists(tempFoVPath)) File.Delete(tempFoVPath);
+
+                    using (var wc = new WebClient())
+                    {
+                        wc.Headers.Add("user-agent", "CoDUO FoV Changer/" + Application.ProductVersion);
+                        wc.DownloadFile(LATEST_DOWNLOAD_URI, tempFoVPath);
+                    }
+
+                    var path = sb.Clear().Append(PathInfos.Temp).Append(@"\Mover.exe").ToString();
+
+                    if (File.Exists(path)) File.Delete(path);
+
                     File.WriteAllBytes(path, Properties.Resources.Mover);
                     Log.WriteLine("Created mover at: " + path);
-                }
-               
 
-                var updaterInfo = new ProcessStartInfo();
-                updaterInfo.WorkingDirectory = Application.StartupPath;
-                updaterInfo.FileName = path;
-                updaterInfo.Arguments = "-movefrom=\"" + tempFoVPath + "\" -moveto=\"" + fileNameDir + "\" -wait=1000 -autostart -waitstart=1000 -exitwait=1000 -waitforpid=" + currentProc.Id;
-                Process.Start(updaterInfo);
-                Log.WriteLine("Started mover with args: " + updaterInfo.Arguments + ", now shutting down");
-                if (InvokeRequired) BeginInvoke((MethodInvoker)delegate { Close(); });
-                else Close();
+
+                    var updaterInfo = new ProcessStartInfo
+                    {
+                        WorkingDirectory = Application.StartupPath,
+                        FileName = path,
+                        Arguments = sb.Clear().Append("-movefrom=\"").Append(tempFoVPath).Append("\" -moveto=\"").Append(fileNameDir).Append("\" -wait=1000 -autostart -waitstart=1000 -exitwait=1000 -waitforpid=").Append(currentProc.Id).ToString()
+                    };
+
+                    Process.Start(updaterInfo);
+
+                    Log.WriteLine(sb.Clear().Append("Started mover with args: ").Append(updaterInfo.Arguments).Append(", now shutting down").ToString());
+
+                    if (InvokeRequired) BeginInvoke((MethodInvoker)delegate { Close(); });
+                    else Close();
+                }
+                finally { Pool.Free(ref sb); }
             }
             catch (Exception ex)
             {
@@ -712,33 +793,45 @@ namespace CoDUO_FoV_Changer
             try
             {
                 var selectedIndex = GamePIDBox.SelectedIndex;
+
                 GamePIDBox.BeginUpdate();
+
                 for (int i = 0; i < GamePIDBox.Items.Count; i++)
                 {
-                    var boxItem = GamePIDBox.Items[i];
-                    var splitPid = (boxItem as string).Split('(')[1].Replace(")", string.Empty);
-                    if (!int.TryParse(splitPid, out int pid)) continue;
-                    if (!ProcessExtensions.ProcessExtension.IsProcessAlive(pid)) GamePIDBox.Items.Remove(boxItem);
+                    var memory = GamePIDBox.GetMemoryFromIndex(i);
+                    if (!memory?.IsRunning() ?? false) GamePIDBox.Items.Remove(GamePIDBox.Items[i]);
                 }
-                var allProcs = GetAllGameProcesses();
-                for (int i = 0; i < allProcs.Count; i++)
+
+                var allProcs = Pool.GetList<Process>();
+                try
                 {
-                    var proc = allProcs[i];
-                    if (proc?.Id == 0) continue;
-                    var pidStr = proc.Id.ToString();
-                    var hasPid = false;
-                    for(int j = 0; j < GamePIDBox.Items.Count; j++)
+                    GetAllGameProcessesNoAlloc(ref allProcs);
+
+                    for (int i = 0; i < allProcs.Count; i++)
                     {
-                        if ((GamePIDBox.Items[j] as string).Contains(pidStr))
+                        var proc = allProcs[i];
+                        if (proc?.Id == 0) continue;
+
+                        var hasPid = false;
+                        for (int j = 0; j < GamePIDBox.Items.Count; j++)
                         {
-                            hasPid = true;
-                            break;
+                            if (GamePIDBox?.GetMemoryFromIndex(j) != null)
+                            {
+                                hasPid = true;
+                                break;
+                            }
                         }
+
+                        if (!hasPid) GamePIDBox.AddProcessMemory(new Memory(proc.Id));
                     }
-                    if (!hasPid) GamePIDBox.Items.Add(proc.ProcessName + " (" + pidStr + ")");
                 }
+                finally { Pool.FreeList(ref allProcs); }
+
+
                 GamePIDBox.Visible = GamePIDBox.Items.Count > 0;
+
                 if (GamePIDBox.SelectedItem == null && GamePIDBox.Items.Count > 0) GamePIDBox.SelectedIndex = ClampEx.Clamp(selectedIndex - 1, 0, GamePIDBox.Items.Count);
+
                 GamePIDBox.EndUpdate();
             }
             catch (Exception ex)
@@ -751,7 +844,7 @@ namespace CoDUO_FoV_Changer
         private void ProccessChecker_Tick(object sender, EventArgs e)
         {
             UpdateProcessBox();
-            if (memory != null && memory.IsRunning()) BitmapHelper.ScalePictureBox(CoDPictureBox, IsUO() ? CoDUOImage : CoDImage);
+            if (SelectedMemory != null && SelectedMemory.IsRunning()) BitmapHelper.ScalePictureBox(CoDPictureBox, IsUO() ? _codUOImage : _codImage);
         }
 
         private void ChangelogToolStripMenuItem_Click(object sender, EventArgs e)
@@ -786,7 +879,7 @@ namespace CoDUO_FoV_Changer
             Task.Run(() => ToggleFog(settings.Fog));
         }
 
-        private void fogToolStripMenuItem_Click(object sender, EventArgs e) =>  fogToolStripMenuItem.Checked = !fogToolStripMenuItem.Checked; //idk why this is needed but it seems like it is??
+        private void fogToolStripMenuItem_Click(object sender, EventArgs e) => fogToolStripMenuItem.Checked = !fogToolStripMenuItem.Checked; //idk why this is needed but it seems like it is??
 
         private void settingsToolStripMenuItem1_Click(object sender, EventArgs e)
         {
@@ -796,9 +889,9 @@ namespace CoDUO_FoV_Changer
 
         private void GamePIDBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            selectedProcStr = GamePIDBox?.SelectedItem?.ToString() ?? string.Empty;
-            memory = GetProcessMemoryFromBox();
-            if (memory != null && memory.IsRunning()) BitmapHelper.ScalePictureBox(CoDPictureBox, IsUO() ? CoDUOImage : CoDImage);
+            SelectedMemory = GamePIDBox.GetMemoryFromIndex(GamePIDBox.SelectedIndex);
+
+            if (SelectedMemory != null && SelectedMemory.IsRunning()) BitmapHelper.ScalePictureBox(CoDPictureBox, IsUO() ? _codUOImage : _codImage);
         }
 
         private void GamePIDBox_VisibleChanged(object sender, EventArgs e) => CoDPictureBox.Visible = GamePIDBox.Visible;
@@ -810,8 +903,9 @@ namespace CoDUO_FoV_Changer
                 MessageBox.Show("Program is already running as an administrator!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            var currentProc = Process.GetCurrentProcess();
-            var fileNameDir = currentProc?.MainModule?.FileName ?? string.Empty;
+
+            var fileNameDir = Process.GetCurrentProcess()?.MainModule?.FileName ?? string.Empty;
+
             if (string.IsNullOrEmpty(fileNameDir) || !File.Exists(fileNameDir))
             {
                 MessageBox.Show("Application path doesn't exist. Cannot start: " + fileNameDir + Environment.NewLine + " Please manually run the program as an Admin if you wish to change your hotkeys.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -819,11 +913,13 @@ namespace CoDUO_FoV_Changer
             }
             else
             {
-                var startInfo = new ProcessStartInfo();
-                startInfo.Verb = "runas";
-                startInfo.Arguments = string.Join(" ", Environment.GetCommandLineArgs());
-                startInfo.WorkingDirectory = Application.StartupPath;
-                startInfo.FileName = fileNameDir;
+                var startInfo = new ProcessStartInfo
+                {
+                    Verb = "runas",
+                    Arguments = string.Join(" ", Environment.GetCommandLineArgs()),
+                    WorkingDirectory = Application.StartupPath,
+                    FileName = fileNameDir
+                };
                 try
                 {
                     Process.Start(startInfo);
@@ -837,6 +933,6 @@ namespace CoDUO_FoV_Changer
             }
         }
 
-      
+
     }
 }

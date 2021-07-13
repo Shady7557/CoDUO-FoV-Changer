@@ -6,14 +6,14 @@ namespace SessionHandling
 {
     public class SessionHandler
     {
-        private DateTime LastSessionTime = DateTime.MinValue;
-        private DateTime StartSessionTime = DateTime.MinValue;
-        public TimeSpan GetSessionTime() { return LastSessionTime - StartSessionTime; }
+        private DateTime _lastSessionTime = DateTime.MinValue;
+        private DateTime _startSessionTime = DateTime.MinValue;
+        public TimeSpan GetSessionTime() { return _lastSessionTime - _startSessionTime; }
 
         public bool IsGameRunning()
         {
             var procs = Process.GetProcesses();
-            for(int i = 0; i < procs.Length; i++)
+            for (int i = 0; i < procs.Length; i++)
             {
                 var procName = procs[i]?.ProcessName;
                 if (procName.Equals("CoDUOMP", StringComparison.OrdinalIgnoreCase) || procName.Equals("CoDMP", StringComparison.OrdinalIgnoreCase) || procName.Equals("mohaa", StringComparison.OrdinalIgnoreCase)) return true;
@@ -28,13 +28,13 @@ namespace SessionHandling
                 var now = DateTime.UtcNow;
                 if (IsGameRunning())
                 {
-                    if (StartSessionTime <= DateTime.MinValue) StartSessionTime = now;
-                    LastSessionTime = now;
+                    if (_startSessionTime <= DateTime.MinValue) _startSessionTime = now;
+                    _lastSessionTime = now;
                 }
             });
             procAct.Invoke();
             TimerEx.Every(1f, procAct);
         }
-        
+
     }
 }

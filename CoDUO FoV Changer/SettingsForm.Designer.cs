@@ -28,28 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.CDKeyLabel = new System.Windows.Forms.Label();
             this.GameVersLabel = new System.Windows.Forms.Label();
             this.AppVersLabel = new System.Windows.Forms.Label();
             this.InformationLabel = new System.Windows.Forms.Label();
             this.CloseSettingsButton = new System.Windows.Forms.Button();
-            this.RestartAppButton = new System.Windows.Forms.Button();
             this.ButtonBrowseGameFiles = new System.Windows.Forms.Button();
             this.ButtonSettingsAdvanced = new System.Windows.Forms.Button();
             this.hotKeysButton = new System.Windows.Forms.Button();
+            this.cdKeyManagerButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
-            // 
-            // CDKeyLabel
-            // 
-            this.CDKeyLabel.AutoSize = true;
-            this.CDKeyLabel.BackColor = System.Drawing.Color.Transparent;
-            this.CDKeyLabel.ForeColor = System.Drawing.Color.Transparent;
-            this.CDKeyLabel.Location = new System.Drawing.Point(12, 311);
-            this.CDKeyLabel.Name = "CDKeyLabel";
-            this.CDKeyLabel.Size = new System.Drawing.Size(46, 13);
-            this.CDKeyLabel.TabIndex = 56;
-            this.CDKeyLabel.Text = "CD-Key:";
-            this.CDKeyLabel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.CDKeyLabel_MouseDown);
             // 
             // GameVersLabel
             // 
@@ -96,18 +83,6 @@
             this.CloseSettingsButton.UseVisualStyleBackColor = false;
             this.CloseSettingsButton.Click += new System.EventHandler(this.CloseSettingsButton_Click);
             // 
-            // RestartAppButton
-            // 
-            this.RestartAppButton.BackColor = System.Drawing.Color.DarkGray;
-            this.RestartAppButton.ForeColor = System.Drawing.Color.Transparent;
-            this.RestartAppButton.Location = new System.Drawing.Point(15, 216);
-            this.RestartAppButton.Name = "RestartAppButton";
-            this.RestartAppButton.Size = new System.Drawing.Size(183, 24);
-            this.RestartAppButton.TabIndex = 64;
-            this.RestartAppButton.Text = "Restart App";
-            this.RestartAppButton.UseVisualStyleBackColor = false;
-            this.RestartAppButton.Click += new System.EventHandler(this.RestartAppButton_Click);
-            // 
             // ButtonBrowseGameFiles
             // 
             this.ButtonBrowseGameFiles.BackColor = System.Drawing.Color.DarkGray;
@@ -145,18 +120,30 @@
             this.hotKeysButton.UseVisualStyleBackColor = false;
             this.hotKeysButton.Click += new System.EventHandler(this.hotKeysButton_Click);
             // 
+            // cdKeyManagerButton
+            // 
+            this.cdKeyManagerButton.BackColor = System.Drawing.Color.DarkGray;
+            this.cdKeyManagerButton.ForeColor = System.Drawing.Color.Transparent;
+            this.cdKeyManagerButton.ImageAlign = System.Drawing.ContentAlignment.BottomLeft;
+            this.cdKeyManagerButton.Location = new System.Drawing.Point(15, 96);
+            this.cdKeyManagerButton.Name = "cdKeyManagerButton";
+            this.cdKeyManagerButton.Size = new System.Drawing.Size(183, 24);
+            this.cdKeyManagerButton.TabIndex = 68;
+            this.cdKeyManagerButton.Text = "CD-Key Manager";
+            this.cdKeyManagerButton.UseVisualStyleBackColor = false;
+            this.cdKeyManagerButton.Click += new System.EventHandler(this.cdKeyManagerButton_Click);
+            // 
             // SettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
-            this.ClientSize = new System.Drawing.Size(224, 340);
+            this.ClientSize = new System.Drawing.Size(224, 320);
+            this.Controls.Add(this.cdKeyManagerButton);
             this.Controls.Add(this.hotKeysButton);
             this.Controls.Add(this.ButtonSettingsAdvanced);
             this.Controls.Add(this.ButtonBrowseGameFiles);
-            this.Controls.Add(this.RestartAppButton);
             this.Controls.Add(this.CloseSettingsButton);
-            this.Controls.Add(this.CDKeyLabel);
             this.Controls.Add(this.GameVersLabel);
             this.Controls.Add(this.AppVersLabel);
             this.Controls.Add(this.InformationLabel);
@@ -173,15 +160,13 @@
         }
 
         #endregion
-
-        internal System.Windows.Forms.Label CDKeyLabel;
         internal System.Windows.Forms.Label GameVersLabel;
         internal System.Windows.Forms.Label AppVersLabel;
         internal System.Windows.Forms.Label InformationLabel;
         internal System.Windows.Forms.Button CloseSettingsButton;
-        internal System.Windows.Forms.Button RestartAppButton;
         internal System.Windows.Forms.Button ButtonBrowseGameFiles;
         internal System.Windows.Forms.Button ButtonSettingsAdvanced;
         internal System.Windows.Forms.Button hotKeysButton;
+        internal System.Windows.Forms.Button cdKeyManagerButton;
     }
 }

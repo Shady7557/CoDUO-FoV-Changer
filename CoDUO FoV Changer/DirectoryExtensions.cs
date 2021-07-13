@@ -139,10 +139,11 @@ namespace DirectoryExtensions
 
                 for (int i = 0; i < folders.Length; i++) GetDirectorySize(folders[i], true);
             }
-           
+
             return size;
         }
 
+        //Think this is partially from Microsoft
         public static void CopyDirectory(string directory, string destination, bool recursive = false)
         {
             if (string.IsNullOrEmpty(directory)) throw new ArgumentNullException(nameof(directory));
@@ -153,7 +154,7 @@ namespace DirectoryExtensions
 
             if (!dir.Exists) throw new DirectoryNotFoundException(nameof(directory));
 
-           
+
             // If the destination directory doesn't exist, create it.
             if (!Directory.Exists(destination))
             {
@@ -162,7 +163,7 @@ namespace DirectoryExtensions
 
             // Get the files in the directory and copy them to the new location.
             var files = dir.GetFiles();
-            for(int i = 0; i < files.Length; i++)
+            for (int i = 0; i < files.Length; i++)
             {
                 var file = files[i];
                 file.CopyTo(Path.Combine(destination, file.Name), false);

@@ -37,8 +37,8 @@ namespace CoDUO_FoV_Changer
             if (File.Exists(settingsFile)) instance = DatabaseFile.Read<Settings>(settingsFile);
             else
             {
-                    instance = new Settings();
-                    DatabaseFile.Write(instance, settingsFile);
+                instance = new Settings();
+                DatabaseFile.Write(instance, settingsFile);
             }
         }
 
@@ -62,7 +62,7 @@ namespace CoDUO_FoV_Changer
             hotkeyToggleFog = 70.ToString();
         }
 
-   
+
         public string InstallPath
         {
             get { return gamePath; }
@@ -84,7 +84,7 @@ namespace CoDUO_FoV_Changer
                 gameExe = value;
             }
         }
-        
+
 
         public string CommandLine
         {

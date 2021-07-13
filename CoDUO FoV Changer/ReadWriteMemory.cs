@@ -6,11 +6,11 @@ using System.Linq;
 //I have made some significant changes to this, rewriting some of the code and deleting some
 namespace ReadWriteMemory
 {
-    internal class ProcessMemory
+    public class ProcessMemory
     {
         // Fields
         public int BaseAddress { get; protected set; }
-        public Process _Process { get; protected set; }
+        public Process Process { get; protected set; }
         public ProcessModule ProcessModule { get; protected set; }
         public int processHandle { get; protected set; }
         public string ProcessName { get; protected set; }
@@ -20,7 +20,7 @@ namespace ReadWriteMemory
         public ProcessMemory(string pProcessName) { ProcessName = !string.IsNullOrEmpty(pProcessName) ? pProcessName.Replace(".exe", string.Empty) : string.Empty; }
 
         public ProcessMemory(int pPid) { ProcessPID = pPid; }
-        
+
 
         public bool CheckProcess()
         {
@@ -33,7 +33,7 @@ namespace ReadWriteMemory
                     if (procs[i].ProcessName.Equals(ProcessName, StringComparison.OrdinalIgnoreCase)) return true;
                 }
             }
-        
+
             return false;
         }
 
@@ -52,19 +52,37 @@ namespace ReadWriteMemory
             }
 
             if (proc == null || proc.Id == 0) return false;
-            _Process = proc;
+
+            Process = proc;
+
             if (string.IsNullOrEmpty(ProcessName)) ProcessName = proc.ProcessName;
+
             if (ProcessPID == 0) ProcessPID = proc.Id;
+
             processHandle = OpenProcess(2035711, false, proc.Id);
+
             return processHandle != 0;
         }
 
         public int DllImageAddress(string dllname)
         {
-            if (string.IsNullOrEmpty(dllname) || RequiresElevation()) return 0;
+            if (string.IsNullOrEmpty(dllname)) throw new ArgumentNullException(nameof(dllname));
+
+            if (Process == null || RequiresElevation()) return 0;
+
+            Process tempProc;
+
+            try { tempProc = Process.GetProcessById(Process.Id) ?? Process; } //hacky workaround for modules not being detected
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                tempProc = Process;
+            }
+
             IntPtr? addr = null;
-            var modules = _Process?.Modules?.Cast<ProcessModule>() ?? null;
-            if (modules != null && modules.Count() > 0)
+
+            var modules = tempProc?.Modules?.Cast<ProcessModule>() ?? null;
+            if (modules != null && modules.Any())
             {
                 foreach (var module in modules)
                 {
@@ -81,19 +99,21 @@ namespace ReadWriteMemory
 
         public bool RequiresElevation()
         {
-            if (_Process == null) return false;
+            if (Process == null) return false;
+
             try
             {
-                if (_Process?.Modules != null) return false;
+                if (Process?.Modules != null) return false;
             }
-            catch(System.ComponentModel.Win32Exception win32ex) when(win32ex.NativeErrorCode == 5) { return true; }
+            catch (System.ComponentModel.Win32Exception win32ex) when (win32ex.NativeErrorCode == 5) { return true; }
+
             return false;
         }
 
         public int ImageAddress()
         {
             BaseAddress = 0;
-            ProcessModule = _Process.MainModule;
+            ProcessModule = Process.MainModule;
             BaseAddress = (int)ProcessModule.BaseAddress;
             return BaseAddress;
         }
@@ -101,7 +121,7 @@ namespace ReadWriteMemory
         public int ImageAddress(int pOffset)
         {
             BaseAddress = 0;
-            ProcessModule = _Process.MainModule;
+            ProcessModule = Process.MainModule;
             BaseAddress = (int)ProcessModule.BaseAddress;
             return pOffset + BaseAddress;
         }
@@ -129,10 +149,10 @@ namespace ReadWriteMemory
         }
         #endregion
         #region Writing
-        public void WriteByte(int pOffset, byte pBytes) => WriteMem(pOffset, BitConverter.GetBytes((short)pBytes));
-        public void WriteByte(bool AddToImageAddress, int pOffset, byte pBytes) => WriteMem(pOffset, BitConverter.GetBytes((short)pBytes), AddToImageAddress);
-        public void WriteByte(string Module, int pOffset, byte pBytes) => WriteMem(DllImageAddress(Module) + pOffset, BitConverter.GetBytes((short)pBytes));
-        
+        public void WriteByte(int pOffset, byte pBytes) => WriteMem(pOffset, BitConverter.GetBytes(pBytes));
+        public void WriteByte(bool AddToImageAddress, int pOffset, byte pBytes) => WriteMem(pOffset, BitConverter.GetBytes(pBytes), AddToImageAddress);
+        public void WriteByte(string Module, int pOffset, byte pBytes) => WriteMem(DllImageAddress(Module) + pOffset, BitConverter.GetBytes(pBytes));
+
 
         public void WriteDouble(int pOffset, double pBytes) => WriteMem(pOffset, BitConverter.GetBytes(pBytes));
         public void WriteDouble(bool AddToImageAddress, int pOffset, double pBytes) => WriteMem(pOffset, BitConverter.GetBytes(pBytes), AddToImageAddress);
@@ -150,7 +170,7 @@ namespace ReadWriteMemory
         }
         public void WriteInt(bool AddToImageAddress, int pOffset, int pBytes) => WriteMem(pOffset, BitConverter.GetBytes(pBytes), AddToImageAddress);
         public void WriteInt(string Module, int pOffset, int pBytes) => WriteMem(DllImageAddress(Module) + pOffset, BitConverter.GetBytes(pBytes));
-        
+
 
         public void WriteMem(int pOffset, byte[] pBytes) => WriteProcessMemory(processHandle, pOffset, pBytes, pBytes.Length, 0);
         public void WriteMem(int pOffset, byte[] pBytes, bool AddToImageAddress) => WriteProcessMemory(processHandle, AddToImageAddress ? ImageAddress(pOffset) : pOffset, pBytes, pBytes.Length, 0);

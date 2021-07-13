@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+
 //beautiful mess
 namespace TimerExtensions
 {
@@ -9,39 +10,50 @@ namespace TimerExtensions
         public static RepeatingTimer Every(float seconds, Action action) => new RepeatingTimer(seconds, action);
         public class RepeatingTimer
         {
+            private int _currentLoops = 0;
+            private Timer _timer = null;
+            private Action _timerAction;
+
             public float Interval { get; set; } = 0f;
             public int Loops { get; set; } = 0;
-            private int _currentLoops = 0;
-            private Timer timer = null;
-            private Action _timerAction;
+          
             public Action TimerAction
             {
                 get { return _timerAction; }
                 set
                 {
-                    if (timer != null) timer = null;
+                    _timer = null;
+
                     _timerAction = value;
+
                     if (Interval <= 0) return;
 
                     Action loopAct = null;
                     loopAct = new Action(() =>
                     {
-                        if (timer != null) timer = null;
+                        _timer = null;
+
                         if (TimerAction == null) return;
+
                         TimerAction.Invoke();
+
                         if (Loops > 0 && _currentLoops >= Loops) return;
-                        timer = Once(Interval, loopAct);
+
+                        _timer = Once(Interval, loopAct);
+
                         _currentLoops++;
                     });
-                    timer = Once(Interval, loopAct);
+
+                    _timer = Once(Interval, loopAct);
 
                 }
             }
             public RepeatingTimer() { }
             public RepeatingTimer(float interval, Action action)
             {
+                if (interval <= 0) throw new ArgumentOutOfRangeException(nameof(interval));
                 Interval = interval;
-                TimerAction = action;
+                TimerAction = action ?? throw new ArgumentNullException(nameof(action));
             }
         }
     }
