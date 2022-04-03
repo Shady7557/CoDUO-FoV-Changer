@@ -41,7 +41,7 @@ namespace CoDUO_FoV_Changer
             {
                 if (string.IsNullOrEmpty(_registryPathVS))
                 {
-                    _registryPathVS = _stringBuilder.Clear().Append(@"HKEY_USERS\").Append(Program.CurrentUserSID).Append(@"\SOFTWARE\Classes\VirtualStore\MACHINE\SOFTWARE\").Append(Environment.Is64BitOperatingSystem ? @"WOW6432Node\" : string.Empty).Append(@"Activision\Call of Duty").ToString();
+                    _registryPathVS = _stringBuilder.Clear().Append(@"HKEY_USERS\").Append(Program.CurrentUserSID).Append(@"\SOFTWARE\Classes\VirtualStore\MACHINE\SOFTWARE\").Append(Environment.Is64BitOperatingSystem ? @"WOW6432Node\" : string.Empty).Append(@"Activision\Call of Duty United Offensive").ToString();
                 }
                 return _registryPathVS;
             }
@@ -66,7 +66,7 @@ namespace CoDUO_FoV_Changer
             {
                 if (string.IsNullOrEmpty(_registryPathCoDVS))
                 {
-                    _registryPathCoDVS = _stringBuilder.Clear().Append(@"HKEY_USERS\").Append(Program.CurrentUserSID).Append(@"\SOFTWARE\Classes\VirtualStore\MACHINE\SOFTWARE\").Append(Environment.Is64BitOperatingSystem ? @"WOW6432Node\" : string.Empty).Append(@"Activision\Call of Duty United Offensive").ToString();
+                    _registryPathCoDVS = _stringBuilder.Clear().Append(@"HKEY_USERS\").Append(Program.CurrentUserSID).Append(@"\SOFTWARE\Classes\VirtualStore\MACHINE\SOFTWARE\").Append(Environment.Is64BitOperatingSystem ? @"WOW6432Node\" : string.Empty).Append(@"Activision\Call of Duty").ToString();
                 }
                 return _registryPathCoDVS;
             }
