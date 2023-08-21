@@ -49,7 +49,8 @@ namespace ProcessExtensions
         {
             var h = OpenProcess(ProcessAccessFlags.QueryInformation, true, processId);
 
-            if (h == IntPtr.Zero) return false;
+            if (h == IntPtr.Zero) 
+                return false;
 
             var b = GetExitCodeProcess(h, out uint code);
             CloseHandle(h);
@@ -67,46 +68,47 @@ namespace ProcessExtensions
                 throw new ArgumentNullException(nameof(processName));
 
             var procs = Process.GetProcessesByName(processName);
-            if (procs != null && procs.Length > 0)
+            if (procs == null || procs.Length < 1)
+                return string.Empty;
+
+
+            var activeProcesses = Pool.GetList<Process>();
+            try
             {
-
-                var activeProcesses = Pool.GetList<Process>();
-                try 
+                for (int i = 0; i < procs.Length; i++)
                 {
-                    for(int i = 0; i < procs.Length; i++)
-                    {
-                        var p = procs[i];
-                        if (!(p?.HasExited ?? true))
-                        {
-                            activeProcesses.Add(p);
-                        }
-                    }
+                    var p = procs[i];
+                    if (!(p?.HasExited ?? true))
+                        activeProcesses.Add(p);
 
-                    return GetFileNameFromProcess(activeProcesses.OrderByDescending(p => p.StartTime).FirstOrDefault());
                 }
-                finally { Pool.FreeList(ref activeProcesses); }
-            }
 
-            return string.Empty;
+                return GetFileNameFromProcess(activeProcesses.OrderByDescending(p => p.StartTime).FirstOrDefault());
+            }
+            finally { Pool.FreeList(ref activeProcesses); }
         }
 
         public static string GetFileNameFromProcess(Process process)
         {
-            if (process == null) throw new ArgumentNullException(nameof(process));
-            if (process.HasExited) throw new InvalidOperationException(nameof(process));
+            if (process == null) 
+                throw new ArgumentNullException(nameof(process));
+            if (process.HasExited) 
+                throw new InvalidOperationException(nameof(process));
 
-            var fileName = DirectoryExtension.GetMainModuleFileName(process);
 
             var sb = Pool.Get<StringBuilder>();
             try 
             {
+
+                var fileName = DirectoryExtension.GetMainModuleFileNameNoAlloc(process, ref sb);
+
                 var logTxt = sb.Clear().Append(nameof(GetFileNameFromProcess)).Append(" returned: ").Append(fileName).ToString();
                 Console.WriteLine(logTxt);
                 Log.WriteLine(logTxt);
+
+                return fileName;
             }
             finally { Pool.Free(ref sb); }
-           
-            return fileName;
         }
     }
 }

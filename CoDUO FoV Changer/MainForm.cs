@@ -25,12 +25,9 @@ namespace CoDUO_FoV_Changer
 
         private readonly Settings settings = Settings.Instance;
 
-        private readonly Image _codImage = Properties.Resources.CoD1;
-        private readonly Image _codUOImage = Properties.Resources.CoDUO;
-
         public SessionHandler CurrentSession { get; private set; } = new SessionHandler();
 
-        public Memory SelectedMemory { get; private set; }
+        public Memory MemorySelection { get; private set; }
 
 
         private TimeSpan _lastGameTimeSpan;
@@ -141,24 +138,21 @@ namespace CoDUO_FoV_Changer
 
 
 
-                        if (arg.IndexOf("-fov=", StringComparison.OrdinalIgnoreCase) >= 0)
-                        {
-                            if (decimal.TryParse(arg.Split('=')[1], out decimal FoV)) SetFoVNumeric(FoV);
-                        }
+                        if (arg.IndexOf("-fov=", StringComparison.OrdinalIgnoreCase) >= 0 && decimal.TryParse(arg.Split('=')[1], out decimal FoV))
+                            SetFoVNumeric(FoV);
 
                         argsSB.Append(arg).Append(" ");
                     }
 
                     if (argsSB.Length > 1)
-                    {
-                        argsSB.Length -= 1;
-                        var argStr = argsSB.ToString();
-                        Log.WriteLine(argsSB.Clear().Append("Launched program with args: ").Append(argStr).ToString());
-                    }
+                        argsSB.Length--;
+
+                    var argStr = argsSB.ToString();
+                    Log.WriteLine(argsSB.Clear().Append("Launched program with args: ").Append(argStr).ToString());
                 }
                 finally { Pool.Free(ref argsSB); }
 
-                StartUpdates();
+                StartUpdateChecking();
 
                 Task.Run(() =>
                 {
@@ -198,7 +192,7 @@ namespace CoDUO_FoV_Changer
 
                 UpdateProcessBox();
 
-                AdminLaunchButton.Visible = !Program.IsElevated && (SelectedMemory?.ProcMemory?.RequiresElevation() ?? false);
+                AdminLaunchButton.Visible = !Program.IsElevated && (MemorySelection?.ProcMemory?.RequiresElevation() ?? false);
 
                 SetFoVNumeric(settings.FoV);
 
@@ -215,7 +209,7 @@ namespace CoDUO_FoV_Changer
                     GameTracker.Enabled = false;
                 }
 
-                if (IsDev) UpdateButton.Visible = true;
+                UpdateButton.Visible = IsDev;
             }
             finally
             {
@@ -334,7 +328,7 @@ namespace CoDUO_FoV_Changer
 
         private void FogCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (SelectedMemory != null && SelectedMemory.IsRunning() && !IsUO())
+            if (MemorySelection != null && MemorySelection.IsRunning() && !IsUO())
             {
                 FogCheckBox.Checked = true;
                 return;
@@ -374,7 +368,7 @@ namespace CoDUO_FoV_Changer
             {
                 var wantedButtonState = false;
 
-                if (SelectedMemory == null || !SelectedMemory.IsRunning())
+                if (MemorySelection == null || !MemorySelection.IsRunning())
                 {
                     SetLabelText(StatusLabel, "Status: Not running");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate
@@ -385,7 +379,7 @@ namespace CoDUO_FoV_Changer
                 }
                 else
                 {
-                    wantedButtonState = !Program.IsElevated && (SelectedMemory?.ProcMemory?.RequiresElevation() ?? false);
+                    wantedButtonState = !Program.IsElevated && (MemorySelection?.ProcMemory?.RequiresElevation() ?? false);
 
                     DoRAChecks();
                     DoFoV();
@@ -445,7 +439,7 @@ namespace CoDUO_FoV_Changer
 
         private void DvarsCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (SelectedMemory != null && SelectedMemory.IsRunning() && !IsUO())
+            if (MemorySelection != null && MemorySelection.IsRunning() && !IsUO())
             {
                 DvarsCheckBox.Checked = false;
                 return;
@@ -456,9 +450,9 @@ namespace CoDUO_FoV_Changer
 
         public bool IsUO()
         {
-            if (SelectedMemory == null || !SelectedMemory.IsRunning()) return false; //I don't get why a null operator doesn't work here, but it doesn't. so we have this full 'check' here instead
+            if (MemorySelection == null || !MemorySelection.IsRunning()) return false; //I don't get why a null operator doesn't work here, but it doesn't. so we have this full 'check' here instead
 
-            return (SelectedMemory.ProcMemory?.DllImageAddress(MemoryAddresses.UO_UI_MP_DLL) ?? 0) != 0 || (SelectedMemory.ProcMemory?.DllImageAddress(MemoryAddresses.UO_CGAME_MP_DLL) ?? 0) != 0;
+            return (MemorySelection.ProcMemory?.DllImageAddress(MemoryAddresses.UO_UI_MP_DLL) ?? 0) != 0 || (MemorySelection.ProcMemory?.DllImageAddress(MemoryAddresses.UO_CGAME_MP_DLL) ?? 0) != 0;
         }
 
 
@@ -477,7 +471,7 @@ namespace CoDUO_FoV_Changer
             }
         }
 
-        private void StartUpdates()
+        private void StartUpdateChecking()
         {
             Task.Run(() =>
             {
@@ -555,29 +549,29 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                if (SelectedMemory == null || !SelectedMemory.IsRunning() || SelectedMemory.ProcMemory.RequiresElevation()) return;
+                if (MemorySelection == null || !MemorySelection.IsRunning() || MemorySelection.ProcMemory.RequiresElevation()) return;
                 var value = val ? 1 : 0; // Convert.ToInt32(val);
 
-                var fogValue = SelectedMemory.ReadIntAddress(MemoryAddresses.UO_FOG_POINTER_ADDRESS, 0x20);
-                if (fogValue != value) SelectedMemory.ProcMemory.WriteInt(SelectedMemory.GetIntPointerAddress(MemoryAddresses.UO_FOG_POINTER_ADDRESS, 0x20), value);
+                var fogValue = MemorySelection.ReadIntAddress(MemoryAddresses.UO_FOG_POINTER_ADDRESS, 0x20);
+                if (fogValue != value) MemorySelection.ProcMemory.WriteInt(MemorySelection.GetIntPointerAddress(MemoryAddresses.UO_FOG_POINTER_ADDRESS, 0x20), value);
             }
             catch (Exception ex) { Log.WriteLine("An exception happened while trying to read/write fog values:" + Environment.NewLine + ex.ToString()); }
         }
 
         private void DoRAChecks() //this is where we do aspect ratio checks to ensure we limit FoV at non-widescreen values to reduce potential for any cheating
         {
-            if (SelectedMemory == null || !SelectedMemory.IsRunning() || SelectedMemory.ProcMemory.RequiresElevation() || CurrentSession == null || CurrentSession.GetSessionTime().TotalSeconds < 30) return; //if you do aspect ratio checks too soon, they'll return invalid values
+            if (MemorySelection == null || !MemorySelection.IsRunning() || MemorySelection.ProcMemory.RequiresElevation() || CurrentSession == null || CurrentSession.GetSessionTime().TotalSeconds < 30) return; //if you do aspect ratio checks too soon, they'll return invalid values
 
             try
             {
-                var mode = SelectedMemory.ReadIntAddress(MemoryAddresses.UO_R_MODE_ADDRESS, 0x20);
+                var mode = MemorySelection.ReadIntAddress(MemoryAddresses.UO_R_MODE_ADDRESS, 0x20);
                 var ratio = 0d;
 
 
                 if (mode == -1)
                 {
-                    var width = SelectedMemory.ReadIntAddress(MemoryAddresses.UO_R_WIDTH_ADDRESS, 0x20);
-                    var height = SelectedMemory.ReadIntAddress(MemoryAddresses.UO_R_HEIGHT_ADDRESS, 0x20);
+                    var width = MemorySelection.ReadIntAddress(MemoryAddresses.UO_R_WIDTH_ADDRESS, 0x20);
+                    var height = MemorySelection.ReadIntAddress(MemoryAddresses.UO_R_HEIGHT_ADDRESS, 0x20);
 
                     if (width <= 0 || height <= 0)
                     {
@@ -603,8 +597,8 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                var isRunning = SelectedMemory?.IsRunning() ?? false;
-                if (isRunning && (SelectedMemory?.ProcMemory?.RequiresElevation() ?? false))
+                var isRunning = MemorySelection?.IsRunning() ?? false;
+                if (isRunning && (MemorySelection?.ProcMemory?.RequiresElevation() ?? false))
                 {
                     SetLabelText(StatusLabel, "Status: game requires elevation!");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate
@@ -615,7 +609,7 @@ namespace CoDUO_FoV_Changer
                     return;
                 }
 
-                var address = !isRunning ? -1 : !IsUO() ? MemoryAddresses.COD_FOV_ADDRESS : (isRunning ? (SelectedMemory.ProcMemory.DllImageAddress(MemoryAddresses.UO_CGAME_MP_DLL) + MemoryAddresses.UO_FOV_OFFSET) : -1);
+                var address = !isRunning ? -1 : !IsUO() ? MemoryAddresses.COD_FOV_ADDRESS : (isRunning ? (MemorySelection.ProcMemory.DllImageAddress(MemoryAddresses.UO_CGAME_MP_DLL) + MemoryAddresses.UO_FOV_OFFSET) : -1);
                 if (!isRunning || address <= 0)
                 {
                     SetLabelText(StatusLabel, "Status: Not running");
@@ -627,7 +621,7 @@ namespace CoDUO_FoV_Changer
                 }
                 else
                 {
-                    SelectedMemory.ProcMemory.WriteFloat(address, CurrentFoV);
+                    MemorySelection.ProcMemory.WriteFloat(address, CurrentFoV);
                     SetLabelText(StatusLabel, "Status: Success!");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate ()
                     {
@@ -645,17 +639,17 @@ namespace CoDUO_FoV_Changer
 
         private void DoDvars()
         {
-            if (SelectedMemory == null || !SelectedMemory.IsRunning() || SelectedMemory.ProcMemory.RequiresElevation()) return;
+            if (MemorySelection == null || !MemorySelection.IsRunning() || MemorySelection.ProcMemory.RequiresElevation()) return;
             try
             {
                 var val = DvarsCheckBox.Checked ? 235 : 116;
 
-                var curVal = SelectedMemory.ProcMemory.ReadByte(MemoryAddresses.UO_DVAR_ADDRESS_1);
+                var curVal = MemorySelection.ProcMemory.ReadByte(MemoryAddresses.UO_DVAR_ADDRESS_1);
                 if (curVal == val) return; //don't write if it's already the value we want
 
-                SelectedMemory.ProcMemory.WriteInt(MemoryAddresses.UO_DVAR_ADDRESS_1, val, 1);
-                SelectedMemory.ProcMemory.WriteInt(MemoryAddresses.UO_DVAR_ADDRESS_2, val, 1);
-                SelectedMemory.ProcMemory.WriteInt(MemoryAddresses.UO_DVAR_ADDRESS_3, val, 1);
+                MemorySelection.ProcMemory.WriteInt(MemoryAddresses.UO_DVAR_ADDRESS_1, val, 1);
+                MemorySelection.ProcMemory.WriteInt(MemoryAddresses.UO_DVAR_ADDRESS_2, val, 1);
+                MemorySelection.ProcMemory.WriteInt(MemoryAddresses.UO_DVAR_ADDRESS_3, val, 1);
             }
             catch (Exception ex) { Log.WriteLine("An exception happened while trying to read/write Dvar addresses:" + Environment.NewLine + ex.ToString()); }
         }
@@ -676,7 +670,7 @@ namespace CoDUO_FoV_Changer
                 }
             }
             CheckUpdatesLabel.Text = "Checking for updates...";
-            StartUpdates();
+            StartUpdateChecking();
             _lastUpdateCheck = now;
         }
 
@@ -741,7 +735,7 @@ namespace CoDUO_FoV_Changer
         private void UpdateTimer_Tick(object sender, EventArgs e)
         {
             CheckUpdatesLabel.Text = "Checking for updates...";
-            StartUpdates();
+            StartUpdateChecking();
         }
 
         private void StartUpdater()
@@ -860,20 +854,22 @@ namespace CoDUO_FoV_Changer
         private void ProccessChecker_Tick(object sender, EventArgs e)
         {
             UpdateProcessBox();
-            if (SelectedMemory != null && SelectedMemory.IsRunning()) BitmapHelper.ScalePictureBox(CoDPictureBox, IsUO() ? _codUOImage : _codImage);
+            if (MemorySelection != null && MemorySelection.IsRunning()) BitmapHelper.ScalePictureBox(CoDPictureBox, IsUO() ? Properties.Resources.CoDUO : Properties.Resources.CoD1);
         }
 
         private void ChangelogToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Process.Start(@"https://github.com/Shady7557/CoDUO-FoV-Changer/releases");
+            /*/
             if (ChangelogForm.Instance != null && !ChangelogForm.Instance.IsDisposed)
             {
                 ChangelogForm.Instance.Show();
                 ChangelogForm.Instance.BringToFront();
             }
-            else new ChangelogForm().Show();
+            else new ChangelogForm().Show();/*/
         }
 
-        private void InfoToolStripMenuItem_Click(object sender, EventArgs e) => MessageBox.Show("Created by Shady" + Environment.NewLine + Environment.NewLine + "This program is intended to allow you to change the Field of View in Multiplayer for both Call of Duty and Call of Duty: United Offensive, both of which do not normally allow you to do so." + Environment.NewLine + Environment.NewLine + "Program version: " + ProductVersion + Environment.NewLine + "Game version: " + (!string.IsNullOrEmpty(GameVersion) ? GameVersion : "Unknown"), ProductName + " (" + ProductVersion + ")", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        private void InfoToolStripMenuItem_Click(object sender, EventArgs e) => MessageBox.Show("Created with love by Shady" + Environment.NewLine + Environment.NewLine + "This program is intended to allow you to change the Field of View in Multiplayer for both Call of Duty and Call of Duty: United Offensive, both of which do not normally allow you to do so." + Environment.NewLine + Environment.NewLine + "Program version: " + ProductVersion + Environment.NewLine + "Game version: " + (!string.IsNullOrEmpty(GameVersion) ? GameVersion : "Unknown"), ProductName + " (" + ProductVersion + ")", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -905,9 +901,9 @@ namespace CoDUO_FoV_Changer
 
         private void GamePIDBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            SelectedMemory = GamePIDBox.GetMemoryFromIndex(GamePIDBox.SelectedIndex);
+            MemorySelection = GamePIDBox.GetMemoryFromIndex(GamePIDBox.SelectedIndex);
 
-            if (SelectedMemory != null && SelectedMemory.IsRunning()) BitmapHelper.ScalePictureBox(CoDPictureBox, IsUO() ? _codUOImage : _codImage);
+            if (MemorySelection != null && MemorySelection.IsRunning()) BitmapHelper.ScalePictureBox(CoDPictureBox, IsUO() ? Properties.Resources.CoDUO : Properties.Resources.CoD1);
         }
 
         private void GamePIDBox_VisibleChanged(object sender, EventArgs e) => CoDPictureBox.Visible = GamePIDBox.Visible;

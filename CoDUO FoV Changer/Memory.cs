@@ -1,4 +1,5 @@
-﻿using ReadWriteMemory;
+﻿using CurtLog;
+using ReadWriteMemory;
 using System;
 using System.Text;
 
@@ -32,6 +33,7 @@ namespace CoDUO_FoV_Changer
             if (proc == null)
             {
                 Console.WriteLine("proc is null on tostring()!!");
+                Log.WriteLine("proc is null on tostring()!!");
                 return base.ToString();
             }
 

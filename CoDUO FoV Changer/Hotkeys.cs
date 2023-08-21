@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
@@ -7,10 +8,8 @@ namespace CoDUO_FoV_Changer
     public partial class Hotkeys : Form
     {
         private string curKeyName;
-        private Keys currentKey;
         private int currentKeyCode;
         private readonly Settings settings = Settings.Instance;
-        private Settings oldSettings;
 
         public static Hotkeys Instance = null;
 
@@ -32,8 +31,6 @@ namespace CoDUO_FoV_Changer
 
         private void Hotkeys_Load(object sender, EventArgs e)
         {
-            oldSettings = new Settings();
-            oldSettings = settings;
 
             DatabaseFile.Write(settings, PathInfos.SettingsPath); //save current settings
             settings.HasChanged = false; //force it to not be changed so exit without saving works 'properly'
@@ -43,7 +40,7 @@ namespace CoDUO_FoV_Changer
             pos = pictureBox1.PointToClient(pos);
             label2.Parent = pictureBox1;
             label2.Location = pos;
-            label2.BackColor = System.Drawing.Color.Transparent;
+            label2.BackColor = Color.Transparent;
         }
 
         private void Hotkeys_KeyDown(object sender, KeyEventArgs e)
@@ -52,7 +49,6 @@ namespace CoDUO_FoV_Changer
             if (keyStr == "LWin") return;
             if (keyStr.Contains(",")) keyStr = keyStr.Split(',')[1];
 
-            currentKey = e.KeyData;
             currentKeyCode = e.KeyValue;
             curKeyName = GetShortKeyString(e.KeyData);
             label1.Text = "Key: " + curKeyName;
@@ -115,21 +111,32 @@ namespace CoDUO_FoV_Changer
         private string GetKeyString(Keys key)
         {
             if (key == 0) return string.Empty;
+
             var keyStr = key.ToString();
-            if (keyStr.Contains(",")) keyStr = keyStr.Split(',')[1];
+            if (keyStr.Contains(",")) 
+                keyStr = keyStr.Split(',')[1];
+
             var keySB = new StringBuilder(keyStr);
+
             keySB.Replace("Oem", string.Empty).Replace("Decimal", "DEC").Replace("comma", ",").Replace("Period", ".").Replace("NumPad", "N").Replace("Minus", "-").Replace("plus", "+");
+
             return keySB.ToString();
         }
 
         private string GetShortKeyString(Keys key)
         {
             if (key == 0) return string.Empty;
+
             var keyStr = key.ToString();
-            if (keyStr.Contains(",")) keyStr = keyStr.Split(',')[1];
+
+            if (keyStr.Contains(",")) 
+                keyStr = keyStr.Split(',')[1];
+
             var keySB = new StringBuilder(keyStr);
             keySB.Replace("Oem", string.Empty).Replace("Decimal", "DEC").Replace("comma", ",").Replace("Period", ".").Replace("NumPad", "N").Replace("Minus", "-").Replace("plus", "+");
+
             if (keySB.Length > 4) keySB = keySB.Remove(3, keySB.Length - 3).Append(".");
+
             return keySB.ToString();
         }
 
@@ -160,8 +167,8 @@ namespace CoDUO_FoV_Changer
 
         private void Label2_TextChanged(object sender, EventArgs e)
         {
-            if (label2.Text.Length > 2) label2.Font = new System.Drawing.Font(label2.Font.Name, 9, label2.Font.Bold ? System.Drawing.FontStyle.Bold : System.Drawing.FontStyle.Regular);
-            else label2.Font = new System.Drawing.Font(label2.Font.Name, 12, label2.Font.Bold ? System.Drawing.FontStyle.Bold : System.Drawing.FontStyle.Regular);
+            if (label2.Text.Length > 2) label2.Font = new Font(label2.Font.Name, 9, label2.Font.Bold ? FontStyle.Bold : FontStyle.Regular);
+            else label2.Font = new Font(label2.Font.Name, 12, label2.Font.Bold ? FontStyle.Bold : FontStyle.Regular);
         }
     }
 }

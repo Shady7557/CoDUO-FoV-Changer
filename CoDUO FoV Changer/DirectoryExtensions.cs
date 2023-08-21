@@ -47,9 +47,33 @@ namespace DirectoryExtensions
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public static string GetMainModuleFileName(Process process, int buffer = 1024)
         {
-            if (process == null) throw new ArgumentNullException("process");
-            if (buffer < 1) throw new ArgumentOutOfRangeException("buffer");
+            if (process == null)
+                throw new ArgumentNullException(nameof(process));
+            if (buffer < 1)
+                throw new ArgumentOutOfRangeException(nameof(buffer));
+
             var fileNameBuilder = new StringBuilder(buffer);
+            uint bufferLength = (uint)fileNameBuilder.Capacity + 1;
+            return QueryFullProcessImageName(process.Handle, 0, fileNameBuilder, ref bufferLength) ? fileNameBuilder.ToString() : string.Empty;
+        }
+
+        /// <summary>
+        /// Returns entire path to a running process
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static string GetMainModuleFileNameNoAlloc(Process process, ref StringBuilder fileNameBuilder, int buffer = 1024)
+        {
+            if (process == null) 
+                throw new ArgumentNullException(nameof(process));
+            if (buffer < 1) 
+                throw new ArgumentOutOfRangeException(nameof(buffer));
+            if (fileNameBuilder == null)
+                throw new ArgumentNullException(nameof(fileNameBuilder));
+
+            fileNameBuilder.Clear();
+
             uint bufferLength = (uint)fileNameBuilder.Capacity + 1;
             return QueryFullProcessImageName(process.Handle, 0, fileNameBuilder, ref bufferLength) ? fileNameBuilder.ToString() : string.Empty;
         }

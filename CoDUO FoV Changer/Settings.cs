@@ -44,7 +44,7 @@ namespace CoDUO_FoV_Changer
 
         public Settings()
         {
-            settingsChanged = false;
+            HasChanged = false;
             gamePath = string.Empty;
             gameExe = string.Empty;
             fov = 80;
@@ -63,158 +63,98 @@ namespace CoDUO_FoV_Changer
         }
 
 
+    
+
+        public string InstallPathExe { get { return gamePath + @"\" + gameExe; } }
+
         public string InstallPath
         {
             get { return gamePath; }
-            set
-            {
-                settingsChanged = true;
-                gamePath = value;
-            }
+            set { HasChanged = gamePath != value; gamePath = value; }
         }
-
-        public string InstallPathExe { get { return gamePath + @"\" + gameExe; } }
 
         public string ExeName
         {
             get { return gameExe; }
-            set
-            {
-                settingsChanged = true;
-                gameExe = value;
-            }
+            set { HasChanged = gameExe != value; gameExe = value; }
         }
-
 
         public string CommandLine
         {
             get { return cmdline; }
-            set
-            {
-                settingsChanged = true;
-                cmdline = value;
-            }
+            set { HasChanged = cmdline != value; cmdline = value; }
         }
 
         public string LastLogFile
         {
             get { return lastlog; }
-            set
-            {
-                settingsChanged = true;
-                lastlog = value;
-            }
+            set { HasChanged = lastlog != value; lastlog = value; }
         }
 
         public decimal FoV
         {
             get { return fov; }
-            set
-            {
-                settingsChanged = true;
-                fov = value;
-            }
+            set { HasChanged = fov != value; fov = value; }
         }
 
         public double GameTime
         {
             get { return gameTime; }
-            set
-            {
-                settingsChanged = true;
-                gameTime = value;
-            }
+            set { HasChanged = gameTime != value; gameTime = value; }
         }
 
         public bool MinimizeToTray
         {
             get { return minimize; }
-            set
-            {
-                settingsChanged = true;
-                minimize = value;
-            }
+            set { HasChanged = minimize != value; minimize = value; }
         }
 
         public bool Fog
         {
             get { return fog; }
-            set
-            {
-                settingsChanged = true;
-                fog = value;
-            }
+            set { HasChanged = fog != value; fog = value; }
         }
 
         public bool TrackGameTime
         {
             get { return trackTime; }
-            set
-            {
-                settingsChanged = true;
-                trackTime = value;
-            }
+            set { HasChanged = trackTime != value; trackTime = value; }
         }
 
         public bool DisableUpdateTimer
         {
             get { return disableUpdateTimer; }
-            set
-            {
-                settingsChanged = true;
-                disableUpdateTimer = value;
-            }
+            set { HasChanged = disableUpdateTimer != value; disableUpdateTimer = value; }
         }
 
         public string HotKeyUp
         {
             get { return hotkeyUp; }
-            set
-            {
-                settingsChanged = true;
-                hotkeyUp = value;
-            }
+            set { HasChanged = hotkeyUp != value; hotkeyUp = value; }
         }
 
         public string HotKeyDown
         {
             get { return hotkeyDown; }
-            set
-            {
-                settingsChanged = true;
-                hotkeyDown = value;
-            }
+            set { HasChanged = hotkeyDown != value; hotkeyDown = value; }
         }
 
         public string HotKeyModifier
         {
             get { return hotkeyModifier; }
-            set
-            {
-                settingsChanged = true;
-                hotkeyModifier = value;
-            }
+            set { HasChanged = hotkeyModifier != value; hotkeyModifier = value; }
         }
 
         public string HotKeyFogModifier
         {
             get { return hotkeyFogModifier; }
-            set
-            {
-                settingsChanged = true;
-                hotkeyFogModifier = value;
-            }
+            set { HasChanged = hotkeyFogModifier != value; hotkeyFogModifier = value; }
         }
-
 
         public string HotKeyFog
         {
             get { return hotkeyToggleFog; }
-            set
-            {
-                settingsChanged = true;
-                hotkeyToggleFog = value;
-            }
+            set { HasChanged = hotkeyToggleFog != value; hotkeyToggleFog = value; }
         }
 
         public bool HasChanged
