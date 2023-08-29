@@ -14,6 +14,7 @@ using SessionHandling;
 using System.Collections.Generic;
 using BitmapExtension;
 using ShadyPool;
+using ProcessExtensions;
 
 namespace CoDUO_FoV_Changer
 {
@@ -41,6 +42,8 @@ namespace CoDUO_FoV_Changer
 
         private const string LATEST_DOWNLOAD_URI = @"https://github.com/Shady7557/CoDUO-FoV-Changer/releases/latest/download/CoDUO.FoV.Changer.exe";
         private const string UPDATE_URI = @"https://raw.githubusercontent.com/Shady7557/CoDUO-FoV-Changer/master/HOTFIX";
+
+        private const string GITHUB_RELEASES_URI = @"https://github.com/Shady7557/CoDUO-FoV-Changer/releases";
 
         public float CurrentFoV
         {
@@ -450,7 +453,8 @@ namespace CoDUO_FoV_Changer
 
         public bool IsUO()
         {
-            if (MemorySelection == null || !MemorySelection.IsRunning()) return false; //I don't get why a null operator doesn't work here, but it doesn't. so we have this full 'check' here instead
+            if (MemorySelection == null || !MemorySelection.IsRunning()) 
+                return false; //I don't get why a null operator doesn't work here, but it doesn't. so we have this full 'check' here instead
 
             return (MemorySelection.ProcMemory?.DllImageAddress(MemoryAddresses.UO_UI_MP_DLL) ?? 0) != 0 || (MemorySelection.ProcMemory?.DllImageAddress(MemoryAddresses.UO_CGAME_MP_DLL) ?? 0) != 0;
         }
@@ -462,12 +466,12 @@ namespace CoDUO_FoV_Changer
                 throw new ArgumentNullException(nameof(list));
 
             var allProcs = Process.GetProcesses();
+
             for (int i = 0; i < allProcs.Length; i++)
             {
                 var proc = allProcs[i];
-                if (proc == null) continue;
-
-                if (proc.ProcessName.Equals("CoDUOMP", StringComparison.OrdinalIgnoreCase) || proc.ProcessName.Equals("CoDMP", StringComparison.OrdinalIgnoreCase) || proc.ProcessName.Equals("mohaa", StringComparison.OrdinalIgnoreCase)) list.Add(proc);
+                if (ProcessExtension.IsCoDProcess(proc))
+                    list.Add(proc);
             }
         }
 
@@ -802,9 +806,9 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                var selectedIndex = GamePIDBox.SelectedIndex;
-
                 GamePIDBox.BeginUpdate();
+
+                var selectedIndex = GamePIDBox.SelectedIndex;
 
                 for (int i = 0; i < GamePIDBox.Items.Count; i++)
                 {
@@ -820,19 +824,25 @@ namespace CoDUO_FoV_Changer
                     for (int i = 0; i < allProcs.Count; i++)
                     {
                         var proc = allProcs[i];
-                        if (proc?.Id == 0) continue;
+
+                        if (proc?.Id == 0) 
+                            continue;
 
                         var hasPid = false;
+
                         for (int j = 0; j < GamePIDBox.Items.Count; j++)
                         {
+
                             if (GamePIDBox?.GetMemoryFromIndex(j) != null)
                             {
                                 hasPid = true;
                                 break;
                             }
+
                         }
 
-                        if (!hasPid) GamePIDBox.AddProcessMemory(new Memory(proc.Id));
+                        if (!hasPid) 
+                            GamePIDBox.AddProcessMemory(new Memory(proc.Id));
                     }
                 }
                 finally { Pool.FreeList(ref allProcs); }
@@ -840,15 +850,17 @@ namespace CoDUO_FoV_Changer
 
                 GamePIDBox.Visible = GamePIDBox.Items.Count > 0;
 
-                if (GamePIDBox.SelectedItem == null && GamePIDBox.Items.Count > 0) GamePIDBox.SelectedIndex = ClampEx.Clamp(selectedIndex - 1, 0, GamePIDBox.Items.Count);
+                if (GamePIDBox.Visible && GamePIDBox.SelectedItem == null)
+                    GamePIDBox.SelectedIndex = ClampEx.Clamp(selectedIndex - 1, 0, GamePIDBox.Items.Count);
 
-                GamePIDBox.EndUpdate();
+              
             }
             catch (Exception ex)
             {
                 Log.WriteLine("An error happened while trying to get running Call of Duty/UO processes:" + Environment.NewLine + ex.ToString());
                 MessageBox.Show("An error happend while trying to get running Call of Duty/UO processes: " + ex.Message + Environment.NewLine + "Please refer to the log for more info.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            finally { GamePIDBox.EndUpdate(); }
         }
 
         private void ProccessChecker_Tick(object sender, EventArgs e)
@@ -859,14 +871,7 @@ namespace CoDUO_FoV_Changer
 
         private void ChangelogToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Process.Start(@"https://github.com/Shady7557/CoDUO-FoV-Changer/releases");
-            /*/
-            if (ChangelogForm.Instance != null && !ChangelogForm.Instance.IsDisposed)
-            {
-                ChangelogForm.Instance.Show();
-                ChangelogForm.Instance.BringToFront();
-            }
-            else new ChangelogForm().Show();/*/
+            Process.Start(GITHUB_RELEASES_URI);
         }
 
         private void InfoToolStripMenuItem_Click(object sender, EventArgs e) => MessageBox.Show("Created with love by Shady" + Environment.NewLine + Environment.NewLine + "This program is intended to allow you to change the Field of View in Multiplayer for both Call of Duty and Call of Duty: United Offensive, both of which do not normally allow you to do so." + Environment.NewLine + Environment.NewLine + "Program version: " + ProductVersion + Environment.NewLine + "Game version: " + (!string.IsNullOrEmpty(GameVersion) ? GameVersion : "Unknown"), ProductName + " (" + ProductVersion + ")", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -903,7 +908,10 @@ namespace CoDUO_FoV_Changer
         {
             MemorySelection = GamePIDBox.GetMemoryFromIndex(GamePIDBox.SelectedIndex);
 
-            if (MemorySelection != null && MemorySelection.IsRunning()) BitmapHelper.ScalePictureBox(CoDPictureBox, IsUO() ? Properties.Resources.CoDUO : Properties.Resources.CoD1);
+            if (MemorySelection == null || !MemorySelection.IsRunning())
+                return;
+
+            BitmapHelper.ScalePictureBox(CoDPictureBox, IsUO() ? Properties.Resources.CoDUO : Properties.Resources.CoD1);
         }
 
         private void GamePIDBox_VisibleChanged(object sender, EventArgs e) => CoDPictureBox.Visible = GamePIDBox.Visible;
@@ -911,11 +919,13 @@ namespace CoDUO_FoV_Changer
         private void AdminLaunchButton_Click(object sender, EventArgs e)
         {
             if (Program.IsElevated)
-            {
-                MessageBox.Show("Program is already running as an administrator!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
-            }
 
+            TryRestartAsAdmin();
+        }
+
+        private void TryRestartAsAdmin()
+        {
             var fileNameDir = Process.GetCurrentProcess()?.MainModule?.FileName ?? string.Empty;
 
             if (string.IsNullOrEmpty(fileNameDir) || !File.Exists(fileNameDir))
@@ -925,6 +935,7 @@ namespace CoDUO_FoV_Changer
             }
             else
             {
+
                 var startInfo = new ProcessStartInfo
                 {
                     Verb = "runas",
@@ -932,16 +943,14 @@ namespace CoDUO_FoV_Changer
                     WorkingDirectory = Application.StartupPath,
                     FileName = fileNameDir
                 };
-                try
-                {
-                    Process.Start(startInfo);
-                    Close();
-                }
+
+                try { Process.Start(startInfo); }
                 catch (System.ComponentModel.Win32Exception win32ex) when (win32ex.NativeErrorCode == 1223)
                 {
                     Log.WriteLine("User canceled UAC prompt (" + win32ex.Message + " )");
-                    return;
                 }
+                finally { Close(); }
+
             }
         }
 

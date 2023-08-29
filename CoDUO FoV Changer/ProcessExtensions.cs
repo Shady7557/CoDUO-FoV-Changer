@@ -2,6 +2,8 @@
 using DirectoryExtensions;
 using ShadyPool;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -110,5 +112,26 @@ namespace ProcessExtensions
             }
             finally { Pool.Free(ref sb); }
         }
+
+        public static bool IsCoDProcess(Process proc)
+        {
+            if (proc == null)
+                throw new ArgumentNullException(nameof(proc));
+
+            var procName = proc?.ProcessName?.ToLower();
+
+            if (string.IsNullOrWhiteSpace(procName))
+                return false;
+
+            switch(procName)
+            {
+                case "coduomp":
+                case "codmp":
+                case "mohaa":
+                    return true;
+                default: return false;
+            }  
+        }
+
     }
 }

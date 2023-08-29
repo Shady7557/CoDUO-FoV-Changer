@@ -199,14 +199,15 @@ namespace CoDUO_FoV_Changer
             try
             {
 
-                var uoFileName = ProcessExtension.GetFileNameFromProcessName("CoDUOMP");
-                if (!string.IsNullOrEmpty(uoFileName)) return uoFileName;
+                var procNames = PathInfos.GAME_PROCESS_NAMES;
 
-                var codFileName = ProcessExtension.GetFileNameFromProcessName("CoDMP");
-                if (!string.IsNullOrEmpty(codFileName)) return codFileName;
+                foreach (var processName in procNames)
+                {
+                    var fileName = ProcessExtension.GetFileNameFromProcessName(processName);
 
-                var mohaaFileName = ProcessExtension.GetFileNameFromProcessName("mohaa");
-                if (!string.IsNullOrEmpty(mohaaFileName)) return mohaaFileName;
+                    if (!string.IsNullOrWhiteSpace(fileName))
+                        return fileName;
+                }
 
             }
             catch (Exception ex)

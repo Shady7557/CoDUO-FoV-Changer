@@ -82,12 +82,6 @@
     <Compile Include="CDKeyManagerForm.Designer.cs">
       <DependentUpon>CDKeyManagerForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ChangelogForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ChangelogForm.Designer.cs">
-      <DependentUpon>ChangelogForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="ClampEx.cs" />
     <Compile Include="Pool\Pool.cs" />
     <Compile Include="ProcMemoryBox.cs">
@@ -137,9 +131,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="CDKeyManagerForm.resx">
       <DependentUpon>CDKeyManagerForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ChangelogForm.resx">
-      <DependentUpon>ChangelogForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

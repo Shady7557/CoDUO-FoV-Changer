@@ -20,8 +20,7 @@ namespace CoDUO_FoV_Changer
         {
             if (index < 0) throw new ArgumentOutOfRangeException(nameof(index));
 
-            Memory memory;
-            if (_memoryIndex.TryGetValue(index, out memory)) return memory;
+            if (_memoryIndex.TryGetValue(index, out Memory memory)) return memory;
 
             return null;
         }

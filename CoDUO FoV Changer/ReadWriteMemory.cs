@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System;
 using System.Linq;
+using CurtLog;
 //This wasn't written by me (Shady), and quite frankly I can't remember who did but I'm pretty sure it's fairly generic at this point
 //I have made some significant changes to this, rewriting some of the code and deleting some
 namespace ReadWriteMemory
@@ -24,7 +25,9 @@ namespace ReadWriteMemory
 
         public bool CheckProcess()
         {
-            if (ProcessPID > 0 && ProcessExtensions.ProcessExtension.IsProcessAlive(ProcessPID)) return true;
+            if (ProcessPID > 0 && ProcessExtensions.ProcessExtension.IsProcessAlive(ProcessPID)) 
+                return true;
+
             if (!string.IsNullOrEmpty(ProcessName))
             {
                 var procs = Process.GetProcesses();
@@ -40,6 +43,7 @@ namespace ReadWriteMemory
         public bool StartProcess()
         {
             Process proc = null;
+
             var procs = Process.GetProcesses();
             for (int i = 0; i < procs.Length; i++)
             {
@@ -51,13 +55,15 @@ namespace ReadWriteMemory
                 }
             }
 
-            if (proc == null || proc.Id == 0) return false;
+            if (proc == null || proc.Id == 0) 
+                return false;
 
             Process = proc;
 
             if (string.IsNullOrEmpty(ProcessName)) ProcessName = proc.ProcessName;
 
-            if (ProcessPID == 0) ProcessPID = proc.Id;
+            if (ProcessPID == 0)
+                ProcessPID = proc.Id;
 
             processHandle = OpenProcess(2035711, false, proc.Id);
 
@@ -66,46 +72,88 @@ namespace ReadWriteMemory
 
         public int DllImageAddress(string dllname)
         {
-            if (string.IsNullOrEmpty(dllname)) throw new ArgumentNullException(nameof(dllname));
+            if (string.IsNullOrWhiteSpace(dllname)) 
+                throw new ArgumentNullException(nameof(dllname));
 
-            if (Process == null || RequiresElevation()) return 0;
-
-            Process tempProc;
-
-            try { tempProc = Process.GetProcessById(Process.Id) ?? Process; } //hacky workaround for modules not being detected
-            catch (Exception ex)
+            try
             {
-                Console.WriteLine(ex.ToString());
-                tempProc = Process;
-            }
+                if (Process == null || RequiresElevation())
+                {
+                    var msg = nameof(DllImageAddress) + " Process null or requires elevation.";
 
-            IntPtr? addr = null;
+                    Log.WriteLine(msg);
+                    Console.WriteLine(msg);
 
-            var modules = tempProc?.Modules?.Cast<ProcessModule>() ?? null;
-            if (modules != null && modules.Any())
-            {
+                    return 0;
+                }
+
+                Process tempProc;
+
+                try { tempProc = Process.GetProcessById(Process.Id) ?? Process; } //hacky workaround for modules not being detected
+                catch (Exception ex)
+                {
+                    Log.WriteLine(ex.ToString());
+                    Console.WriteLine(ex.ToString());
+                    tempProc = Process;
+                }
+
+                IntPtr? addr = null;
+
+                var modules = tempProc?.Modules?.Cast<ProcessModule>() ?? null;
+
+                if (modules == null || !modules.Any())
+                {
+                    var msg = nameof(DllImageAddress) + " modules null/empty!";
+                    Log.WriteLine(msg);
+                    Console.WriteLine(msg);
+                    return 0;
+                }
+
                 foreach (var module in modules)
                 {
-                    if (module?.ModuleName == dllname)
+                    try
                     {
-                        addr = module.BaseAddress;
-                        break;
+                        if (module?.ModuleName == dllname)
+                        {
+                            addr = module.BaseAddress;
+                            break;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.WriteLine(ex.ToString());
+                        Console.WriteLine(ex.ToString());
                     }
                 }
+
+                return (addr == null) ? 0 : (int)addr;
+            }
+            catch(Exception ex)
+            {
+                Log.WriteLine(ex.ToString());
+                Console.WriteLine(ex.ToString());
             }
 
-            return (addr == null) ? 0 : (int)addr;
+            return 0;
         }
 
         public bool RequiresElevation()
         {
-            if (Process == null) return false;
+            if (Process == null) 
+                return false;
 
             try
             {
-                if (Process?.Modules != null) return false;
+                if (Process?.Modules != null) 
+                    return false;
             }
             catch (System.ComponentModel.Win32Exception win32ex) when (win32ex.NativeErrorCode == 5) { return true; }
+            catch (Exception ex)
+            {
+                Log.WriteLine(ex.ToString());
+                Console.WriteLine(ex.ToString());
+                throw ex;
+            }
 
             return false;
         }
@@ -177,19 +225,19 @@ namespace ReadWriteMemory
         public void WriteMem(int pOffset, byte[] pBytes, int nsize) => WriteProcessMemory(processHandle, pOffset, pBytes, nsize, 0);
         #endregion
         #region Imports
-        [DllImport("kernel32.dll")]
+        [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool WriteProcessMemory(int hProcess, int lpBaseAddress, byte[] buffer, int size, int lpNumberOfBytesWritten);
 
-        [DllImport("kernel32.dll")]
+        [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool VirtualProtectEx(int hProcess, int lpAddress, int dwSize, uint flNewProtect, out uint lpflOldProtect);
 
-        [DllImport("kernel32.dll")]
+        [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool ReadProcessMemory(int hProcess, int lpBaseAddress, byte[] buffer, int size, int lpNumberOfBytesRead);
 
-        [DllImport("kernel32.dll")]
+        [DllImport("kernel32.dll", SetLastError = true)]
         public static extern int OpenProcess(uint dwDesiredAccess, bool bInheritHandle, int dwProcessId);
 
-        [DllImport("kernel32.dll")]
+        [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool CloseHandle(int hObject);
 
         [DllImport("user32.dll", EntryPoint = "FindWindow", SetLastError = true)]

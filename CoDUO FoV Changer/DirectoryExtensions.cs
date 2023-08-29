@@ -9,7 +9,7 @@ namespace DirectoryExtensions
 {
     public static class DirectoryExtension
     {
-        [DllImport("Kernel32.dll")]
+        [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool QueryFullProcessImageName([In] IntPtr hProcess, [In] uint dwFlags, [Out] StringBuilder lpExeName, [In, Out] ref uint lpdwSize);
 
         [return: MarshalAs(UnmanagedType.Bool)]

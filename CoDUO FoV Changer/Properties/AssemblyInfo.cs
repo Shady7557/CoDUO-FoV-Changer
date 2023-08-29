@@ -9,9 +9,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("CoDUO FoV Changer")]
 [assembly: AssemblyDescription("FoV Changer for Call of Duty and Call of Duty: United Offensive")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Shady's Shit")]
+[assembly: AssemblyCompany("Made with Love by Shady")]
 [assembly: AssemblyProduct("CoDUO FoV Changer")]
-[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyCopyright("Copyright ©  2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,5 +33,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.0.6")]
-[assembly: AssemblyFileVersion("2.0.6")]
+[assembly: AssemblyVersion("2.0.7")]
+[assembly: AssemblyFileVersion("2.0.7")]
