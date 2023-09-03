@@ -688,17 +688,15 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                if (settings.GameTime >= (int.MaxValue - 1))
-                {
-                    GameTimeLabel.Text = "Game Time: >= 68 Years";
-                    settings.GameTime--;
-                }
                 var span = TimeSpan.FromSeconds(settings.GameTime);
+
                 var spanCurrent = CurrentSession.GetSessionTime();
+
                 var totalMinutes = Math.Floor(span.TotalMinutes);
                 var totalHours = Math.Floor(span.TotalHours);
                 var totalMinutesCur = Math.Floor(spanCurrent.TotalMinutes);
                 var totalHoursCur = Math.Floor(spanCurrent.TotalHours);
+
                 if (settings.GameTime >= 1 && totalMinutes < 1) GameTimeLabel.Text = "Game Time: " + settings.GameTime.ToString("N0") + " seconds";
                 if (totalMinutes >= 1 && totalHours < 1) GameTimeLabel.Text = "Game Time: " + totalMinutes.ToString("N0") + " minutes";
                 if (totalHours >= 1) GameTimeLabel.Text = "Game Time: " + totalHours.ToString("N0") + " hours";
@@ -736,12 +734,6 @@ namespace CoDUO_FoV_Changer
             LaunchParametersTB.ScrollBars = (LaunchParametersTB.Text.Length >= 139) ? ScrollBars.Vertical : ScrollBars.None;
         }
 
-        private void UpdateTimer_Tick(object sender, EventArgs e)
-        {
-            CheckUpdatesLabel.Text = "Checking for updates...";
-            StartUpdateChecking();
-        }
-
         private void StartUpdater()
         {
             try
@@ -764,7 +756,7 @@ namespace CoDUO_FoV_Changer
 
                     using (var wc = new WebClient())
                     {
-                        wc.Headers.Add("user-agent", "CoDUO FoV Changer/" + Application.ProductVersion);
+                        wc.Headers.Add("user-agent", sb.Clear().Append("CoDUO FoV Changer/").Append(Application.ProductVersion).ToString());
                         wc.DownloadFile(LATEST_DOWNLOAD_URI, tempFoVPath);
                     }
 

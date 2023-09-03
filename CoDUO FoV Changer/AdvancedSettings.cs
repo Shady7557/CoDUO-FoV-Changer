@@ -28,13 +28,11 @@ namespace CoDUO_FoV_Changer
         private void AdvancedSettings_Load(object sender, EventArgs e)
         {
             GameTimeCheckbox.Checked = settings.TrackGameTime;
-            DisableUpdateTimerCBox.Checked = settings.DisableUpdateTimer;
         }
 
         private void SaveRestartAppButton_Click(object sender, EventArgs e)
         {
             settings.TrackGameTime = GameTimeCheckbox.Checked;
-            settings.DisableUpdateTimer = DisableUpdateTimerCBox.Checked;
             if (settings.HasChanged)
             {
                 DatabaseFile.Write(settings, PathInfos.SettingsPath);

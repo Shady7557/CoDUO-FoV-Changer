@@ -31,7 +31,6 @@
             this.GameTimeCheckbox = new System.Windows.Forms.CheckBox();
             this.CancelCloseButton = new System.Windows.Forms.Button();
             this.SaveRestartAppButton = new System.Windows.Forms.Button();
-            this.DisableUpdateTimerCBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // GameTimeCheckbox
@@ -39,7 +38,7 @@
             this.GameTimeCheckbox.AutoSize = true;
             this.GameTimeCheckbox.BackColor = System.Drawing.Color.Transparent;
             this.GameTimeCheckbox.ForeColor = System.Drawing.Color.Black;
-            this.GameTimeCheckbox.Location = new System.Drawing.Point(12, 33);
+            this.GameTimeCheckbox.Location = new System.Drawing.Point(12, 12);
             this.GameTimeCheckbox.Name = "GameTimeCheckbox";
             this.GameTimeCheckbox.Size = new System.Drawing.Size(123, 17);
             this.GameTimeCheckbox.TabIndex = 21;
@@ -49,7 +48,7 @@
             // CancelCloseButton
             // 
             this.CancelCloseButton.BackColor = System.Drawing.Color.DarkGray;
-            this.CancelCloseButton.Location = new System.Drawing.Point(12, 99);
+            this.CancelCloseButton.Location = new System.Drawing.Point(12, 64);
             this.CancelCloseButton.Name = "CancelCloseButton";
             this.CancelCloseButton.Size = new System.Drawing.Size(128, 22);
             this.CancelCloseButton.TabIndex = 20;
@@ -60,7 +59,7 @@
             // SaveRestartAppButton
             // 
             this.SaveRestartAppButton.BackColor = System.Drawing.Color.DarkGray;
-            this.SaveRestartAppButton.Location = new System.Drawing.Point(12, 70);
+            this.SaveRestartAppButton.Location = new System.Drawing.Point(12, 35);
             this.SaveRestartAppButton.Name = "SaveRestartAppButton";
             this.SaveRestartAppButton.Size = new System.Drawing.Size(128, 23);
             this.SaveRestartAppButton.TabIndex = 18;
@@ -68,26 +67,13 @@
             this.SaveRestartAppButton.UseVisualStyleBackColor = false;
             this.SaveRestartAppButton.Click += new System.EventHandler(this.SaveRestartAppButton_Click);
             // 
-            // DisableUpdateTimerCBox
-            // 
-            this.DisableUpdateTimerCBox.AutoSize = true;
-            this.DisableUpdateTimerCBox.BackColor = System.Drawing.Color.Transparent;
-            this.DisableUpdateTimerCBox.ForeColor = System.Drawing.Color.Black;
-            this.DisableUpdateTimerCBox.Location = new System.Drawing.Point(12, 10);
-            this.DisableUpdateTimerCBox.Name = "DisableUpdateTimerCBox";
-            this.DisableUpdateTimerCBox.Size = new System.Drawing.Size(128, 17);
-            this.DisableUpdateTimerCBox.TabIndex = 22;
-            this.DisableUpdateTimerCBox.Text = "Disable Update Timer";
-            this.DisableUpdateTimerCBox.UseVisualStyleBackColor = false;
-            // 
             // AdvancedSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
-            this.ClientSize = new System.Drawing.Size(156, 133);
+            this.ClientSize = new System.Drawing.Size(152, 95);
             this.ControlBox = false;
-            this.Controls.Add(this.DisableUpdateTimerCBox);
             this.Controls.Add(this.GameTimeCheckbox);
             this.Controls.Add(this.CancelCloseButton);
             this.Controls.Add(this.SaveRestartAppButton);
@@ -108,6 +94,5 @@
         internal System.Windows.Forms.CheckBox GameTimeCheckbox;
         internal System.Windows.Forms.Button CancelCloseButton;
         internal System.Windows.Forms.Button SaveRestartAppButton;
-        internal System.Windows.Forms.CheckBox DisableUpdateTimerCBox;
     }
 }

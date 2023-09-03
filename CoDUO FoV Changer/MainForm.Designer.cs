@@ -61,8 +61,7 @@
             this.GameTracker = new System.Windows.Forms.Timer(this.components);
             this.CurSessionGT = new System.Windows.Forms.Label();
             this.GameTimeLabel = new System.Windows.Forms.Label();
-            this.UpdateTimer = new System.Windows.Forms.Timer(this.components);
-            this.GamePIDBox = new ProcessMemoryBox();
+            this.GamePIDBox = new CoDUO_FoV_Changer.ProcessMemoryBox();
             this.CoDPictureBox = new System.Windows.Forms.PictureBox();
             this.ProccessChecker = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
@@ -384,12 +383,6 @@
             this.GameTimeLabel.TabIndex = 73;
             this.GameTimeLabel.Text = "Game Time: None";
             // 
-            // UpdateTimer
-            // 
-            this.UpdateTimer.Enabled = true;
-            this.UpdateTimer.Interval = 120000;
-            this.UpdateTimer.Tick += new System.EventHandler(this.UpdateTimer_Tick);
-            // 
             // GamePIDBox
             // 
             this.GamePIDBox.BackColor = System.Drawing.Color.DarkGray;
@@ -508,7 +501,6 @@
         internal System.Windows.Forms.Timer GameTracker;
         internal System.Windows.Forms.Label CurSessionGT;
         internal System.Windows.Forms.Label GameTimeLabel;
-        internal System.Windows.Forms.Timer UpdateTimer;
         private ProcessMemoryBox GamePIDBox;
         internal System.Windows.Forms.Timer ProccessChecker;
         private System.Windows.Forms.ToolTip toolTip1;
