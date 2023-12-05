@@ -26,11 +26,10 @@ namespace CoDUO_FoV_Changer
         {
             get
             {
-                if (string.IsNullOrEmpty(_registryPath))
-                {
+                if (string.IsNullOrWhiteSpace(_registryPath))
                     _registryPath = _stringBuilder.Clear().Append(Environment.Is64BitOperatingSystem ? @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive" : @"HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive").ToString();
 
-                }
+                
                 return _registryPath;
             }
         }
@@ -225,7 +224,9 @@ namespace CoDUO_FoV_Changer
                     if ((proc?.MainWindowTitle ?? string.Empty).IndexOf("CoD:United Offensive Multiplayer", StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         var fileName = ProcessExtension.GetFileNameFromProcess(proc);
-                        if (!string.IsNullOrEmpty(fileName)) return fileName;
+                        if (!string.IsNullOrWhiteSpace(fileName)) 
+                            return fileName;
+
                         break;
                     }
                 }
@@ -255,9 +256,12 @@ namespace CoDUO_FoV_Changer
             }
 
             var registryInstallPath = Registry.GetValue(RegistryPath, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
-            if (string.IsNullOrEmpty(registryInstallPath)) registryInstallPath = Registry.GetValue(RegistryPathVirtualStore, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
 
-            if (!string.IsNullOrEmpty(registryInstallPath)) return registryInstallPath;
+            if (string.IsNullOrWhiteSpace(registryInstallPath)) 
+                registryInstallPath = Registry.GetValue(RegistryPathVirtualStore, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(registryInstallPath)) 
+                return registryInstallPath;
 
             var paths1 = GetPotentialPathsFromSubkey(@"Software\Classes\VirtualStore\MACHINE\SOFTWARE\NVIDIA Corporation\Global\NVTweak\NvCplAppNamesStored", Registry.CurrentUser);
             var paths2 = GetPotentialPathsFromSubkey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\FeatureUsage\AppSwitched", Registry.CurrentUser);
