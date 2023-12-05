@@ -260,6 +260,12 @@ namespace CoDUO_FoV_Changer
             if (string.IsNullOrWhiteSpace(registryInstallPath)) 
                 registryInstallPath = Registry.GetValue(RegistryPathVirtualStore, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
 
+            if (string.IsNullOrWhiteSpace(registryInstallPath))
+                registryInstallPath = Registry.GetValue(RegistryPathCoD, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(registryInstallPath))
+                registryInstallPath = Registry.GetValue(RegistryPathCoDVirtualStore, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+
             if (!string.IsNullOrWhiteSpace(registryInstallPath)) 
                 return registryInstallPath;
 
