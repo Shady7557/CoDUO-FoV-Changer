@@ -13,7 +13,7 @@ namespace CoDUO_FoV_Changer
         private readonly string GameVersion = MainForm.Instance.GameVersion;
         private readonly Settings settings = Settings.Instance;
 
-     
+
         public static SettingsForm Instance = null;
 
         protected override CreateParams CreateParams
@@ -35,7 +35,7 @@ namespace CoDUO_FoV_Changer
 
         private void SettingsForm_Load(object sender, EventArgs e)
         {
-            if (MainForm.Instance.Visible && MainForm.Instance.WindowState != FormWindowState.Minimized) 
+            if (MainForm.Instance.Visible && MainForm.Instance.WindowState != FormWindowState.Minimized)
                 Location = new Point(MainForm.Instance.Location.X - 250, MainForm.Instance.Location.Y - 60);
 
             AppVersLabel.Text = "App. Version: " + Application.ProductVersion;

@@ -113,7 +113,7 @@ namespace CoDUO_FoV_Changer
             if (key == 0) return string.Empty;
 
             var keyStr = key.ToString();
-            if (keyStr.Contains(",")) 
+            if (keyStr.Contains(","))
                 keyStr = keyStr.Split(',')[1];
 
             var keySB = new StringBuilder(keyStr);
@@ -129,7 +129,7 @@ namespace CoDUO_FoV_Changer
 
             var keyStr = key.ToString();
 
-            if (keyStr.Contains(",")) 
+            if (keyStr.Contains(","))
                 keyStr = keyStr.Split(',')[1];
 
             var keySB = new StringBuilder(keyStr);

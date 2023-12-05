@@ -38,7 +38,7 @@ namespace CoDUO_FoV_Changer
             {
                 if (string.IsNullOrEmpty(_currentUserSID))
                     _currentUserSID = WindowsIdentity.GetCurrent().User.Value;
-                
+
 
                 return _currentUserSID;
             }
@@ -87,7 +87,7 @@ namespace CoDUO_FoV_Changer
                 var name = _stringBuilder.Append(@"CoDUO_FoV_Changer.Resources.").Append(e.Name.Split(',')[0]).Append(".dll").ToString();
                 using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(name))
                 {
-                    if (stream == null) 
+                    if (stream == null)
                         throw new FileLoadException(name);
 
                     var data = new byte[stream.Length];

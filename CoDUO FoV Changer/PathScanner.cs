@@ -29,7 +29,7 @@ namespace CoDUO_FoV_Changer
                 if (string.IsNullOrWhiteSpace(_registryPath))
                     _registryPath = _stringBuilder.Clear().Append(Environment.Is64BitOperatingSystem ? @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive" : @"HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive").ToString();
 
-                
+
                 return _registryPath;
             }
         }
@@ -193,7 +193,7 @@ namespace CoDUO_FoV_Changer
 
         public static string ScanForGamePath()
         {
-         
+
 
             try
             {
@@ -224,7 +224,7 @@ namespace CoDUO_FoV_Changer
                     if ((proc?.MainWindowTitle ?? string.Empty).IndexOf("CoD:United Offensive Multiplayer", StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         var fileName = ProcessExtension.GetFileNameFromProcess(proc);
-                        if (!string.IsNullOrWhiteSpace(fileName)) 
+                        if (!string.IsNullOrWhiteSpace(fileName))
                             return fileName;
 
                         break;
@@ -257,7 +257,7 @@ namespace CoDUO_FoV_Changer
 
             var registryInstallPath = Registry.GetValue(RegistryPath, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
 
-            if (string.IsNullOrWhiteSpace(registryInstallPath)) 
+            if (string.IsNullOrWhiteSpace(registryInstallPath))
                 registryInstallPath = Registry.GetValue(RegistryPathVirtualStore, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
 
             if (string.IsNullOrWhiteSpace(registryInstallPath))
@@ -266,7 +266,7 @@ namespace CoDUO_FoV_Changer
             if (string.IsNullOrWhiteSpace(registryInstallPath))
                 registryInstallPath = Registry.GetValue(RegistryPathCoDVirtualStore, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
 
-            if (!string.IsNullOrWhiteSpace(registryInstallPath)) 
+            if (!string.IsNullOrWhiteSpace(registryInstallPath))
                 return registryInstallPath;
 
             var paths1 = GetPotentialPathsFromSubkey(@"Software\Classes\VirtualStore\MACHINE\SOFTWARE\NVIDIA Corporation\Global\NVTweak\NvCplAppNamesStored", Registry.CurrentUser);
@@ -276,7 +276,7 @@ namespace CoDUO_FoV_Changer
             var paths5 = GetPotentialPathsFromSubkey(@"System\GameConfigStore\Children", Registry.CurrentUser, true);
 
             var allPaths = Pool.GetList<string>();
-            try 
+            try
             {
                 allPaths.AddRange(paths1);
                 allPaths.AddRange(paths2);

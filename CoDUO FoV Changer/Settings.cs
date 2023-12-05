@@ -61,7 +61,7 @@ namespace CoDUO_FoV_Changer
         }
 
 
-    
+
 
         public string InstallPathExe { get { return gamePath + @"\" + gameExe; } }
 

@@ -51,7 +51,7 @@ namespace ProcessExtensions
         {
             var h = OpenProcess(ProcessAccessFlags.QueryInformation, true, processId);
 
-            if (h == IntPtr.Zero) 
+            if (h == IntPtr.Zero)
                 return false;
 
             var b = GetExitCodeProcess(h, out uint code);
@@ -66,7 +66,7 @@ namespace ProcessExtensions
         /*/This part below was added by myself (Shady)/*/
         public static string GetFileNameFromProcessName(string processName)
         {
-            if (string.IsNullOrEmpty(processName)) 
+            if (string.IsNullOrEmpty(processName))
                 throw new ArgumentNullException(nameof(processName));
 
             var procs = Process.GetProcessesByName(processName);
@@ -92,14 +92,14 @@ namespace ProcessExtensions
 
         public static string GetFileNameFromProcess(Process process)
         {
-            if (process == null) 
+            if (process == null)
                 throw new ArgumentNullException(nameof(process));
-            if (process.HasExited) 
+            if (process.HasExited)
                 throw new InvalidOperationException(nameof(process));
 
 
             var sb = Pool.Get<StringBuilder>();
-            try 
+            try
             {
 
                 var fileName = DirectoryExtension.GetMainModuleFileNameNoAlloc(process, ref sb);
@@ -123,14 +123,14 @@ namespace ProcessExtensions
             if (string.IsNullOrWhiteSpace(procName))
                 return false;
 
-            switch(procName)
+            switch (procName)
             {
                 case "coduomp":
                 case "codmp":
                 case "mohaa":
                     return true;
                 default: return false;
-            }  
+            }
         }
 
     }

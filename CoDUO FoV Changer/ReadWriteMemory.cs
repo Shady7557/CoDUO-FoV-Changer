@@ -25,7 +25,7 @@ namespace ReadWriteMemory
 
         public bool CheckProcess()
         {
-            if (ProcessPID > 0 && ProcessExtensions.ProcessExtension.IsProcessAlive(ProcessPID)) 
+            if (ProcessPID > 0 && ProcessExtensions.ProcessExtension.IsProcessAlive(ProcessPID))
                 return true;
 
             if (!string.IsNullOrEmpty(ProcessName))
@@ -55,7 +55,7 @@ namespace ReadWriteMemory
                 }
             }
 
-            if (proc == null || proc.Id == 0) 
+            if (proc == null || proc.Id == 0)
                 return false;
 
             Process = proc;
@@ -72,7 +72,7 @@ namespace ReadWriteMemory
 
         public int DllImageAddress(string dllname)
         {
-            if (string.IsNullOrWhiteSpace(dllname)) 
+            if (string.IsNullOrWhiteSpace(dllname))
                 throw new ArgumentNullException(nameof(dllname));
 
             try
@@ -128,7 +128,7 @@ namespace ReadWriteMemory
 
                 return (addr == null) ? 0 : (int)addr;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.WriteLine(ex.ToString());
                 Console.WriteLine(ex.ToString());
@@ -139,12 +139,12 @@ namespace ReadWriteMemory
 
         public bool RequiresElevation()
         {
-            if (Process == null) 
+            if (Process == null)
                 return false;
 
             try
             {
-                if (Process?.Modules != null) 
+                if (Process?.Modules != null)
                     return false;
             }
             catch (System.ComponentModel.Win32Exception win32ex) when (win32ex.NativeErrorCode == 5) { return true; }

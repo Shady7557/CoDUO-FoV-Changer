@@ -16,7 +16,7 @@ namespace TimerExtensions
 
             public float Interval { get; set; } = 0f;
             public int Loops { get; set; } = 0;
-          
+
             public Action TimerAction
             {
                 get { return _timerAction; }

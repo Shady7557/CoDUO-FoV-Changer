@@ -65,9 +65,9 @@ namespace DirectoryExtensions
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public static string GetMainModuleFileNameNoAlloc(Process process, ref StringBuilder fileNameBuilder, int buffer = 1024)
         {
-            if (process == null) 
+            if (process == null)
                 throw new ArgumentNullException(nameof(process));
-            if (buffer < 1) 
+            if (buffer < 1)
                 throw new ArgumentOutOfRangeException(nameof(buffer));
             if (fileNameBuilder == null)
                 throw new ArgumentNullException(nameof(fileNameBuilder));

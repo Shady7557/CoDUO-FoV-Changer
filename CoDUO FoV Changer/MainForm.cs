@@ -85,10 +85,10 @@ namespace CoDUO_FoV_Changer
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-          
+
             var watch = Pool.Get<Stopwatch>();
-          
-            try 
+
+            try
             {
                 watch.Restart();
 
@@ -219,7 +219,7 @@ namespace CoDUO_FoV_Changer
                 watch.Stop();
 
                 var sb = Pool.Get<StringBuilder>();
-                try 
+                try
                 {
                     var timeTaken = watch.Elapsed;
                     Console.WriteLine(sb.Clear().Append("Form load took: ").Append(timeTaken.TotalMilliseconds).Append("ms").ToString());
@@ -453,7 +453,7 @@ namespace CoDUO_FoV_Changer
 
         public bool IsUO()
         {
-            if (MemorySelection == null || !MemorySelection.IsRunning()) 
+            if (MemorySelection == null || !MemorySelection.IsRunning())
                 return false; //I don't get why a null operator doesn't work here, but it doesn't. so we have this full 'check' here instead
 
             return (MemorySelection.ProcMemory?.DllImageAddress(MemoryAddresses.UO_UI_MP_DLL) ?? 0) != 0 || (MemorySelection.ProcMemory?.DllImageAddress(MemoryAddresses.UO_CGAME_MP_DLL) ?? 0) != 0;
@@ -486,7 +486,7 @@ namespace CoDUO_FoV_Changer
                     if (UpdateButton.InvokeRequired) UpdateButton.BeginInvoke((MethodInvoker)delegate { UpdateButton.Visible = _needsUpdate; });
                     else UpdateButton.Visible = _needsUpdate;
                 }
-               
+
                 SetLabelText(CheckUpdatesLabel, _needsUpdate ? "Updates available!" : "No updates found. Click to check again.");
             });
         }
@@ -739,9 +739,9 @@ namespace CoDUO_FoV_Changer
             try
             {
                 var sb = Pool.Get<StringBuilder>();
-                try 
+                try
                 {
-                   
+
                     var currentProc = Process.GetCurrentProcess();
                     var fileNameDir = currentProc?.MainModule?.FileName ?? string.Empty;
 
@@ -817,7 +817,7 @@ namespace CoDUO_FoV_Changer
                     {
                         var proc = allProcs[i];
 
-                        if (proc?.Id == 0) 
+                        if (proc?.Id == 0)
                             continue;
 
                         var hasPid = false;
@@ -833,7 +833,7 @@ namespace CoDUO_FoV_Changer
 
                         }
 
-                        if (!hasPid) 
+                        if (!hasPid)
                             GamePIDBox.AddProcessMemory(new Memory(proc.Id));
                     }
                 }
@@ -845,7 +845,7 @@ namespace CoDUO_FoV_Changer
                 if (GamePIDBox.Visible && GamePIDBox.SelectedItem == null)
                     GamePIDBox.SelectedIndex = ClampEx.Clamp(selectedIndex - 1, 0, GamePIDBox.Items.Count);
 
-              
+
             }
             catch (Exception ex)
             {
