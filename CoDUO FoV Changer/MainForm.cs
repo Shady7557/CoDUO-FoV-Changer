@@ -20,7 +20,7 @@ namespace CoDUO_FoV_Changer
 {
     public partial class MainForm : Form
     {
-        public const decimal HOTFIX = 7.7M;
+        public const decimal HOTFIX = 7.8M;
 
         public static bool IsDev { get; private set; } = Debugger.IsAttached;
 

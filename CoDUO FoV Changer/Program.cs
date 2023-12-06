@@ -84,7 +84,7 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
-                var name = _stringBuilder.Append(@"CoDUO_FoV_Changer.Resources.").Append(e.Name.Split(',')[0]).Append(".dll").ToString();
+                var name = _stringBuilder.Clear().Append(@"CoDUO_FoV_Changer.Resources.").Append(e.Name.Split(',')[0]).Append(".dll").ToString();
                 using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(name))
                 {
                     if (stream == null)
@@ -101,6 +101,7 @@ namespace CoDUO_FoV_Changer
                 Console.WriteLine(ex.ToString());
                 MessageBox.Show(ex.ToString(), Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
             return null;
         }
     }
