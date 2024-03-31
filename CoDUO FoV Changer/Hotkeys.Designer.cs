@@ -32,8 +32,6 @@
             this.FoVUp = new System.Windows.Forms.RadioButton();
             this.FoVDown = new System.Windows.Forms.RadioButton();
             this.FoVModifier = new System.Windows.Forms.RadioButton();
-            this.FogKey = new System.Windows.Forms.RadioButton();
-            this.FogModifier = new System.Windows.Forms.RadioButton();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
@@ -87,30 +85,6 @@
             this.FoVModifier.Text = "FoV Modifier";
             this.FoVModifier.UseVisualStyleBackColor = true;
             this.FoVModifier.CheckedChanged += new System.EventHandler(this.FoVModifier_CheckedChanged);
-            // 
-            // FogKey
-            // 
-            this.FogKey.AutoSize = true;
-            this.FogKey.Location = new System.Drawing.Point(12, 82);
-            this.FogKey.Name = "FogKey";
-            this.FogKey.Size = new System.Drawing.Size(64, 17);
-            this.FogKey.TabIndex = 3;
-            this.FogKey.TabStop = true;
-            this.FogKey.Text = "Fog Key";
-            this.FogKey.UseVisualStyleBackColor = true;
-            this.FogKey.CheckedChanged += new System.EventHandler(this.FogKey_CheckedChanged);
-            // 
-            // FogModifier
-            // 
-            this.FogModifier.AutoSize = true;
-            this.FogModifier.Location = new System.Drawing.Point(12, 218);
-            this.FogModifier.Name = "FogModifier";
-            this.FogModifier.Size = new System.Drawing.Size(83, 17);
-            this.FogModifier.TabIndex = 5;
-            this.FogModifier.TabStop = true;
-            this.FogModifier.Text = "Fog Modifier";
-            this.FogModifier.UseVisualStyleBackColor = true;
-            this.FogModifier.CheckedChanged += new System.EventHandler(this.FogModifier_CheckedChanged);
             // 
             // button1
             // 
@@ -176,9 +150,7 @@
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.FogModifier);
             this.Controls.Add(this.FoVModifier);
-            this.Controls.Add(this.FogKey);
             this.Controls.Add(this.FoVDown);
             this.Controls.Add(this.FoVUp);
             this.Controls.Add(this.label1);
@@ -203,8 +175,6 @@
         private System.Windows.Forms.RadioButton FoVUp;
         private System.Windows.Forms.RadioButton FoVDown;
         private System.Windows.Forms.RadioButton FoVModifier;
-        private System.Windows.Forms.RadioButton FogKey;
-        private System.Windows.Forms.RadioButton FogModifier;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;

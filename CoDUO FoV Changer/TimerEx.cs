@@ -6,20 +6,23 @@ namespace TimerExtensions
 {
     public static class TimerEx
     {
-        public static Timer Once(float seconds, Action action) { return new Timer(p => action.Invoke(), null, (int)seconds * 1000, Timeout.Infinite); }
+        public static Timer Once(float seconds, Action action) => new Timer(p => action.Invoke(), null, (int)seconds * 1000, Timeout.Infinite);
         public static RepeatingTimer Every(float seconds, Action action) => new RepeatingTimer(seconds, action);
+
         public class RepeatingTimer
         {
-            private int _currentLoops = 0;
+            private long _currentLoops = 0;
+
             private Timer _timer = null;
+
             private Action _timerAction;
 
             public float Interval { get; set; } = 0f;
-            public int Loops { get; set; } = 0;
+            public long Loops { get; set; } = 0;
 
             public Action TimerAction
             {
-                get { return _timerAction; }
+                get => _timerAction;
                 set
                 {
                     _timer = null;
@@ -33,11 +36,13 @@ namespace TimerExtensions
                     {
                         _timer = null;
 
-                        if (TimerAction == null) return;
+                        if (TimerAction == null) 
+                            return;
 
                         TimerAction.Invoke();
 
-                        if (Loops > 0 && _currentLoops >= Loops) return;
+                        if (Loops > 0 && _currentLoops >= Loops) 
+                            return;
 
                         _timer = Once(Interval, loopAct);
 
@@ -48,11 +53,15 @@ namespace TimerExtensions
 
                 }
             }
+
             public RepeatingTimer() { }
             public RepeatingTimer(float interval, Action action)
             {
-                if (interval <= 0) throw new ArgumentOutOfRangeException(nameof(interval));
+                if (interval <= 0) 
+                    throw new ArgumentOutOfRangeException(nameof(interval));
+
                 Interval = interval;
+
                 TimerAction = action ?? throw new ArgumentNullException(nameof(action));
             }
         }

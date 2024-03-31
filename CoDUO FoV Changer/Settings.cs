@@ -19,7 +19,6 @@ namespace CoDUO_FoV_Changer
         private string cmdline;
         private bool minimize;
         private string lastlog;
-        private bool fog;
         private bool trackTime;
         private double gameTime;
         private string hotkeyUp;
@@ -50,7 +49,6 @@ namespace CoDUO_FoV_Changer
             cmdline = string.Empty;
             minimize = true;
             lastlog = string.Empty;
-            fog = true;
             trackTime = true;
             gameTime = 0;
             hotkeyUp = 107.ToString();
@@ -105,12 +103,6 @@ namespace CoDUO_FoV_Changer
         {
             get { return minimize; }
             set { HasChanged = minimize != value; minimize = value; }
-        }
-
-        public bool Fog
-        {
-            get { return fog; }
-            set { HasChanged = fog != value; fog = value; }
         }
 
         public bool TrackGameTime

@@ -2,13 +2,11 @@
 using DirectoryExtensions;
 using ShadyPool;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-//This wasn't written by me. I found it on stackoverflow and nobody seems to have claimed "ownership" of it. I did make some slight modifications
+//This wasn't written by me. I found it on stackoverflow and nobody seems to have claimed "ownership" of it. I've increasingly made modifications to it.
 namespace ProcessExtensions
 {
     public class ProcessExtension
@@ -113,7 +111,35 @@ namespace ProcessExtensions
             finally { Pool.Free(ref sb); }
         }
 
-        public static bool IsCoDProcess(Process proc)
+        public static bool IsAnyProcessRunning(string processName)
+        {
+            if (string.IsNullOrEmpty(processName))
+                throw new ArgumentNullException(nameof(processName));
+
+            var procs = Process.GetProcessesByName(processName);
+            if (procs == null || procs.Length < 1)
+                return false;
+
+
+            for (int i = 0; i < procs.Length; i++)
+            {
+                try
+                {
+                    var p = procs[i];
+                    if (p == null || IsProcessAlive(p.Id))
+                        return true;
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    Log.WriteLine(ex.ToString());
+                }
+            }
+
+            return false;
+        }
+
+        public static bool IsCoDMPProcess(Process proc)
         {
             if (proc == null)
                 throw new ArgumentNullException(nameof(proc));

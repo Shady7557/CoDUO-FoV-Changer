@@ -28,13 +28,17 @@ namespace ReadWriteMemory
             if (ProcessPID > 0 && ProcessExtensions.ProcessExtension.IsProcessAlive(ProcessPID))
                 return true;
 
-            if (!string.IsNullOrEmpty(ProcessName))
+            if (string.IsNullOrWhiteSpace(ProcessName))
+                return false;
+
+            var procs = Process.GetProcesses();
+
+            for (int i = 0; i < procs.Length; i++)
             {
-                var procs = Process.GetProcesses();
-                for (int i = 0; i < procs.Length; i++)
-                {
-                    if (procs[i].ProcessName.Equals(ProcessName, StringComparison.OrdinalIgnoreCase)) return true;
-                }
+                var proc = procs[i];
+
+                if (proc.ProcessName.Equals(ProcessName, StringComparison.OrdinalIgnoreCase) && ProcessExtensions.ProcessExtension.IsProcessAlive(proc.Id))
+                    return true;
             }
 
             return false;
@@ -96,6 +100,10 @@ namespace ReadWriteMemory
                     Console.WriteLine(ex.ToString());
                     tempProc = Process;
                 }
+
+                if (tempProc == null || !ProcessExtensions.ProcessExtension.IsProcessAlive(tempProc.Id))
+                    return 0;
+                
 
                 IntPtr? addr = null;
 

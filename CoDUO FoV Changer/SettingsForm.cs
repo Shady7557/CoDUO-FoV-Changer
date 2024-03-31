@@ -5,12 +5,12 @@ using System.IO;
 using System.Diagnostics;
 using BitmapExtension;
 using CurtLog;
+using CoDRegistryExtensions;
 
 namespace CoDUO_FoV_Changer
 {
     public partial class SettingsForm : Form
     {
-        private readonly string GameVersion = MainForm.Instance.GameVersion;
         private readonly Settings settings = Settings.Instance;
 
 
@@ -39,7 +39,7 @@ namespace CoDUO_FoV_Changer
                 Location = new Point(MainForm.Instance.Location.X - 250, MainForm.Instance.Location.Y - 60);
 
             AppVersLabel.Text = "App. Version: " + Application.ProductVersion;
-            GameVersLabel.Text = "Game Version: " + (!string.IsNullOrEmpty(GameVersion) ? GameVersion : "Unknown");
+            GameVersLabel.Text = "Game Version: " + (!string.IsNullOrEmpty(CodRex.GameVersion) ? CodRex.GameVersion : "Unknown");
 
 
             ButtonBrowseGameFiles.Enabled = !string.IsNullOrEmpty(settings.InstallPath) && Directory.Exists(settings.InstallPath);

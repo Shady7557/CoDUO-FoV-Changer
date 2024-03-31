@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using CoDRegistryExtensions;
+using Microsoft.Win32;
 using ShadyPool;
 using System;
 using System.Text;
@@ -9,12 +10,6 @@ namespace CoDUO_FoV_Changer
     public partial class CDKeyManagerForm : Form
     {
         public static CDKeyManagerForm Instance = null;
-
-        private readonly string RegistryPath = PathScanner.RegistryPath;
-        private readonly string RegistryPathVirtualStore = PathScanner.RegistryPathVirtualStore;
-
-        private readonly string RegistryPathCoD = PathScanner.RegistryPathCoD;
-        private readonly string RegistryPathCoDVirtualStore = PathScanner.RegistryPathCoDVirtualStore;
 
         private CoDCDKey CoDKey = null;
         private CoDCDKey CoDKeyVS = null;
@@ -83,10 +78,11 @@ namespace CoDUO_FoV_Changer
 
         private string GetCDKey(bool unitedOffensive, bool virtualStore = false)
         {
-            var regPath = unitedOffensive ? (virtualStore ? RegistryPathVirtualStore : RegistryPath) : (virtualStore ? RegistryPathCoDVirtualStore : RegistryPathCoD);
+            var regPath = unitedOffensive ? (virtualStore ? CodRex.RegistryPathVirtualStore : CodRex.RegistryPath) : (virtualStore ? CodRex.RegistryPathCoDVirtualStore : CodRex.RegistryPathCoD);
 
             var keyGet = Registry.GetValue(regPath, unitedOffensive ? "key" : "codkey", string.Empty)?.ToString() ?? string.Empty;
-            if (string.IsNullOrEmpty(keyGet)) keyGet = Registry.GetValue(regPath, !unitedOffensive ? "key" : "codkey", string.Empty)?.ToString() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(keyGet)) 
+                keyGet = Registry.GetValue(regPath, !unitedOffensive ? "key" : "codkey", string.Empty)?.ToString() ?? string.Empty;
 
             return keyGet;
 
@@ -134,11 +130,11 @@ namespace CoDUO_FoV_Changer
             var codKeyVS = GetCleanCDKey(codKeyVirtualTextBox.Text);
 
 
-            if ((string.IsNullOrEmpty(uoKey) || uoKey.Length == 20) && uoKey != UOKey?.CDKey) Registry.SetValue(RegistryPath, "key", uoKey);
-            if ((string.IsNullOrEmpty(uoKeyVS) || uoKeyVS.Length == 20) && uoKeyVS != UOKeyVS?.CDKey) Registry.SetValue(RegistryPathVirtualStore, "key", uoKeyVS);
+            if (uoKey.Length == 20 && uoKey != UOKey?.CDKey) Registry.SetValue(CodRex.RegistryPath, "key", uoKey);
+            if (uoKeyVS.Length == 20 && uoKeyVS != UOKeyVS?.CDKey) Registry.SetValue(CodRex.RegistryPathVirtualStore, "key", uoKeyVS);
 
-            if ((string.IsNullOrEmpty(codKey) || codKey.Length == 20) && codKey != CoDKey?.CDKey) Registry.SetValue(RegistryPathCoD, "codkey", codKey);
-            if ((string.IsNullOrEmpty(codKeyVS) || codKeyVS.Length == 20) && codKeyVS != CoDKeyVS?.CDKey) Registry.SetValue(RegistryPathCoDVirtualStore, "codkey", codKeyVS);
+            if (codKey.Length == 20 && codKey != CoDKey?.CDKey) Registry.SetValue(CodRex.RegistryPathCoD, "codkey", codKey);
+            if ( codKeyVS.Length == 20 && codKeyVS != CoDKeyVS?.CDKey) Registry.SetValue(CodRex.RegistryPathCoDVirtualStore, "codkey", codKeyVS);
 
         }
 

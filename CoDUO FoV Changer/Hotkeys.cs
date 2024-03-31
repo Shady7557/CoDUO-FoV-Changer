@@ -72,16 +72,6 @@ namespace CoDUO_FoV_Changer
                 settings.HotKeyModifier = currentKeyCode.ToString();
                 MessageBox.Show("Set FoV modifier key: " + curKeyName);
             }
-            if (FogKey.Checked)
-            {
-                settings.HotKeyFog = currentKeyCode.ToString();
-                MessageBox.Show("Set fog hotkey: " + curKeyName);
-            }
-            if (FogModifier.Checked)
-            {
-                settings.HotKeyFogModifier = currentKeyCode.ToString();
-                MessageBox.Show("Set fog modifier hotkey: " + curKeyName);
-            }
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -140,11 +130,6 @@ namespace CoDUO_FoV_Changer
             return keySB.ToString();
         }
 
-        private void FogKey_CheckedChanged(object sender, EventArgs e)
-        {
-            if (FogKey.Checked && !string.IsNullOrEmpty(settings.HotKeyFog)) label1.Text = "Key: " + GetKeyString(GetKeyFromString(settings.HotKeyFog)) + " (current)";
-        }
-
         private void FoVUp_CheckedChanged(object sender, EventArgs e)
         {
             if (FoVUp.Checked && !string.IsNullOrEmpty(settings.HotKeyUp)) label1.Text = "Key: " + GetKeyString(GetKeyFromString(settings.HotKeyUp)) + " (current)";
@@ -158,11 +143,6 @@ namespace CoDUO_FoV_Changer
         private void FoVModifier_CheckedChanged(object sender, EventArgs e)
         {
             if (FoVModifier.Checked && !string.IsNullOrEmpty(settings.HotKeyModifier)) label1.Text = "Key: " + GetKeyString(GetKeyFromString(settings.HotKeyModifier)) + " (current)";
-        }
-
-        private void FogModifier_CheckedChanged(object sender, EventArgs e)
-        {
-            if (FogModifier.Checked && !string.IsNullOrEmpty(settings.HotKeyFogModifier)) label1.Text = "Key: " + GetKeyString(GetKeyFromString(settings.HotKeyFogModifier)) + " (current)";
         }
 
         private void Label2_TextChanged(object sender, EventArgs e)

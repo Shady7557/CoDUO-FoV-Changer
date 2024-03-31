@@ -48,7 +48,7 @@
             // CancelCloseButton
             // 
             this.CancelCloseButton.BackColor = System.Drawing.Color.DarkGray;
-            this.CancelCloseButton.Location = new System.Drawing.Point(12, 64);
+            this.CancelCloseButton.Location = new System.Drawing.Point(9, 64);
             this.CancelCloseButton.Name = "CancelCloseButton";
             this.CancelCloseButton.Size = new System.Drawing.Size(128, 22);
             this.CancelCloseButton.TabIndex = 20;
@@ -59,7 +59,7 @@
             // SaveRestartAppButton
             // 
             this.SaveRestartAppButton.BackColor = System.Drawing.Color.DarkGray;
-            this.SaveRestartAppButton.Location = new System.Drawing.Point(12, 35);
+            this.SaveRestartAppButton.Location = new System.Drawing.Point(9, 35);
             this.SaveRestartAppButton.Name = "SaveRestartAppButton";
             this.SaveRestartAppButton.Size = new System.Drawing.Size(128, 23);
             this.SaveRestartAppButton.TabIndex = 18;
@@ -72,7 +72,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
-            this.ClientSize = new System.Drawing.Size(152, 95);
+            this.ClientSize = new System.Drawing.Size(144, 97);
             this.ControlBox = false;
             this.Controls.Add(this.GameTimeCheckbox);
             this.Controls.Add(this.CancelCloseButton);

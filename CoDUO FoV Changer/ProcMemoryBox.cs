@@ -18,11 +18,11 @@ namespace CoDUO_FoV_Changer
 
         public Memory GetMemoryFromIndex(int index)
         {
-            if (index < 0) throw new ArgumentOutOfRangeException(nameof(index));
+            if (index < 0) 
+                throw new ArgumentOutOfRangeException(nameof(index));
 
-            if (_memoryIndex.TryGetValue(index, out Memory memory)) return memory;
 
-            return null;
+            return _memoryIndex.TryGetValue(index, out var memory) ? memory : null;
         }
     }
 }

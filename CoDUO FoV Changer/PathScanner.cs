@@ -1,4 +1,5 @@
-﻿using CurtLog;
+﻿using CoDRegistryExtensions;
+using CurtLog;
 using Microsoft.Win32;
 using ProcessExtensions;
 using ShadyPool;
@@ -21,55 +22,6 @@ namespace CoDUO_FoV_Changer
         private static string _registryPathCoDVS = string.Empty;
 
         private static readonly StringBuilder _stringBuilder = new StringBuilder();
-
-        public static string RegistryPath
-        {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(_registryPath))
-                    _registryPath = _stringBuilder.Clear().Append(Environment.Is64BitOperatingSystem ? @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty United Offensive" : @"HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty United Offensive").ToString();
-
-
-                return _registryPath;
-            }
-        }
-
-        public static string RegistryPathVirtualStore
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_registryPathVS))
-                {
-                    _registryPathVS = _stringBuilder.Clear().Append(@"HKEY_USERS\").Append(Program.CurrentUserSID).Append(@"\SOFTWARE\Classes\VirtualStore\MACHINE\SOFTWARE\").Append(Environment.Is64BitOperatingSystem ? @"WOW6432Node\" : string.Empty).Append(@"Activision\Call of Duty United Offensive").ToString();
-                }
-                return _registryPathVS;
-            }
-        }
-
-        public static string RegistryPathCoD
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_registryPathCoD))
-                {
-                    _registryPathCoD = _stringBuilder.Clear().Append(Environment.Is64BitOperatingSystem ? @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Activision\Call of Duty" : @"HKEY_LOCAL_MACHINE\SOFTWARE\Activision\Call of Duty").ToString();
-
-                }
-                return _registryPathCoD;
-            }
-        }
-
-        public static string RegistryPathCoDVirtualStore
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_registryPathCoDVS))
-                {
-                    _registryPathCoDVS = _stringBuilder.Clear().Append(@"HKEY_USERS\").Append(Program.CurrentUserSID).Append(@"\SOFTWARE\Classes\VirtualStore\MACHINE\SOFTWARE\").Append(Environment.Is64BitOperatingSystem ? @"WOW6432Node\" : string.Empty).Append(@"Activision\Call of Duty").ToString();
-                }
-                return _registryPathCoDVS;
-            }
-        }
 
         private static List<string> GetPotentialPathsFromSubkey(string subKey, RegistryKey regKey, bool recursive = false)
         {
@@ -241,13 +193,11 @@ namespace CoDUO_FoV_Changer
             {
                 var filesInStartup = Directory.GetFiles(Application.StartupPath);
                 if (filesInStartup?.Length > 0)
-                {
                     for (int i = 0; i < filesInStartup.Length; i++)
                     {
                         var fileName = Path.GetFileName(filesInStartup[i]);
                         if (fileName.Equals("CoDUOMP.exe", StringComparison.OrdinalIgnoreCase) || fileName.Equals("CoDMP.exe", StringComparison.OrdinalIgnoreCase) || fileName.Equals("mohaa.exe", StringComparison.OrdinalIgnoreCase)) return Application.StartupPath;
                     }
-                }
             }
             catch (Exception ex)
             {
@@ -255,16 +205,16 @@ namespace CoDUO_FoV_Changer
                 Log.WriteLine(ex.ToString());
             }
 
-            var registryInstallPath = Registry.GetValue(RegistryPath, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+            var registryInstallPath = Registry.GetValue(CodRex.RegistryPath, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
 
             if (string.IsNullOrWhiteSpace(registryInstallPath))
-                registryInstallPath = Registry.GetValue(RegistryPathVirtualStore, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+                registryInstallPath = Registry.GetValue(CodRex.RegistryPathVirtualStore, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
 
             if (string.IsNullOrWhiteSpace(registryInstallPath))
-                registryInstallPath = Registry.GetValue(RegistryPathCoD, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+                registryInstallPath = Registry.GetValue(CodRex.RegistryPathCoD, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
 
             if (string.IsNullOrWhiteSpace(registryInstallPath))
-                registryInstallPath = Registry.GetValue(RegistryPathCoDVirtualStore, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+                registryInstallPath = Registry.GetValue(CodRex.RegistryPathCoDVirtualStore, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
 
             if (!string.IsNullOrWhiteSpace(registryInstallPath))
                 return registryInstallPath;

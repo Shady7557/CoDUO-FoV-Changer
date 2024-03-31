@@ -29,10 +29,10 @@ namespace CoDUO_FoV_Changer
                     serializer.WriteObject(stream, objectToWrite);
                     stream.Position = 0;
                     xmlDocument.Load(stream);
+
                     if (File.Exists(fileName))
-                    {
                         File.Delete(fileName);
-                    }
+                    
                     xmlDocument.Save(fileName);
                     stream.Close();
                 }
@@ -54,7 +54,7 @@ namespace CoDUO_FoV_Changer
         /// <returns>Returns a new instance of the object read from the XML file.</returns>
         public static T Read<T>(string filePath) where T : new()
         {
-            T objectOut = default(T);
+            T objectOut = default;
             try
             {
                 XmlDocument xmlDocument = new XmlDocument();

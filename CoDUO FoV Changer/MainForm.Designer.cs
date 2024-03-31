@@ -34,7 +34,6 @@
             this.FoVNumeric = new System.Windows.Forms.NumericUpDown();
             this.FoVLabel = new System.Windows.Forms.Label();
             this.MinimizeCheckBox = new System.Windows.Forms.CheckBox();
-            this.FogCheckBox = new System.Windows.Forms.CheckBox();
             this.CheckUpdatesLabel = new System.Windows.Forms.Label();
             this.UpdateButton = new System.Windows.Forms.Button();
             this.FoVMenuStrip = new System.Windows.Forms.MenuStrip();
@@ -50,14 +49,11 @@
             this.rcStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.fogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.MemoryTimer = new System.Windows.Forms.Timer(this.components);
             this.LaunchParametersTB = new System.Windows.Forms.TextBox();
             this.LaunchParametersLB = new System.Windows.Forms.Label();
             this.HotKeyHandler = new System.Windows.Forms.Timer(this.components);
-            this.DvarsCheckBox = new System.Windows.Forms.CheckBox();
             this.GameTracker = new System.Windows.Forms.Timer(this.components);
             this.CurSessionGT = new System.Windows.Forms.Label();
             this.GameTimeLabel = new System.Windows.Forms.Label();
@@ -92,7 +88,7 @@
             this.FoVNumeric.ForeColor = System.Drawing.Color.Transparent;
             this.FoVNumeric.Location = new System.Drawing.Point(86, 7);
             this.FoVNumeric.Maximum = new decimal(new int[] {
-            130,
+            120,
             0,
             0,
             0});
@@ -134,24 +130,6 @@
             this.toolTip1.SetToolTip(this.MinimizeCheckBox, "Toggle whether or not this app should minimize to the tray");
             this.MinimizeCheckBox.UseVisualStyleBackColor = false;
             this.MinimizeCheckBox.CheckedChanged += new System.EventHandler(this.MinimizeCheckBox_CheckedChanged);
-            // 
-            // FogCheckBox
-            // 
-            this.FogCheckBox.AutoSize = true;
-            this.FogCheckBox.BackColor = System.Drawing.Color.Transparent;
-            this.FogCheckBox.Checked = true;
-            this.FogCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.FogCheckBox.ForeColor = System.Drawing.Color.Transparent;
-            this.FogCheckBox.Location = new System.Drawing.Point(316, 73);
-            this.FogCheckBox.Name = "FogCheckBox";
-            this.FogCheckBox.Size = new System.Drawing.Size(44, 17);
-            this.FogCheckBox.TabIndex = 64;
-            this.FogCheckBox.Text = "Fog";
-            this.toolTip1.SetToolTip(this.FogCheckBox, "Toggles the visibility of fog in the distance. \r\nNOTE: Players are NOT rendered b" +
-        "eyond fog, and this does NOT act as a cheat.\r\nThis setting only affects United O" +
-        "ffensive.");
-            this.FogCheckBox.UseVisualStyleBackColor = false;
-            this.FogCheckBox.CheckedChanged += new System.EventHandler(this.FogCheckBox_CheckedChanged);
             // 
             // CheckUpdatesLabel
             // 
@@ -257,17 +235,16 @@
             this.MinimizeIcon.ContextMenuStrip = this.rcStrip;
             this.MinimizeIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("MinimizeIcon.Icon")));
             this.MinimizeIcon.Text = "CoDUO FoV Changer";
-            this.MinimizeIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.MinimizeIcon_MouseDoubleClick);
+            this.MinimizeIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MinimizeIcon_MouseClick);
             // 
             // rcStrip
             // 
             this.rcStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolsToolStripMenuItem,
-            this.fogToolStripMenuItem,
             this.openToolStripMenuItem,
             this.exitToolStripMenuItem1});
             this.rcStrip.Name = "rcStrip";
-            this.rcStrip.Size = new System.Drawing.Size(104, 92);
+            this.rcStrip.Size = new System.Drawing.Size(104, 70);
             this.rcStrip.Text = "test";
             // 
             // toolsToolStripMenuItem
@@ -285,16 +262,6 @@
             this.settingsToolStripMenuItem1.Text = "Settings";
             this.settingsToolStripMenuItem1.Click += new System.EventHandler(this.settingsToolStripMenuItem1_Click);
             // 
-            // fogToolStripMenuItem
-            // 
-            this.fogToolStripMenuItem.Checked = true;
-            this.fogToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.fogToolStripMenuItem.Name = "fogToolStripMenuItem";
-            this.fogToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.fogToolStripMenuItem.Text = "Fog";
-            this.fogToolStripMenuItem.CheckedChanged += new System.EventHandler(this.fogToolStripMenuItem_CheckedChanged);
-            this.fogToolStripMenuItem.Click += new System.EventHandler(this.fogToolStripMenuItem_Click);
-            // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
@@ -308,12 +275,6 @@
             this.exitToolStripMenuItem1.Size = new System.Drawing.Size(103, 22);
             this.exitToolStripMenuItem1.Text = "Exit";
             this.exitToolStripMenuItem1.Click += new System.EventHandler(this.exitToolStripMenuItem1_Click);
-            // 
-            // MemoryTimer
-            // 
-            this.MemoryTimer.Enabled = true;
-            this.MemoryTimer.Interval = 3000;
-            this.MemoryTimer.Tick += new System.EventHandler(this.MemoryTimer_Tick);
             // 
             // LaunchParametersTB
             // 
@@ -342,20 +303,6 @@
             this.HotKeyHandler.Enabled = true;
             this.HotKeyHandler.Interval = 30;
             this.HotKeyHandler.Tick += new System.EventHandler(this.HotKeyHandler_Tick);
-            // 
-            // DvarsCheckBox
-            // 
-            this.DvarsCheckBox.AutoSize = true;
-            this.DvarsCheckBox.ForeColor = System.Drawing.Color.Transparent;
-            this.DvarsCheckBox.Location = new System.Drawing.Point(316, 27);
-            this.DvarsCheckBox.Name = "DvarsCheckBox";
-            this.DvarsCheckBox.Size = new System.Drawing.Size(105, 17);
-            this.DvarsCheckBox.TabIndex = 72;
-            this.DvarsCheckBox.Text = "Unlock All Dvars";
-            this.toolTip1.SetToolTip(this.DvarsCheckBox, "Toggle accessibility of all in-game cvars/dvars.\r\nThis setting only affects Unite" +
-        "d Offensive.");
-            this.DvarsCheckBox.UseVisualStyleBackColor = true;
-            this.DvarsCheckBox.CheckedChanged += new System.EventHandler(this.DvarsCheckBox_CheckedChanged);
             // 
             // GameTracker
             // 
@@ -440,14 +387,12 @@
             this.Controls.Add(this.GamePIDBox);
             this.Controls.Add(this.CurSessionGT);
             this.Controls.Add(this.GameTimeLabel);
-            this.Controls.Add(this.DvarsCheckBox);
             this.Controls.Add(this.LaunchParametersTB);
             this.Controls.Add(this.LaunchParametersLB);
             this.Controls.Add(this.StatusLabel);
             this.Controls.Add(this.FoVMenuStrip);
             this.Controls.Add(this.CoDPictureBox);
             this.Controls.Add(this.MinimizeCheckBox);
-            this.Controls.Add(this.FogCheckBox);
             this.Controls.Add(this.CheckUpdatesLabel);
             this.Controls.Add(this.UpdateButton);
             this.Controls.Add(this.FoVNumeric);
@@ -479,7 +424,6 @@
         internal System.Windows.Forms.NumericUpDown FoVNumeric;
         internal System.Windows.Forms.Label FoVLabel;
         internal System.Windows.Forms.CheckBox MinimizeCheckBox;
-        internal System.Windows.Forms.CheckBox FogCheckBox;
         internal System.Windows.Forms.Label CheckUpdatesLabel;
         internal System.Windows.Forms.Button UpdateButton;
         internal System.Windows.Forms.PictureBox CoDPictureBox;
@@ -493,11 +437,9 @@
         internal System.Windows.Forms.Label StatusLabel;
         private System.Windows.Forms.FolderBrowserDialog ipDialog;
         private System.Windows.Forms.NotifyIcon MinimizeIcon;
-        internal System.Windows.Forms.Timer MemoryTimer;
         internal System.Windows.Forms.TextBox LaunchParametersTB;
         internal System.Windows.Forms.Label LaunchParametersLB;
         internal System.Windows.Forms.Timer HotKeyHandler;
-        internal System.Windows.Forms.CheckBox DvarsCheckBox;
         internal System.Windows.Forms.Timer GameTracker;
         internal System.Windows.Forms.Label CurSessionGT;
         internal System.Windows.Forms.Label GameTimeLabel;
@@ -508,7 +450,6 @@
         private System.Windows.Forms.ContextMenuStrip rcStrip;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem fogToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem1;
         internal System.Windows.Forms.Button AdminLaunchButton;

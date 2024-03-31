@@ -15,6 +15,12 @@ using System.Collections.Generic;
 using BitmapExtension;
 using ShadyPool;
 using ProcessExtensions;
+using TimerExtensions;
+using System.Threading;
+using System.IO.MemoryMappedFiles;
+using System.Runtime.InteropServices;
+using CoDRegistryExtensions;
+using System.Text.RegularExpressions;
 
 namespace CoDUO_FoV_Changer
 {
@@ -34,7 +40,6 @@ namespace CoDUO_FoV_Changer
         private TimeSpan _lastGameTimeSpan;
         private DateTime _lastHotkey;
         private DateTime _lastUpdateCheck;
-        private string _gameVersion = string.Empty;
 
         private bool _needsUpdate = false;
 
@@ -50,19 +55,7 @@ namespace CoDUO_FoV_Changer
             get;
             private set;
         }
-
-        public string GameVersion
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_gameVersion))
-                {
-                    _gameVersion = Registry.GetValue(PathScanner.RegistryPath, "Version", string.Empty)?.ToString() ?? string.Empty;
-                    if (string.IsNullOrEmpty(_gameVersion)) _gameVersion = Registry.GetValue(PathScanner.RegistryPathVirtualStore, "Version", string.Empty)?.ToString() ?? string.Empty;
-                }
-                return _gameVersion;
-            }
-        }
+      
 
         public bool IsCheckingForUpdates { get; private set; } = false;
 
@@ -70,7 +63,10 @@ namespace CoDUO_FoV_Changer
         {
             Instance = this;
             InitializeComponent();
+
+            ListenForMaximizeSignal();
         }
+
 
         protected override CreateParams CreateParams
         {
@@ -82,10 +78,54 @@ namespace CoDUO_FoV_Changer
             }
         } //makes the loading look less shitty
 
+        // Constants for window styles
+        private const int GWL_EXSTYLE = -20;
+        private const int WS_EX_TOOLWINDOW = 0x00000080;
+
+        // Import the necessary WinAPI functions
+        [DllImport("user32.dll")]
+        private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll")]
+        private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        private const int SW_HIDE = 0;
+        private const int SW_SHOWNORMAL = 1;
+        private const int SW_SHOW = 5;
+
+        //I don't like this.
+        private void ListenForMaximizeSignal()
+        {
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                using (var mmf = MemoryMappedFile.CreateOrOpen(Program.MEMORY_MAPPED_NAME, Program.MEMORY_MAPPED_SIZE))
+                {
+                    while (true)
+                    {
+
+                        using (var accessor = mmf.CreateViewAccessor())
+                        {
+                            if (accessor.ReadByte(0) == 1)
+                            {
+                                BeginInvoke((MethodInvoker)delegate { UnminimizeFromTray(); });
+
+                                // Clear the byte
+                                accessor.Write(0, (byte)0);
+                            }
+                        }
+
+
+                        Thread.Sleep(250); // Polling interval
+                    }
+                }
+            });
+        }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-
             var watch = Pool.Get<Stopwatch>();
 
             try
@@ -94,9 +134,6 @@ namespace CoDUO_FoV_Changer
 
                 AdminLaunchButton.Visible = false;
                 if (!Program.IsElevated) AdminLaunchButton.Image = BitmapHelper.ResizeImage(SystemIcons.Shield.ToBitmap(), new Size(16, 16));
-
-
-                DvarsCheckBox.Visible = Debugger.IsAttached;
 
                 var argsSB = Pool.Get<StringBuilder>();
                 try
@@ -108,15 +145,6 @@ namespace CoDUO_FoV_Changer
                     {
                         var arg = cmdArgs[i];
                         if (arg.IndexOf(Application.ProductName, StringComparison.OrdinalIgnoreCase) >= 0 || arg.IndexOf(Application.StartupPath, StringComparison.OrdinalIgnoreCase) >= 0) continue;
-                        if (arg.Equals("-unlock", StringComparison.OrdinalIgnoreCase)) DvarsCheckBox.Visible = true;
-                        if (arg.Equals("-unlock=1", StringComparison.OrdinalIgnoreCase))
-                        {
-                            DvarsCheckBox.Visible = true;
-                            DvarsCheckBox.Checked = true;
-                        }
-
-                        if (arg.Equals("-fog=1", StringComparison.OrdinalIgnoreCase)) settings.Fog = true;
-                        else if (arg.Equals("-fog=0", StringComparison.OrdinalIgnoreCase)) settings.Fog = false;
 
                         if (arg.Equals("-launch", StringComparison.OrdinalIgnoreCase)) StartGameButton.PerformClick();
 
@@ -124,7 +152,8 @@ namespace CoDUO_FoV_Changer
 
                         if (Program.IsElevated) //ensure elevation before checking these args, otherwise a user could potentially make these forms appear without being elevated & cause an exception
                         {
-                            if (arg.Equals("-hotkeys", StringComparison.OrdinalIgnoreCase)) new Hotkeys().Show();
+                            if (arg.Equals("-hotkeys", StringComparison.OrdinalIgnoreCase)) 
+                                new Hotkeys().Show();
 
                             if (arg.Equals("-cdkeymanager", StringComparison.OrdinalIgnoreCase))
                             {
@@ -151,7 +180,13 @@ namespace CoDUO_FoV_Changer
                         argsSB.Length--;
 
                     var argStr = argsSB.ToString();
-                    Log.WriteLine(argsSB.Clear().Append("Launched program with args: ").Append(argStr).ToString());
+
+                    argsSB.Clear().Append("Launched program");
+
+                    if (!string.IsNullOrWhiteSpace(argStr))
+                        argsSB.Append(" with args: ").Append(argStr);
+
+                    Log.WriteLine(argsSB.ToString());
                 }
                 finally { Pool.Free(ref argsSB); }
 
@@ -200,8 +235,6 @@ namespace CoDUO_FoV_Changer
                 SetFoVNumeric(settings.FoV);
 
                 MinimizeCheckBox.Checked = settings.MinimizeToTray;
-                FogCheckBox.Checked = settings.Fog;
-                fogToolStripMenuItem.Checked = settings.Fog;
                 LaunchParametersTB.Text = settings.CommandLine;
 
                 if (settings.TrackGameTime) AccessGameTimeLabel();
@@ -211,6 +244,8 @@ namespace CoDUO_FoV_Changer
                     CurSessionGT.Visible = false;
                     GameTracker.Enabled = false;
                 }
+
+                TimerEx.Every(3f, MemoryTimer_Tick);
 
                 UpdateButton.Visible = IsDev;
             }
@@ -258,14 +293,77 @@ namespace CoDUO_FoV_Changer
                     return;
                 }
 
+                var launchFileName = settings.InstallPathExe;
+
+                var oldCfg = string.Empty;
+                var isCoD1 = !(settings.InstallPathExe.IndexOf("coduo", StringComparison.OrdinalIgnoreCase) >= 0);
+
+
+                try
+                {
+                    if (ShouldUseSteam())
+                    {
+                        Log.WriteLine("Path contained 'steamapps' and Steam is running. Should launch with steam, trying!");
+
+
+
+                        if (!string.IsNullOrWhiteSpace(LaunchParametersTB.Text))
+                        {
+                            Log.WriteLine("Writing launch parameters to config temporarily.");
+
+                            oldCfg = GetGameConfig(isCoD1);
+
+                            ApplyLaunchParametersToConfig(LaunchParametersTB.Text, isCoD1);
+
+                            Log.WriteLine("Wrote launch parameters.");
+                        }
+
+
+                        var steamLaunchUrl = string.Empty;
+
+                        var sb = Pool.Get<StringBuilder>();
+                        try
+                        {
+                            //steam://launch/{appid}/dialog
+                            //thanks to a guy named Lone who helped me figure out how to launch a game where you can select the option via Steam. Now that Steam lets you permanently select your desired option, this either immediately launches the game via Steam or Steam prompts you to select version.
+                            steamLaunchUrl = sb.Clear().Append("steam://launch/26").Append(isCoD1 ? "20" : "40").Append("/dialog").ToString();
+                        }
+                        finally { Pool.Free(ref sb); }
+
+                        launchFileName = steamLaunchUrl;
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    Log.WriteLine(ex.ToString());
+                }
+
+
+
                 var startInfo = new ProcessStartInfo
                 {
                     Arguments = !string.IsNullOrEmpty(LaunchParametersTB.Text) ? LaunchParametersTB.Text : string.Empty,
-                    FileName = settings.InstallPathExe,
+                    FileName = launchFileName,
                     WorkingDirectory = settings.InstallPath
                 };
 
                 Process.Start(startInfo);
+
+
+
+                if (!string.IsNullOrWhiteSpace(oldCfg))
+                {
+                    Log.WriteLine($"{nameof(oldCfg)} was not empty, waiting 8000 ms then saving old again");
+
+                    Thread.Sleep(8000);
+
+                    WriteGameConfig(oldCfg, isCoD1);
+
+                    Log.WriteLine("Wrote old config to disk!");
+                }
+
             }
             catch (Exception ex)
             {
@@ -329,43 +427,42 @@ namespace CoDUO_FoV_Changer
             });
         }
 
-        private void FogCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            if (MemorySelection != null && MemorySelection.IsRunning() && !IsUO())
-            {
-                FogCheckBox.Checked = true;
-                return;
-            }
-
-            settings.Fog = FogCheckBox.Checked;
-            fogToolStripMenuItem.Checked = settings.Fog;
-
-            Task.Run(() => ToggleFog(settings.Fog));
-        }
-
         private void MinimizeCheckBox_CheckedChanged(object sender, EventArgs e) => settings.MinimizeToTray = MinimizeCheckBox.Checked;
 
         private void MainForm_Resize(object sender, EventArgs e)
         {
             if (MinimizeCheckBox.Checked && WindowState == FormWindowState.Minimized)
-            {
-                Visible = false;
-                MinimizeIcon.Visible = true;
-                MinimizeIcon.BalloonTipIcon = ToolTipIcon.Info;
-                MinimizeIcon.BalloonTipText = Application.ProductName + " is minimized. Double click to restore full-size.";
-                MinimizeIcon.BalloonTipTitle = "Minimized to Tray";
-                MinimizeIcon.ShowBalloonTip(4300, "Minimized to Tray", Application.ProductName + " is minimized. Double click to restore full-size.", ToolTipIcon.Info);
-            }
+                MinimizeToTray();
         }
 
-        private void MinimizeIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void MinimizeIcon_MouseClick(object sender, MouseEventArgs e)
         {
-            Visible = true;
-            WindowState = FormWindowState.Normal;
+            if (e.Button == MouseButtons.Left)
+                UnminimizeFromTray();
+        }
+
+
+        private void MinimizeToTray()
+        {
+            ShowWindow(Handle, SW_HIDE);
+            SetWindowLong(Handle, GWL_EXSTYLE, GetWindowLong(Handle, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
+
+            MinimizeIcon.Visible = true;
+            MinimizeIcon.BalloonTipIcon = ToolTipIcon.Info;
+            MinimizeIcon.BalloonTipText = Application.ProductName + " is minimized. Double click to restore full-size.";
+            MinimizeIcon.BalloonTipTitle = "Minimized to Tray";
+            MinimizeIcon.ShowBalloonTip(4300, "Minimized to Tray", Application.ProductName + " is minimized. Click to restore full-size.", ToolTipIcon.Info);
+        }
+
+        private void UnminimizeFromTray()
+        {
+            ShowWindow(Handle, SW_SHOW);
+            ShowWindow(Handle, SW_SHOWNORMAL);
+            SetWindowLong(Handle, GWL_EXSTYLE, GetWindowLong(Handle, GWL_EXSTYLE) & ~WS_EX_TOOLWINDOW);
             MinimizeIcon.Visible = false;
         }
 
-        private void MemoryTimer_Tick(object sender, EventArgs e)
+        private void MemoryTimer_Tick()
         {
             Task.Run(() =>
             {
@@ -373,6 +470,7 @@ namespace CoDUO_FoV_Changer
 
                 if (MemorySelection == null || !MemorySelection.IsRunning())
                 {
+                    Console.WriteLine("memory select null or not running!, null?: " + (MemorySelection == null));
                     SetLabelText(StatusLabel, "Status: Not running");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate
                     {
@@ -386,14 +484,11 @@ namespace CoDUO_FoV_Changer
 
                     DoRAChecks();
                     DoFoV();
-                    ToggleFog(settings.Fog);
-                    DoDvars();
                 }
 
                 if (AdminLaunchButton.Visible != wantedButtonState)
-                {
                     AdminLaunchButton.BeginInvoke((MethodInvoker)delegate { AdminLaunchButton.Visible = wantedButtonState; });
-                }
+                
             });
         }
 
@@ -432,33 +527,22 @@ namespace CoDUO_FoV_Changer
                     _lastHotkey = now;
                 }
             }
-            if (HotkeyHandler.IsKeyPushedDown(fogModifier) && HotkeyHandler.IsKeyPushedDown(toggleFog))
-            {
-                FogCheckBox.Checked = !FogCheckBox.Checked;
-                _lastHotkey = now;
-            }
         }
 
-
-        private void DvarsCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            if (MemorySelection != null && MemorySelection.IsRunning() && !IsUO())
-            {
-                DvarsCheckBox.Checked = false;
-                return;
-            } //no support for dvar unlocking (yet) in cod1
-            Task.Run(() => DoDvars());
-        }
         #region Util
 
-        public bool IsUO()
+        public bool ShouldUseSteam()
+        {
+            return (settings?.InstallPathExe ?? string.Empty).IndexOf("steamapps", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        public bool IsUOMemory()
         {
             if (MemorySelection == null || !MemorySelection.IsRunning())
                 return false; //I don't get why a null operator doesn't work here, but it doesn't. so we have this full 'check' here instead
 
             return (MemorySelection.ProcMemory?.DllImageAddress(MemoryAddresses.UO_UI_MP_DLL) ?? 0) != 0 || (MemorySelection.ProcMemory?.DllImageAddress(MemoryAddresses.UO_CGAME_MP_DLL) ?? 0) != 0;
         }
-
 
         private void GetAllGameProcessesNoAlloc(ref List<Process> list)
         {
@@ -470,7 +554,7 @@ namespace CoDUO_FoV_Changer
             for (int i = 0; i < allProcs.Length; i++)
             {
                 var proc = allProcs[i];
-                if (ProcessExtension.IsCoDProcess(proc))
+                if (ProcessExtension.IsCoDMPProcess(proc))
                     list.Add(proc);
             }
         }
@@ -549,20 +633,7 @@ namespace CoDUO_FoV_Changer
 
         #endregion
         #region Memory
-        private void ToggleFog(bool val)
-        {
-            try
-            {
-                if (MemorySelection == null || !MemorySelection.IsRunning() || MemorySelection.ProcMemory.RequiresElevation()) return;
-                var value = val ? 1 : 0; // Convert.ToInt32(val);
-
-                var fogValue = MemorySelection.ReadIntAddress(MemoryAddresses.UO_FOG_POINTER_ADDRESS, 0x20);
-                if (fogValue != value) MemorySelection.ProcMemory.WriteInt(MemorySelection.GetIntPointerAddress(MemoryAddresses.UO_FOG_POINTER_ADDRESS, 0x20), value);
-            }
-            catch (Exception ex) { Log.WriteLine("An exception happened while trying to read/write fog values:" + Environment.NewLine + ex.ToString()); }
-        }
-
-        private void DoRAChecks() //this is where we do aspect ratio checks to ensure we limit FoV at non-widescreen values to reduce potential for any cheating
+        private void DoRAChecks() //this is where we do aspect ratio checks to ensure we limit FoV at non-widescreen values to reduce potential for any 'cheating' (this affects only non-widescreen resolutions & the advantage gained from significantly higher FoV is *incredibly* minor, but we still do not want to encourage this)
         {
             if (MemorySelection == null || !MemorySelection.IsRunning() || MemorySelection.ProcMemory.RequiresElevation() || CurrentSession == null || CurrentSession.GetSessionTime().TotalSeconds < 30) return; //if you do aspect ratio checks too soon, they'll return invalid values
 
@@ -587,7 +658,7 @@ namespace CoDUO_FoV_Changer
                 }
 
 
-                var maxFoV = (mode != -1 || (ratio < 1.7 && mode == -1)) ? 105 : 130;
+                var maxFoV = (mode != -1 || (ratio < 1.7 && mode == -1)) ? 105 : 120; //"120" is not real 120! remember: the screen is literally stretched in wide screen. this is equivalent to ~110 'real' FoV in a game; still lower than a common max value of (real) 120.
 
                 if (FoVNumeric.InvokeRequired) FoVNumeric.Invoke((MethodInvoker)delegate () { FoVNumeric.Maximum = maxFoV; });
                 else FoVNumeric.Maximum = maxFoV;
@@ -613,7 +684,7 @@ namespace CoDUO_FoV_Changer
                     return;
                 }
 
-                var address = !isRunning ? -1 : !IsUO() ? MemoryAddresses.COD_FOV_ADDRESS : (isRunning ? (MemorySelection.ProcMemory.DllImageAddress(MemoryAddresses.UO_CGAME_MP_DLL) + MemoryAddresses.UO_FOV_OFFSET) : -1);
+                var address = !isRunning ? -1 : !IsUOMemory() ? MemoryAddresses.COD_FOV_ADDRESS : (isRunning ? (MemorySelection.ProcMemory.DllImageAddress(MemoryAddresses.UO_CGAME_MP_DLL) + MemoryAddresses.UO_FOV_OFFSET) : -1);
                 if (!isRunning || address <= 0)
                 {
                     SetLabelText(StatusLabel, "Status: Not running");
@@ -639,23 +710,6 @@ namespace CoDUO_FoV_Changer
                 Console.WriteLine(ex.ToString());
                 Log.WriteLine("An exception happened while trying to read/write FoV addresses: " + Environment.NewLine + ex.ToString());
             }
-        }
-
-        private void DoDvars()
-        {
-            if (MemorySelection == null || !MemorySelection.IsRunning() || MemorySelection.ProcMemory.RequiresElevation()) return;
-            try
-            {
-                var val = DvarsCheckBox.Checked ? 235 : 116;
-
-                var curVal = MemorySelection.ProcMemory.ReadByte(MemoryAddresses.UO_DVAR_ADDRESS_1);
-                if (curVal == val) return; //don't write if it's already the value we want
-
-                MemorySelection.ProcMemory.WriteInt(MemoryAddresses.UO_DVAR_ADDRESS_1, val, 1);
-                MemorySelection.ProcMemory.WriteInt(MemoryAddresses.UO_DVAR_ADDRESS_2, val, 1);
-                MemorySelection.ProcMemory.WriteInt(MemoryAddresses.UO_DVAR_ADDRESS_3, val, 1);
-            }
-            catch (Exception ex) { Log.WriteLine("An exception happened while trying to read/write Dvar addresses:" + Environment.NewLine + ex.ToString()); }
         }
         #endregion
 
@@ -858,7 +912,7 @@ namespace CoDUO_FoV_Changer
         private void ProccessChecker_Tick(object sender, EventArgs e)
         {
             UpdateProcessBox();
-            if (MemorySelection != null && MemorySelection.IsRunning()) BitmapHelper.ScalePictureBox(CoDPictureBox, IsUO() ? Properties.Resources.CoDUO : Properties.Resources.CoD1);
+            if (MemorySelection != null && MemorySelection.IsRunning()) BitmapHelper.ScalePictureBox(CoDPictureBox, IsUOMemory() ? Properties.Resources.CoDUO : Properties.Resources.CoD1);
         }
 
         private void ChangelogToolStripMenuItem_Click(object sender, EventArgs e)
@@ -866,29 +920,14 @@ namespace CoDUO_FoV_Changer
             Process.Start(GITHUB_RELEASES_URI);
         }
 
-        private void InfoToolStripMenuItem_Click(object sender, EventArgs e) => MessageBox.Show("Created with love by Shady" + Environment.NewLine + Environment.NewLine + "This program is intended to allow you to change the Field of View in Multiplayer for both Call of Duty and Call of Duty: United Offensive, both of which do not normally allow you to do so." + Environment.NewLine + Environment.NewLine + "Program version: " + ProductVersion + Environment.NewLine + "Game version: " + (!string.IsNullOrEmpty(GameVersion) ? GameVersion : "Unknown"), ProductName + " (" + ProductVersion + ")", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        private void InfoToolStripMenuItem_Click(object sender, EventArgs e) => MessageBox.Show("Created with love by Shady" + Environment.NewLine + Environment.NewLine + "This program is intended to allow you to change the Field of View in Multiplayer for both Call of Duty and Call of Duty: United Offensive, both of which do not normally allow you to do so, resulting in an incredibly zoomed-in experience when playing widescreen resolutions\nThis application automatically detects widescreen aspect ratios, and if one is not used, the maximum FoV you can set will be lower so as to provide minimal potential advantage." + Environment.NewLine + Environment.NewLine + "Program version: " + ProductVersion + Environment.NewLine + "Game version: " + (!string.IsNullOrEmpty(CodRex.GameVersion) ? CodRex.GameVersion : "Unknown"), ProductName + " (" + ProductVersion + ")", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Visible = true;
-            WindowState = FormWindowState.Normal;
-            MinimizeIcon.Visible = false;
+            UnminimizeFromTray();
         }
 
         private void exitToolStripMenuItem1_Click(object sender, EventArgs e) => Application.Exit();
-
-        private void fogToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
-        {
-            if (!IsUO())
-            {
-                fogToolStripMenuItem.Checked = true;
-                return;
-            }
-            settings.Fog = FogCheckBox.Checked = fogToolStripMenuItem.Checked;
-            Task.Run(() => ToggleFog(settings.Fog));
-        }
-
-        private void fogToolStripMenuItem_Click(object sender, EventArgs e) => fogToolStripMenuItem.Checked = !fogToolStripMenuItem.Checked; //idk why this is needed but it seems like it is??
 
         private void settingsToolStripMenuItem1_Click(object sender, EventArgs e)
         {
@@ -900,10 +939,7 @@ namespace CoDUO_FoV_Changer
         {
             MemorySelection = GamePIDBox.GetMemoryFromIndex(GamePIDBox.SelectedIndex);
 
-            if (MemorySelection == null || !MemorySelection.IsRunning())
-                return;
-
-            BitmapHelper.ScalePictureBox(CoDPictureBox, IsUO() ? Properties.Resources.CoDUO : Properties.Resources.CoD1);
+            BitmapHelper.ScalePictureBox(CoDPictureBox, (IsUOMemory() || (ProcessExtension.IsAnyProcessRunning("CoDUOMP") && (!ProcessExtension.IsAnyProcessRunning("mohaa") && !ProcessExtension.IsAnyProcessRunning("codmp")))) ? Properties.Resources.CoDUO : Properties.Resources.CoD1);
         }
 
         private void GamePIDBox_VisibleChanged(object sender, EventArgs e) => CoDPictureBox.Visible = GamePIDBox.Visible;
@@ -916,15 +952,11 @@ namespace CoDUO_FoV_Changer
             TryRestartAsAdmin();
         }
 
-        private void TryRestartAsAdmin()
+        private bool TryRestartAsAdmin()
         {
             var fileNameDir = Process.GetCurrentProcess()?.MainModule?.FileName ?? string.Empty;
 
-            if (string.IsNullOrEmpty(fileNameDir) || !File.Exists(fileNameDir))
-            {
-                MessageBox.Show("Application path doesn't exist. Cannot start: " + fileNameDir + Environment.NewLine + " Please manually run the program as an Admin if you wish to change your hotkeys.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Close();
-            }
+            if (string.IsNullOrWhiteSpace(fileNameDir) || !File.Exists(fileNameDir)) return false;
             else
             {
 
@@ -940,12 +972,108 @@ namespace CoDUO_FoV_Changer
                 catch (System.ComponentModel.Win32Exception win32ex) when (win32ex.NativeErrorCode == 1223)
                 {
                     Log.WriteLine("User canceled UAC prompt (" + win32ex.Message + " )");
+                    return false;
                 }
                 finally { Close(); }
 
             }
+
+            return true;
         }
 
+        /// <summary>
+        /// Reads config file from disk and returns as string.
+        /// </summary>
+        /// <param name="vCod"></param>
+        /// <returns></returns>
+        /// <exception cref="DirectoryNotFoundException"></exception>
+        /// <exception cref="FileNotFoundException"></exception>
+        /// <exception cref="IOException"></exception>
+        private string GetGameConfig(bool vCod = false)
+        {
+            var installPath = settings.InstallPath;
 
+            if (!Directory.Exists(installPath))
+               throw new DirectoryNotFoundException(installPath);
+
+            var cfgDirName = vCod ? "main" : "uo";
+            var cfgFileName = vCod ? "config_mp.cfg" : "uoconfig_mp.cfg";
+
+            var cfgPath = Path.Combine(Path.Combine(installPath, cfgDirName), cfgFileName);
+
+            var cfgFileInfo = new FileInfo(cfgPath);
+            if (!cfgFileInfo.Exists)
+            {
+                Console.WriteLine("could not find cfgPath: " + cfgPath);
+                throw new FileNotFoundException(cfgPath);
+            }
+
+            var sizeInBytes = cfgFileInfo.Length;
+
+
+            if (sizeInBytes > 1024000)
+            {
+                Console.WriteLine("cfg file is too large to modify (bytes): " + sizeInBytes);
+                throw new IOException($"{cfgPath} is too large ({sizeInBytes})");
+            }
+
+            return File.ReadAllText(cfgPath);
+        }
+
+        private void WriteGameConfig(string cfgContents,  bool vCod = false)
+        {
+            var installPath = settings.InstallPath;
+
+            if (!Directory.Exists(installPath))
+                throw new DirectoryNotFoundException(installPath);
+
+            var cfgDirName = vCod ? "main" : "uo";
+            var cfgFileName = vCod ? "config_mp.cfg" : "uoconfig_mp.cfg";
+
+            var cfgPath = Path.Combine(Path.Combine(installPath, cfgDirName), cfgFileName);
+
+            File.WriteAllText(cfgPath, cfgContents);
+        }
+
+        private void ApplyLaunchParametersToConfig(string paramString, bool vCod = false)
+        {
+            if (string.IsNullOrWhiteSpace(paramString))
+                throw new ArgumentNullException(nameof(paramString));
+
+            var cfgReadText = GetGameConfig(vCod);
+
+            if (string.IsNullOrWhiteSpace(cfgReadText))
+                throw new ArgumentNullException(nameof(cfgReadText));
+            
+
+            var sb = Pool.Get<StringBuilder>();
+
+            try 
+            {
+                sb.Clear().Append(cfgReadText);
+
+                var argsStr = paramString;
+
+                var splitArguments = Regex.Split(argsStr, @"(?=\+)");
+
+                for (int i = 0; i < splitArguments.Length; i++)
+                    sb.Append(splitArguments[i]).Replace("+set", "seta").Append(Environment.NewLine);
+
+
+                if (splitArguments.Length > 0)
+                    sb.Length--;
+
+                try { WriteGameConfig(sb.ToString(), vCod); }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    Log.WriteLine(ex.ToString());
+                }
+
+            }
+            finally { Pool.Free(ref sb); }
+
+
+        }
     }
 }
