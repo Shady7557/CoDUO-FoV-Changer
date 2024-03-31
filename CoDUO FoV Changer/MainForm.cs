@@ -4,7 +4,6 @@ using System.Text;
 using CurtLog;
 using System.Windows.Forms;
 using System.IO;
-using Microsoft.Win32;
 using System.Diagnostics;
 using System.Net;
 using ClampExt;
@@ -26,7 +25,7 @@ namespace CoDUO_FoV_Changer
 {
     public partial class MainForm : Form
     {
-        public const decimal HOTFIX = 7.8M;
+        public const decimal HOTFIX = 8.0M;
 
         public static bool IsDev { get; private set; } = Debugger.IsAttached;
 
