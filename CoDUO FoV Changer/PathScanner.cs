@@ -15,12 +15,6 @@ namespace CoDUO_FoV_Changer
 {
     internal class PathScanner
     {
-        private static string _registryPath = string.Empty;
-        private static string _registryPathVS = string.Empty;
-
-        private static string _registryPathCoD = string.Empty;
-        private static string _registryPathCoDVS = string.Empty;
-
         private static readonly StringBuilder _stringBuilder = new StringBuilder();
 
         private static List<string> GetPotentialPathsFromSubkey(string subKey, RegistryKey regKey, bool recursive = false)
@@ -32,14 +26,11 @@ namespace CoDUO_FoV_Changer
                 {
                     if (key != null)
                     {
-                        Console.WriteLine(subKey + " was not null, so that's good");
                         if (recursive)
                         {
-                            Console.WriteLine("recursive");
                             var subKeyNames = key.GetSubKeyNames();
                             if (subKeyNames != null && subKeyNames.Length > 0)
                             {
-                                Console.WriteLine("subKeyNames: " + subKeyNames.Length);
                                 for (int i = 0; i < subKeyNames.Length; i++)
                                 {
                                     var name = subKeyNames[i];
@@ -47,12 +38,10 @@ namespace CoDUO_FoV_Changer
                                     using (var key2 = regKey.OpenSubKey(fullName))
                                     {
                                         if (key2 == null)
-                                        {
-                                            Console.WriteLine("key2 is null for: " + fullName);
                                             continue;
-                                        }
+                                        
                                         var valueNames2 = key2.GetValueNames();
-                                        Console.WriteLine("key2 " + fullName + " has valueNames2 length: " + valueNames2.Length);
+
                                         if (valueNames2 != null && valueNames2.Length > 1)
                                         {
                                             for (int j = 0; j < valueNames2.Length; j++)
@@ -63,31 +52,19 @@ namespace CoDUO_FoV_Changer
                                                 Console.WriteLine(fullVal);
                                                 if (!string.IsNullOrEmpty(val) && (val.IndexOf("CoDUOMP", StringComparison.OrdinalIgnoreCase) >= 0 || val.IndexOf("CoDMP", StringComparison.OrdinalIgnoreCase) >= 0))
                                                 {
-                                                    Console.WriteLine("indexof coduomp/codmp was >= 0: " + fullVal);
                                                     if (File.Exists(val))
-                                                    {
-                                                        Console.WriteLine("file exists for val: " + fullVal);
                                                         paths.Add(val);
-                                                    }
                                                     else
                                                     {
-                                                        Console.WriteLine("file doesn't exist for val: " + fullVal);
                                                         if (string.IsNullOrEmpty(val))
-                                                        {
-                                                            Console.WriteLine("val is null/empty (after trying to cast as string)");
                                                             continue;
-                                                        }
+                                                        
                                                         if (File.Exists(val))
-                                                        {
-                                                            Console.WriteLine("file DOES exist for val: " + fullVal);
                                                             paths.Add(val);
-                                                        }
-                                                        else Console.WriteLine("file does not exist for val: " + fullVal);
                                                     }
                                                 }
                                             }
                                         }
-                                        else Console.WriteLine("getvaluenames null (recursive): " + fullName);
                                     }
                                 }
                             }
@@ -102,34 +79,21 @@ namespace CoDUO_FoV_Changer
                                 var val = valueNames[i];
                                 if (val.IndexOf("CoDUOMP", StringComparison.OrdinalIgnoreCase) >= 0 || val.IndexOf("CoDMP", StringComparison.OrdinalIgnoreCase) >= 0)
                                 {
-                                    Console.WriteLine("indexof coduomp/codmp was >= 0: " + val);
                                     if (File.Exists(val))
-                                    {
-                                        Console.WriteLine("file exists for val: " + val);
                                         paths.Add(val);
-                                    }
                                     else
                                     {
-                                        Console.WriteLine("file doesn't exist for val: " + val);
                                         var val2 = key.GetValue(val) as string;
                                         if (string.IsNullOrEmpty(val2))
-                                        {
-                                            Console.WriteLine("val2 is null/empty (after trying to cast as string)");
                                             continue;
-                                        }
+
                                         if (!string.IsNullOrEmpty(val2) && File.Exists(val2))
-                                        {
-                                            Console.WriteLine("file does exist for val2: " + val2);
                                             paths.Add(val2);
-                                        }
-                                        else Console.WriteLine("file does not exist or is empty for val2: " + val2);
                                     }
                                 }
                             }
                         }
-                        else Console.WriteLine("getvaluenames null: " + subKey);
                     }
-                    else Console.WriteLine("key was null: " + subKey);
                 }
             }
             catch (Exception ex)
@@ -145,8 +109,6 @@ namespace CoDUO_FoV_Changer
 
         public static string ScanForGamePath()
         {
-
-
             try
             {
 
@@ -154,10 +116,18 @@ namespace CoDUO_FoV_Changer
 
                 foreach (var processName in procNames)
                 {
-                    var fileName = ProcessExtension.GetFileNameFromProcessName(processName);
+                    try 
+                    {
+                        var fileName = ProcessExtension.GetFileNameFromProcessName(processName);
 
-                    if (!string.IsNullOrWhiteSpace(fileName))
-                        return fileName;
+                        if (!string.IsNullOrWhiteSpace(fileName))
+                            return fileName;
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        Log.WriteLine(ex.ToString());
+                    }
                 }
 
             }
@@ -172,14 +142,22 @@ namespace CoDUO_FoV_Changer
                 var procs = Process.GetProcesses();
                 for (int i = 0; i < procs.Length; i++)
                 {
-                    var proc = procs[i];
-                    if ((proc?.MainWindowTitle ?? string.Empty).IndexOf("CoD:United Offensive Multiplayer", StringComparison.OrdinalIgnoreCase) >= 0)
+                    try
                     {
-                        var fileName = ProcessExtension.GetFileNameFromProcess(proc);
-                        if (!string.IsNullOrWhiteSpace(fileName))
-                            return fileName;
+                        var proc = procs[i];
+                        if ((proc?.MainWindowTitle ?? string.Empty).IndexOf("CoD:United Offensive Multiplayer", StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            var fileName = ProcessExtension.GetFileNameFromProcess(proc);
+                            if (!string.IsNullOrWhiteSpace(fileName))
+                                return fileName;
 
-                        break;
+                            break;
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        Log.WriteLine(ex.ToString());
                     }
                 }
             }
@@ -195,8 +173,16 @@ namespace CoDUO_FoV_Changer
                 if (filesInStartup?.Length > 0)
                     for (int i = 0; i < filesInStartup.Length; i++)
                     {
-                        var fileName = Path.GetFileName(filesInStartup[i]);
-                        if (fileName.Equals("CoDUOMP.exe", StringComparison.OrdinalIgnoreCase) || fileName.Equals("CoDMP.exe", StringComparison.OrdinalIgnoreCase) || fileName.Equals("mohaa.exe", StringComparison.OrdinalIgnoreCase)) return Application.StartupPath;
+                        try
+                        {
+                            var fileName = Path.GetFileName(filesInStartup[i]);
+                            if (fileName.Equals("CoDUOMP.exe", StringComparison.OrdinalIgnoreCase) || fileName.Equals("CoDMP.exe", StringComparison.OrdinalIgnoreCase) || fileName.Equals("mohaa.exe", StringComparison.OrdinalIgnoreCase)) return Application.StartupPath;
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                            Log.WriteLine(ex.ToString());
+                        }
                     }
             }
             catch (Exception ex)
@@ -205,19 +191,28 @@ namespace CoDUO_FoV_Changer
                 Log.WriteLine(ex.ToString());
             }
 
-            var registryInstallPath = Registry.GetValue(CodRex.RegistryPath, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+            try
+            {
+                var registryInstallPath = Registry.GetValue(CodRex.RegistryPath, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
 
-            if (string.IsNullOrWhiteSpace(registryInstallPath))
-                registryInstallPath = Registry.GetValue(CodRex.RegistryPathVirtualStore, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(registryInstallPath))
+                    registryInstallPath = Registry.GetValue(CodRex.RegistryPathVirtualStore, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
 
-            if (string.IsNullOrWhiteSpace(registryInstallPath))
-                registryInstallPath = Registry.GetValue(CodRex.RegistryPathCoD, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(registryInstallPath))
+                    registryInstallPath = Registry.GetValue(CodRex.RegistryPathCoD, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
 
-            if (string.IsNullOrWhiteSpace(registryInstallPath))
-                registryInstallPath = Registry.GetValue(CodRex.RegistryPathCoDVirtualStore, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(registryInstallPath))
+                    registryInstallPath = Registry.GetValue(CodRex.RegistryPathCoDVirtualStore, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
 
-            if (!string.IsNullOrWhiteSpace(registryInstallPath))
-                return registryInstallPath;
+                if (!string.IsNullOrWhiteSpace(registryInstallPath))
+                    return registryInstallPath;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                Log.WriteLine(ex.ToString());
+            }
+      
 
             var paths1 = GetPotentialPathsFromSubkey(@"Software\Classes\VirtualStore\MACHINE\SOFTWARE\NVIDIA Corporation\Global\NVTweak\NvCplAppNamesStored", Registry.CurrentUser);
             var paths2 = GetPotentialPathsFromSubkey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\FeatureUsage\AppSwitched", Registry.CurrentUser);

@@ -133,7 +133,9 @@ namespace CoDUO_FoV_Changer
                 watch.Restart();
 
                 AdminLaunchButton.Visible = false;
-                if (!Program.IsElevated) AdminLaunchButton.Image = BitmapHelper.ResizeImage(SystemIcons.Shield.ToBitmap(), new Size(16, 16));
+
+                if (!Program.IsElevated)
+                    AdminLaunchButton.Image = BitmapHelper.ResizeImage(SystemIcons.Shield.ToBitmap(), new Size(16, 16));
 
                 var argsSB = Pool.Get<StringBuilder>();
                 try
@@ -144,11 +146,14 @@ namespace CoDUO_FoV_Changer
                     for (int i = 0; i < cmdArgs.Length; i++)
                     {
                         var arg = cmdArgs[i];
-                        if (arg.IndexOf(Application.ProductName, StringComparison.OrdinalIgnoreCase) >= 0 || arg.IndexOf(Application.StartupPath, StringComparison.OrdinalIgnoreCase) >= 0) continue;
+                        if (arg.IndexOf(Application.ProductName, StringComparison.OrdinalIgnoreCase) >= 0 || arg.IndexOf(Application.StartupPath, StringComparison.OrdinalIgnoreCase) >= 0) 
+                            continue;
 
-                        if (arg.Equals("-launch", StringComparison.OrdinalIgnoreCase)) StartGameButton.PerformClick();
+                        if (arg.Equals("-launch", StringComparison.OrdinalIgnoreCase))
+                            StartGameButton_Click(null, null); //nothing (currently) uses the args provided, so they're just null here. I did this instead of PerformClick() because we don't really need to do all the operations that PerformClick() does.
 
-                        if (arg.Equals("-debug", StringComparison.OrdinalIgnoreCase)) IsDev = true;
+                        if (arg.Equals("-debug", StringComparison.OrdinalIgnoreCase)) 
+                            IsDev = true;
 
                         if (Program.IsElevated) //ensure elevation before checking these args, otherwise a user could potentially make these forms appear without being elevated & cause an exception
                         {
@@ -200,7 +205,15 @@ namespace CoDUO_FoV_Changer
 
                         if (string.IsNullOrEmpty(settings.InstallPath) || !Directory.Exists(settings.InstallPath))
                         {
-                            var scannedPath = PathScanner.ScanForGamePath();
+                            var scannedPath = string.Empty;
+
+                            try { scannedPath = PathScanner.ScanForGamePath(); }
+                            catch(Exception ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                                Log.WriteLine(ex.ToString());
+                            }
+
                             if (!string.IsNullOrEmpty(scannedPath))
                             {
                                 MessageBox.Show("Automatically detected game path: " + Environment.NewLine + scannedPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -209,12 +222,13 @@ namespace CoDUO_FoV_Changer
                             else
                             {
                                 ipDialog.Description = "Locate your Call of Duty installation directory";
-                                var ipResult = ipDialog.ShowDialog();
-                                if (ipResult == DialogResult.Cancel)
+
+                                if (ipDialog.ShowDialog() == DialogResult.Cancel)
                                 {
                                     Application.Exit();
                                     return;
                                 }
+
                                 var selectedPath = ipDialog.SelectedPath;
                                 settings.InstallPath = selectedPath;
                                 MessageBox.Show("Set install path to: " + selectedPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -581,17 +595,29 @@ namespace CoDUO_FoV_Changer
             {
                 IsCheckingForUpdates = true;
                 string version;
-                using (var reader = new StreamReader(WebRequest.Create(UPDATE_URI)?.GetResponse()?.GetResponseStream() ?? null))
+
+                var sb = Pool.Get<StringBuilder>();
+
+                try
                 {
-                    try { version = reader?.ReadToEnd() ?? string.Empty; }
-                    finally { reader.Close(); }
+                    using (var wc = new WebClient())
+                    {
+                        wc.Headers.Add("user-agent", sb.Clear().Append("CoDUO FoV Changer/").Append(Application.ProductVersion).ToString());
+                        using (var reader = new StreamReader(wc.OpenRead(UPDATE_URI)))
+                        {
+                            try { version = reader?.ReadToEnd() ?? string.Empty; }
+                            finally { reader.Close(); }
+                        }
+                    }
                 }
+                finally { Pool.Free(ref sb); }
 
                 if (!decimal.TryParse(version, out decimal hfDec))
                 {
                     Log.WriteLine("Failed to parse: " + version + " (version) as decimal.");
                     return !version.Contains(HOTFIX.ToString());
                 }
+
                 return hfDec > HOTFIX;
             }
             catch (Exception ex)
@@ -1007,7 +1033,7 @@ namespace CoDUO_FoV_Changer
             var cfgFileInfo = new FileInfo(cfgPath);
             if (!cfgFileInfo.Exists)
             {
-                Console.WriteLine("could not find cfgPath: " + cfgPath);
+                Log.WriteLine("could not find cfgPath: " + cfgPath);
                 throw new FileNotFoundException(cfgPath);
             }
 
@@ -1016,7 +1042,7 @@ namespace CoDUO_FoV_Changer
 
             if (sizeInBytes > 1024000)
             {
-                Console.WriteLine("cfg file is too large to modify (bytes): " + sizeInBytes);
+                Log.WriteLine("cfg file is too large to modify (bytes): " + sizeInBytes);
                 throw new IOException($"{cfgPath} is too large ({sizeInBytes})");
             }
 

@@ -32,7 +32,6 @@ namespace CoDUO_FoV_Changer
             var proc = ProcMemory?.Process;
             if (proc == null)
             {
-                Console.WriteLine("proc is null on tostring()!!");
                 Log.WriteLine("proc is null on tostring()!!");
                 return base.ToString();
             }
