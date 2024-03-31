@@ -235,6 +235,7 @@
             this.MinimizeIcon.ContextMenuStrip = this.rcStrip;
             this.MinimizeIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("MinimizeIcon.Icon")));
             this.MinimizeIcon.Text = "CoDUO FoV Changer";
+            this.MinimizeIcon.BalloonTipClicked += new System.EventHandler(this.MinimizeIcon_BalloonTipClicked);
             this.MinimizeIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MinimizeIcon_MouseClick);
             // 
             // rcStrip

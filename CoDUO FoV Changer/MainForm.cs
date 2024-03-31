@@ -298,10 +298,11 @@ namespace CoDUO_FoV_Changer
                 var oldCfg = string.Empty;
                 var isCoD1 = !(settings.InstallPathExe.IndexOf("coduo", StringComparison.OrdinalIgnoreCase) >= 0);
 
+                var useSteam = ShouldUseSteam();
 
-                try
+                if (useSteam)
                 {
-                    if (ShouldUseSteam())
+                    try
                     {
                         Log.WriteLine("Path contained 'steamapps' and Steam is running. Should launch with steam, trying!");
 
@@ -331,20 +332,20 @@ namespace CoDUO_FoV_Changer
                         finally { Pool.Free(ref sb); }
 
                         launchFileName = steamLaunchUrl;
-
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        Log.WriteLine(ex.ToString());
                     }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    Log.WriteLine(ex.ToString());
-                }
+
 
 
 
                 var startInfo = new ProcessStartInfo
                 {
-                    Arguments = !string.IsNullOrEmpty(LaunchParametersTB.Text) ? LaunchParametersTB.Text : string.Empty,
+                    Arguments = (!useSteam && !string.IsNullOrEmpty(LaunchParametersTB.Text)) ? LaunchParametersTB.Text : string.Empty,
                     FileName = launchFileName,
                     WorkingDirectory = settings.InstallPath
                 };
@@ -468,13 +469,12 @@ namespace CoDUO_FoV_Changer
             {
                 var wantedButtonState = false;
 
-                if (MemorySelection == null || !MemorySelection.IsRunning())
+                if (MemorySelection == null || !(MemorySelection?.ProcMemory?.RequiresElevation() ?? false) && !MemorySelection.IsRunning())
                 {
-                    Console.WriteLine("memory select null or not running!, null?: " + (MemorySelection == null));
                     SetLabelText(StatusLabel, "Status: Not running");
                     StatusLabel.BeginInvoke((MethodInvoker)delegate
                     {
-                        toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!");
+                        toolTip1.SetToolTip(StatusLabel, "Process not found or failed to access memory!");
                         StatusLabel.ForeColor = Color.Orange;
                     });
                 }
@@ -673,14 +673,17 @@ namespace CoDUO_FoV_Changer
             try
             {
                 var isRunning = MemorySelection?.IsRunning() ?? false;
-                if (isRunning && (MemorySelection?.ProcMemory?.RequiresElevation() ?? false))
+
+                if ((MemorySelection?.ProcMemory?.RequiresElevation() ?? false))
                 {
-                    SetLabelText(StatusLabel, "Status: game requires elevation!");
+                    SetLabelText(StatusLabel, "Status: Game requires elevation!");
+
                     StatusLabel.BeginInvoke((MethodInvoker)delegate
                     {
                         toolTip1.SetToolTip(StatusLabel, "Process requires elevation!");
                         StatusLabel.ForeColor = Color.Orange;
                     });
+
                     return;
                 }
 
@@ -1075,5 +1078,7 @@ namespace CoDUO_FoV_Changer
 
 
         }
+
+        private void MinimizeIcon_BalloonTipClicked(object sender, EventArgs e) => UnminimizeFromTray();
     }
 }

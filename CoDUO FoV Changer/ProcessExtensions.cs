@@ -44,13 +44,14 @@ namespace ProcessExtensions
         /// Checks if given process is still alive
         /// </summary>
         /// <param name="processId">process id</param>
-        /// <returns>true if process is alive, false if not</returns>
+        /// <returns>true if process is alive, false if process is not alive or process is elevated and inaccessible</returns>
         public static bool IsProcessAlive(int processId)
         {
             var h = OpenProcess(ProcessAccessFlags.QueryInformation, true, processId);
 
-            if (h == IntPtr.Zero)
+            if (h == IntPtr.Zero) //this will be zero if the process was elevated.
                 return false;
+            
 
             var b = GetExitCodeProcess(h, out uint code);
             CloseHandle(h);
@@ -134,6 +135,27 @@ namespace ProcessExtensions
                     Console.WriteLine(ex.ToString());
                     Log.WriteLine(ex.ToString());
                 }
+            }
+
+            return false;
+        }
+
+        public static bool IsProcessElevated(Process process)
+        {
+            if (process == null)
+                return false;
+
+            try
+            {
+                if (process?.Modules != null)
+                    return false;
+            }
+            catch (System.ComponentModel.Win32Exception win32ex) when (win32ex.NativeErrorCode == 5) { return true; }
+            catch (Exception ex)
+            {
+                Log.WriteLine(ex.ToString());
+                Console.WriteLine(ex.ToString());
+                throw ex;
             }
 
             return false;

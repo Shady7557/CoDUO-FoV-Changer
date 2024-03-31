@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System;
 using System.Linq;
 using CurtLog;
+using ProcessExtensions;
 //This wasn't written by me (Shady), and quite frankly I can't remember who did but I'm pretty sure it's fairly generic at this point
 //I have made some significant changes to this, rewriting some of the code and deleting some
 namespace ReadWriteMemory
@@ -145,26 +146,7 @@ namespace ReadWriteMemory
             return 0;
         }
 
-        public bool RequiresElevation()
-        {
-            if (Process == null)
-                return false;
-
-            try
-            {
-                if (Process?.Modules != null)
-                    return false;
-            }
-            catch (System.ComponentModel.Win32Exception win32ex) when (win32ex.NativeErrorCode == 5) { return true; }
-            catch (Exception ex)
-            {
-                Log.WriteLine(ex.ToString());
-                Console.WriteLine(ex.ToString());
-                throw ex;
-            }
-
-            return false;
-        }
+        public bool RequiresElevation() => ProcessExtension.IsProcessElevated(Process);
 
         public int ImageAddress()
         {
