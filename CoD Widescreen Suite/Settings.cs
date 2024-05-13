@@ -1,7 +1,9 @@
-﻿using ShadyPool;
+﻿using CurtLog;
+using ShadyPool;
 using System;
 using System.IO;
 using System.Text;
+using System.Windows.Forms;
 
 namespace CoD_Widescreen_Suite
 {
@@ -26,23 +28,49 @@ namespace CoD_Widescreen_Suite
         private string hotkeyUp;
         private string hotkeyDown;
         private string hotkeyModifier;
-        private string hotkeyToggleFog;
-        private string hotkeyFogModifier;
 
         static Settings()
         {
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
-            var oldAppDirectory = appData + @"\CoDUO FoV Changer";
-            var applicationDataDirectory = appData + @"\CoD Widescreen Suite";
+            var oldAppDirectory = Path.Combine(appData, "CoDUO FoV Changer");
+            var applicationDataDirectory = Path.Combine(appData, "CoD Widescreen Suite");
 
-            if (Directory.Exists(oldAppDirectory))
-                Directory.Move(oldAppDirectory, applicationDataDirectory);
+            try
+            {
+                if (Directory.Exists(oldAppDirectory) && !Directory.Exists(applicationDataDirectory))
+                {
+                    Log.WriteLine("Moving old settings directory to new location.");
+                    Directory.Move(oldAppDirectory, applicationDataDirectory);
+                    Log.WriteLine("Moved old settings directory to new location.");
+                }
+            }
+            catch(Exception ex)
+            {
+                try
+                {
+                    Log.WriteLine($"Failed to move old settings directory to new directory{Environment.NewLine}Old directory: {oldAppDirectory} to new -> {applicationDataDirectory}{Environment.NewLine}{ex}");
+                }
+                catch (Exception ex2) { MessageBox.Show(ex2.ToString(), Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            }
+           
 
-            settingsFile = applicationDataDirectory + @"\settings.xml";
+            settingsFile = Path.Combine(applicationDataDirectory, "settings.xml");
 
-            if (!Directory.Exists(applicationDataDirectory)) 
-                Directory.CreateDirectory(applicationDataDirectory);
+            try
+            {
+                if (!Directory.Exists(applicationDataDirectory))
+                    Directory.CreateDirectory(applicationDataDirectory);
+            }
+            catch(Exception ex)
+            {
+                try { Log.WriteLine($"Failed to create {nameof(applicationDataDirectory)} ({applicationDataDirectory}){Environment.NewLine}{ex}"); }
+                catch(Exception ex2)
+                {
+                    MessageBox.Show(ex2.ToString(), Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+          
 
             if (!File.Exists(settingsFile))
             {
@@ -84,11 +112,9 @@ namespace CoD_Widescreen_Suite
             lastlog = string.Empty;
             trackTime = true;
             gameTime = 0;
-            hotkeyUp = 107.ToString();
-            hotkeyDown = 109.ToString();
-            hotkeyModifier = 17.ToString();
-            hotkeyFogModifier = 18.ToString();
-            hotkeyToggleFog = 70.ToString();
+            hotkeyUp = "107";
+            hotkeyDown = "109";
+            hotkeyModifier = "17";
         }
 
 
@@ -160,18 +186,6 @@ namespace CoD_Widescreen_Suite
         {
             get { return hotkeyModifier; }
             set { HasChanged = hotkeyModifier != value; hotkeyModifier = value; }
-        }
-
-        public string HotKeyFogModifier
-        {
-            get { return hotkeyFogModifier; }
-            set { HasChanged = hotkeyFogModifier != value; hotkeyFogModifier = value; }
-        }
-
-        public string HotKeyFog
-        {
-            get { return hotkeyToggleFog; }
-            set { HasChanged = hotkeyToggleFog != value; hotkeyToggleFog = value; }
         }
 
         public bool HasChanged

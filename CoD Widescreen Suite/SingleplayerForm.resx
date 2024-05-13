@@ -117,29 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="bmc_logo_no_background_60x" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\bmc-logo-no-background-60x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="CoD1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\CoD1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="CoD1_UO_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\CoD1-UO-icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="CoDUO" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\CoDUO.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="CurtLog" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\CurtLog.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="discord_500x" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\discord_500x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="empty_key_big_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\empty_key_big_3.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Mover" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Mover.exe;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="label2.Text" xml:space="preserve">
+    <value>A. There are a couple of ways:
+1. Press the "Apply to single player config" button 
+below to apply your current FOV to your single player game.
+2. Enable the console in-game, press the tilde (~) to open 
+the console.
+Type "cg_fov XX" where "XX" is your desired value.</value>
   </data>
 </root>

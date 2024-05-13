@@ -18,7 +18,6 @@ using TimerExtensions;
 using System.Threading;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 
 namespace CoD_Widescreen_Suite
 {
@@ -38,8 +37,6 @@ namespace CoD_Widescreen_Suite
 
         private bool _needsUpdate = false;
 
-        public static MainForm Instance = null;
-
         private const string LATEST_DOWNLOAD_URI = @"https://github.com/Shady7557/CoDUO-FoV-Changer/releases/latest/download/CoDUO.FoV.Changer.exe";
         private const string UPDATE_URI = @"https://raw.githubusercontent.com/Shady7557/CoDUO-FoV-Changer/master/HOTFIX";
 
@@ -50,13 +47,14 @@ namespace CoD_Widescreen_Suite
             get;
             private set;
         }
-      
+
+        private int DesktopHeight => Screen.PrimaryScreen.Bounds.Height;
+        private int DesktopWidth => Screen.PrimaryScreen.Bounds.Width;
 
         public bool IsCheckingForUpdates { get; private set; } = false;
 
         public MainForm()
         {
-            Instance = this;
             InitializeComponent();
 
             ListenForMaximizeSignal();
@@ -113,16 +111,18 @@ namespace CoD_Widescreen_Suite
         {
             var watch = Pool.Get<Stopwatch>();
 
-            Text = Application.ProductName;
-
             try
             {
                 watch.Restart();
 
+                Text = Application.ProductName;
+
+                BitmapHelper.ScalePictureBox(CoDPictureBox, Properties.Resources.CoD1_UO_icon);
+
                 AdminLaunchButton.Visible = false;
 
-                if (!Program.IsElevated)
-                    AdminLaunchButton.Image = BitmapHelper.ResizeImage(SystemIcons.Shield.ToBitmap(), new Size(16, 16));
+               if (!Program.IsElevated)
+                  AdminLaunchButton.Image = BitmapHelper.ResizeImage(SystemIcons.Shield.ToBitmap(), new Size(16, 16));
 
                 var argsSB = Pool.Get<StringBuilder>();
                 try
@@ -256,9 +256,9 @@ namespace CoD_Widescreen_Suite
                 try
                 {
                     var timeTaken = watch.Elapsed;
-                    Console.WriteLine(sb.Clear().Append("Form load took: ").Append(timeTaken.TotalMilliseconds).Append("ms").ToString());
 
-                    if (timeTaken.TotalMilliseconds > 100) Log.WriteLine(sb.Clear().Append("Startup took: ").Append(timeTaken.TotalMilliseconds).Append("ms (this is too long!)").ToString());
+                    if (timeTaken.TotalMilliseconds > 100) 
+                        Log.WriteLine(sb.Clear().Append("Startup took: ").Append(timeTaken.TotalMilliseconds).Append("ms (this is too long!)").ToString());
 
                     Log.WriteLine(sb.Clear().Append("Successfully started application, version ").Append(Application.ProductVersion).ToString());
                 }
@@ -267,7 +267,8 @@ namespace CoD_Widescreen_Suite
             }
         }
 
-        private void StartGame()
+
+        private void StartGame(string forcedArgs = "")
         {
             try
             {
@@ -292,81 +293,118 @@ namespace CoD_Widescreen_Suite
                     return;
                 }
 
+                var hasForcedArgs = !string.IsNullOrWhiteSpace(forcedArgs);
+
+
                 var launchFileName = settings.InstallPathExe;
 
                 var oldCfg = string.Empty;
-                var isCoD1 = !(settings.InstallPathExe.IndexOf("coduo", StringComparison.OrdinalIgnoreCase) >= 0);
+                var gameType = !(settings.InstallPathExe.IndexOf("coduo", StringComparison.OrdinalIgnoreCase) >= 0) ? GameConfig.GameType.CoDSP : GameConfig.GameType.CoDUOMP;
 
                 var useSteam = ShouldUseSteam();
 
-                if (useSteam)
+                var sb = Pool.Get<StringBuilder>();
+
+                try 
                 {
-                    try
+                    if (useSteam)
                     {
-                        Log.WriteLine("Path contained 'steamapps' and Steam is running. Should launch with steam, trying!");
-
-
-
-                        if (!string.IsNullOrWhiteSpace(LaunchParametersTB.Text))
-                        {
-                            Log.WriteLine("Writing launch parameters to config temporarily.");
-
-                            oldCfg = GetGameConfig(isCoD1);
-
-                            ApplyLaunchParametersToConfig(LaunchParametersTB.Text, isCoD1);
-
-                            Log.WriteLine("Wrote launch parameters.");
-                        }
-
-
-                        var steamLaunchUrl = string.Empty;
-
-                        var sb = Pool.Get<StringBuilder>();
                         try
                         {
+                            Log.WriteLine("Path contained 'steamapps' and Steam is running. Should launch with steam, trying!");
+
+                            if (!string.IsNullOrWhiteSpace(LaunchParametersTB.Text))
+                            {
+                                Log.WriteLine("Writing launch parameters to config temporarily.");
+
+                                oldCfg = GameConfig.GetGameConfig(gameType);
+
+
+
+                                GameConfig.ApplyLaunchParametersToConfig(sb
+                                    .Clear()
+                                    .Append(forcedArgs)
+                                    .Append(hasForcedArgs ? Environment.NewLine : string.Empty)
+                                    .Append(LaunchParametersTB.Text)
+                                    .ToString(), gameType);
+
+                                Log.WriteLine("Wrote launch parameters.");
+                            }
+
                             //steam://launch/{appid}/dialog
-                            //thanks to a guy named Lone who helped me figure out how to launch a game where you can select the option via Steam. Now that Steam lets you permanently select your desired option, this either immediately launches the game via Steam or Steam prompts you to select version.
-                            steamLaunchUrl = sb.Clear().Append("steam://launch/26").Append(isCoD1 ? "20" : "40").Append("/dialog").ToString();
+
+                            //thanks to a guy named Lone who helped me figure out how to launch a game where you can select the option via Steam.
+                            //Now that Steam lets you permanently select your desired option,
+                            //this either immediately launches the game via Steam or Steam prompts you to select version.
+
+                            var steamLaunchUrl = sb
+                                .Clear()
+                                .Append("steam://launch/26")
+                                .Append(gameType == GameConfig.GameType.CoDMP ? "20" : "40")
+                                .Append("/dialog")
+                                .ToString();
+
+                            launchFileName = steamLaunchUrl;
+
                         }
-                        finally { Pool.Free(ref sb); }
-
-                        launchFileName = steamLaunchUrl;
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                            Log.WriteLine(ex.ToString());
+                        }
                     }
-                    catch (Exception ex)
+
+                    var startInfo = new ProcessStartInfo
                     {
-                        Console.WriteLine(ex.ToString());
-                        Log.WriteLine(ex.ToString());
-                    }
+                        Arguments = (!useSteam && !string.IsNullOrEmpty(LaunchParametersTB.Text)) ? sb.Clear().Append(forcedArgs).Append(hasForcedArgs ? Environment.NewLine : string.Empty).Append(LaunchParametersTB.Text).ToString() : string.Empty,
+                        FileName = launchFileName,
+                        WorkingDirectory = settings.InstallPath
+                    };
+
+                    Process.Start(startInfo);
                 }
+                finally { Pool.Free(ref sb); }
 
-
-
-
-                var startInfo = new ProcessStartInfo
-                {
-                    Arguments = (!useSteam && !string.IsNullOrEmpty(LaunchParametersTB.Text)) ? LaunchParametersTB.Text : string.Empty,
-                    FileName = launchFileName,
-                    WorkingDirectory = settings.InstallPath
-                };
-
-                Process.Start(startInfo);
-
-
+               
 
                 if (!string.IsNullOrWhiteSpace(oldCfg))
                 {
-                    Log.WriteLine($"{nameof(oldCfg)} was not empty, waiting 8000 ms then saving old again");
-
                     //TODO: Improve checking - 8 seconds alone is not enough.
                     //For example, if Steam was not open and this has to launch Steam first, it often overwrites the config before game is open.
                     //It is likely safe to overwrite the config while the game is open [needs verification].
                     //Idea: Wait up to 45 seconds, then write cfg. Else, write cfg once game process is available.
                     //URGENT: If old cfg exists when FoV changer is shut down, write old cfg back to disk!
-                    Thread.Sleep(8000);
 
-                    WriteGameConfig(oldCfg, isCoD1);
+                    // Some of this is now done (see below), but it's a bit ugly and I don't love it.
 
-                    Log.WriteLine("Wrote old config to disk!");
+                    Task.Run(() =>
+                    {
+                        var waitedTimes = 0;
+                        var maxWaitTimes = 10;
+
+                        Log.WriteLine("Waiting for game process to start before writing old config back to disk.");
+
+                        
+
+                        while (!ProcessExtension.IsAnyCoDProcessRunning())
+                        {
+                            if (waitedTimes >= maxWaitTimes)
+                            {
+                                Log.WriteLine("Waited too long for game process to start, writing old config to disk.");
+                                break;
+                            }
+
+                            Thread.Sleep(7500);
+                            waitedTimes++;
+                        }
+
+                        // Wait to be sure we don't write it too soon to actually be loaded by the game.
+
+                        Thread.Sleep(8000);
+                        GameConfig.WriteGameConfig(oldCfg, gameType);
+
+                        Log.WriteLine("Wrote old config to disk!");
+                    });
                 }
 
             }
@@ -404,7 +442,32 @@ namespace CoD_Widescreen_Suite
                 MessageBox.Show("Selected: " + (settings.ExeName = ipFDialog.SafeFileName) + Environment.NewLine + "You can change this at any time by holding shift then clicking this button again", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
-            Task.Run(() => StartGame());
+            settings.CommandLine = LaunchParametersTB.Text;
+
+            Task.Run(() =>
+            {
+                var forceStartArgs = string.Empty;
+
+                if (checkBoxDesktopRes.Checked)
+                {
+                    var sb = Pool.Get<StringBuilder>();
+
+                    try
+                    {
+                        forceStartArgs = sb
+                        .Clear()
+                        .Append("+set r_mode -1 ")
+                        .Append("+set r_customwidth ")
+                        .Append(DesktopWidth)
+                        .Append(" +set r_customheight ")
+                        .Append(DesktopHeight)
+                        .ToString();
+                    }
+                    finally { Pool.Free(ref sb); }
+                }
+
+                StartGame(forceStartArgs);
+            });
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -500,37 +563,33 @@ namespace CoD_Widescreen_Suite
 
         private void HotKeyHandler_Tick(object sender, EventArgs e)
         {
-            var now = DateTime.UtcNow;
-
-            //we can be super responsive when someone is tapping +- while not accidentally moving it up or down twice by doing manual checks while having the timer at ~5-10ms
-            if (_lastHotkey == null) _lastHotkey = now;
-            else if ((now - _lastHotkey).TotalMilliseconds < 100) return;
-
-            var modifier = (Keys)0;
-            var fogModifier = (Keys)0;
-            var up = (Keys)0;
-            var toggleFog = (Keys)0;
-            var down = (Keys)0;
-
-            TryParseKeys(settings.HotKeyModifier, ref modifier);
-            TryParseKeys(settings.HotKeyFogModifier, ref fogModifier);
-            TryParseKeys(settings.HotKeyUp, ref up);
-            TryParseKeys(settings.HotKeyFog, ref toggleFog);
-            TryParseKeys(settings.HotKeyDown, ref down);
-
-            if (HotkeyHandler.IsKeyPushedDown(modifier))
+            Task.Run(() =>
             {
-                if (HotkeyHandler.IsKeyPushedDown(up))
+                var now = DateTime.UtcNow;
+
+                //we can be super responsive when someone is tapping +- while not accidentally moving it up or down twice by doing manual checks while having the timer at ~5-10ms
+                if (_lastHotkey == null) _lastHotkey = now;
+                else if ((now - _lastHotkey).TotalMilliseconds < 100) return;
+
+                TryParseKeys(settings.HotKeyModifier, out var modifier);
+
+                TryParseKeys(settings.HotKeyUp, out var up);
+                TryParseKeys(settings.HotKeyDown, out var down);
+
+                if (HotkeyHandler.IsKeyPushedDown(modifier))
                 {
-                    SetFoVNumeric(FoVNumeric.Value + 1);
-                    _lastHotkey = now;
+                    if (HotkeyHandler.IsKeyPushedDown(up))
+                    {
+                        SetFoVNumeric(FoVNumeric.Value + 1);
+                        _lastHotkey = now;
+                    }
+                    if (HotkeyHandler.IsKeyPushedDown(down))
+                    {
+                        SetFoVNumeric(FoVNumeric.Value - 1);
+                        _lastHotkey = now;
+                    }
                 }
-                if (HotkeyHandler.IsKeyPushedDown(down))
-                {
-                    SetFoVNumeric(FoVNumeric.Value - 1);
-                    _lastHotkey = now;
-                }
-            }
+            });
         }
 
         #region Util
@@ -628,17 +687,7 @@ namespace CoD_Widescreen_Suite
             else label.Text = text;
         }
 
-        private bool TryParseKeys(string text, ref Keys value)
-        {
-            if (string.IsNullOrEmpty(text)) throw new ArgumentNullException(nameof(text));
-
-            if (Enum.TryParse(text, out Keys tmp))
-            {
-                value = tmp;
-                return true;
-            }
-            else return false;
-        }
+        private bool TryParseKeys(string text, out Keys value) => Enum.TryParse(text, out value);
 
         private void SetFoVNumeric(decimal fov)
         {
@@ -674,7 +723,7 @@ namespace CoD_Widescreen_Suite
                 }
 
 
-                var maxFoV = (mode != -1 || (ratio < 1.7 && mode == -1)) ? 105 : 120; //"120" is not real 120! remember: the screen is literally stretched in wide screen. this is equivalent to ~110 'real' FoV in a game; still lower than a common max value of (real) 120.
+                var maxFoV = (mode != -1 || (ratio < 1.7 && mode == -1)) ? 105 : 120; //"120" is not real 120! remember: the screen is literally stretched in wide screen. this is equivalent to ~107 'real' FoV in a game; still lower than a common max value of (real) 120.
 
                 if (FoVNumeric.InvokeRequired) FoVNumeric.Invoke((MethodInvoker)delegate () { FoVNumeric.Maximum = maxFoV; });
                 else FoVNumeric.Maximum = maxFoV;
@@ -773,9 +822,9 @@ namespace CoD_Widescreen_Suite
                 if (settings.GameTime >= 1 && totalMinutes < 1) GameTimeLabel.Text = "Game Time: " + settings.GameTime.ToString("N0") + " seconds";
                 if (totalMinutes >= 1 && totalHours < 1) GameTimeLabel.Text = "Game Time: " + totalMinutes.ToString("N0") + " minutes";
                 if (totalHours >= 1) GameTimeLabel.Text = "Game Time: " + totalHours.ToString("N0") + " hours";
-                if (spanCurrent.TotalSeconds > 0 && totalMinutesCur < 1) CurSessionGT.Text = "Current Session: " + spanCurrent.TotalSeconds.ToString("N0") + " seconds";
-                if (totalMinutesCur >= 1 && totalHoursCur < 1) CurSessionGT.Text = "Current Session: " + totalMinutesCur.ToString("N0") + " minutes";
-                if (totalHoursCur >= 1) CurSessionGT.Text = "Current Session: " + totalHoursCur.ToString("N0") + " hours";
+                if (spanCurrent.TotalSeconds > 0 && totalMinutesCur < 1) CurSessionGT.Text = "Session Time: " + spanCurrent.TotalSeconds.ToString("N0") + " seconds";
+                if (totalMinutesCur >= 1 && totalHoursCur < 1) CurSessionGT.Text = "Session Time: " + totalMinutesCur.ToString("N0") + " minutes";
+                if (totalHoursCur >= 1) CurSessionGT.Text = "Session Time: " + totalHoursCur.ToString("N0") + " hours";
             }
             catch (Exception ex)
             {
@@ -825,7 +874,18 @@ namespace CoD_Widescreen_Suite
                     }
 
                     var tempFoVPath = sb.Clear().Append(PathInfos.Temp).Append(@"\coduofovchanger_temp.exe").ToString();
-                    if (File.Exists(tempFoVPath)) File.Delete(tempFoVPath);
+
+                    try
+                    {
+                        if (File.Exists(tempFoVPath))
+                            File.Delete(tempFoVPath);
+                    }
+                    catch(Exception ex)
+                    {
+                        Log.WriteLine($"Failed to delete {nameof(tempFoVPath)}: {tempFoVPath}{Environment.NewLine}{ex.ToString()}");
+                    }
+
+               
 
                     using (var wc = new WebClient())
                     {
@@ -835,10 +895,21 @@ namespace CoD_Widescreen_Suite
 
                     var path = sb.Clear().Append(PathInfos.Temp).Append(@"\Mover.exe").ToString();
 
-                    if (File.Exists(path)) File.Delete(path);
+
+                    try
+                    {
+                        if (File.Exists(path))
+                            File.Delete(path);
+                    }
+                    catch(Exception ex)
+                    {
+                        Log.WriteLine($"Failed to delete {nameof(path)}: {path}{Environment.NewLine}{ex.ToString()}");
+                    }
+
+                  
 
                     File.WriteAllBytes(path, Properties.Resources.Mover);
-                    Log.WriteLine("Created mover at: " + path);
+                    Log.WriteLine($"Created mover at: {path}");
 
 
                     var updaterInfo = new ProcessStartInfo
@@ -878,7 +949,8 @@ namespace CoD_Widescreen_Suite
                 for (int i = 0; i < GamePIDBox.Items.Count; i++)
                 {
                     var memory = GamePIDBox.GetMemoryFromIndex(i);
-                    if (!memory?.IsRunning() ?? false) GamePIDBox.Items.Remove(GamePIDBox.Items[i]);
+                    if (!memory?.IsRunning() ?? false) 
+                        GamePIDBox.Items.Remove(GamePIDBox.Items[i]);
                 }
 
                 var allProcs = Pool.GetList<Process>();
@@ -932,14 +1004,15 @@ namespace CoD_Widescreen_Suite
         {
             UpdateProcessBox();
 
-            //likely redundant (see combobox)?:
-            if (MemorySelection != null && MemorySelection.IsRunning()) BitmapHelper.ScalePictureBox(CoDPictureBox, (IsUOMemory() || (ProcessExtension.IsAnyProcessRunning("CoDUOMP") && (!ProcessExtension.IsAnyProcessRunning("mohaa") && !ProcessExtension.IsAnyProcessRunning("codmp")))) ? Properties.Resources.CoDUO : Properties.Resources.CoD1);
+            BitmapHelper.ScalePictureBox(CoDPictureBox, 
+                IsUOMemory() 
+                ? Properties.Resources.CoDUO 
+                : ProcessExtension.IsAnyProcessRunning("CoDMP") 
+                ? Properties.Resources.CoD1 
+                : Properties.Resources.CoD1_UO_icon);
         }
 
-        private void ChangelogToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Process.Start(GITHUB_RELEASES_URI);
-        }
+        private void ChangelogToolStripMenuItem_Click(object sender, EventArgs e) => Process.Start(GITHUB_RELEASES_URI);
 
         private void InfoToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -962,8 +1035,6 @@ namespace CoD_Widescreen_Suite
 
             BitmapHelper.ScalePictureBox(CoDPictureBox, (IsUOMemory() || (ProcessExtension.IsAnyProcessRunning("CoDUOMP") && (!ProcessExtension.IsAnyProcessRunning("mohaa") && !ProcessExtension.IsAnyProcessRunning("codmp")))) ? Properties.Resources.CoDUO : Properties.Resources.CoD1);
         }
-
-        private void GamePIDBox_VisibleChanged(object sender, EventArgs e) => CoDPictureBox.Visible = GamePIDBox.Visible;
 
         private void AdminLaunchButton_Click(object sender, EventArgs e) => TryRestartAsAdmin();
 
@@ -990,10 +1061,12 @@ namespace CoD_Widescreen_Suite
             else
             {
 
+                //The -multi argument must be passed or else this will fail to open a second instance of the app
+                //(if not passed it will instead try to select the existing app; an intentional feature).
                 var startInfo = new ProcessStartInfo
                 {
                     Verb = "runas",
-                    Arguments = string.Join(" ", Environment.GetCommandLineArgs()),
+                    Arguments = "-multi " + string.Join(" ", Environment.GetCommandLineArgs()),
                     WorkingDirectory = Application.StartupPath,
                     FileName = fileNameDir
                 };
@@ -1011,118 +1084,15 @@ namespace CoD_Widescreen_Suite
             return true;
         }
 
-        /// <summary>
-        /// Reads config file from disk and returns as string.
-        /// </summary>
-        /// <param name="vCod"></param>
-        /// <returns></returns>
-        /// <exception cref="DirectoryNotFoundException"></exception>
-        /// <exception cref="FileNotFoundException"></exception>
-        /// <exception cref="IOException"></exception>
-        private string GetGameConfig(bool vCod = false)
-        {
-            var installPath = settings.InstallPath;
-
-            if (!Directory.Exists(installPath))
-               throw new DirectoryNotFoundException(installPath);
-
-            var cfgDirName = vCod ? "main" : "uo";
-            var cfgFileName = vCod ? "config_mp.cfg" : "uoconfig_mp.cfg";
-
-            var cfgPath = Path.Combine(Path.Combine(installPath, cfgDirName), cfgFileName);
-
-            var cfgFileInfo = new FileInfo(cfgPath);
-            if (!cfgFileInfo.Exists)
-            {
-                Log.WriteLine("could not find cfgPath: " + cfgPath);
-                throw new FileNotFoundException(cfgPath);
-            }
-
-            var sizeInBytes = cfgFileInfo.Length;
-
-
-            if (sizeInBytes > 1024000)
-            {
-                Log.WriteLine("cfg file is too large to modify (bytes): " + sizeInBytes);
-                throw new IOException($"{cfgPath} is too large ({sizeInBytes})");
-            }
-
-            return File.ReadAllText(cfgPath);
-        }
-
-        /// <summary>
-        /// Writes config file to disk.
-        /// </summary>
-        /// <param name="cfgContents"></param>
-        /// <param name="vCod"></param>
-        /// <exception cref="DirectoryNotFoundException"></exception>
-        private void WriteGameConfig(string cfgContents,  bool vCod = false)
-        {
-            var installPath = settings.InstallPath;
-
-            if (!Directory.Exists(installPath))
-                throw new DirectoryNotFoundException(installPath);
-
-            var cfgDirName = vCod ? "main" : "uo";
-            var cfgFileName = vCod ? "config_mp.cfg" : "uoconfig_mp.cfg";
-
-            var cfgPath = Path.Combine(Path.Combine(installPath, cfgDirName), cfgFileName);
-
-            File.WriteAllText(cfgPath, cfgContents);
-        }
-
-        /// <summary>
-        /// Writes launch parameters to config file.
-        /// </summary>
-        /// <param name="paramString"></param>
-        /// <param name="vCod"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        private void ApplyLaunchParametersToConfig(string paramString, bool vCod = false)
-        {
-            if (string.IsNullOrWhiteSpace(paramString))
-                throw new ArgumentNullException(nameof(paramString));
-
-            var cfgReadText = GetGameConfig(vCod);
-
-            if (string.IsNullOrWhiteSpace(cfgReadText))
-                throw new ArgumentNullException(nameof(cfgReadText));
-            
-
-            var sb = Pool.Get<StringBuilder>();
-
-            try 
-            {
-                sb.Clear().Append(cfgReadText);
-
-                var argsStr = paramString;
-
-                var splitArguments = Regex.Split(argsStr, @"(?=\+)");
-
-                for (int i = 0; i < splitArguments.Length; i++)
-                    sb.Append(splitArguments[i]).Replace("+set", "seta").Append(Environment.NewLine);
-
-
-                if (splitArguments.Length > 0)
-                    sb.Length--;
-
-                try { WriteGameConfig(sb.ToString(), vCod); }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    Log.WriteLine(ex.ToString());
-                }
-
-            }
-            finally { Pool.Free(ref sb); }
-
-
-        }
-
+        
         private void MinimizeIcon_BalloonTipClicked(object sender, EventArgs e) => UnminimizeFromTray();
 
         private void singleplayerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("hi world", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var ins = GetInstance<SingleplayerForm>();
+
+            if (ins == null) new SingleplayerForm() { Owner = this, AttachToOwner = true }.Show();
+            else ins.UnminimizeAndSelect();
         }
     }
 }

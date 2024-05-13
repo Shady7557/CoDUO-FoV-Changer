@@ -3,6 +3,7 @@ using DirectoryExtensions;
 using ShadyPool;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -130,7 +131,7 @@ namespace ProcessExtensions
                 try
                 {
                     var p = procs[i];
-                    if (p == null || IsProcessAlive(p.Id))
+                    if (p != null && IsProcessAlive(p.Id))
                         return true;
                 }
                 catch(Exception ex)
@@ -161,7 +162,7 @@ namespace ProcessExtensions
                 if (process?.Modules != null)
                     return false;
             }
-            catch (System.ComponentModel.Win32Exception win32ex) when (win32ex.NativeErrorCode == 5) 
+            catch (Win32Exception win32ex) when (win32ex.NativeErrorCode == 5) //5 == access denied
             {
                 try 
                 {
@@ -176,12 +177,26 @@ namespace ProcessExtensions
               
                 return true; 
             }
-            catch (Exception ex)
+            catch (Win32Exception win32ex) when (win32ex.NativeErrorCode == 299) //299 = partial memory read/write - presumably 5 would've been thrown before this exception could be thrown if elevation was an issue.
+            {
+                Log.WriteLine(win32ex.ToString());
+                Console.WriteLine(win32ex.ToString());
+            }
+            catch(Exception ex)
             {
                 Log.WriteLine(ex.ToString());
                 Console.WriteLine(ex.ToString());
                 throw ex;
             }
+
+            return false;
+        }
+
+        public static bool IsAnyCoDProcessRunning()
+        {
+            foreach (var name in PathInfos.GAME_PROCESS_NAMES)
+                if (IsAnyProcessRunning(name))
+                    return true;
 
             return false;
         }

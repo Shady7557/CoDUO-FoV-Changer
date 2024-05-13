@@ -30,7 +30,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>cod.ico</ApplicationIcon>
+    <ApplicationIcon>CoD1-UO-icon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <PlatformTarget>x64</PlatformTarget>
@@ -89,6 +89,7 @@
     </Compile>
     <Compile Include="ClampEx.cs" />
     <Compile Include="ExtendedForm.cs" />
+    <Compile Include="GameConfig.cs" />
     <Compile Include="HotfixVersion.cs" />
     <Compile Include="HotkeysForm.cs">
       <SubType>Form</SubType>
@@ -138,9 +139,18 @@
     <Compile Include="SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="SingleplayerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SingleplayerForm.Designer.cs">
+      <DependentUpon>SingleplayerForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="TimerEx.cs" />
     <EmbeddedResource Include="AboutForm.resx">
       <DependentUpon>AboutForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AdvancedSettingsForm.resx">
+      <DependentUpon>AdvancedSettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="CDKeyManagerForm.resx">
       <DependentUpon>CDKeyManagerForm.cs</DependentUpon>
@@ -163,6 +173,9 @@
       <DependentUpon>SettingsForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="SingleplayerForm.resx">
+      <DependentUpon>SingleplayerForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -178,7 +191,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="cod.ico" />
-    <None Include="README.md" />
+    <Content Include="CoD1-UO-icon.ico" />
+    <Content Include="Resources\CoD1-UO-icon.png" />
     <None Include="Resources\discord_500x.png" />
     <None Include="Resources\Mover.exe" />
     <EmbeddedResource Include="Resources\CurtLog.dll" />

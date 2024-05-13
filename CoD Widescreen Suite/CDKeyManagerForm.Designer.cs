@@ -45,46 +45,47 @@
             // 
             // uoKeyTextBox
             // 
-            this.uoKeyTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.uoKeyTextBox.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.uoKeyTextBox.Location = new System.Drawing.Point(12, 40);
             this.uoKeyTextBox.Name = "uoKeyTextBox";
-            this.uoKeyTextBox.Size = new System.Drawing.Size(379, 26);
+            this.uoKeyTextBox.Size = new System.Drawing.Size(379, 30);
             this.uoKeyTextBox.TabIndex = 0;
             this.uoKeyTextBox.UseSystemPasswordChar = true;
             // 
             // uoKeyVirtualTextBox
             // 
-            this.uoKeyVirtualTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.uoKeyVirtualTextBox.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.uoKeyVirtualTextBox.Location = new System.Drawing.Point(12, 116);
             this.uoKeyVirtualTextBox.Name = "uoKeyVirtualTextBox";
-            this.uoKeyVirtualTextBox.Size = new System.Drawing.Size(379, 26);
+            this.uoKeyVirtualTextBox.Size = new System.Drawing.Size(379, 30);
             this.uoKeyVirtualTextBox.TabIndex = 1;
             this.uoKeyVirtualTextBox.UseSystemPasswordChar = true;
             // 
             // codKeyTextBox
             // 
-            this.codKeyTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.codKeyTextBox.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.codKeyTextBox.Location = new System.Drawing.Point(12, 196);
             this.codKeyTextBox.Name = "codKeyTextBox";
-            this.codKeyTextBox.Size = new System.Drawing.Size(379, 26);
+            this.codKeyTextBox.Size = new System.Drawing.Size(379, 30);
             this.codKeyTextBox.TabIndex = 2;
             this.codKeyTextBox.UseSystemPasswordChar = true;
             // 
             // codKeyVirtualTextBox
             // 
-            this.codKeyVirtualTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.codKeyVirtualTextBox.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.codKeyVirtualTextBox.Location = new System.Drawing.Point(12, 269);
             this.codKeyVirtualTextBox.Name = "codKeyVirtualTextBox";
-            this.codKeyVirtualTextBox.Size = new System.Drawing.Size(379, 26);
+            this.codKeyVirtualTextBox.Size = new System.Drawing.Size(379, 30);
             this.codKeyVirtualTextBox.TabIndex = 3;
             this.codKeyVirtualTextBox.UseSystemPasswordChar = true;
             // 
             // showPasswordCheckBox
             // 
             this.showPasswordCheckBox.AutoSize = true;
+            this.showPasswordCheckBox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.showPasswordCheckBox.Location = new System.Drawing.Point(397, 47);
             this.showPasswordCheckBox.Name = "showPasswordCheckBox";
-            this.showPasswordCheckBox.Size = new System.Drawing.Size(97, 17);
+            this.showPasswordCheckBox.Size = new System.Drawing.Size(98, 17);
             this.showPasswordCheckBox.TabIndex = 4;
             this.showPasswordCheckBox.Text = "Show CD Keys";
             this.showPasswordCheckBox.UseVisualStyleBackColor = true;
@@ -133,6 +134,7 @@
             // refreshKeysButton
             // 
             this.refreshKeysButton.BackColor = System.Drawing.Color.DarkGray;
+            this.refreshKeysButton.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.refreshKeysButton.ForeColor = System.Drawing.Color.Transparent;
             this.refreshKeysButton.Location = new System.Drawing.Point(12, 313);
             this.refreshKeysButton.Name = "refreshKeysButton";
@@ -145,6 +147,7 @@
             // saveExitButton
             // 
             this.saveExitButton.BackColor = System.Drawing.Color.DarkGray;
+            this.saveExitButton.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.saveExitButton.ForeColor = System.Drawing.Color.Transparent;
             this.saveExitButton.Location = new System.Drawing.Point(16, 419);
             this.saveExitButton.Name = "saveExitButton";
@@ -157,6 +160,7 @@
             // exitButton
             // 
             this.exitButton.BackColor = System.Drawing.Color.DarkGray;
+            this.exitButton.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.exitButton.ForeColor = System.Drawing.Color.Transparent;
             this.exitButton.Location = new System.Drawing.Point(295, 419);
             this.exitButton.Name = "exitButton";
@@ -184,12 +188,11 @@
             this.Controls.Add(this.codKeyTextBox);
             this.Controls.Add(this.uoKeyVirtualTextBox);
             this.Controls.Add(this.uoKeyTextBox);
-            this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "CDKeyManagerForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "CD Key Maanger";
+            this.Text = "CD Key Manager";
             this.Load += new System.EventHandler(this.CDKeyManagerForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

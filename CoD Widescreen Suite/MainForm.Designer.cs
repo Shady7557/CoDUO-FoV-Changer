@@ -60,14 +60,14 @@ namespace CoD_Widescreen_Suite
             this.GameTracker = new System.Windows.Forms.Timer(this.components);
             this.CurSessionGT = new System.Windows.Forms.Label();
             this.GameTimeLabel = new System.Windows.Forms.Label();
-            this.CoDPictureBox = new System.Windows.Forms.PictureBox();
             this.ProccessChecker = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.checkBoxDesktopRes = new System.Windows.Forms.CheckBox();
             this.ipFDialog = new System.Windows.Forms.OpenFileDialog();
             this.AdminLaunchButton = new System.Windows.Forms.Button();
             this.GameTimeLabelTimer = new System.Windows.Forms.Timer(this.components);
             this.GamePIDBox = new CoD_Widescreen_Suite.ProcessMemoryBox();
+            this.CoDPictureBox = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.FoVNumeric)).BeginInit();
             this.FoVMenuStrip.SuspendLayout();
             this.rcStrip.SuspendLayout();
@@ -77,6 +77,7 @@ namespace CoD_Widescreen_Suite
             // StartGameButton
             // 
             this.StartGameButton.BackColor = System.Drawing.Color.DarkGray;
+            this.StartGameButton.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.StartGameButton.ForeColor = System.Drawing.Color.Black;
             this.StartGameButton.Location = new System.Drawing.Point(12, 33);
             this.StartGameButton.Name = "StartGameButton";
@@ -126,6 +127,8 @@ namespace CoD_Widescreen_Suite
             // 
             this.MinimizeCheckBox.AutoSize = true;
             this.MinimizeCheckBox.BackColor = System.Drawing.Color.Transparent;
+            this.MinimizeCheckBox.Checked = true;
+            this.MinimizeCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.MinimizeCheckBox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.MinimizeCheckBox.ForeColor = System.Drawing.Color.Black;
             this.MinimizeCheckBox.Location = new System.Drawing.Point(303, 33);
@@ -153,6 +156,7 @@ namespace CoD_Widescreen_Suite
             // UpdateButton
             // 
             this.UpdateButton.BackColor = System.Drawing.Color.DarkGray;
+            this.UpdateButton.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.UpdateButton.ForeColor = System.Drawing.Color.Black;
             this.UpdateButton.Location = new System.Drawing.Point(179, 33);
             this.UpdateButton.Name = "UpdateButton";
@@ -189,14 +193,14 @@ namespace CoD_Widescreen_Suite
             // InfoToolStripMenuItem
             // 
             this.InfoToolStripMenuItem.Name = "InfoToolStripMenuItem";
-            this.InfoToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.InfoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.InfoToolStripMenuItem.Text = "About";
             this.InfoToolStripMenuItem.Click += new System.EventHandler(this.InfoToolStripMenuItem_Click);
             // 
             // singleplayerToolStripMenuItem
             // 
             this.singleplayerToolStripMenuItem.Name = "singleplayerToolStripMenuItem";
-            this.singleplayerToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.singleplayerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.singleplayerToolStripMenuItem.Text = "Singleplayer";
             this.singleplayerToolStripMenuItem.Click += new System.EventHandler(this.singleplayerToolStripMenuItem_Click);
             // 
@@ -235,7 +239,7 @@ namespace CoD_Widescreen_Suite
             this.StatusLabel.AutoSize = true;
             this.StatusLabel.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.StatusLabel.ForeColor = System.Drawing.Color.Orange;
-            this.StatusLabel.Location = new System.Drawing.Point(7, 170);
+            this.StatusLabel.Location = new System.Drawing.Point(9, 175);
             this.StatusLabel.Name = "StatusLabel";
             this.StatusLabel.Size = new System.Drawing.Size(289, 13);
             this.StatusLabel.TabIndex = 69;
@@ -335,9 +339,9 @@ namespace CoD_Widescreen_Suite
             this.CurSessionGT.ForeColor = System.Drawing.Color.Black;
             this.CurSessionGT.Location = new System.Drawing.Point(147, 74);
             this.CurSessionGT.Name = "CurSessionGT";
-            this.CurSessionGT.Size = new System.Drawing.Size(133, 13);
+            this.CurSessionGT.Size = new System.Drawing.Size(115, 13);
             this.CurSessionGT.TabIndex = 74;
-            this.CurSessionGT.Text = "Current Session: None";
+            this.CurSessionGT.Text = "Session Time: None";
             // 
             // GameTimeLabel
             // 
@@ -350,42 +354,38 @@ namespace CoD_Widescreen_Suite
             this.GameTimeLabel.TabIndex = 73;
             this.GameTimeLabel.Text = "Game Time: None";
             // 
-            // CoDPictureBox
-            // 
-            this.CoDPictureBox.Location = new System.Drawing.Point(360, 96);
-            this.CoDPictureBox.Name = "CoDPictureBox";
-            this.CoDPictureBox.Size = new System.Drawing.Size(45, 46);
-            this.CoDPictureBox.TabIndex = 67;
-            this.CoDPictureBox.TabStop = false;
-            // 
             // ProccessChecker
             // 
             this.ProccessChecker.Enabled = true;
             this.ProccessChecker.Interval = 1500;
             this.ProccessChecker.Tick += new System.EventHandler(this.ProccessChecker_Tick);
             // 
-            // checkBox1
+            // checkBoxDesktopRes
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.BackColor = System.Drawing.Color.Transparent;
-            this.checkBox1.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox1.ForeColor = System.Drawing.Color.Black;
-            this.checkBox1.Location = new System.Drawing.Point(303, 53);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(98, 30);
-            this.checkBox1.TabIndex = 77;
-            this.checkBox1.Text = "Use desktop \r\nresolution";
-            this.toolTip1.SetToolTip(this.checkBox1, "Toggle whether or not this app should minimize to the tray");
-            this.checkBox1.UseVisualStyleBackColor = false;
+            this.checkBoxDesktopRes.AutoSize = true;
+            this.checkBoxDesktopRes.BackColor = System.Drawing.Color.Transparent;
+            this.checkBoxDesktopRes.Checked = true;
+            this.checkBoxDesktopRes.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxDesktopRes.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.checkBoxDesktopRes.ForeColor = System.Drawing.Color.Black;
+            this.checkBoxDesktopRes.Location = new System.Drawing.Point(303, 53);
+            this.checkBoxDesktopRes.Name = "checkBoxDesktopRes";
+            this.checkBoxDesktopRes.Size = new System.Drawing.Size(98, 30);
+            this.checkBoxDesktopRes.TabIndex = 77;
+            this.checkBoxDesktopRes.Text = "Use desktop \r\nresolution";
+            this.toolTip1.SetToolTip(this.checkBoxDesktopRes, "Toggle whether we should use the desktop resolution when launching the game.\r\nOnl" +
+        "y affects game launches via \'Start Game\' button.");
+            this.checkBoxDesktopRes.UseVisualStyleBackColor = false;
             // 
             // AdminLaunchButton
             // 
             this.AdminLaunchButton.BackColor = System.Drawing.Color.DarkGray;
+            this.AdminLaunchButton.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.AdminLaunchButton.ForeColor = System.Drawing.Color.Black;
             this.AdminLaunchButton.ImageAlign = System.Drawing.ContentAlignment.BottomLeft;
-            this.AdminLaunchButton.Location = new System.Drawing.Point(10, 142);
+            this.AdminLaunchButton.Location = new System.Drawing.Point(10, 151);
             this.AdminLaunchButton.Name = "AdminLaunchButton";
-            this.AdminLaunchButton.Size = new System.Drawing.Size(272, 25);
+            this.AdminLaunchButton.Size = new System.Drawing.Size(272, 21);
             this.AdminLaunchButton.TabIndex = 76;
             this.AdminLaunchButton.Text = "Launch program as Administrator";
             this.AdminLaunchButton.UseVisualStyleBackColor = false;
@@ -410,7 +410,16 @@ namespace CoD_Widescreen_Suite
             this.GamePIDBox.Size = new System.Drawing.Size(116, 21);
             this.GamePIDBox.TabIndex = 75;
             this.GamePIDBox.SelectedIndexChanged += new System.EventHandler(this.GamePIDBox_SelectedIndexChanged);
-            this.GamePIDBox.VisibleChanged += new System.EventHandler(this.GamePIDBox_VisibleChanged);
+            // 
+            // CoDPictureBox
+            // 
+            this.CoDPictureBox.Image = global::CoD_Widescreen_Suite.Properties.Resources.CoD1_UO_icon;
+            this.CoDPictureBox.Location = new System.Drawing.Point(360, 96);
+            this.CoDPictureBox.Name = "CoDPictureBox";
+            this.CoDPictureBox.Size = new System.Drawing.Size(45, 46);
+            this.CoDPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.CoDPictureBox.TabIndex = 67;
+            this.CoDPictureBox.TabStop = false;
             // 
             // MainForm
             // 
@@ -418,7 +427,7 @@ namespace CoD_Widescreen_Suite
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
             this.ClientSize = new System.Drawing.Size(419, 216);
-            this.Controls.Add(this.checkBox1);
+            this.Controls.Add(this.checkBoxDesktopRes);
             this.Controls.Add(this.AdminLaunchButton);
             this.Controls.Add(this.GamePIDBox);
             this.Controls.Add(this.CurSessionGT);
@@ -490,7 +499,7 @@ namespace CoD_Widescreen_Suite
         internal System.Windows.Forms.Button AdminLaunchButton;
         private System.Windows.Forms.Timer GameTimeLabelTimer;
         private System.Windows.Forms.ToolStripMenuItem singleplayerToolStripMenuItem;
-        internal CheckBox checkBox1;
+        internal CheckBox checkBoxDesktopRes;
     }
 }
 

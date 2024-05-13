@@ -83,6 +83,16 @@ namespace CoD_Widescreen_Suite.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap CoD1_UO_icon {
+            get {
+                object obj = ResourceManager.GetObject("CoD1_UO_icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap CoDUO {
             get {
                 object obj = ResourceManager.GetObject("CoDUO", resourceCulture);

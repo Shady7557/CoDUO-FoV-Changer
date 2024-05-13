@@ -37,10 +37,11 @@
             // 
             this.GameTimeCheckbox.AutoSize = true;
             this.GameTimeCheckbox.BackColor = System.Drawing.Color.Transparent;
+            this.GameTimeCheckbox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.GameTimeCheckbox.ForeColor = System.Drawing.Color.Black;
-            this.GameTimeCheckbox.Location = new System.Drawing.Point(12, 12);
+            this.GameTimeCheckbox.Location = new System.Drawing.Point(3, 12);
             this.GameTimeCheckbox.Name = "GameTimeCheckbox";
-            this.GameTimeCheckbox.Size = new System.Drawing.Size(123, 17);
+            this.GameTimeCheckbox.Size = new System.Drawing.Size(134, 17);
             this.GameTimeCheckbox.TabIndex = 21;
             this.GameTimeCheckbox.Text = "Track In-Game Time";
             this.GameTimeCheckbox.UseVisualStyleBackColor = false;
@@ -48,7 +49,8 @@
             // CancelCloseButton
             // 
             this.CancelCloseButton.BackColor = System.Drawing.Color.DarkGray;
-            this.CancelCloseButton.Location = new System.Drawing.Point(9, 64);
+            this.CancelCloseButton.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.CancelCloseButton.Location = new System.Drawing.Point(3, 64);
             this.CancelCloseButton.Name = "CancelCloseButton";
             this.CancelCloseButton.Size = new System.Drawing.Size(128, 22);
             this.CancelCloseButton.TabIndex = 20;
@@ -59,7 +61,8 @@
             // SaveRestartAppButton
             // 
             this.SaveRestartAppButton.BackColor = System.Drawing.Color.DarkGray;
-            this.SaveRestartAppButton.Location = new System.Drawing.Point(9, 35);
+            this.SaveRestartAppButton.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.SaveRestartAppButton.Location = new System.Drawing.Point(3, 35);
             this.SaveRestartAppButton.Name = "SaveRestartAppButton";
             this.SaveRestartAppButton.Size = new System.Drawing.Size(128, 23);
             this.SaveRestartAppButton.TabIndex = 18;
@@ -67,20 +70,19 @@
             this.SaveRestartAppButton.UseVisualStyleBackColor = false;
             this.SaveRestartAppButton.Click += new System.EventHandler(this.SaveRestartAppButton_Click);
             // 
-            // AdvancedSettings
+            // AdvancedSettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
-            this.ClientSize = new System.Drawing.Size(144, 97);
+            this.ClientSize = new System.Drawing.Size(140, 93);
             this.ControlBox = false;
             this.Controls.Add(this.GameTimeCheckbox);
             this.Controls.Add(this.CancelCloseButton);
             this.Controls.Add(this.SaveRestartAppButton);
-            this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
-            this.Name = "AdvancedSettings";
+            this.Name = "AdvancedSettingsForm";
             this.ShowIcon = false;
             this.Text = "Advanced Settings";
             this.Load += new System.EventHandler(this.AdvancedSettings_Load);
