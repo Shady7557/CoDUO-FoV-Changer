@@ -69,6 +69,7 @@ namespace CoD_Widescreen_Suite
 
                 var settings = Settings.Instance;
 
+
                 if (settings.LastLogFile != logLocation)
                 {
                     try { if (File.Exists(settings.LastLogFile)) File.Delete(settings.LastLogFile); }
@@ -89,19 +90,20 @@ namespace CoD_Widescreen_Suite
         { 
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(AssemblyResolve);
 
+            var isMultiInstance = false;
+
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i].Equals("-multi", StringComparison.OrdinalIgnoreCase))
+                {
+                    isMultiInstance = true;
+                    break;
+                }
+            }
+
             using (var mutex = new Mutex(true, MUTEX_NAME, out var createdNew))
             {
-                var isMultiInstance = false;
-                
-                for (int i =  0; i < args.Length; i++)
-                {
-                    if (args[i].Equals("-multi", StringComparison.OrdinalIgnoreCase))
-                    {
-                        isMultiInstance = true;
-                        break;
-                    }
-                }
-
+               
                 if (createdNew || isMultiInstance)
                 {
                     // No other instance is running, start the application
@@ -149,17 +151,16 @@ namespace CoD_Widescreen_Suite
                 var sb = Pool.Get<StringBuilder>();
                 try 
                 {
-                    var name = sb.Clear().Append(typeof(Program).Namespace).Append(".Resources.").Append(new AssemblyName(e.Name).Name).Append(".dll").ToString();
+                    var name = sb.Clear()
+                        .Append(typeof(Program).Namespace)
+                        .Append(".Resources.")
+                        .Append(new AssemblyName(e.Name).Name)
+                        .Append(".dll").ToString();
 
                     var appPath = AppDomain.CurrentDomain.BaseDirectory;
 
                     var resName = sb.Clear().Append(e.Name.Split(',')[0]).Append(".dll").ToString();
 
-                    var manifestResource = Assembly.GetExecutingAssembly().GetManifestResourceStream(name);
-
-                    if (manifestResource == null)
-                        return null;
-                    
 
                     using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(name))
                     {

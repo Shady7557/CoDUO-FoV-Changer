@@ -1,5 +1,4 @@
-﻿using CurtLog;
-using ReadWriteMemory;
+﻿using ReadWriteMemory;
 using System;
 using System.Text;
 
@@ -25,18 +24,19 @@ namespace CoD_Widescreen_Suite
             (ProcMemory = new ProcessMemory(processID)).StartProcess();
         }
 
-        public bool IsRunning() { return ProcMemory?.CheckProcess() ?? false; }
+        public bool IsRunning() => ProcMemory?.CheckProcess() ?? false;
 
         public override string ToString()
         {
             var proc = ProcMemory?.Process;
-            if (proc == null)
-            {
-                Log.WriteLine("proc is null on tostring()!!");
-                return base.ToString();
-            }
 
-            return _stringBuilder.Append(proc.ProcessName).Append(" (").Append(proc.Id).Append(")").ToString();
+            return proc == null ? string.Empty :
+                _stringBuilder
+                .Append(proc.ProcessName)
+                .Append(" (")
+                .Append(proc.Id)
+                .Append(")")
+                .ToString();
         }
 
         #region Reading

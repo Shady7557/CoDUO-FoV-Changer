@@ -23,7 +23,7 @@ namespace CoD_Widescreen_Suite
             GameVersLabel.Text = "Game Version: " + (!string.IsNullOrEmpty(CodRex.GameVersion) ? CodRex.GameVersion : "Unknown");
 
 
-            ButtonBrowseGameFiles.Enabled = !string.IsNullOrEmpty(settings.InstallPath) && Directory.Exists(settings.InstallPath);
+            ButtonBrowseGameFiles.Enabled = !string.IsNullOrEmpty(settings.BaseGamePath) && Directory.Exists(settings.BaseGamePath);
 
 
             if (!Program.IsElevated)
@@ -38,7 +38,7 @@ namespace CoD_Widescreen_Suite
 
         private void ButtonBrowseGameFiles_Click(object sender, EventArgs e)
         {
-            try { Process.Start(settings.InstallPath); }
+            try { Process.Start(settings.BaseGamePath); }
             catch (Exception ex)
             {
                 Log.WriteLine("An error happened while trying to browse local game files:");

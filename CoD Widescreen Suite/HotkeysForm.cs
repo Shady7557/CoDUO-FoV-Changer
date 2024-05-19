@@ -42,7 +42,7 @@ namespace CoD_Widescreen_Suite
                 Owner.LocationChanged += ParentForm_LocationChanged;
             }
 
-            DatabaseFile.Write(settings, PathInfos.SettingsPath); //save current settings
+            Settings.SaveInstanceToDisk(); //save current settings
             settings.HasChanged = false; //force it to not be changed so exit without saving works 'properly' (this is all an ugly solution)
 
             //transparent label backcolor
@@ -86,7 +86,7 @@ namespace CoD_Widescreen_Suite
 
         private void button2_Click(object sender, EventArgs e)
         {
-            DatabaseFile.Write(settings, PathInfos.SettingsPath);
+            Settings.SaveInstanceToDisk();
             Close();
         }
 

@@ -101,16 +101,6 @@ namespace CoD_Widescreen_Suite.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] CurtLog {
-            get {
-                object obj = ResourceManager.GetObject("CurtLog", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap discord_500x {
@@ -137,6 +127,16 @@ namespace CoD_Widescreen_Suite.Properties {
             get {
                 object obj = ResourceManager.GetObject("Mover", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap success_check {
+            get {
+                object obj = ResourceManager.GetObject("success_check", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }

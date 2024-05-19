@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using Sce.Atf.Controls;
+using System.Windows.Forms;
 
 namespace CoD_Widescreen_Suite
 {
@@ -32,7 +33,13 @@ namespace CoD_Widescreen_Suite
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.StartGameButton = new System.Windows.Forms.Button();
+            this.StartGameButton = new Sce.Atf.Controls.SplitButton();
+            this.startGameStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.rcStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.settingsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.FoVNumeric = new System.Windows.Forms.NumericUpDown();
             this.FoVLabel = new System.Windows.Forms.Label();
             this.MinimizeCheckBox = new System.Windows.Forms.CheckBox();
@@ -49,11 +56,6 @@ namespace CoD_Widescreen_Suite
             this.StatusLabel = new System.Windows.Forms.Label();
             this.ipDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.MinimizeIcon = new System.Windows.Forms.NotifyIcon(this.components);
-            this.rcStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.settingsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exitToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.LaunchParametersTB = new System.Windows.Forms.TextBox();
             this.LaunchParametersLB = new System.Windows.Forms.Label();
             this.HotKeyHandler = new System.Windows.Forms.Timer(this.components);
@@ -68,24 +70,71 @@ namespace CoD_Widescreen_Suite
             this.GameTimeLabelTimer = new System.Windows.Forms.Timer(this.components);
             this.GamePIDBox = new CoD_Widescreen_Suite.ProcessMemoryBox();
             this.CoDPictureBox = new System.Windows.Forms.PictureBox();
+            this.rcStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FoVNumeric)).BeginInit();
             this.FoVMenuStrip.SuspendLayout();
-            this.rcStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.CoDPictureBox)).BeginInit();
             this.SuspendLayout();
             // 
             // StartGameButton
             // 
             this.StartGameButton.BackColor = System.Drawing.Color.DarkGray;
+            this.StartGameButton.ContextMenuStrip = this.startGameStrip;
             this.StartGameButton.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.StartGameButton.ForeColor = System.Drawing.Color.Black;
-            this.StartGameButton.Location = new System.Drawing.Point(12, 33);
+            this.StartGameButton.IsShowing = false;
+            this.StartGameButton.Location = new System.Drawing.Point(10, 33);
             this.StartGameButton.Name = "StartGameButton";
             this.StartGameButton.Size = new System.Drawing.Size(161, 25);
             this.StartGameButton.TabIndex = 6;
-            this.StartGameButton.Text = "Start Game";
+            this.StartGameButton.Text = "Start Game ({LAST_GAME})";
             this.StartGameButton.UseVisualStyleBackColor = false;
-            this.StartGameButton.Click += new System.EventHandler(this.StartGameButton_Click);
+            this.StartGameButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.StartGameButton_MouseDown);
+            // 
+            // startGameStrip
+            // 
+            this.startGameStrip.Name = "rcStrip";
+            this.startGameStrip.Size = new System.Drawing.Size(181, 26);
+            this.startGameStrip.Text = "test";
+            // 
+            // rcStrip
+            // 
+            this.rcStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolsToolStripMenuItem,
+            this.openToolStripMenuItem,
+            this.exitToolStripMenuItem1});
+            this.rcStrip.Name = "rcStrip";
+            this.rcStrip.Size = new System.Drawing.Size(104, 70);
+            this.rcStrip.Text = "test";
+            // 
+            // toolsToolStripMenuItem
+            // 
+            this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.settingsToolStripMenuItem1});
+            this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.toolsToolStripMenuItem.Text = "Tools";
+            // 
+            // settingsToolStripMenuItem1
+            // 
+            this.settingsToolStripMenuItem1.Name = "settingsToolStripMenuItem1";
+            this.settingsToolStripMenuItem1.Size = new System.Drawing.Size(116, 22);
+            this.settingsToolStripMenuItem1.Text = "Settings";
+            this.settingsToolStripMenuItem1.Click += new System.EventHandler(this.settingsToolStripMenuItem1_Click);
+            // 
+            // openToolStripMenuItem
+            // 
+            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.openToolStripMenuItem.Text = "Open";
+            this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+            // 
+            // exitToolStripMenuItem1
+            // 
+            this.exitToolStripMenuItem1.Name = "exitToolStripMenuItem1";
+            this.exitToolStripMenuItem1.Size = new System.Drawing.Size(103, 22);
+            this.exitToolStripMenuItem1.Text = "Exit";
+            this.exitToolStripMenuItem1.Click += new System.EventHandler(this.exitToolStripMenuItem1_Click);
             // 
             // FoVNumeric
             // 
@@ -193,14 +242,14 @@ namespace CoD_Widescreen_Suite
             // InfoToolStripMenuItem
             // 
             this.InfoToolStripMenuItem.Name = "InfoToolStripMenuItem";
-            this.InfoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.InfoToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
             this.InfoToolStripMenuItem.Text = "About";
             this.InfoToolStripMenuItem.Click += new System.EventHandler(this.InfoToolStripMenuItem_Click);
             // 
             // singleplayerToolStripMenuItem
             // 
             this.singleplayerToolStripMenuItem.Name = "singleplayerToolStripMenuItem";
-            this.singleplayerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.singleplayerToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
             this.singleplayerToolStripMenuItem.Text = "Singleplayer";
             this.singleplayerToolStripMenuItem.Click += new System.EventHandler(this.singleplayerToolStripMenuItem_Click);
             // 
@@ -256,45 +305,6 @@ namespace CoD_Widescreen_Suite
             this.MinimizeIcon.Text = "Microsoft® Visual Studio®";
             this.MinimizeIcon.BalloonTipClicked += new System.EventHandler(this.MinimizeIcon_BalloonTipClicked);
             this.MinimizeIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MinimizeIcon_MouseClick);
-            // 
-            // rcStrip
-            // 
-            this.rcStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolsToolStripMenuItem,
-            this.openToolStripMenuItem,
-            this.exitToolStripMenuItem1});
-            this.rcStrip.Name = "rcStrip";
-            this.rcStrip.Size = new System.Drawing.Size(104, 70);
-            this.rcStrip.Text = "test";
-            // 
-            // toolsToolStripMenuItem
-            // 
-            this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.settingsToolStripMenuItem1});
-            this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.toolsToolStripMenuItem.Text = "Tools";
-            // 
-            // settingsToolStripMenuItem1
-            // 
-            this.settingsToolStripMenuItem1.Name = "settingsToolStripMenuItem1";
-            this.settingsToolStripMenuItem1.Size = new System.Drawing.Size(116, 22);
-            this.settingsToolStripMenuItem1.Text = "Settings";
-            this.settingsToolStripMenuItem1.Click += new System.EventHandler(this.settingsToolStripMenuItem1_Click);
-            // 
-            // openToolStripMenuItem
-            // 
-            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.openToolStripMenuItem.Text = "Open";
-            this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
-            // 
-            // exitToolStripMenuItem1
-            // 
-            this.exitToolStripMenuItem1.Name = "exitToolStripMenuItem1";
-            this.exitToolStripMenuItem1.Size = new System.Drawing.Size(103, 22);
-            this.exitToolStripMenuItem1.Text = "Exit";
-            this.exitToolStripMenuItem1.Click += new System.EventHandler(this.exitToolStripMenuItem1_Click);
             // 
             // LaunchParametersTB
             // 
@@ -452,10 +462,10 @@ namespace CoD_Widescreen_Suite
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Resize += new System.EventHandler(this.MainForm_Resize);
+            this.rcStrip.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.FoVNumeric)).EndInit();
             this.FoVMenuStrip.ResumeLayout(false);
             this.FoVMenuStrip.PerformLayout();
-            this.rcStrip.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.CoDPictureBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -464,7 +474,7 @@ namespace CoD_Widescreen_Suite
 
         #endregion
 
-        internal System.Windows.Forms.Button StartGameButton;
+        internal SplitButton StartGameButton;
         internal System.Windows.Forms.NumericUpDown FoVNumeric;
         internal System.Windows.Forms.Label FoVLabel;
         internal System.Windows.Forms.CheckBox MinimizeCheckBox;
@@ -500,6 +510,7 @@ namespace CoD_Widescreen_Suite
         private System.Windows.Forms.Timer GameTimeLabelTimer;
         private System.Windows.Forms.ToolStripMenuItem singleplayerToolStripMenuItem;
         internal CheckBox checkBoxDesktopRes;
+        private ContextMenuStrip startGameStrip;
     }
 }
 

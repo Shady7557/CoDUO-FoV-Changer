@@ -75,7 +75,7 @@ namespace ReadWriteMemory
             return ProcessHandle != 0;
         }
 
-        public int DllImageAddress(string dllname)
+        public int DllImageAddress(string dllname, StringComparison stringComparison = default)
         {
             if (string.IsNullOrWhiteSpace(dllname))
                 throw new ArgumentNullException(nameof(dllname));
@@ -122,7 +122,7 @@ namespace ReadWriteMemory
                 {
                     try
                     {
-                        if (module?.ModuleName == dllname)
+                        if ((module?.ModuleName ?? string.Empty).Equals(dllname, stringComparison))
                         {
                             addr = module.BaseAddress;
                             break;

@@ -1,12 +1,37 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 
-//beautiful mess
+// beautiful mess
 namespace TimerExtensions
 {
     public static class TimerEx
     {
-        public static Timer Once(float seconds, Action action) => new Timer(p => action.Invoke(), null, (int)seconds * 1000, Timeout.Infinite);
+        // HashSet to keep track of all timers - this was seemingly necessary to keep them from being GC'd/otherwise not firing off.
+        private static readonly HashSet<Timer> _timers = new HashSet<Timer>();
+        public static Timer Once(int seconds, Action action)
+        {
+            Timer t = null;
+
+            t = new Timer(p =>
+            {
+                try { action.Invoke(); }
+                finally { _timers?.Remove(t); }
+
+            }, null, seconds * 1000, Timeout.Infinite);
+
+            _timers.Add(t);
+
+            return t;
+        }
+        public static Timer Once(float seconds, Action action) => Once((int)seconds, action);
+        public static Timer Once(TimeSpan time, Action action)
+        {
+            if (time <= TimeSpan.Zero)
+                throw new ArgumentOutOfRangeException(nameof(time));
+
+            return Once((int)time.TotalSeconds, action);
+        }
         public static RepeatingTimer Every(float seconds, Action action) => new RepeatingTimer(seconds, action);
 
         public class RepeatingTimer
@@ -16,6 +41,10 @@ namespace TimerExtensions
             private Timer _timer = null;
 
             private Action _timerAction;
+
+            private Action _loopAction;
+
+            private Action _originalAction;
 
             public float Interval { get; set; } = 0f;
             public long Loops { get; set; } = 0;
@@ -29,10 +58,13 @@ namespace TimerExtensions
 
                     _timerAction = value;
 
-                    if (Interval <= 0) return;
+                    if (_timerAction == null)
+                        return;
 
-                    Action loopAct = null;
-                    loopAct = new Action(() =>
+                    if (Interval <= 0) 
+                        return;
+
+                    _loopAction = new Action(() =>
                     {
                         _timer = null;
 
@@ -44,14 +76,26 @@ namespace TimerExtensions
                         if (Loops > 0 && _currentLoops >= Loops) 
                             return;
 
-                        _timer = Once(Interval, loopAct);
+                        _timer = Once(Interval, _loopAction);
 
                         _currentLoops++;
                     });
 
-                    _timer = Once(Interval, loopAct);
+                    _timer = Once(Interval, _loopAction);
 
                 }
+            }
+
+            public void Stop()
+            {
+                _timer?.Dispose();
+                _timer = null;
+                TimerAction = null;
+            }
+
+            public void Resume()
+            {
+                TimerAction = _originalAction;
             }
 
             public RepeatingTimer() { }
@@ -62,7 +106,7 @@ namespace TimerExtensions
 
                 Interval = interval;
 
-                TimerAction = action ?? throw new ArgumentNullException(nameof(action));
+                TimerAction = _originalAction = action ?? throw new ArgumentNullException(nameof(action));
             }
         }
     }

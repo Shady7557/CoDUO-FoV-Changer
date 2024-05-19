@@ -3,11 +3,12 @@ using System.Collections.Generic;
 
 public class PathInfos
 {
-    public static readonly string AppData = Environment.GetEnvironmentVariable("appdata");
-    public static readonly string Temp = Environment.GetEnvironmentVariable("temp");
-    public static readonly string AppDataFoV = AppData + @"\CoD Widescreen Suite";
-    public static readonly string LogsPath = AppDataFoV + @"\Logs";
-    public static readonly string SettingsPath = AppDataFoV + @"\settings.xml";
+    public static string AppData => Environment.GetEnvironmentVariable("appdata");
+    public static string Temp => Environment.GetEnvironmentVariable("temp");
+    public static string AppDataFoV => AppData + @"\CoD Widescreen Suite";
+    public static string LogsPath => AppDataFoV + @"\Logs";
+    public static string SettingsPath => AppDataFoV + @"\settings.json";
+
 
     public const string VCOD_PROCESS_NAME = "CoDMP";
     public const string CODUO_PROCESS_NAME = "CoDUOMP";

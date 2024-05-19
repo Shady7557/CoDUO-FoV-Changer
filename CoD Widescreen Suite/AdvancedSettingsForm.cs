@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows.Forms;
 
 namespace CoD_Widescreen_Suite
 {
@@ -15,17 +14,18 @@ namespace CoD_Widescreen_Suite
         private void AdvancedSettings_Load(object sender, EventArgs e)
         {
             GameTimeCheckbox.Checked = settings.TrackGameTime;
+            startIfChangeCheckbox.Checked = settings.LaunchWhenSelectedExeChanged;
         }
 
         private void SaveRestartAppButton_Click(object sender, EventArgs e)
         {
             settings.TrackGameTime = GameTimeCheckbox.Checked;
+            settings.LaunchWhenSelectedExeChanged = startIfChangeCheckbox.Checked;
+
             if (settings.HasChanged)
-            {
-                DatabaseFile.Write(settings, PathInfos.SettingsPath);
-                Application.Restart();
-            }
-            else Close();
+                Settings.SaveInstanceToDisk();
+            
+            Close();
         }
 
         private void CancelCloseButton_Click(object sender, EventArgs e) => Close();

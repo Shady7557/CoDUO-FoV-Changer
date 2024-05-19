@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using TimerExtensions;
 
 namespace SessionHandling
@@ -8,23 +7,14 @@ namespace SessionHandling
     {
         private DateTime _lastSessionTime = DateTime.MinValue;
         private DateTime _startSessionTime = DateTime.MinValue;
-        public TimeSpan GetSessionTime() { return _lastSessionTime - _startSessionTime; }
+        public TimeSpan GetSessionTime() => _lastSessionTime - _startSessionTime;
 
-        public bool IsGameRunning()
-        {
-            var procs = Process.GetProcesses();
-            for (int i = 0; i < procs.Length; i++)
-                if (ProcessExtensions.ProcessExtension.IsCoDMPProcess(procs[i]))
-                    return true;
-            
-            return false;
-        }
 
         public SessionHandler()
         {
             var procAct = new Action(() =>
             {
-                if (!IsGameRunning())
+                if (!ProcessExtensions.ProcessExtension.IsAnyCoDProcessRunning())
                     return;
 
                 var now = DateTime.UtcNow;

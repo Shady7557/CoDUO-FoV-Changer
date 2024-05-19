@@ -107,6 +107,71 @@ namespace CoD_Widescreen_Suite
             });
         }
 
+        private void UpdateStartGameButtonText(string gameProcName)
+        {
+            var sb = Pool.Get<StringBuilder>();
+            try
+            {
+                var newTxt = sb.Clear().Append("Start Game");
+
+                if (!string.IsNullOrWhiteSpace(gameProcName))
+                    newTxt.Append(" (").Append(gameProcName).Append(")").Replace(".exe", string.Empty);
+
+                // Truncate if too long
+
+                if (newTxt.Length > 21)
+                {
+                    newTxt.Length = 21;
+                    newTxt.Append("...");
+                }
+
+                StartGameButton.Text = newTxt.ToString();
+
+            }
+            finally { Pool.Free(ref sb); }
+        }
+
+        private void UpdateStartGameButtonContextOptions()
+        {
+            startGameStrip.Items.Clear();
+
+            Icon icon = null;
+            for (int i = 0; i < settings.GameExes.Count; i++)
+            {
+                var exe = settings.GameExes[i];
+
+                try { icon = Icon.ExtractAssociatedIcon(Path.Combine(settings.BaseGamePath, exe)); }
+                catch (Exception ex)
+                {
+                    Log.WriteLine(ex.ToString());
+                    Console.WriteLine(ex.ToString());
+                }
+
+                var image = icon != null ? icon.ToBitmap() : Properties.Resources.CoD1_UO_icon;
+
+                startGameStrip.Items.Add(exe, image).Click += (s, e) =>
+                {
+                    settings.SelectedExecutable = exe;
+
+                    UpdateStartGameButtonText(exe);
+
+                    if (settings.LaunchWhenSelectedExeChanged)
+                        StartGameButton_Click();
+                };
+
+            }
+
+            //startGameStrip.Update();
+        }
+
+        // Move:
+        private void ToggleGameTracking(bool desired)
+        {
+            GameTimeLabel.Visible = desired;
+            CurSessionGT.Visible = desired;
+            GameTracker.Enabled = desired;
+        }
+
         private void MainForm_Load(object sender, EventArgs e)
         {
             var watch = Pool.Get<Stopwatch>();
@@ -116,6 +181,20 @@ namespace CoD_Widescreen_Suite
                 watch.Restart();
 
                 Text = Application.ProductName;
+
+                if (!string.IsNullOrWhiteSpace(settings?.BaseGamePath))
+                    UpdateGameExes(settings.BaseGamePath);
+
+                if (settings?.GameExes != null && settings.GameExes.Count > 0 
+                    && (string.IsNullOrWhiteSpace(settings.SelectedExecutablePath) || !File.Exists(settings.SelectedExecutablePath)))
+                {
+                    settings.SelectedExecutable = settings.GameExes[0];
+                }
+
+             
+
+                UpdateStartGameButtonText(settings?.SelectedExecutable);
+                UpdateStartGameButtonContextOptions();
 
                 BitmapHelper.ScalePictureBox(CoDPictureBox, Properties.Resources.CoD1_UO_icon);
 
@@ -137,7 +216,7 @@ namespace CoD_Widescreen_Suite
                             continue;
 
                         if (arg.Equals("-launch", StringComparison.OrdinalIgnoreCase))
-                            StartGameButton_Click(null, null); //nothing (currently) uses the args provided, so they're just null here. I did this instead of PerformClick() because we don't really need to do all the operations that PerformClick() does.
+                            StartGameButton_Click();
 
                         if (arg.Equals("-debug", StringComparison.OrdinalIgnoreCase)) 
                             IsDev = true;
@@ -188,7 +267,7 @@ namespace CoD_Widescreen_Suite
                     {
 
 
-                        if (string.IsNullOrEmpty(settings.InstallPath) || !Directory.Exists(settings.InstallPath))
+                        if (string.IsNullOrEmpty(settings.BaseGamePath) || !Directory.Exists(settings.BaseGamePath))
                         {
                             var scannedPath = string.Empty;
 
@@ -202,7 +281,7 @@ namespace CoD_Widescreen_Suite
                             if (!string.IsNullOrEmpty(scannedPath))
                             {
                                 MessageBox.Show("Automatically detected game path: " + Environment.NewLine + scannedPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                settings.InstallPath = scannedPath;
+                                settings.BaseGamePath = scannedPath;
                             }
                             else
                             {
@@ -215,7 +294,12 @@ namespace CoD_Widescreen_Suite
                                 }
 
                                 var selectedPath = ipDialog.SelectedPath;
-                                settings.InstallPath = selectedPath;
+                                settings.BaseGamePath = selectedPath;
+
+                                // Improve this, but it works for now:
+                                UpdateGameExes(selectedPath);
+                               
+
                                 MessageBox.Show("Set install path to: " + selectedPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
                         }
@@ -237,12 +321,7 @@ namespace CoD_Widescreen_Suite
                 LaunchParametersTB.Text = settings.CommandLine;
 
                 if (settings.TrackGameTime) AccessGameTimeLabel();
-                else
-                {
-                    GameTimeLabel.Visible = false;
-                    CurSessionGT.Visible = false;
-                    GameTracker.Enabled = false;
-                }
+                else ToggleGameTracking(false);
 
                 TimerEx.Every(3f, MemoryTimer_Tick);
 
@@ -255,177 +334,62 @@ namespace CoD_Widescreen_Suite
                 var sb = Pool.Get<StringBuilder>();
                 try
                 {
-                    var timeTaken = watch.Elapsed;
-
-                    if (timeTaken.TotalMilliseconds > 100) 
-                        Log.WriteLine(sb.Clear().Append("Startup took: ").Append(timeTaken.TotalMilliseconds).Append("ms (this is too long!)").ToString());
-
-                    Log.WriteLine(sb.Clear().Append("Successfully started application, version ").Append(Application.ProductVersion).ToString());
+                    Log.WriteLine(sb
+                        .Clear()
+                        .Append("Successfully started application in ")
+                        .Append(watch.Elapsed.TotalMilliseconds.ToString("0.00")).Replace(".00", string.Empty)
+                        .Append("ms, version ")
+                        .Append(Application.ProductVersion)
+                        .ToString());
                 }
                 finally { Pool.Free(ref sb); }
 
             }
         }
 
+        // Move this:
 
-        private void StartGame(string forcedArgs = "")
+        private void UpdateGameExes(string basePath)
         {
-            try
+            if (string.IsNullOrWhiteSpace(basePath))
+                throw new ArgumentNullException(nameof(basePath));
+
+            if (settings == null)
+                throw new Exception("Settings is null");
+
+            var files = Directory.GetFiles(basePath, "*.exe", SearchOption.TopDirectoryOnly);
+            for (int i = 0; i < files.Length; i++)
             {
-                if (string.IsNullOrEmpty(settings.InstallPath))
+                var file = files[i];
+                var fileName = Path.GetFileName(file);
+                var fileNameNoExt = Path.GetFileNameWithoutExtension(file);
+
+                Console.WriteLine(i + ": " + file + Environment.NewLine + "File name: " + fileName);
+
+                foreach (var codName in PathInfos.GAME_PROCESS_NAMES)
                 {
-                    MessageBox.Show("Install Path is empty!", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                if (!Directory.Exists(settings.InstallPath))
-                {
-                    MessageBox.Show("Install path: " + settings.InstallPath + " is invalid.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                if (string.IsNullOrEmpty(settings.ExeName))
-                {
-                    MessageBox.Show("Exe name is empty!", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                if (!File.Exists(settings.InstallPathExe))
-                {
-                    MessageBox.Show("Unable to find: " + settings.InstallPathExe, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                var hasForcedArgs = !string.IsNullOrWhiteSpace(forcedArgs);
-
-
-                var launchFileName = settings.InstallPathExe;
-
-                var oldCfg = string.Empty;
-                var gameType = !(settings.InstallPathExe.IndexOf("coduo", StringComparison.OrdinalIgnoreCase) >= 0) ? GameConfig.GameType.CoDSP : GameConfig.GameType.CoDUOMP;
-
-                var useSteam = ShouldUseSteam();
-
-                var sb = Pool.Get<StringBuilder>();
-
-                try 
-                {
-                    if (useSteam)
+                    if (codName.Equals(fileNameNoExt, StringComparison.OrdinalIgnoreCase) && !settings.GameExes.Contains(fileName))
                     {
-                        try
-                        {
-                            Log.WriteLine("Path contained 'steamapps' and Steam is running. Should launch with steam, trying!");
-
-                            if (!string.IsNullOrWhiteSpace(LaunchParametersTB.Text))
-                            {
-                                Log.WriteLine("Writing launch parameters to config temporarily.");
-
-                                oldCfg = GameConfig.GetGameConfig(gameType);
-
-
-
-                                GameConfig.ApplyLaunchParametersToConfig(sb
-                                    .Clear()
-                                    .Append(forcedArgs)
-                                    .Append(hasForcedArgs ? Environment.NewLine : string.Empty)
-                                    .Append(LaunchParametersTB.Text)
-                                    .ToString(), gameType);
-
-                                Log.WriteLine("Wrote launch parameters.");
-                            }
-
-                            //steam://launch/{appid}/dialog
-
-                            //thanks to a guy named Lone who helped me figure out how to launch a game where you can select the option via Steam.
-                            //Now that Steam lets you permanently select your desired option,
-                            //this either immediately launches the game via Steam or Steam prompts you to select version.
-
-                            var steamLaunchUrl = sb
-                                .Clear()
-                                .Append("steam://launch/26")
-                                .Append(gameType == GameConfig.GameType.CoDMP ? "20" : "40")
-                                .Append("/dialog")
-                                .ToString();
-
-                            launchFileName = steamLaunchUrl;
-
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.ToString());
-                            Log.WriteLine(ex.ToString());
-                        }
+                        settings.GameExes.Add(fileName);
+                        break;
                     }
-
-                    var startInfo = new ProcessStartInfo
-                    {
-                        Arguments = (!useSteam && !string.IsNullOrEmpty(LaunchParametersTB.Text)) ? sb.Clear().Append(forcedArgs).Append(hasForcedArgs ? Environment.NewLine : string.Empty).Append(LaunchParametersTB.Text).ToString() : string.Empty,
-                        FileName = launchFileName,
-                        WorkingDirectory = settings.InstallPath
-                    };
-
-                    Process.Start(startInfo);
                 }
-                finally { Pool.Free(ref sb); }
-
-               
-
-                if (!string.IsNullOrWhiteSpace(oldCfg))
-                {
-                    //TODO: Improve checking - 8 seconds alone is not enough.
-                    //For example, if Steam was not open and this has to launch Steam first, it often overwrites the config before game is open.
-                    //It is likely safe to overwrite the config while the game is open [needs verification].
-                    //Idea: Wait up to 45 seconds, then write cfg. Else, write cfg once game process is available.
-                    //URGENT: If old cfg exists when FoV changer is shut down, write old cfg back to disk!
-
-                    // Some of this is now done (see below), but it's a bit ugly and I don't love it.
-
-                    Task.Run(() =>
-                    {
-                        var waitedTimes = 0;
-                        var maxWaitTimes = 10;
-
-                        Log.WriteLine("Waiting for game process to start before writing old config back to disk.");
-
-                        
-
-                        while (!ProcessExtension.IsAnyCoDProcessRunning())
-                        {
-                            if (waitedTimes >= maxWaitTimes)
-                            {
-                                Log.WriteLine("Waited too long for game process to start, writing old config to disk.");
-                                break;
-                            }
-
-                            Thread.Sleep(7500);
-                            waitedTimes++;
-                        }
-
-                        // Wait to be sure we don't write it too soon to actually be loaded by the game.
-
-                        Thread.Sleep(8000);
-                        GameConfig.WriteGameConfig(oldCfg, gameType);
-
-                        Log.WriteLine("Wrote old config to disk!");
-                    });
-                }
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Failed to start game: " + ex.Message + Environment.NewLine + " Please refer to the log for more info.");
-                Log.WriteLine("Failed to start process game process: " + Environment.NewLine + ex.ToString());
             }
         }
+     
 
-        private void StartGameButton_Click(object sender, EventArgs e)
+        private void StartGameButton_Click(bool forceSelectionDialog = false)
         {
             var shiftMod = ModifierKeys == Keys.Shift;
 
-            if (string.IsNullOrEmpty(settings.ExeName) || shiftMod)
+            if (string.IsNullOrEmpty(settings.SelectedExecutable) || shiftMod || forceSelectionDialog)
             {
-                ipFDialog.InitialDirectory = settings.InstallPath;
+                ipFDialog.InitialDirectory = settings.BaseGamePath;
                 ipFDialog.DefaultExt = ".exe";
                 ipFDialog.Filter = "|*.exe";
 
-                if (!shiftMod) MessageBox.Show("Please select the exe to launch (this will be saved)", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (!shiftMod && !forceSelectionDialog) 
+                    MessageBox.Show("Please select the exe to launch (this will be saved)", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 var ipfResult = ipFDialog.ShowDialog();
                 if (ipfResult != DialogResult.OK) return;
@@ -437,9 +401,13 @@ namespace CoD_Widescreen_Suite
                 }
 
                 var filePath = Path.GetDirectoryName(ipFDialog.FileName);
-                if (settings.InstallPath != filePath) settings.InstallPath = filePath;
+                if (settings.BaseGamePath != filePath)
+                    settings.BaseGamePath = filePath;
 
-                MessageBox.Show("Selected: " + (settings.ExeName = ipFDialog.SafeFileName) + Environment.NewLine + "You can change this at any time by holding shift then clicking this button again", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                settings.SelectedExecutable = ipFDialog.SafeFileName;
+                UpdateStartGameButtonText(settings.SelectedExecutable);
+
+                MessageBox.Show("Selected: " + settings.SelectedExecutable + Environment.NewLine + "You can change this again at any time.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
             settings.CommandLine = LaunchParametersTB.Text;
@@ -456,8 +424,7 @@ namespace CoD_Widescreen_Suite
                     {
                         forceStartArgs = sb
                         .Clear()
-                        .Append("+set r_mode -1 ")
-                        .Append("+set r_customwidth ")
+                        .Append("+set r_mode -1 +set r_customwidth ")
                         .Append(DesktopWidth)
                         .Append(" +set r_customheight ")
                         .Append(DesktopHeight)
@@ -466,8 +433,10 @@ namespace CoD_Widescreen_Suite
                     finally { Pool.Free(ref sb); }
                 }
 
-                StartGame(forceStartArgs);
+                GameStarter.StartGame(settings.SelectedExecutablePath, LaunchParametersTB.Text, forceStartArgs);
             });
+
+           
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -477,7 +446,9 @@ namespace CoD_Widescreen_Suite
             if (settings.HasChanged)
             {
                 Log.WriteLine(nameof(settings.HasChanged) + ", so writing to disk");
-                DatabaseFile.Write(settings, PathInfos.SettingsPath);
+
+                Settings.SaveInstanceToDisk();
+
                 Log.WriteLine("Wrote settings to disk");
             }
         }
@@ -594,17 +565,14 @@ namespace CoD_Widescreen_Suite
 
         #region Util
 
-        public bool ShouldUseSteam()
-        {
-            return (settings?.InstallPathExe ?? string.Empty).IndexOf("steamapps", StringComparison.OrdinalIgnoreCase) >= 0;
-        }
-
         public bool IsUOMemory()
         {
-            if (MemorySelection == null || !MemorySelection.IsRunning())
-                return false; //I don't get why a null operator doesn't work here, but it doesn't. so we have this full 'check' here instead
+            if (MemorySelection?.ProcMemory?.Process == null || !ProcessExtension.IsProcessAlive(MemorySelection.ProcMemory.ProcessPID))
+                return false;
+            
+            var gameType = GameConfig.GetGameTypeFromProcess(MemorySelection?.ProcMemory?.Process);
 
-            return (MemorySelection.ProcMemory?.DllImageAddress(MemoryAddresses.UO_UI_MP_DLL) ?? 0) != 0 || (MemorySelection.ProcMemory?.DllImageAddress(MemoryAddresses.UO_CGAME_MP_DLL) ?? 0) != 0;
+            return gameType == GameConfig.GameType.CoDUOMP || gameType == GameConfig.GameType.CoDUOSP;
         }
 
         private void GetAllGameProcessesNoAlloc(ref List<Process> list)
@@ -708,7 +676,7 @@ namespace CoD_Widescreen_Suite
                 var ratio = 0d;
 
 
-                if (mode == -1)
+                if (mode <= -1)
                 {
                     var width = MemorySelection.ReadIntAddress(MemoryAddresses.UO_R_WIDTH_ADDRESS, 0x20);
                     var height = MemorySelection.ReadIntAddress(MemoryAddresses.UO_R_HEIGHT_ADDRESS, 0x20);
@@ -847,8 +815,16 @@ namespace CoD_Widescreen_Suite
             });
         }
 
-        private void GameTimeLabelTimer_Tick(object sender, EventArgs e) => AccessGameTimeLabel();
+        private void GameTimeLabelTimer_Tick(object sender, EventArgs e)
+        {
+            if (!settings.TrackGameTime)
+            {
+                ToggleGameTracking(false);
+                return;
+            }
 
+            AccessGameTimeLabel();
+        }
 
         private void LaunchParametersTB_TextChanged(object sender, EventArgs e)
         {
@@ -882,7 +858,7 @@ namespace CoD_Widescreen_Suite
                     }
                     catch(Exception ex)
                     {
-                        Log.WriteLine($"Failed to delete {nameof(tempFoVPath)}: {tempFoVPath}{Environment.NewLine}{ex.ToString()}");
+                        Log.WriteLine($"Failed to delete {nameof(tempFoVPath)}: {tempFoVPath}{Environment.NewLine}{ex}");
                     }
 
                
@@ -903,7 +879,7 @@ namespace CoD_Widescreen_Suite
                     }
                     catch(Exception ex)
                     {
-                        Log.WriteLine($"Failed to delete {nameof(path)}: {path}{Environment.NewLine}{ex.ToString()}");
+                        Log.WriteLine($"Failed to delete {nameof(path)}: {path}{Environment.NewLine}{ex}");
                     }
 
                   
@@ -916,7 +892,14 @@ namespace CoD_Widescreen_Suite
                     {
                         WorkingDirectory = Application.StartupPath,
                         FileName = path,
-                        Arguments = sb.Clear().Append("-movefrom=\"").Append(tempFoVPath).Append("\" -moveto=\"").Append(fileNameDir).Append("\" -wait=1000 -autostart -waitstart=1000 -exitwait=1000 -waitforpid=").Append(currentProc.Id).ToString()
+                        Arguments = sb.Clear()
+                        .Append("-movefrom=\"")
+                        .Append(tempFoVPath)
+                        .Append("\" -moveto=\"")
+                        .Append(fileNameDir)
+                        .Append("\" -wait=1000 -autostart -waitstart=1000 -exitwait=1000 -waitforpid=")
+                        .Append(currentProc.Id)
+                        .ToString()
                     };
 
                     Process.Start(updaterInfo);
@@ -1093,6 +1076,16 @@ namespace CoD_Widescreen_Suite
 
             if (ins == null) new SingleplayerForm() { Owner = this, AttachToOwner = true }.Show();
             else ins.UnminimizeAndSelect();
+        }
+
+        // Used to ensure that only left clicks result in the game starting/click event.
+        // Right clicks will open the strip attached to the button.
+        private void StartGameButton_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+                StartGameButton_Click();
+            else if (e.Button == MouseButtons.Right)
+                StartGameButton.ContextMenuStrip.Show(Cursor.Position);
         }
     }
 }

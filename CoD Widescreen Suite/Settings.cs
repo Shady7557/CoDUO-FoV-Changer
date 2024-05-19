@@ -1,33 +1,137 @@
 ﻿using CurtLog;
+using Newtonsoft.Json;
 using ShadyPool;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
 
 namespace CoD_Widescreen_Suite
 {
-    [Serializable]
-    public sealed class Settings
+    internal class Settings
     {
-        [NonSerialized]
+        // This is a JSON class that is the same as OldSettings.cs, but updated to use JSON:
+
+        [JsonIgnore]
         private static readonly Settings instance;
-        [NonSerialized]
+        [JsonIgnore]
         private static readonly string settingsFile;
-        [NonSerialized]
+        [JsonIgnore]
         private bool settingsChanged;
 
-        private string gamePath;
-        private string gameExe;
-        private decimal fov;
-        private string cmdline;
-        private bool minimize;
-        private string lastlog;
-        private bool trackTime;
-        private double gameTime;
-        private string hotkeyUp;
-        private string hotkeyDown;
-        private string hotkeyModifier;
+        [JsonIgnore]
+        public bool HasChanged
+        {
+            get { return settingsChanged; }
+            set { settingsChanged = value; }
+        }
+
+        private void SetConfigField<T>(ref T field, T value)
+        {
+            if (!Equals(field, value))
+            {
+                field = value;
+                HasChanged = true;
+            }
+        }
+
+        private string _baseGamePath;
+        public string BaseGamePath
+        {
+            get { return _baseGamePath; }
+            set { SetConfigField(ref _baseGamePath, value); }
+        }
+
+        private List<string> _gameExes;
+        public List<string> GameExes
+        {
+            get { return _gameExes; }
+            set { SetConfigField(ref _gameExes, value); }
+        }
+
+        private string _selectedExecutable;
+        /// <summary>
+        /// The executable that a user has selected to launch the game. This should not be set directly; it will be controlled programatically by the program based on the selected GameExe from the GameExes list.
+        /// </summary>
+        public string SelectedExecutable
+        {
+            get { return _selectedExecutable; }
+            set { SetConfigField(ref _selectedExecutable, value); }
+        }
+
+        private decimal _fov;
+        public decimal FoV
+        {
+            get { return _fov; }
+            set { SetConfigField(ref _fov, value); }
+        }
+
+        private string _cmdLine;
+        public string CommandLine
+        {
+            get { return _cmdLine; }
+            set { SetConfigField(ref _cmdLine, value); }
+        }
+
+        private bool _minimize;
+        public bool MinimizeToTray
+        {
+            get { return _minimize; }
+            set { SetConfigField(ref _minimize, value); }
+        }
+
+        private string _lastLog;
+        public string LastLogFile
+        {
+            get { return _lastLog; }
+            set { SetConfigField(ref _lastLog, value); }
+        }
+
+        private bool _trackTime;
+        public bool TrackGameTime
+        {
+            get { return _trackTime; }
+            set { SetConfigField(ref _trackTime, value); }
+        }
+
+        private double _gameTime;
+        public double GameTime
+        {
+            get { return _gameTime; }
+            set { SetConfigField(ref _gameTime, value); }
+        }
+
+        private string _hotkeyUp;
+        public string HotKeyUp
+        {
+            get { return _hotkeyUp; }
+            set { SetConfigField(ref _hotkeyUp, value); }
+        }
+
+        private string _hotkeyDown;
+        public string HotKeyDown
+        {
+            get { return _hotkeyDown; }
+            set { SetConfigField(ref _hotkeyDown, value); }
+        }
+
+        private string _hotkeyModifier;
+        public string HotKeyModifier
+        {
+            get { return _hotkeyModifier; }
+            set { SetConfigField(ref _hotkeyModifier, value); }
+        }
+
+        private bool _launchWhenSelectedExeChanged;
+        public bool LaunchWhenSelectedExeChanged
+        {
+            get { return _launchWhenSelectedExeChanged; }
+            set { SetConfigField(ref _launchWhenSelectedExeChanged, value); }
+        }
+
+        public string SelectedExecutablePath => Path.Combine(_baseGamePath, SelectedExecutable);
+
 
         static Settings()
         {
@@ -45,7 +149,7 @@ namespace CoD_Widescreen_Suite
                     Log.WriteLine("Moved old settings directory to new location.");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 try
                 {
@@ -53,147 +157,113 @@ namespace CoD_Widescreen_Suite
                 }
                 catch (Exception ex2) { MessageBox.Show(ex2.ToString(), Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error); }
             }
-           
 
-            settingsFile = Path.Combine(applicationDataDirectory, "settings.xml");
+
+            settingsFile = Path.Combine(applicationDataDirectory, "settings.json");
+
+            var oldSettingsFile = Path.Combine(applicationDataDirectory, "settings.xml");
 
             try
             {
                 if (!Directory.Exists(applicationDataDirectory))
                     Directory.CreateDirectory(applicationDataDirectory);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 try { Log.WriteLine($"Failed to create {nameof(applicationDataDirectory)} ({applicationDataDirectory}){Environment.NewLine}{ex}"); }
-                catch(Exception ex2)
+                catch (Exception ex2)
                 {
                     MessageBox.Show(ex2.ToString(), Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-          
 
-            if (!File.Exists(settingsFile))
+
+            if (!File.Exists(settingsFile) && !File.Exists(oldSettingsFile))
             {
                 instance = new Settings();
-                DatabaseFile.Write(instance, settingsFile);
+                var settingsSerialized = JsonConvert.SerializeObject(instance, Formatting.Indented);
+                
+                File.WriteAllText(settingsFile, settingsSerialized);
 
                 return;
             }
-            else
+            else if (File.Exists(oldSettingsFile))
             {
-                var readFile = File.ReadAllText(settingsFile);
+                var readFile = File.ReadAllText(oldSettingsFile);
 
                 var sb = Pool.Get<StringBuilder>();
-                try 
+                try
                 {
                     var oldRead = readFile;
 
-                    var newRead = sb.Clear().Append(readFile).Replace("CoDUO_FoV_Changer", "CoD_Widescreen_Suite").ToString();
-                    
+                    var newRead = sb.Clear()
+                        .Append(readFile)
+                        .Replace("CoDUO_FoV_Changer", "CoD_Widescreen_Suite")
+                        .Replace("Settings", "OldSettings")
+                        .ToString();
+
                     if (oldRead != newRead)
-                        File.WriteAllText(settingsFile, newRead);
+                        File.WriteAllText(oldSettingsFile, newRead);
                 }
                 finally { Pool.Free(ref sb); }
 
-                instance = DatabaseFile.Read<Settings>(settingsFile);
+                var oldSettings = DatabaseFile.Read<OldSettings>(oldSettingsFile);
+
+                // Set all the properties of this new Settings.cs to be the same as the oldSettings - we're transitioning from XML to JSON:
+
+                instance = new Settings
+                {
+                    BaseGamePath = oldSettings.InstallPath,
+                    CommandLine = oldSettings.CommandLine,
+                    SelectedExecutable = oldSettings.ExeName,
+                    FoV = oldSettings.FoV,
+                    GameTime = oldSettings.GameTime,
+                    HotKeyDown = oldSettings.HotKeyDown,
+                    HotKeyUp = oldSettings.HotKeyUp,
+                    HotKeyModifier = oldSettings.HotKeyModifier,
+                    LastLogFile = oldSettings.LastLogFile,
+                    MinimizeToTray = oldSettings.MinimizeToTray,
+                    TrackGameTime = oldSettings.TrackGameTime
+                };
+
+                // No need to write the changes to the disk for the new settings - that will be done automatically when the app closes.
+
+                File.Move(oldSettingsFile, oldSettingsFile.Replace(".xml", ".old"));
+            }
+            else if (File.Exists(settingsFile))
+            {
+                instance = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(settingsFile));
             }
 
-           
+
         }
 
         public Settings()
         {
             HasChanged = false;
-            gamePath = string.Empty;
-            gameExe = string.Empty;
-            fov = 80;
-            cmdline = string.Empty;
-            minimize = true;
-            lastlog = string.Empty;
-            trackTime = true;
-            gameTime = 0;
-            hotkeyUp = "107";
-            hotkeyDown = "109";
-            hotkeyModifier = "17";
-        }
-
-
-
-
-        public string InstallPathExe { get { return gamePath + @"\" + gameExe; } }
-
-        public string InstallPath
-        {
-            get { return gamePath; }
-            set { HasChanged = gamePath != value; gamePath = value; }
-        }
-
-        public string ExeName
-        {
-            get { return gameExe; }
-            set { HasChanged = gameExe != value; gameExe = value; }
-        }
-
-        public string CommandLine
-        {
-            get { return cmdline; }
-            set { HasChanged = cmdline != value; cmdline = value; }
-        }
-
-        public string LastLogFile
-        {
-            get { return lastlog; }
-            set { HasChanged = lastlog != value; lastlog = value; }
-        }
-
-        public decimal FoV
-        {
-            get { return fov; }
-            set { HasChanged = fov != value; fov = value; }
-        }
-
-        public double GameTime
-        {
-            get { return gameTime; }
-            set { HasChanged = gameTime != value; gameTime = value; }
-        }
-
-        public bool MinimizeToTray
-        {
-            get { return minimize; }
-            set { HasChanged = minimize != value; minimize = value; }
-        }
-
-        public bool TrackGameTime
-        {
-            get { return trackTime; }
-            set { HasChanged = trackTime != value; trackTime = value; }
-        }
-
-        public string HotKeyUp
-        {
-            get { return hotkeyUp; }
-            set { HasChanged = hotkeyUp != value; hotkeyUp = value; }
-        }
-
-        public string HotKeyDown
-        {
-            get { return hotkeyDown; }
-            set { HasChanged = hotkeyDown != value; hotkeyDown = value; }
-        }
-
-        public string HotKeyModifier
-        {
-            get { return hotkeyModifier; }
-            set { HasChanged = hotkeyModifier != value; hotkeyModifier = value; }
-        }
-
-        public bool HasChanged
-        {
-            get { return settingsChanged; }
-            set { settingsChanged = value; }
+            _baseGamePath = string.Empty;
+            _selectedExecutable = string.Empty;
+            _fov = 80;
+            _cmdLine = string.Empty;
+            _minimize = true;
+            _lastLog = string.Empty;
+            _trackTime = true;
+            _gameTime = 0;
+            _hotkeyUp = "107";
+            _hotkeyDown = "109";
+            _hotkeyModifier = "17";
+            _launchWhenSelectedExeChanged = false;
+            _gameExes = new List<string>();
         }
 
         public static Settings Instance { get { return instance; } }
+
+        public static void SaveInstanceToDisk()
+        {
+            var settingsSerialized = JsonConvert.SerializeObject(instance, Formatting.Indented);
+
+            File.WriteAllText(settingsFile, settingsSerialized);
+        }
+
     }
 }
