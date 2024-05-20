@@ -52,6 +52,7 @@ namespace CoD_Widescreen_Suite
             this.ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.SettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ChangelogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.serversToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ExitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.StatusLabel = new System.Windows.Forms.Label();
             this.ipDialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -94,7 +95,7 @@ namespace CoD_Widescreen_Suite
             // startGameStrip
             // 
             this.startGameStrip.Name = "rcStrip";
-            this.startGameStrip.Size = new System.Drawing.Size(181, 26);
+            this.startGameStrip.Size = new System.Drawing.Size(61, 4);
             this.startGameStrip.Text = "test";
             // 
             // rcStrip
@@ -139,6 +140,7 @@ namespace CoD_Widescreen_Suite
             // FoVNumeric
             // 
             this.FoVNumeric.BackColor = System.Drawing.Color.DarkGray;
+            this.FoVNumeric.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FoVNumeric.ForeColor = System.Drawing.Color.Transparent;
             this.FoVNumeric.Location = new System.Drawing.Point(99, 6);
             this.FoVNumeric.Maximum = new decimal(new int[] {
@@ -152,7 +154,7 @@ namespace CoD_Widescreen_Suite
             0,
             0});
             this.FoVNumeric.Name = "FoVNumeric";
-            this.FoVNumeric.Size = new System.Drawing.Size(42, 20);
+            this.FoVNumeric.Size = new System.Drawing.Size(42, 22);
             this.FoVNumeric.TabIndex = 61;
             this.FoVNumeric.Value = new decimal(new int[] {
             80,
@@ -257,7 +259,8 @@ namespace CoD_Widescreen_Suite
             // 
             this.ToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.SettingsToolStripMenuItem,
-            this.ChangelogToolStripMenuItem});
+            this.ChangelogToolStripMenuItem,
+            this.serversToolStripMenuItem});
             this.ToolStripMenuItem1.Name = "ToolStripMenuItem1";
             this.ToolStripMenuItem1.Size = new System.Drawing.Size(46, 20);
             this.ToolStripMenuItem1.Text = "Tools";
@@ -275,6 +278,13 @@ namespace CoD_Widescreen_Suite
             this.ChangelogToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
             this.ChangelogToolStripMenuItem.Text = "Changelog [GitHub]";
             this.ChangelogToolStripMenuItem.Click += new System.EventHandler(this.ChangelogToolStripMenuItem_Click);
+            // 
+            // serversToolStripMenuItem
+            // 
+            this.serversToolStripMenuItem.Name = "serversToolStripMenuItem";
+            this.serversToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.serversToolStripMenuItem.Text = "Servers";
+            this.serversToolStripMenuItem.Click += new System.EventHandler(this.serversToolStripMenuItem_Click);
             // 
             // ExitToolStripMenuItem
             // 
@@ -511,6 +521,7 @@ namespace CoD_Widescreen_Suite
         private System.Windows.Forms.ToolStripMenuItem singleplayerToolStripMenuItem;
         internal CheckBox checkBoxDesktopRes;
         private ContextMenuStrip startGameStrip;
+        private ToolStripMenuItem serversToolStripMenuItem;
     }
 }
 

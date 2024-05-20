@@ -265,7 +265,7 @@ namespace CoD_Widescreen_Suite
             var gameType = (GameType)(-1);
 
             // Switch process name, check proc names, set gameType:
-            /*/
+            
             switch (process.ProcessName)
             {
                 case "CoDMP":
@@ -280,14 +280,14 @@ namespace CoD_Widescreen_Suite
                     case "CoDUOSP":
                     gameType = GameType.CoDUOSP;
                     break;
-            }/*/
+            }
 
             // Couldn't determine the type of game from the process name, so it's likely mohaa.exe.
             // Now, we must try and read modules.
             if (gameType == (GameType)(-1))
             {
                 // This is REALLY bad. Don't do it this way. This is temporary.
-                // We need to change where the selected memory is stored.
+                // We need to change where the selected memory is stored. That's the only bad part.
 
                 var memory = ExtendedForm.GetInstance<MainForm>().MemorySelection;
 
@@ -308,7 +308,6 @@ namespace CoD_Widescreen_Suite
                         gameType = GameType.CoDMP;
                     else if (isCoDSP)
                         gameType = GameType.CoDSP;
-
                 }
 
             }

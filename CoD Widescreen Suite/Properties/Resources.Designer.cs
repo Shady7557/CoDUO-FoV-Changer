@@ -121,12 +121,32 @@ namespace CoD_Widescreen_Suite.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap loading_map_image_133x {
+            get {
+                object obj = ResourceManager.GetObject("loading_map_image_133x", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] Mover {
             get {
                 object obj = ResourceManager.GetObject("Mover", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap no_map_image_found_133x {
+            get {
+                object obj = ResourceManager.GetObject("no_map_image_found_133x", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         

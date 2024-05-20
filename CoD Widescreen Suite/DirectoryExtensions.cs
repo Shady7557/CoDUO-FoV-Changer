@@ -205,5 +205,26 @@ namespace DirectoryExtensions
                 }
             }
         }
+
+        public static string GetParentDirectory(string path, int levelsUp)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentNullException(nameof(path));
+
+            if (levelsUp < 0)
+                throw new ArgumentOutOfRangeException(nameof(levelsUp), "The number of levels up must be greater than or equal to zero.");
+
+            var dirInfo = new DirectoryInfo(path);
+
+            for (int i = 0; i < levelsUp; i++)
+            {
+                if (dirInfo.Parent != null)
+                    dirInfo = dirInfo.Parent;
+                else
+                    throw new ArgumentOutOfRangeException("levelsUp", "The specified number of levels exceeds the root directory.");
+            }
+
+            return dirInfo.FullName;
+        }
     }
 }

@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 public class PathInfos
 {
     public static string AppData => Environment.GetEnvironmentVariable("appdata");
     public static string Temp => Environment.GetEnvironmentVariable("temp");
-    public static string AppDataFoV => AppData + @"\CoD Widescreen Suite";
-    public static string LogsPath => AppDataFoV + @"\Logs";
-    public static string SettingsPath => AppDataFoV + @"\settings.json";
+    public static string AppDataFoV => Path.Combine(AppData, "CoD Widescreen Suite");
+    public static string LogsPath => Path.Combine(AppDataFoV, "Logs");
+    public static string SettingsPath => Path.Combine(AppDataFoV, "settings.json");
+    public static string CachePath => Path.Combine(Temp, "CoD Widescreen Suite/cache");
 
 
     public const string VCOD_PROCESS_NAME = "CoDMP";

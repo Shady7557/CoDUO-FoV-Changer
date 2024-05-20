@@ -13,6 +13,7 @@ namespace CoD_Widescreen_Suite
 {
     internal class GameStarter
     {
+        // Likely to be deleted:
         /// <summary>
         /// Uses the config's install path options to start the game based on GameType.
         /// </summary>
@@ -27,7 +28,9 @@ namespace CoD_Widescreen_Suite
             throw new NotImplementedException();
         }
 
-        public static bool StartGame(string exePath, string optionalArgs = "", string forcedArgs = "")
+
+
+        public static bool StartGame(string exePath, string optionalArgs = "", string forcedArgs = "", string ipPortToConnect = "")
         {
             if (string.IsNullOrWhiteSpace(exePath))
                 throw new ArgumentNullException(nameof(exePath));
@@ -52,7 +55,7 @@ namespace CoD_Widescreen_Suite
 
                 try
                 {
-                    if (useSteam)
+                    if (useSteam && string.IsNullOrWhiteSpace(ipPortToConnect))
                     {
                         try
                         {
@@ -98,10 +101,22 @@ namespace CoD_Widescreen_Suite
                             Log.WriteLine(ex.ToString());
                         }
                     }
+                    else if (useSteam)
+                    {
+                        Console.WriteLine("ipPort is not empty and useSteam is true, we must apply the hacky workaround.");
+                        SteamHack.EnsureSteamDll(Path.GetDirectoryName(exePath));
+                    }
+
+
+                    var argSb = (!useSteam && !string.IsNullOrEmpty(optionalArgs)) ? sb.Clear().Append(forcedArgs).Append(hasForcedArgs ? Environment.NewLine : string.Empty).Append(optionalArgs) : sb.Clear();
+
+                    if (!string.IsNullOrWhiteSpace(ipPortToConnect))
+                        argSb.Append(" +connect ").Append(ipPortToConnect);
+                    
 
                     var startInfo = new ProcessStartInfo
                     {
-                        Arguments = (!useSteam && !string.IsNullOrEmpty(optionalArgs)) ? sb.Clear().Append(forcedArgs).Append(hasForcedArgs ? Environment.NewLine : string.Empty).Append(optionalArgs).ToString() : string.Empty,
+                        Arguments = argSb.Length > 0 ? argSb.ToString() : string.Empty,
                         FileName = launchFileName,
                         WorkingDirectory = Path.GetDirectoryName(exePath),
                     };

@@ -391,8 +391,8 @@ namespace CoD_Widescreen_Suite
                 if (!shiftMod && !forceSelectionDialog) 
                     MessageBox.Show("Please select the exe to launch (this will be saved)", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                var ipfResult = ipFDialog.ShowDialog();
-                if (ipfResult != DialogResult.OK) return;
+                if (ipFDialog.ShowDialog() != DialogResult.OK)
+                    return;
 
                 if (!ipFDialog.FileName.EndsWith(".exe"))
                 {
@@ -401,10 +401,10 @@ namespace CoD_Widescreen_Suite
                 }
 
                 var filePath = Path.GetDirectoryName(ipFDialog.FileName);
-                if (settings.BaseGamePath != filePath)
-                    settings.BaseGamePath = filePath;
 
+                settings.BaseGamePath = filePath;
                 settings.SelectedExecutable = ipFDialog.SafeFileName;
+
                 UpdateStartGameButtonText(settings.SelectedExecutable);
 
                 MessageBox.Show("Selected: " + settings.SelectedExecutable + Environment.NewLine + "You can change this again at any time.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -441,15 +441,31 @@ namespace CoD_Widescreen_Suite
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (LaunchParametersTB.Text != settings.CommandLine) settings.CommandLine = LaunchParametersTB.Text;
-
-            if (settings.HasChanged)
+            try
             {
-                Log.WriteLine(nameof(settings.HasChanged) + ", so writing to disk");
+                if (LaunchParametersTB.Text != settings.CommandLine) settings.CommandLine = LaunchParametersTB.Text;
 
-                Settings.SaveInstanceToDisk();
+                if (settings.HasChanged)
+                {
+                    Log.WriteLine(nameof(settings.HasChanged) + ", so writing to disk");
 
-                Log.WriteLine("Wrote settings to disk");
+                    Settings.SaveInstanceToDisk();
+
+                    Log.WriteLine("Wrote settings to disk");
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                Log.WriteLine(ex.ToString());
+            }
+           
+
+            try { CodMapImage.SaveNoImgCacheToDisk(); }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                Log.WriteLine(ex.ToString());
             }
         }
 
@@ -1086,6 +1102,14 @@ namespace CoD_Widescreen_Suite
                 StartGameButton_Click();
             else if (e.Button == MouseButtons.Right)
                 StartGameButton.ContextMenuStrip.Show(Cursor.Position);
+        }
+
+        private void serversToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var ins = GetInstance<ServersForm>();
+
+            if (ins == null) new ServersForm() { Owner = this, AttachToOwner = true }.Show();
+            else ins.UnminimizeAndSelect();
         }
     }
 }
