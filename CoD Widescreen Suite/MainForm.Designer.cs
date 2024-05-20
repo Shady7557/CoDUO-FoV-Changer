@@ -258,9 +258,9 @@ namespace CoD_Widescreen_Suite
             // ToolStripMenuItem1
             // 
             this.ToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.serversToolStripMenuItem,
             this.SettingsToolStripMenuItem,
-            this.ChangelogToolStripMenuItem,
-            this.serversToolStripMenuItem});
+            this.ChangelogToolStripMenuItem});
             this.ToolStripMenuItem1.Name = "ToolStripMenuItem1";
             this.ToolStripMenuItem1.Size = new System.Drawing.Size(46, 20);
             this.ToolStripMenuItem1.Text = "Tools";

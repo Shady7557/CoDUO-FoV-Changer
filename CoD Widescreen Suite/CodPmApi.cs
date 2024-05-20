@@ -2,6 +2,7 @@
 using System;
 using System.Globalization;
 using System.Net.Http;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -18,7 +19,7 @@ namespace CoD_Widescreen_Suite
         private static readonly HttpClient _httpClient = new HttpClient();
 
 
-        public static async Task<ServerInfo> GetMasterList(string master, string version)
+        public static async Task<MasterServerInfo> GetMasterList(string master, string version)
         {
             if (string.IsNullOrWhiteSpace(master))
                 throw new ArgumentNullException(nameof(master));
@@ -34,9 +35,33 @@ namespace CoD_Widescreen_Suite
             if (string.IsNullOrWhiteSpace(jsonResponse))
                 throw new Exception(nameof(jsonResponse) + " was null");
 
-            var serverInfo = JsonConvert.DeserializeObject<ServerInfo>(jsonResponse);
+            var serverInfo = JsonConvert.DeserializeObject<MasterServerInfo>(jsonResponse);
 
             return serverInfo;
+        }
+
+        public static async Task<ServerInfo> GetServer(string ip, int port)
+        {
+            if (string.IsNullOrWhiteSpace(ip))
+                throw new ArgumentNullException(nameof(ip));
+
+            if (port < 0)
+                throw new ArgumentOutOfRangeException(nameof(port));
+
+
+            var response = await _httpClient.GetAsync(API_COD_PM_SNAPSHOT.Replace("{ip}", ip).Replace("{port}", port.ToString()));
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response?.Content?.ReadAsStringAsync();
+
+            if (string.IsNullOrWhiteSpace(jsonResponse))
+                throw new Exception(nameof(jsonResponse) + " was null");
+
+            var server = JsonConvert.DeserializeObject<ServerInfo>(jsonResponse);
+
+            Console.WriteLine(JsonConvert.SerializeObject(server, Formatting.Indented));
+
+            return server;
         }
 
         public static string GetFilteredHostname(string hostname)
@@ -46,6 +71,14 @@ namespace CoD_Widescreen_Suite
 
 
             return _caratRegex.Replace(hostname, string.Empty);
+        }
+
+        public static string FilterCaratColors(string str)
+        {
+            if (string.IsNullOrWhiteSpace(str))
+                return str;
+
+            return _caratRegex.Replace(str, string.Empty);
         }
 
         public static string GetPrettyMapName(string mapName)
@@ -59,8 +92,7 @@ namespace CoD_Widescreen_Suite
             // Differentiated from mp_carentan which would just be Carentan.
 
 
-
-            return FirstUpper(_caratRegex.Replace(mapName.Replace("mp_", string.Empty), string.Empty));
+            return FirstUpper(FilterCaratColors(mapName.Replace("mp_", string.Empty)));
         }
 
         private static string FirstUpper(string original)

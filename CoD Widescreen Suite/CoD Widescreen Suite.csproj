@@ -137,7 +137,7 @@
     </Compile>
     <Compile Include="ReadWriteMemory.cs" />
     <Compile Include="CoDRegistryExtensions.cs" />
-    <Compile Include="ServerInfo.cs" />
+    <Compile Include="MasterServerInfo.cs" />
     <Compile Include="ServersForm.cs">
       <SubType>Form</SubType>
     </Compile>

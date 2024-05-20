@@ -28,23 +28,13 @@ namespace CoD_Widescreen_Suite
         // We won't check it.
         private class NoImageCache
         {
-
             public Dictionary<string, DateTime> LastMapAttempt { get; set; } = new Dictionary<string, DateTime>();
 
             public NoImageCache() { }
 
-            public DateTime GetLastAttempt(string mapName)
-            {
-                if (LastMapAttempt.TryGetValue(mapName, out var dt))
-                    return dt;
+            public DateTime GetLastAttempt(string mapName) => LastMapAttempt.TryGetValue(mapName, out var dt) ? dt : DateTime.MinValue;
 
-                return DateTime.MinValue;
-            }
-
-            public bool ExistsAndIsUnexpired(string mapName)
-            {
-                return LastMapAttempt.TryGetValue(mapName, out var dt) && (DateTime.UtcNow - dt).TotalDays < 1;
-            }
+            public bool ExistsAndIsUnexpired(string mapName) => LastMapAttempt.TryGetValue(mapName, out var dt) && (DateTime.UtcNow - dt).TotalDays < 1;
 
             public void SetLastAttempt(string mapName) => LastMapAttempt[mapName] = DateTime.UtcNow;
         }
@@ -60,16 +50,19 @@ namespace CoD_Widescreen_Suite
                 return;
             }
 
-            var txt = File.ReadAllText(_noImgCachePath);
-
-            if (string.IsNullOrWhiteSpace(txt))
+            try
             {
-                NoImgCache = new NoImageCache();
-                return;
-            }
+                var txt = File.ReadAllText(_noImgCachePath);
 
-            try { NoImgCache = JsonConvert.DeserializeObject<NoImageCache>(txt); }
-            catch(Exception ex)
+                if (string.IsNullOrWhiteSpace(txt))
+                {
+                    NoImgCache = new NoImageCache();
+                    return;
+                }
+
+                NoImgCache = JsonConvert.DeserializeObject<NoImageCache>(txt);
+            }
+            catch(Exception ex) 
             {
                 Log.WriteLine(ex.ToString());
                 Console.WriteLine(ex.ToString());
@@ -78,11 +71,18 @@ namespace CoD_Widescreen_Suite
             if (NoImgCache is null)
                 NoImgCache = new NoImageCache();
 
-           // if (!File.Exists())
         }
 
-        public static void SaveNoImgCacheToDisk() => File.WriteAllText(_noImgCachePath, JsonConvert.SerializeObject(NoImgCache, Formatting.Indented));
-        
+        public static void SaveNoImgCacheToDisk()
+        {
+            if (NoImgCache is null)
+                return;
+
+            // Ensure cache directory exists.
+            new DirectoryInfo(Path.GetDirectoryName(_noImgCachePath)).Create();
+
+            File.WriteAllText(_noImgCachePath, JsonConvert.SerializeObject(NoImgCache));
+        }
 
         public static async Task<Image> GetImageAsync(string url)
         {
@@ -99,15 +99,21 @@ namespace CoD_Widescreen_Suite
                     {
                         // Set the User-Agent header
 
+                        client.Timeout = TimeSpan.FromSeconds(5);
                         client.DefaultRequestHeaders.UserAgent.ParseAdd(sb
                             .Clear()
                             .Append("CoDUO FoV Changer/")
                             .Append(Application.ProductVersion)
                             .ToString());
-                        
+
+
+                        var getRequest = await client.GetAsync(url);
+
+                        if (!getRequest.IsSuccessStatusCode)
+                            return null;
 
                         // Download the image data
-                        var imageData = await client.GetByteArrayAsync(url);
+                        var imageData = await getRequest.Content.ReadAsByteArrayAsync();
 
                         // Convert the byte array to an Image
                         using (var ms = new MemoryStream(imageData))
@@ -144,7 +150,10 @@ namespace CoD_Widescreen_Suite
 
 
             if (NoImgCache.ExistsAndIsUnexpired(mapName))
+            {
+                _mapsWithoutImages.Add(mapName);
                 return null;
+            }
 
             // First, try to read the image from memory:
 
@@ -180,7 +189,7 @@ namespace CoD_Widescreen_Suite
                 // File did not exist on disk or was not a valid image file, so now we'll attempt to download it.
 
                 image = await GetImageAsync(GetMapImageURL(mapName))
-                     ?? await GetImageAsync(GetMapImageURL(mapName.Replace("uo_", string.Empty)))
+                     ?? await GetImageAsync(GetMapImageURL(mapName.Replace("_uo", string.Empty)).Replace("uo_", "mp_").Replace("ctf_", "mp_").Replace("_ctf", string.Empty))
                      ?? await GetImageAsync(GetMapImageURL(mapName, false));
 
             }
@@ -203,8 +212,10 @@ namespace CoD_Widescreen_Suite
                             imageBytes = ms.ToArray();
                         }
 
-                        // Write byte array to file
+                        // Ensure cache directory exists.
                         new DirectoryInfo(Path.GetDirectoryName(imgPath)).Create();
+
+                        // Write byte array to file
                         using (FileStream fs = new FileStream(imgPath, FileMode.Create, FileAccess.Write))
                         {
                             fs.Write(imageBytes, 0, imageBytes.Length);

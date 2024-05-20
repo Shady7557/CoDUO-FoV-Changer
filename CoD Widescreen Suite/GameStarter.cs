@@ -30,7 +30,7 @@ namespace CoD_Widescreen_Suite
 
 
 
-        public static bool StartGame(string exePath, string optionalArgs = "", string forcedArgs = "", string ipPortToConnect = "")
+        public static bool StartGame(string exePath, string optionalArgs = "", string forcedArgs = "")
         {
             if (string.IsNullOrWhiteSpace(exePath))
                 throw new ArgumentNullException(nameof(exePath));
@@ -55,63 +55,16 @@ namespace CoD_Widescreen_Suite
 
                 try
                 {
-                    if (useSteam && string.IsNullOrWhiteSpace(ipPortToConnect))
+
+                    if (useSteam)
                     {
-                        try
-                        {
-                            Log.WriteLine("Path contained 'steamapps' and Steam is running. Should launch with steam, trying!");
-
-                            if (!string.IsNullOrWhiteSpace(optionalArgs))
-                            {
-                                Log.WriteLine("Writing launch parameters to config temporarily.");
-
-                                oldCfg = GameConfig.GetGameConfig(gameType);
-
-
-
-                                GameConfig.ApplyLaunchParametersToConfig(sb
-                                    .Clear()
-                                    .Append(forcedArgs)
-                                    .Append(hasForcedArgs ? Environment.NewLine : string.Empty)
-                                    .Append(optionalArgs)
-                                    .ToString(), gameType);
-
-                                Log.WriteLine("Wrote launch parameters.");
-                            }
-
-                            //steam://launch/{appid}/dialog
-
-                            //thanks to a guy named Lone who helped me figure out how to launch a game where you can select the option via Steam.
-                            //Now that Steam lets you permanently select your desired option,
-                            //this either immediately launches the game via Steam or Steam prompts you to select version.
-
-                            var steamLaunchUrl = sb
-                                .Clear()
-                                .Append("steam://launch/26")
-                                .Append(gameType == GameConfig.GameType.CoDMP ? "20" : "40")
-                                .Append("/dialog")
-                                .ToString();
-
-                            launchFileName = steamLaunchUrl;
-
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.ToString());
-                            Log.WriteLine(ex.ToString());
-                        }
-                    }
-                    else if (useSteam)
-                    {
-                        Console.WriteLine("ipPort is not empty and useSteam is true, we must apply the hacky workaround.");
                         SteamHack.EnsureSteamDll(Path.GetDirectoryName(exePath));
                     }
 
+                    // need to add overlay injection.
 
-                    var argSb = (!useSteam && !string.IsNullOrEmpty(optionalArgs)) ? sb.Clear().Append(forcedArgs).Append(hasForcedArgs ? Environment.NewLine : string.Empty).Append(optionalArgs) : sb.Clear();
 
-                    if (!string.IsNullOrWhiteSpace(ipPortToConnect))
-                        argSb.Append(" +connect ").Append(ipPortToConnect);
+                    var argSb = sb.Clear().Append(forcedArgs).Append(" ").Append(optionalArgs);
                     
 
                     var startInfo = new ProcessStartInfo
@@ -124,48 +77,6 @@ namespace CoD_Widescreen_Suite
                     Process.Start(startInfo);
                 }
                 finally { Pool.Free(ref sb); }
-
-
-
-                if (!string.IsNullOrWhiteSpace(oldCfg))
-                {
-                    //TODO: Improve checking - 8 seconds alone is not enough.
-                    //For example, if Steam was not open and this has to launch Steam first, it often overwrites the config before game is open.
-                    //It is likely safe to overwrite the config while the game is open [needs verification].
-                    //Idea: Wait up to 45 seconds, then write cfg. Else, write cfg once game process is available.
-                    //URGENT: If old cfg exists when FoV changer is shut down, write old cfg back to disk!
-
-                    // Some of this is now done (see below), but it's a bit ugly and I don't love it.
-
-                    Task.Run(() =>
-                    {
-                        var waitedTimes = 0;
-                        var maxWaitTimes = 10;
-
-                        Log.WriteLine("Waiting for game process to start before writing old config back to disk.");
-
-
-
-                        while (!ProcessExtension.IsAnyCoDProcessRunning())
-                        {
-                            if (waitedTimes >= maxWaitTimes)
-                            {
-                                Log.WriteLine("Waited too long for game process to start, writing old config to disk.");
-                                break;
-                            }
-
-                            Thread.Sleep(7500);
-                            waitedTimes++;
-                        }
-
-                        // Wait to be sure we don't write it too soon to actually be loaded by the game.
-
-                        Thread.Sleep(8000);
-                        GameConfig.WriteGameConfig(Settings.Instance.BaseGamePath, oldCfg, gameType);
-
-                        Log.WriteLine("Wrote old config to disk!");
-                    });
-                }
 
             }
             catch (Exception ex)

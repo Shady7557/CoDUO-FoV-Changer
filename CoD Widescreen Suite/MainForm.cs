@@ -156,7 +156,7 @@ namespace CoD_Widescreen_Suite
                     UpdateStartGameButtonText(exe);
 
                     if (settings.LaunchWhenSelectedExeChanged)
-                        StartGameButton_Click();
+                        StartGame();
                 };
 
             }
@@ -216,7 +216,7 @@ namespace CoD_Widescreen_Suite
                             continue;
 
                         if (arg.Equals("-launch", StringComparison.OrdinalIgnoreCase))
-                            StartGameButton_Click();
+                            StartGame();
 
                         if (arg.Equals("-debug", StringComparison.OrdinalIgnoreCase)) 
                             IsDev = true;
@@ -378,7 +378,7 @@ namespace CoD_Widescreen_Suite
         }
      
 
-        private void StartGameButton_Click(bool forceSelectionDialog = false)
+        public void StartGame(bool forceSelectionDialog = false, string additionalArgs = "")
         {
             var shiftMod = ModifierKeys == Keys.Shift;
 
@@ -416,22 +416,29 @@ namespace CoD_Widescreen_Suite
             {
                 var forceStartArgs = string.Empty;
 
-                if (checkBoxDesktopRes.Checked)
-                {
-                    var sb = Pool.Get<StringBuilder>();
+                var sb = Pool.Get<StringBuilder>();
 
-                    try
-                    {
-                        forceStartArgs = sb
-                        .Clear()
-                        .Append("+set r_mode -1 +set r_customwidth ")
-                        .Append(DesktopWidth)
-                        .Append(" +set r_customheight ")
-                        .Append(DesktopHeight)
-                        .ToString();
-                    }
-                    finally { Pool.Free(ref sb); }
+                try
+                {
+                    if (checkBoxDesktopRes.Checked)
+                        sb
+                           .Clear()
+                           .Append("+set r_mode -1 +set r_customwidth ")
+                           .Append(DesktopWidth)
+                           .Append(" +set r_customheight ")
+                           .Append(DesktopHeight);
+
+
+                    if (!string.IsNullOrWhiteSpace(additionalArgs))
+                        sb.Append(" ").Append(additionalArgs);
+
+                    forceStartArgs = sb.ToString();
+
                 }
+                finally { Pool.Free(ref sb); }
+
+               
+
 
                 GameStarter.StartGame(settings.SelectedExecutablePath, LaunchParametersTB.Text, forceStartArgs);
             });
@@ -453,6 +460,8 @@ namespace CoD_Widescreen_Suite
 
                     Log.WriteLine("Wrote settings to disk");
                 }
+                else
+                    Log.WriteLine("Settings did not change, no need to save to disk.");
             }
             catch(Exception ex)
             {
@@ -1099,7 +1108,7 @@ namespace CoD_Widescreen_Suite
         private void StartGameButton_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
-                StartGameButton_Click();
+                StartGame();
             else if (e.Button == MouseButtons.Right)
                 StartGameButton.ContextMenuStrip.Show(Cursor.Position);
         }

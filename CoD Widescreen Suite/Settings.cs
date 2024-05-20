@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using ShadyPool;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -17,22 +18,23 @@ namespace CoD_Widescreen_Suite
         private static readonly Settings instance;
         [JsonIgnore]
         private static readonly string settingsFile;
-        [JsonIgnore]
-        private bool settingsChanged;
 
         [JsonIgnore]
-        public bool HasChanged
-        {
-            get { return settingsChanged; }
-            set { settingsChanged = value; }
-        }
+        public bool HasChanged { get; set; } = false;
+
+        private bool FinishedInitialLoad { get; set; } = false;
 
         private void SetConfigField<T>(ref T field, T value)
         {
             if (!Equals(field, value))
             {
                 field = value;
-                HasChanged = true;
+
+                if (FinishedInitialLoad)
+                {
+                    Console.WriteLine("has changed and finished init load: " + field + " : " + value);
+                    HasChanged = true;
+                }
             }
         }
 
@@ -130,6 +132,48 @@ namespace CoD_Widescreen_Suite
             set { SetConfigField(ref _launchWhenSelectedExeChanged, value); }
         }
 
+        private int _serverListGameIndex;
+        public int ServerListGameIndex
+        {
+            get { return _serverListGameIndex; }
+            set { SetConfigField(ref _serverListGameIndex, value); }
+        }
+
+        private int _serverListMaxPing;
+        public int ServerListMaxPing
+        {
+            get { return _serverListMaxPing; }
+            set { SetConfigField(ref _serverListMaxPing, value); }
+        }
+
+        private bool _serverListHideNoPing;
+        public bool ServerListHideNoPing
+        {
+            get { return _serverListHideNoPing; }
+            set { SetConfigField(ref _serverListHideNoPing, value); }
+        }
+
+        private bool _serverListHideEmpty;
+        public bool ServerListHideEmpty
+        {
+            get { return _serverListHideEmpty; }
+            set { SetConfigField(ref _serverListHideEmpty, value); }
+        }
+
+        private bool _serverListFilterPlayerNames;
+        public bool ServerListFilterPlayerNames
+        {
+            get { return _serverListFilterPlayerNames; }
+            set { SetConfigField(ref _serverListFilterPlayerNames, value); }
+        }
+
+        private bool _serverListFilterBots;
+        public bool ServerListFilterBots
+        {
+            get { return _serverListFilterBots; }
+            set { SetConfigField(ref _serverListFilterBots, value); }
+        }
+
         public string SelectedExecutablePath => Path.Combine(_baseGamePath, SelectedExecutable);
 
 
@@ -223,7 +267,8 @@ namespace CoD_Widescreen_Suite
                     HotKeyModifier = oldSettings.HotKeyModifier,
                     LastLogFile = oldSettings.LastLogFile,
                     MinimizeToTray = oldSettings.MinimizeToTray,
-                    TrackGameTime = oldSettings.TrackGameTime
+                    TrackGameTime = oldSettings.TrackGameTime,
+                    FinishedInitialLoad = true
                 };
 
                 // No need to write the changes to the disk for the new settings - that will be done automatically when the app closes.
@@ -233,6 +278,7 @@ namespace CoD_Widescreen_Suite
             else if (File.Exists(settingsFile))
             {
                 instance = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(settingsFile));
+                instance.FinishedInitialLoad = true;
             }
 
 
@@ -261,6 +307,8 @@ namespace CoD_Widescreen_Suite
         public static void SaveInstanceToDisk()
         {
             var settingsSerialized = JsonConvert.SerializeObject(instance, Formatting.Indented);
+
+            Console.WriteLine("settingsSerialized: " + settingsSerialized);
 
             File.WriteAllText(settingsFile, settingsSerialized);
         }

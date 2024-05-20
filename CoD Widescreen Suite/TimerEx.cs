@@ -44,7 +44,7 @@ namespace TimerExtensions
 
             private Action _loopAction;
 
-            private Action _originalAction;
+            private readonly Action _originalAction;
 
             public float Interval { get; set; } = 0f;
             public long Loops { get; set; } = 0;

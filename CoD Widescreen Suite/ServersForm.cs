@@ -1,4 +1,6 @@
-﻿using CurtLog;
+﻿using ClampExt;
+using CurtLog;
+using ProcessExtensions;
 using ShadyPool;
 using System;
 using System.Collections;
@@ -6,22 +8,40 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TimerExtensions;
 using ListView = System.Windows.Forms.ListView;
 
 namespace CoD_Widescreen_Suite
 {
     public partial class ServersForm : ExtendedForm
     {
+
+        // Oh my goodness
+        // Oh my
+        // Wow
+        // I wrote all of this
+        // I don't know what to say of it
+        // It just works
+        // Please don't think twice about it
+
         public ServersForm()
         {
             InitializeComponent();
         }
 
        
-        private readonly Dictionary<string, Server> _hostNameToInfo = new Dictionary<string, Server>();
-      
+        private Settings Settings => Settings.Instance;
+
+        //private readonly Dictionary<string, Server> _hostNameToInfo = new Dictionary<string, Server>();
+
+        private readonly Dictionary<ListViewItem, int> _listItemToServerId = new Dictionary<ListViewItem, int>();
+        private readonly Dictionary<int, ListViewItem> _serverIdToListItem = new Dictionary<int, ListViewItem>();
+        private readonly Dictionary<int, Server> _serverIdToServer = new Dictionary<int, Server>();
+
+        private Server SelectedServer { get; set; }
 
         public string GameVersion { get; set; }
         public string GameName { get; set; }
@@ -36,8 +56,8 @@ namespace CoD_Widescreen_Suite
 
         public class ServerListViewFilter
         {
-            public bool FilterNoPing { get; set; } = true;
-            public int FilterMaxPing { get; set; } = 200;
+            public bool FilterNoPing { get; set; } = false;
+            public int FilterMaxPing { get; set; } = 0;
 
             public bool FilterEmptyServers { get; set; } = false;
 
@@ -155,8 +175,8 @@ namespace CoD_Widescreen_Suite
 
         public class ListViewItemComparer : IComparer
         {
-            private int columnToSort;
-            private SortOrder sortOrder;
+            private readonly int columnToSort;
+            private readonly SortOrder sortOrder;
 
             public ListViewItemComparer()
             {
@@ -178,8 +198,6 @@ namespace CoD_Widescreen_Suite
                 // Compare subitems based on their text values
                 string xText = listViewItemX.SubItems[columnToSort].Text;
                 string yText = listViewItemY.SubItems[columnToSort].Text;
-
-                Console.WriteLine(nameof(xText) + ": " + xText + " " + nameof(yText) + ": " + yText);
 
                 // Perform comparison based on the column type (e.g., text, numeric)
 
@@ -206,21 +224,66 @@ namespace CoD_Widescreen_Suite
         private ColumnHeader lastSortColumn;
         private SortOrder lastSortOrder;
 
-        private void ServersForm_Load(object sender, EventArgs e)
+        private async void ServersForm_Load(object sender, EventArgs e)
         {
+            ServerListFilter = new ServerListViewFilter(ServerListView);
+
+            ServerListView.ColumnClick += new ColumnClickEventHandler(ColumnClick_SortHandler);
+            PlayerListView.ColumnClick += new ColumnClickEventHandler(ColumnClick_SortHandler);
+
+            ServerListView.ListViewItemSorter = new ListViewItemComparer(4, SortOrder.Ascending);
+
+
             MapNameLabel.Text = string.Empty;
 
-            GameVersionBox.SelectedIndex = 0;
+            GameVersionBox.SelectedIndex = ClampEx.Clamp(Settings?.ServerListGameIndex ?? 0, 0, (GameVersionBox.Items.Count - 1));
+            HideEmptyCheckbox.Checked = Settings?.ServerListHideEmpty ?? false;
+            HideNoPingCheckbox.Checked = Settings?.ServerListHideNoPing ?? false;
+            MaxPingNumeric.Value = ClampEx.Clamp(Settings?.ServerListMaxPing ?? 200, MaxPingNumeric.Minimum, MaxPingNumeric.Maximum);
+            FilterPlayerNamesCheckbox.Checked = Settings?.ServerListFilterPlayerNames ?? false;
+            FilterBotPlayersCheckbox.Checked = Settings?.ServerListFilterBots ?? false;
 
-            ServerListFilter = new ServerListViewFilter(ServerListView);
-            ServerListView.ColumnClick += new ColumnClickEventHandler(listView1_ColumnClick);
+            ToggleButton(RefreshButton, 5f);
+
+            await Task.Run(async () =>
+            {
+                var infos = await CodPmApi.GetMasterList(GameName, GameVersion);
+
+                BeginInvoke((MethodInvoker)delegate { RefreshAllServers(infos); });
+            });
+
         }
 
-        private void listView1_ColumnClick(object sender, ColumnClickEventArgs e)
+        private void PlayerListView_ColumnClick(object sender, ColumnClickEventArgs e)
         {
+            throw new NotImplementedException();
+        }
+
+        // Move?: A ButtonHelper class or extension?
+        private void ToggleButton(Button button, float reToggleAfterSeconds = 0f)
+        {
+            if (button is null)
+                throw new ArgumentNullException(nameof(button));
+
+            if (button.IsDisposed || button.Disposing)
+                return;
+
+           if (button.InvokeRequired)
+                button.BeginInvoke((MethodInvoker)delegate { button.Enabled = !button.Enabled; });
+            else button.Enabled = !button.Enabled;
+
+            if (reToggleAfterSeconds > 0f)
+                TimerEx.Once(reToggleAfterSeconds, () => ToggleButton(button));
+        }
+
+        private void ColumnClick_SortHandler(object sender, ColumnClickEventArgs e)
+        {
+            if (!(sender is ListView listView))
+                return;
+
             // Determine the new sort order.
             SortOrder sortOrder;
-            if (lastSortColumn == ServerListView.Columns[e.Column])
+            if (lastSortColumn == listView.Columns[e.Column])
             {
                 // Switch the sort order.
                 sortOrder = lastSortOrder == SortOrder.Ascending ? SortOrder.Descending : SortOrder.Ascending;
@@ -232,15 +295,15 @@ namespace CoD_Widescreen_Suite
             }
 
             // Update the last sort column and order.
-            lastSortColumn = ServerListView.Columns[e.Column];
+            lastSortColumn = listView.Columns[e.Column];
             lastSortOrder = sortOrder;
 
             // Set the ListViewItemSorter property to a new ListViewItemComparer object.
-            ServerListView.ListViewItemSorter = new ListViewItemComparer(e.Column, sortOrder);
-            ServerListView.Sort();
+            listView.ListViewItemSorter = new ListViewItemComparer(e.Column, sortOrder);
+            listView.Sort();
         }
 
-        private async void button1_Click(object sender, EventArgs e)
+        private async void RefreshButton_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(GameName))
             {
@@ -254,106 +317,163 @@ namespace CoD_Widescreen_Suite
                 return;
             }
 
-            var infos = await CodPmApi.GetMasterList(GameName, GameVersion);
-
-            if (infos?.Servers is null)
+            try
             {
-                MessageBox.Show("Failed to grab server list!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                var infos = await CodPmApi.GetMasterList(GameName, GameVersion);
+
+
+                if (infos?.Servers is null)
+                {
+                    MessageBox.Show("Failed to grab server list!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (infos.Servers.Count < 1)
+                {
+                    MessageBox.Show("No servers were found.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                RefreshAllServers(infos);
             }
+            finally { ToggleButton(sender as Button, 5f); }
+        }
 
-            if (infos.Servers.Count < 1)
-            {
-                MessageBox.Show("No servers were found.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+        private async void AddOrUpdateServerListItem(Server server)
+        {
+            if (server is null)
+                throw new ArgumentNullException(nameof(server));
 
-            ServerListView.Items.Clear();
-
-            ServerListFilter?.ClearAll();
+            // If we can't get the server from the dictionary, it does not already exist. We'll have to add it!
 
             var sb = Pool.Get<StringBuilder>();
+
             try 
             {
-                // Add all the items without ping displayed at first.
-                for (int i = 0; i < infos.Servers.Count; i++)
+                if (!_serverIdToListItem.TryGetValue(server.Id, out var item))
                 {
-                    var info = infos.Servers[i];
+                    var prettyHostName = CodPmApi.GetFilteredHostname(server.Hostname);
 
+                    item = new ListViewItem(prettyHostName);
 
-                    var prettyHostName = CodPmApi.GetFilteredHostname(info.Hostname);
+                    _listItemToServerId[item] = server.Id;
+                    _serverIdToListItem[server.Id] = item;
+                    _serverIdToServer[server.Id] = server;
 
-                    _hostNameToInfo[prettyHostName] = info;
-
-                    var item = new ListViewItem(prettyHostName);
-                    item.SubItems.Add(CodPmApi.GetPrettyMapName(info.MapName));
-                    item.SubItems.Add(sb.Clear().Append(info.PlayerInfo.Count).Append("/").Append(info.MaxClients).ToString());
-                    item.SubItems.Add(info.GameType);
+                    item.SubItems.Add(CodPmApi.GetPrettyMapName(server.MapName));
+                    item.SubItems.Add(sb.Clear().Append(server.PlayerInfo.Count).Append("/").Append(server.MaxClients).ToString());
+                    item.SubItems.Add(server.GameType);
                     item.SubItems.Add("Pinging...");
-
 
                     ServerListView.Items.Add(item);
                     ServerListFilter.ListViewItems.Add(item);
 
+                    await PingServer(server, item);
+
+                    return;
                 }
+
+
+                _listItemToServerId[item] = server.Id;
+                _serverIdToListItem[server.Id] = item;
+                _serverIdToServer[server.Id] = server;
+
+                item.SubItems[0].Text = CodPmApi.GetFilteredHostname(server.Hostname);
+                item.SubItems[1].Text = CodPmApi.GetPrettyMapName(server.MapName);
+                item.SubItems[2].Text = server.PlayerInfo.Count + "/" + server.MaxClients;
+                item.SubItems[4].Text = "Pinging...";
+
+                // Update the item in the list view.
+                ServerListView.Invoke((MethodInvoker)delegate { item.ListView?.Refresh(); });
+
+                UpdatePlayersListViewAndLabel(server);
+
+                await PingServer(server, item);
+
             }
             finally { Pool.Free(ref sb); }
 
-           
+            
+        }
 
-            // Now, we do the penguin.
+        private async Task PingServer(Server server, ListViewItem item)
+        {
+            if (server is null)
+                throw new ArgumentNullException(nameof(Server));
 
-            var pingTasks = new Task[infos.Servers.Count];
-            var pingBuffer = GetPingBuffer();
+            if (string.IsNullOrWhiteSpace(server.Ip))
+                throw new Exception("Server IP was null or empty.");
 
-            for (int i = 0; i < infos.Servers.Count; i++)
+            try
             {
-                var info = infos.Servers[i];
+                var pinger = new Ping();
+                var pingBuffer = GetPingBuffer();
+                var response = await pinger.SendPingAsync(server.Ip, 1500, pingBuffer, PingOptions);
 
-                var item = ServerListView.Items[i];
-
-                pingTasks[i] = Task.Run(async () =>
+                Invoke((MethodInvoker)delegate
                 {
-                    try
-                    {
-                        var pinger = new Ping();
-
-                        var response = await pinger.SendPingAsync(info.Ip, 1500, pingBuffer, PingOptions);
-
-
-                        Invoke((MethodInvoker)delegate
-                        {
-                            item.SubItems[4].Text = (response.Status == IPStatus.Success) ? response.RoundtripTime.ToString("N0") : "*";
-                        });
-
-                    }
-                    catch(Exception ex) { Console.WriteLine(ex.ToString()); }
-                   
-                   
+                    item.SubItems[4].Text = (response.Status == IPStatus.Success) ? response.RoundtripTime.ToString("N0") : "*";
                 });
             }
-
-            await Task.Run(() =>
+            catch (Exception ex)
             {
-                Task.WaitAll(pingTasks);
+                Console.WriteLine(ex.ToString());
+                Log.WriteLine(ex.ToString());
+            }
+        }
 
-                try { ServerListFilter.ApplyFilters(); }
-                catch (Exception ex)
+        /// <summary>
+        /// Refreshs all servers and changes UI elements, must be invoked if ran on another thread.
+        /// </summary>
+        /// <param name="infos"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        private async void RefreshAllServers(MasterServerInfo infos)
+        {
+            if (infos is null)
+                throw new ArgumentNullException(nameof(infos));
+
+            if (infos?.Servers.Count < 1)
+                return;
+
+            ServerListView.Items.Clear();
+            ServerListFilter?.ClearAll();
+
+            var sb = Pool.Get<StringBuilder>();
+            try
+            {
+                for (int i = 0; i < infos.Servers.Count; i++)
                 {
-                    Log.WriteLine(ex.ToString());
-                    Console.WriteLine(ex.ToString());
+                    var server = infos.Servers[i];
+                    AddOrUpdateServerListItem(server);
                 }
+            }
+            finally
+            {
+                Pool.Free(ref sb);
+            }
 
-                
-          
-            });
+            var pingTasks = new Task[infos.Servers.Count];
+            for (int i = 0; i < infos.Servers.Count; i++)
+            {
+                var server = infos.Servers[i];
+                var item = ServerListView.Items[i];
+                pingTasks[i] = PingServer(server, item);
+            }
+
+            await Task.WhenAll(pingTasks);
+
+            try
+            {
+                ServerListFilter.ApplyFilters();
+            }
+            catch (Exception ex)
+            {
+                Log.WriteLine(ex.ToString());
+                Console.WriteLine(ex.ToString());
+            }
 
             UpdateListedServersCountLabel();
-
-            // Default: sort by ping.
-            ServerListView.ListViewItemSorter = new ListViewItemComparer(4, SortOrder.Ascending);
             ServerListView.Sort();
-
         }
 
         private void UpdateListedServersCountLabel()
@@ -458,25 +578,127 @@ namespace CoD_Widescreen_Suite
 
         }
 
-        
+        private void UpdatePlayersListViewAndLabel(Server server)
+        {
+            if (server is null)
+                throw new ArgumentNullException(nameof(server));
 
-        private async void ServerListView_SelectedIndexChanged(object sender, EventArgs e)
+            PlayerListView.Items.Clear();
+
+            var filterNames = FilterPlayerNamesCheckbox.Checked;
+            var filterBots = FilterBotPlayersCheckbox.Checked;
+
+            for (int i = 0; i < server.PlayerInfo.Count; i++)
+            {
+                var player = server.PlayerInfo[i];
+                if (player is null || string.IsNullOrWhiteSpace(player.Name))
+                    continue;
+
+
+                if (filterBots)
+                {
+                    // Ensure player's ping is invalid (bots never have real ping),
+                    // Ensure player's name starts with bot and is followed by a number.
+                    if ((player.Ping == "0" || player.Ping == "999") && player.Name.StartsWith("bot", StringComparison.OrdinalIgnoreCase)
+                        && int.TryParse(player.Name.Split('t')[1], out _))
+                        continue;
+                }
+
+                var item = new ListViewItem(filterNames ? CodPmApi.FilterCaratColors(player.Name) : player.Name);
+                item.SubItems.Add(player.Score.ToString());
+                item.SubItems.Add(player.Ping.ToString());
+
+                PlayerListView.Items.Add(item);
+            }
+
+            var sb = Pool.Get<StringBuilder>();
+            try 
+            {
+                PlayerCountLabel.Text = sb
+                    .Clear()
+                    .Append(server.PlayerInfo.Count)
+                    .Append("/")
+                    .Append(server.MaxClients)
+                    .ToString();
+            }
+            finally { Pool.Free(ref sb); }
+
+        }
+
+        private Task MapImageLoadTask { get; set; }
+        private CancellationTokenSource MapImageLoadCancellationToken { get; set; }
+
+        private void ServerListView_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (ServerListView?.SelectedItems == null || ServerListView.SelectedItems.Count < 1)
                 return;
 
-            if (!_hostNameToInfo.TryGetValue(ServerListView.SelectedItems[0].Text, out var info))
+            if (!_listItemToServerId.TryGetValue(ServerListView.SelectedItems[0], out var id))
                 return;
 
-            // Handle setting properties:
+            if (!_serverIdToServer.TryGetValue(id, out var server))
+                return;
 
-            MapNameLabel.Text = CodPmApi.GetPrettyMapName(info.MapName);
+
+            // Handle setting properties:
+            SelectedServer = server;
+            MapNameLabel.Text = CodPmApi.GetPrettyMapName(server.MapName);
+
+            // Handle player list:
+            UpdatePlayersListViewAndLabel(server);
 
             // Handle image loading:
+            BeginMapImageLoad(server.MapName);
+        }
 
+        private void BeginMapImageLoad(string mapName)
+        {
+            if (string.IsNullOrWhiteSpace(mapName))
+                throw new ArgumentNullException(nameof(mapName));
+
+            if (MapImageLoadTask != null)
+            {
+                // Cancel the existing task
+                MapImageLoadCancellationToken.Cancel();
+                MapImageLoadTask = null;
+            }
+
+            // Display a loading image
             MapImageBox.Image = Properties.Resources.loading_map_image_133x;
 
-            MapImageBox.Image = await CodMapImage.GetMapImage(info.MapName) ?? Properties.Resources.no_map_image_found_133x;
+            // Create a new cancellation token source
+            MapImageLoadCancellationToken = new CancellationTokenSource();
+
+            // Assign the new task to MapImageLoadTask
+            MapImageLoadTask = LoadMapImageAsync(mapName, MapImageLoadCancellationToken.Token);
+        }
+
+        private async Task LoadMapImageAsync(string mapName, CancellationToken token)
+        {
+            try
+            {
+                var img = await CodMapImage.GetMapImage(mapName) ?? Properties.Resources.no_map_image_found_133x;
+
+                // If the task was cancelled, do not update the UI
+                if (token.IsCancellationRequested)
+                    return;
+
+                if (MapImageBox == null || MapImageBox.IsDisposed || MapImageBox.Disposing)
+                    return;
+
+                MapImageBox.Invoke((MethodInvoker)delegate { MapImageBox.Image = img; });
+            }
+            catch (OperationCanceledException)
+            {
+                var cancelMsg = "Map image loading was canceled.";
+                Console.WriteLine(cancelMsg);
+                Log.WriteLine(cancelMsg);
+            }
+            catch (Exception ex)
+            {
+                Log.WriteLine(ex.ToString());
+                Console.WriteLine(ex.ToString());
+            }
         }
 
         private void CloseButton_Click(object sender, EventArgs e) => Close();
@@ -495,5 +717,113 @@ namespace CoD_Widescreen_Suite
                 Console.WriteLine(ex.ToString());
             }
         }
+
+
+        private void ServerListView_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            var selectedItem = (sender as ListView).GetItemAt(e.X, e.Y);
+
+            if (selectedItem == null)
+                return;
+
+            if (ProcessExtension.IsAnyCoDProcessRunning())
+                return;
+
+            if (!_listItemToServerId.TryGetValue(selectedItem, out var id))
+                return;
+
+            if (!_serverIdToServer.TryGetValue(id, out var server))
+                return;
+
+            var mainForm = GetInstance<MainForm>();
+
+            if (mainForm is null || mainForm.IsDisposed || mainForm.Disposing)
+                return;
+
+            var sb = Pool.Get<StringBuilder>();
+
+            try { mainForm.StartGame(false, sb
+                .Clear()
+                .Append(" +connect ")
+                .Append(server.Ip)
+                .Append(":")
+                .Append(server.Port)
+                .ToString()); }
+            finally { Pool.Free(ref sb); }
+            
+
+        }
+
+        private void ServersForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Settings.ServerListGameIndex = GameVersionBox.SelectedIndex;
+            Settings.ServerListHideEmpty = HideEmptyCheckbox.Checked;
+            Settings.ServerListHideNoPing = HideNoPingCheckbox.Checked;
+            Settings.ServerListMaxPing = (int)MaxPingNumeric.Value;
+        }
+
+        private void FilterPlayerNamesCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.ServerListFilterPlayerNames = FilterPlayerNamesCheckbox.Checked;
+
+            if (SelectedServer is null)
+                return;
+
+            UpdatePlayersListViewAndLabel(SelectedServer);
+        }
+
+        private void FilterBotPlayersCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.ServerListFilterBots = FilterBotPlayersCheckbox.Checked;
+
+            if (SelectedServer is null)
+                return;
+
+            UpdatePlayersListViewAndLabel(SelectedServer);
+        }
+
+        private void RefreshServerButton_Click(object sender, EventArgs e)
+        {
+            if (SelectedServer is null)
+                return;
+
+            ToggleButton(sender as Button, 5f);
+            RefreshServer(SelectedServer);
+
+        }
+
+        private async void RefreshServer(Server server)
+        {
+            if (server is null)
+                throw new ArgumentNullException(nameof(server));
+
+            // Refresh the server's info.
+            var newInfo = await CodPmApi.GetServer(server.Ip, server.Port);
+
+            // We have to create a new 'Server' because when we get a snapshot of a single server,
+            // The 'playerinfo' field is *not* inside of the 'serverinfo' field like it is for master servers.
+            // So we copy all properties from the singular ServerInfo we acquired and put it into a new 'Server':
+
+            var newServer = new Server()
+            {
+                Added = newInfo.Server.Added,
+                Id = newInfo.Server.Id,
+                Ip = newInfo.Server.Ip,
+                MaxClients = newInfo.Server.MaxClients,
+                MapName = newInfo.Server.MapName,
+                Port = newInfo.Server.Port,
+                Updated = newInfo.Server.Updated,
+                Url = newInfo.Server.Url,
+                Hostname = newInfo.Server.Hostname,
+                GameType = newInfo.Server.GameType,
+                PlayerInfo = newInfo.PlayerInfo
+            };
+
+            AddOrUpdateServerListItem(newServer);
+
+
+
+        }
+
     }
 }
