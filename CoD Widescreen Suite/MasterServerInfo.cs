@@ -231,10 +231,11 @@ namespace CoD_Widescreen_Suite
         public string Name { get; set; }
 
         [JsonProperty("score")]
-        public string Score { get; set; }
+        public int Score { get; set; }
 
         [JsonProperty("ping")]
-        public string Ping { get; set; }
+        public int Ping { get; set; }
+
     }
 
     public class PlayersLastSeen

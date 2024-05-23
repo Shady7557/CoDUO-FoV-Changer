@@ -14,7 +14,7 @@ namespace CoD_Widescreen_Suite
         private const string API_COD_PM_MASTERLIST = API_COD_PM_URL + "/masterlist/{master}/{version}";
         private const string API_COD_PM_SNAPSHOT = API_COD_PM_URL + "/snapshot/{ip}/{port}";
 
-        private static readonly Regex _caratRegex = new Regex("\\^+(\\d)", RegexOptions.Compiled);
+        private static readonly Regex _caratRegex = new Regex(@"\^+(\d{1,2})", RegexOptions.Compiled); //new Regex(@"\^+(\d)", RegexOptions.Compiled); //new Regex(@"\^\d{1}(?:\^\d{1})?", RegexOptions.Compiled);
 
         private static readonly HttpClient _httpClient = new HttpClient();
 
@@ -92,12 +92,15 @@ namespace CoD_Widescreen_Suite
             // Differentiated from mp_carentan which would just be Carentan.
 
 
-            return FirstUpper(FilterCaratColors(mapName.Replace("mp_", string.Empty)));
+            // Yes, we filter twice. Sometimes people use carats like ^^22.
+            return FirstUpper(FilterCaratColors(FilterCaratColors(mapName.Replace("mp_", string.Empty))));
         }
 
         private static string FirstUpper(string original)
         {
-            if (string.IsNullOrEmpty(original)) return string.Empty;
+            if (string.IsNullOrWhiteSpace(original)) 
+                return string.Empty;
+
             var array = original.ToCharArray();
             array[0] = char.ToUpper(array[0], CultureInfo.CurrentCulture);
             return new string(array);

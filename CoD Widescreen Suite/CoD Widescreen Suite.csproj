@@ -94,6 +94,7 @@
     <Compile Include="CodMapImage.cs" />
     <Compile Include="CodPmApi.cs" />
     <Compile Include="Controls\ExtendedForm.cs" />
+    <Compile Include="Controls\ServerListView.cs" />
     <Compile Include="GameConfig.cs" />
     <Compile Include="GameStarter.cs" />
     <Compile Include="HotfixVersion.cs" />
@@ -144,9 +145,11 @@
     <Compile Include="ServersForm.Designer.cs">
       <DependentUpon>ServersForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ServerUtil.cs" />
     <Compile Include="SessionHandler.cs" />
     <Compile Include="OldSettings.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="SettingsExt.cs" />
     <Compile Include="SettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>

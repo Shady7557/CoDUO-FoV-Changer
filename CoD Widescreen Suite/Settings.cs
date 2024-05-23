@@ -31,10 +31,7 @@ namespace CoD_Widescreen_Suite
                 field = value;
 
                 if (FinishedInitialLoad)
-                {
-                    Console.WriteLine("has changed and finished init load: " + field + " : " + value);
                     HasChanged = true;
-                }
             }
         }
 
@@ -174,6 +171,27 @@ namespace CoD_Widescreen_Suite
             set { SetConfigField(ref _serverListFilterBots, value); }
         }
 
+        private bool _serverListFilterBotServers;
+        public bool ServerListFilterBotServers
+        {
+            get { return _serverListFilterBotServers; }
+            set { SetConfigField(ref _serverListFilterBotServers, value); }
+        }
+
+        private bool _serverListShowFavorites;
+        public bool ServerListShowFavorites
+        {
+            get { return _serverListShowFavorites; }
+            set { SetConfigField(ref _serverListShowFavorites, value); }
+        }
+
+        private List<string> _favoriteServers;
+        public List<string> FavoriteServers
+        {
+            get { return _favoriteServers; }
+            set { SetConfigField(ref _favoriteServers, value); }
+        }
+
         public string SelectedExecutablePath => Path.Combine(_baseGamePath, SelectedExecutable);
 
 
@@ -300,6 +318,7 @@ namespace CoD_Widescreen_Suite
             _hotkeyModifier = "17";
             _launchWhenSelectedExeChanged = false;
             _gameExes = new List<string>();
+            _favoriteServers = new List<string>();
         }
 
         public static Settings Instance { get { return instance; } }
