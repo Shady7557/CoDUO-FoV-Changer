@@ -35,6 +35,8 @@ namespace CoD_Widescreen_Suite
        
         private Settings Settings => Settings.Instance;
 
+        public bool HasLoaded { get; private set; } = false;
+
         private Server SelectedServer { get; set; }
 
         public string GameVersion { get; set; }
@@ -298,32 +300,39 @@ namespace CoD_Widescreen_Suite
 
             UpdateFavoritesButtonText();
 
-            ToggleButton(RefreshButton, 5f);
-
             await Task.Run(async () =>
             {
-                var infos = await CodPmApi.GetMasterList(GameName, GameVersion);
+                try
+                {
+                    var infos = await CodPmApi.GetMasterList(GameName, GameVersion);
 
-                BeginInvoke((MethodInvoker)delegate { RefreshAllServers(infos); });
+                    BeginInvoke((MethodInvoker)delegate { RefreshAllServers(infos); });
+                }
+                catch (Exception ex)
+                {
+                    Log.WriteLine(ex.ToString());
+
+                    Console.WriteLine(ex.ToString());
+                }
+                finally { HasLoaded = true; }
             });
-
         }
 
-        // Move?: A ButtonHelper class or extension?
-        private void ToggleButton(Button button, float reToggleAfterSeconds = 0f)
+        // Move?: A class or extension?
+        private void ToggleControl(Control control, float reToggleAfterSeconds = 0f)
         {
-            if (button is null)
-                throw new ArgumentNullException(nameof(button));
+            if (control is null)
+                throw new ArgumentNullException(nameof(control));
 
-            if (button.IsDisposed || button.Disposing)
+            if (control.IsDisposed || control.Disposing)
                 return;
 
-           if (button.InvokeRequired)
-                button.BeginInvoke((MethodInvoker)delegate { button.Enabled = !button.Enabled; });
-            else button.Enabled = !button.Enabled;
+           if (control.InvokeRequired)
+                control.BeginInvoke((MethodInvoker)delegate { control.Enabled = !control.Enabled; });
+            else control.Enabled = !control.Enabled;
 
             if (reToggleAfterSeconds > 0f)
-                TimerEx.Once(reToggleAfterSeconds, () => ToggleButton(button));
+                TimerEx.Once(reToggleAfterSeconds, () => ToggleControl(control));
         }
 
         private void ColumnClick_SortHandler(object sender, ColumnClickEventArgs e)
@@ -385,12 +394,17 @@ namespace CoD_Widescreen_Suite
                 }
 
 
-                // If currently only showing favorites - only refresh favorites:
+                // TODO: If currently only showing favorites - only refresh favorites:
 
 
                 RefreshAllServers(infos);
             }
-            finally { ToggleButton(sender as Button, 5f); }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                Log.WriteLine(ex.ToString());
+            }
+        
         }
 
         /// <summary>
@@ -496,6 +510,35 @@ namespace CoD_Widescreen_Suite
             throw new NotImplementedException();
         }
 
+        private async void RefreshAllServers()
+        {
+            if (string.IsNullOrWhiteSpace(GameName) || string.IsNullOrWhiteSpace(GameVersion))
+                return;
+
+            OnRefresh();
+
+            var infos = await CodPmApi.GetMasterList(GameName, GameVersion);
+
+
+            if (infos?.Servers is null)
+            {
+                MessageBox.Show("Failed to grab server list!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (infos.Servers.Count < 1)
+            {
+                MessageBox.Show("No servers were found.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+
+            // TODO: If currently only showing favorites - only refresh favorites:
+
+
+            RefreshAllServers(infos);
+        }
+
         /// <summary>
         /// Refreshs all servers and changes UI elements, must be invoked if ran on another thread.
         /// </summary>
@@ -508,6 +551,8 @@ namespace CoD_Widescreen_Suite
 
             if (infos?.Servers.Count < 1)
                 return;
+
+            OnRefresh();
 
             var sb = Pool.Get<StringBuilder>();
             try
@@ -672,6 +717,12 @@ namespace CoD_Widescreen_Suite
 
                 GameVersion = gameVersion;
                 GameName = gameName.ToLower();
+
+                if (HasLoaded)
+                {
+                    ClearServerList();
+                    RefreshAllServers();
+                }
             }
             catch(Exception ex) 
             {
@@ -682,6 +733,27 @@ namespace CoD_Widescreen_Suite
 
             try  { CoDPictureBox.Image = GameName == "coduo" ? Properties.Resources.CoDUO : Properties.Resources.CoD1; }
             catch(Exception ex)
+            {
+                Log.WriteLine(ex.ToString());
+                Console.WriteLine(ex.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Called when a refresh occurs. If a server is specified, it was a single server refreshed. If server is null, it was the master list.
+        /// </summary>
+        /// <param name="server"></param>
+        private void OnRefresh(Server server = null)
+        {
+            try { ToggleControl(GameVersionBox, 5f); }
+            catch(Exception ex)
+            {
+                Log.WriteLine(ex.ToString());
+                Console.WriteLine(ex.ToString());
+            }
+
+            try { ToggleControl(RefreshButton, 5f); }
+            catch (Exception ex)
             {
                 Log.WriteLine(ex.ToString());
                 Console.WriteLine(ex.ToString());
@@ -814,6 +886,31 @@ namespace CoD_Widescreen_Suite
             }
         }
 
+        private void ClearServerList()
+        {
+            ServerListFilter?.ListViewItems?.Clear();
+            ServerListView?.Items?.Clear();
+            SelectedServer = null;
+
+            ClearCurrentMap();
+            ClearPlayersList();
+          
+
+            UpdateListedServersCountLabel();
+        }
+
+        private void ClearCurrentMap()
+        {
+            MapImageBox.Image = null;
+            MapNameLabel.Text = string.Empty;
+        }
+
+        private void ClearPlayersList()
+        {
+            PlayerListView.Items.Clear();
+            PlayerCountLabel.Text = "0/0";
+        }
+
         private void CloseButton_Click(object sender, EventArgs e) => Close();
 
         private void HideEmptyCheckbox_CheckedChanged(object sender, EventArgs e)
@@ -911,7 +1008,6 @@ namespace CoD_Widescreen_Suite
             if (SelectedServer is null)
                 return;
 
-            ToggleButton(sender as Button, 5f);
             RefreshServer(SelectedServer);
             BeginMapImageLoad(SelectedServer.MapName);
         }
@@ -920,6 +1016,8 @@ namespace CoD_Widescreen_Suite
         {
             if (server is null)
                 throw new ArgumentNullException(nameof(server));
+
+            OnRefresh(server);
 
             // Refresh the server's info.
             var newInfo = await CodPmApi.GetServer(server.Ip, server.Port);
