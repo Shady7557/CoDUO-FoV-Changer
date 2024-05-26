@@ -1,5 +1,5 @@
-﻿using ClampExt;
-using CoDUO_FoV_Changer.Controls;
+﻿using CoDUO_FoV_Changer.Controls;
+using CoDUO_FoV_Changer.Util;
 using CurtLog;
 using ProcessExtensions;
 using ShadyPool;

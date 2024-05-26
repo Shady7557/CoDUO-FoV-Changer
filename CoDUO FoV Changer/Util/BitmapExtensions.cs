@@ -2,7 +2,7 @@
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
-namespace BitmapExtension
+namespace CoDUO_FoV_Changer.Util
 {
     internal class BitmapHelper
     {

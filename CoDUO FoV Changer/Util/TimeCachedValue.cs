@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace serverside_dcim.Misc
+namespace CoDUO_FoV_Changer.Util
 {
 
     public class TimeCachedValue<T>

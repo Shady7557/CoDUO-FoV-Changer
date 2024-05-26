@@ -6,18 +6,17 @@ using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
 using System.Net;
-using ClampExt;
 using System.Threading.Tasks;
 using HotkeyHandling;
 using SessionHandling;
 using System.Collections.Generic;
-using BitmapExtension;
 using ShadyPool;
 using ProcessExtensions;
 using TimerExtensions;
 using System.Threading;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
+using CoDUO_FoV_Changer.Util;
 
 namespace CoDUO_FoV_Changer
 {
@@ -48,8 +47,8 @@ namespace CoDUO_FoV_Changer
             private set;
         }
 
-        private int DesktopHeight => Screen.PrimaryScreen.Bounds.Height;
-        private int DesktopWidth => Screen.PrimaryScreen.Bounds.Width;
+        private int DesktopHeight => ScreenUtil.GetPrimaryDisplayResolution().Height;
+        private int DesktopWidth => ScreenUtil.GetPrimaryDisplayResolution().Width;
 
         public bool IsCheckingForUpdates { get; private set; } = false;
 

@@ -19,7 +19,8 @@ namespace CoDUO_FoV_Changer
             {
                 if (!File.Exists(exePath))
                     return false;
-                
+
+                var exeDirectory = Path.GetDirectoryName(exePath);
 
                 var hasForcedArgs = !string.IsNullOrWhiteSpace(forcedArgs);
 
@@ -39,7 +40,7 @@ namespace CoDUO_FoV_Changer
                     try 
                     {
                         if (useSteam)
-                            SteamHack.EnsureSteamDll(Path.GetDirectoryName(exePath));
+                            SteamHack.EnsureSteamDll(exeDirectory);
                     }
                     catch(Exception ex)
                     {
@@ -48,9 +49,13 @@ namespace CoDUO_FoV_Changer
                     }
                    
 
-                    var argSb = sb.Clear().Append(forcedArgs).Append(" ").Append(optionalArgs);
-                    
+                    var argSb = sb
+                        .Clear()
+                        .Append(forcedArgs)
+                        .Append(" ")
+                        .Append(optionalArgs);
 
+                   
                     var startInfo = new ProcessStartInfo
                     {
                         Arguments = argSb.Length > 0 ? argSb.ToString() : string.Empty,
@@ -70,14 +75,15 @@ namespace CoDUO_FoV_Changer
                         Console.Write(ex.ToString());
                         Log.WriteLine(ex.ToString());
                     }
-
+                    
                 }
                 finally { Pool.Free(ref sb); }
 
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Failed to start game: " + ex.Message + Environment.NewLine + " Please refer to the log for more info.");
+                Console.WriteLine(ex.ToString());
+                MessageBox.Show("Failed to start game: " + ex.Message + Environment.NewLine + " Please refer to the log for more info.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Log.WriteLine("Failed to start process game process: " + Environment.NewLine + ex.ToString());
             }
 

@@ -3,9 +3,9 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
-using BitmapExtension;
 using CurtLog;
 using CoDRegistryExtensions;
+using CoDUO_FoV_Changer.Util;
 
 namespace CoDUO_FoV_Changer
 {

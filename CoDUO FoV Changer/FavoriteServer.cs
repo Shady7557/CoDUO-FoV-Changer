@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using CoDUO_FoV_Changer.Util;
+using Newtonsoft.Json;
 namespace CoDUO_FoV_Changer
 {
     internal class FavoriteServer
@@ -9,19 +10,13 @@ namespace CoDUO_FoV_Changer
         public GameConfig.GameType GameType { get; set; }
 
         [JsonIgnore]
-        public string IpAndPort
-        {
-            get 
-            {
-                var sb = StringBuilderCache.Acquire(21);
-                sb
+        public string IpAndPort => 
+                     StringBuilderCache.GetStringAndRelease(StringBuilderCache.Acquire(21)
                     .Append(IpAddress)
                     .Append(":")
-                    .Append(Port); 
-
-                return StringBuilderCache.GetStringAndRelease(sb);
-            }
-        }
+                    .Append(Port));
+            
+        
 
         public FavoriteServer() { }
         public FavoriteServer(string ipAddress, int port)

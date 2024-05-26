@@ -50,9 +50,9 @@ namespace CoDUO_FoV_Changer
             this.InfoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.singleplayerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.serversToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ChangelogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.serversToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ExitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.StatusLabel = new System.Windows.Forms.Label();
             this.ipDialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -228,7 +228,7 @@ namespace CoDUO_FoV_Changer
             this.ExitToolStripMenuItem});
             this.FoVMenuStrip.Location = new System.Drawing.Point(0, 192);
             this.FoVMenuStrip.Name = "FoVMenuStrip";
-            this.FoVMenuStrip.Size = new System.Drawing.Size(419, 24);
+            this.FoVMenuStrip.Size = new System.Drawing.Size(420, 24);
             this.FoVMenuStrip.TabIndex = 68;
             this.FoVMenuStrip.Text = "MenuStrip1";
             // 
@@ -265,6 +265,13 @@ namespace CoDUO_FoV_Changer
             this.ToolStripMenuItem1.Size = new System.Drawing.Size(46, 20);
             this.ToolStripMenuItem1.Text = "Tools";
             // 
+            // serversToolStripMenuItem
+            // 
+            this.serversToolStripMenuItem.Name = "serversToolStripMenuItem";
+            this.serversToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.serversToolStripMenuItem.Text = "Servers";
+            this.serversToolStripMenuItem.Click += new System.EventHandler(this.serversToolStripMenuItem_Click);
+            // 
             // SettingsToolStripMenuItem
             // 
             this.SettingsToolStripMenuItem.Name = "SettingsToolStripMenuItem";
@@ -278,13 +285,6 @@ namespace CoDUO_FoV_Changer
             this.ChangelogToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
             this.ChangelogToolStripMenuItem.Text = "Changelog [GitHub]";
             this.ChangelogToolStripMenuItem.Click += new System.EventHandler(this.ChangelogToolStripMenuItem_Click);
-            // 
-            // serversToolStripMenuItem
-            // 
-            this.serversToolStripMenuItem.Name = "serversToolStripMenuItem";
-            this.serversToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-            this.serversToolStripMenuItem.Text = "Servers";
-            this.serversToolStripMenuItem.Click += new System.EventHandler(this.serversToolStripMenuItem_Click);
             // 
             // ExitToolStripMenuItem
             // 
@@ -446,7 +446,7 @@ namespace CoDUO_FoV_Changer
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
-            this.ClientSize = new System.Drawing.Size(419, 216);
+            this.ClientSize = new System.Drawing.Size(420, 216);
             this.Controls.Add(this.checkBoxDesktopRes);
             this.Controls.Add(this.AdminLaunchButton);
             this.Controls.Add(this.GamePIDBox);

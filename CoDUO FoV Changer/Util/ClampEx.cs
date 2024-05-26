@@ -1,4 +1,4 @@
-﻿namespace ClampExt
+﻿namespace CoDUO_FoV_Changer.Util
 {
     public static class ClampEx
     {

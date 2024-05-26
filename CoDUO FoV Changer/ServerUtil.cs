@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CoDUO_FoV_Changer.Util;
+using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
@@ -13,15 +14,10 @@ namespace CoDUO_FoV_Changer
             if (server is null)
                 throw new ArgumentNullException(nameof(server));
 
-            var sb = StringBuilderCache.Acquire(21);
-
-            sb
+            return StringBuilderCache.GetStringAndRelease(StringBuilderCache.Acquire(21)
                 .Append(server.Ip)
                 .Append(":")
-                .Append(server.Port);
-
-            return StringBuilderCache.GetStringAndRelease(sb);
-
+                .Append(server.Port));
         }
 
         public static GameConfig.GameType GetGameType(Server server)

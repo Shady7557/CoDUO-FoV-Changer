@@ -3,7 +3,7 @@
 using System;
 using System.Text;
 
-namespace CoDUO_FoV_Changer
+namespace CoDUO_FoV_Changer.Util
 {
     public static class StringBuilderCache
     {
