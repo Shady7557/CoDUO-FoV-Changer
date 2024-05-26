@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CoDUO_FoV_Changer
 {
@@ -19,34 +15,34 @@ namespace CoDUO_FoV_Changer
 
     public sealed class Injector
     {
-        static readonly IntPtr INTPTR_ZERO = (IntPtr)0;
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern IntPtr OpenProcess(uint dwDesiredAccess, int bInheritHandle, uint dwProcessId);
+        private static extern IntPtr OpenProcess(uint dwDesiredAccess, int bInheritHandle, uint dwProcessId);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern int CloseHandle(IntPtr hObject);
+        private static extern int CloseHandle(IntPtr hObject);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern IntPtr GetProcAddress(IntPtr hModule, string lpProcName);
+        private static extern IntPtr GetProcAddress(IntPtr hModule, string lpProcName);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern IntPtr GetModuleHandle(string lpModuleName);
+        private static extern IntPtr GetModuleHandle(string lpModuleName);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern IntPtr VirtualAllocEx(IntPtr hProcess, IntPtr lpAddress, IntPtr dwSize, uint flAllocationType, uint flProtect);
+        private static extern IntPtr VirtualAllocEx(IntPtr hProcess, IntPtr lpAddress, IntPtr dwSize, uint flAllocationType, uint flProtect);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern int WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] buffer, uint size, int lpNumberOfBytesWritten);
+        private static extern int WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] buffer, uint size, int lpNumberOfBytesWritten);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern IntPtr CreateRemoteThread(IntPtr hProcess, IntPtr lpThreadAttribute, IntPtr dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);
+        private static extern IntPtr CreateRemoteThread(IntPtr hProcess, IntPtr lpThreadAttribute, IntPtr dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);
 
-        static Injector _instance;
+        private static readonly IntPtr _intPtrZero = (IntPtr)0;
+        private static Injector _instance;
 
-        public static Injector GetInstance() { return _instance ?? (_instance = new Injector()); }
-
-        Injector() { }
+        public static Injector Instance => _instance ?? (_instance = new Injector());
+      
+        private Injector() { }
 
         public DllInjectionResult Inject(int processId, string dllPath)
         {
@@ -65,31 +61,31 @@ namespace CoDUO_FoV_Changer
             if (processId == 0 || string.IsNullOrWhiteSpace(dllPath)) 
                 return false;
 
-            var hndProc = OpenProcess((0x2 | 0x8 | 0x10 | 0x20 | 0x400), 1, processId);
+            var hndProc = OpenProcess(0x2 | 0x8 | 0x10 | 0x20 | 0x400, 1, processId);
 
-            if (hndProc == INTPTR_ZERO) 
+            if (hndProc == _intPtrZero) 
                 return false;
 
 
-            IntPtr lpLLAddress = GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
+            var lpLLAddress = GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
 
-            if (lpLLAddress == INTPTR_ZERO) 
+            if (lpLLAddress == _intPtrZero) 
                 return false;
 
 
-            IntPtr lpAddress = VirtualAllocEx(hndProc, (IntPtr)null, (IntPtr)dllPath.Length, (0x1000 | 0x2000), 0X40);
+            var lpAddress = VirtualAllocEx(hndProc, (IntPtr)null, (IntPtr)dllPath.Length, 0x1000 | 0x2000, 0X40);
 
-            if (lpAddress == INTPTR_ZERO) 
+            if (lpAddress == _intPtrZero) 
                 return false;
 
 
-            byte[] bytes = Encoding.ASCII.GetBytes(dllPath);
+            var bytes = Encoding.ASCII.GetBytes(dllPath);
 
             if (WriteProcessMemory(hndProc, lpAddress, bytes, (uint)bytes.Length, 0) == 0) 
                 return false;
 
 
-            if (CreateRemoteThread(hndProc, (IntPtr)null, INTPTR_ZERO, lpLLAddress, lpAddress, 0, (IntPtr)null) == INTPTR_ZERO) 
+            if (CreateRemoteThread(hndProc, (IntPtr)null, _intPtrZero, lpLLAddress, lpAddress, 0, (IntPtr)null) == _intPtrZero) 
                 return false;
 
             CloseHandle(hndProc);

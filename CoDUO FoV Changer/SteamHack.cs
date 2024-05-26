@@ -165,7 +165,7 @@ namespace CoDUO_FoV_Changer
             Console.WriteLine(injectLog);
             Log.WriteLine(injectLog);
 
-            Injector.GetInstance().Inject(processId, overlayDllPath);
+            Injector.Instance.Inject(processId, overlayDllPath);
 
             var injectedLog = "Ran Injector.Jnject for Overlay DLL: " + overlayDllPath + " into process ID: " + processId;
 

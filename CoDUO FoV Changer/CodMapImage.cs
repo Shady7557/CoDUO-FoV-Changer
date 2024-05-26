@@ -1,13 +1,11 @@
 ﻿using CurtLog;
 using Newtonsoft.Json;
-using ShadyPool;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -21,6 +19,24 @@ namespace CoDUO_FoV_Changer
         private static readonly HashSet<string> _mapsWithoutImages = new HashSet<string>();
 
         private static readonly string _noImgCachePath = Path.Combine(PathInfos.CachePath, "noimgcache.json");
+
+        private const string BASE_USER_AGENT = "CoDUO FoV Changer/{version}";
+
+        private static string _userAgent = string.Empty;
+        private static string UserAgent
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(_userAgent))
+                    _userAgent = StringBuilderCache.GetStringAndRelease(StringBuilderCache.Acquire(25)
+                    .Clear()
+                    .Append(BASE_USER_AGENT)
+                    .Replace("{version}", Application.ProductVersion));
+                
+
+                return _userAgent;
+            }
+        }
 
         // A class for serializing/deserializing into JSON.
         // This will be stored in the cache directory, it will have
@@ -38,6 +54,8 @@ namespace CoDUO_FoV_Changer
 
             public void SetLastAttempt(string mapName) => LastMapAttempt[mapName] = DateTime.UtcNow;
         }
+
+        private static readonly HttpClient _httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(5) };
 
         private static NoImageCache NoImgCache { get; set; }
 
@@ -89,46 +107,40 @@ namespace CoDUO_FoV_Changer
             if (string.IsNullOrWhiteSpace(url))
                 throw new ArgumentNullException(nameof(url));
 
-            var sb = Pool.Get<StringBuilder>();
-
             try
             {
-                try
+                // Set the User-Agent header
+
+                var hasHeader = false;
+                foreach (var headerValue in _httpClient.DefaultRequestHeaders.UserAgent)
                 {
-                    using (var client = new HttpClient())
+                    if (headerValue.Product.Name.IndexOf("CoDUO FoV Changer", StringComparison.OrdinalIgnoreCase) == -1)
                     {
-                        // Set the User-Agent header
-
-                        client.Timeout = TimeSpan.FromSeconds(5);
-                        client.DefaultRequestHeaders.UserAgent.ParseAdd(sb
-                            .Clear()
-                            .Append("CoDUO FoV Changer/")
-                            .Append(Application.ProductVersion)
-                            .ToString());
-
-
-                        var getRequest = await client.GetAsync(url);
-
-                        if (!getRequest.IsSuccessStatusCode)
-                            return null;
-
-                        // Download the image data
-                        var imageData = await getRequest.Content.ReadAsByteArrayAsync();
-
-                        // Convert the byte array to an Image
-                        using (var ms = new MemoryStream(imageData))
-                            return Image.FromStream(ms);
-                        
+                        hasHeader = true;
+                        break;
                     }
                 }
-                catch (Exception ex)
-                {
-                    Log.WriteLine(ex.ToString());
-                    Console.WriteLine(ex.ToString());
-                }
-            }
-            finally { Pool.Free(ref sb); }
 
+                if (!hasHeader)
+                    _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
+
+                var getRequest = await _httpClient.GetAsync(url);
+
+                if (!getRequest.IsSuccessStatusCode)
+                    return null;
+
+                // Download the image data
+                var imageData = await getRequest.Content.ReadAsByteArrayAsync();
+
+                // Convert the byte array to an Image
+                using (var ms = new MemoryStream(imageData))
+                    return Image.FromStream(ms);
+            }
+            catch (Exception ex)
+            {
+                Log.WriteLine(ex.ToString());
+                Console.WriteLine(ex.ToString());
+            }
             return null;
         }
 
@@ -238,10 +250,8 @@ namespace CoDUO_FoV_Changer
 
                         // Write byte array to file
                         using (FileStream fs = new FileStream(imgPath, FileMode.Create, FileAccess.Write))
-                        {
                             fs.Write(imageBytes, 0, imageBytes.Length);
-                        }
-
+                        
                     }
                     catch (Exception ex)
                     {

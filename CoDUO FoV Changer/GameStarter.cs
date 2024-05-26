@@ -10,23 +10,6 @@ namespace CoDUO_FoV_Changer
 {
     internal class GameStarter
     {
-        // Likely to be deleted:
-        /// <summary>
-        /// Uses the config's install path options to start the game based on GameType.
-        /// </summary>
-        /// <param name="gameType"></param>
-        /// <param name="optionalArgs"></param>
-        /// <param name="forcedArgs"></param>
-        /// <returns></returns>
-        public static bool StartGame(GameConfig.GameType gameType, string optionalArgs = "", string forcedArgs = "")
-        {
-            // We'll determine the correct exePath, then call the other StartGame method.
-
-            throw new NotImplementedException();
-        }
-
-
-
         public static bool StartGame(string exePath, string optionalArgs = "", string forcedArgs = "")
         {
             if (string.IsNullOrWhiteSpace(exePath))
@@ -63,10 +46,7 @@ namespace CoDUO_FoV_Changer
                         Console.WriteLine(ex.ToString());
                         Log.WriteLine(ex.ToString());
                     }
-                    
-
-                    // TODO: need to add overlay injection.
-
+                   
 
                     var argSb = sb.Clear().Append(forcedArgs).Append(" ").Append(optionalArgs);
                     
@@ -74,8 +54,8 @@ namespace CoDUO_FoV_Changer
                     var startInfo = new ProcessStartInfo
                     {
                         Arguments = argSb.Length > 0 ? argSb.ToString() : string.Empty,
-                        FileName = launchFileName,
-                        WorkingDirectory = Path.GetDirectoryName(exePath),
+                        FileName = exePath,
+                        WorkingDirectory = launchFileName,
                     };
 
                     var gameProc = Process.Start(startInfo);

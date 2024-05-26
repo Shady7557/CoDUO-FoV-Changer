@@ -81,7 +81,7 @@ namespace CoDUO_FoV_Changer
         {
             if (_instances.TryGetValue(typeof(T), out var instance))
             {
-                if (instance == null || (instance.IsDisposed || instance.Disposing))
+                if (instance == null || instance.IsDisposed || instance.Disposing)
                 {
                     _instances.Remove(typeof(T));
                     return null;

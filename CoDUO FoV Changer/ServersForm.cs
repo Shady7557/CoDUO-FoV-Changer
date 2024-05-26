@@ -286,7 +286,7 @@ namespace CoDUO_FoV_Changer
 
             MapNameLabel.Text = string.Empty;
 
-            GameVersionBox.SelectedIndex = ClampEx.Clamp(Settings?.ServerListGameIndex ?? 0, 0, (GameVersionBox.Items.Count - 1));
+            GameVersionBox.SelectedIndex = ClampEx.Clamp(Settings?.ServerListGameIndex ?? 0, 0, GameVersionBox.Items.Count - 1);
             HideEmptyCheckbox.Checked = Settings?.ServerListHideEmpty ?? false;
             HideNoPingCheckbox.Checked = Settings?.ServerListHideNoPing ?? false;
             MaxPingNumeric.Value = ClampEx.Clamp(Settings?.ServerListMaxPing ?? 200, MaxPingNumeric.Minimum, MaxPingNumeric.Maximum);
@@ -864,7 +864,7 @@ namespace CoDUO_FoV_Changer
 
                 MapImageBox.Invoke((MethodInvoker)delegate { MapImageBox.Image = img; });
             }
-            catch (OperationCanceledException)
+            catch (TaskCanceledException)
             {
                 var cancelMsg = "Map image loading was canceled.";
                 Console.WriteLine(cancelMsg);

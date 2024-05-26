@@ -168,6 +168,7 @@
     <Compile Include="SteamHack.cs" />
     <Compile Include="TimerEx.cs" />
     <Compile Include="Util\StringBuilderCache.cs" />
+    <Compile Include="Util\TimeCachedValue.cs" />
     <EmbeddedResource Include="AboutForm.resx">
       <DependentUpon>AboutForm.cs</DependentUpon>
       <SubType>Designer</SubType>

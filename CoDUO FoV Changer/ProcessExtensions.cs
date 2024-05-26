@@ -1,5 +1,6 @@
 ﻿using CurtLog;
 using DirectoryExtensions;
+using serverside_dcim.Misc;
 using ShadyPool;
 using System;
 using System.Collections.Generic;
@@ -43,6 +44,8 @@ namespace ProcessExtensions
 
         private static readonly HashSet<Process> _elevatedProcesses = new HashSet<Process>(); //this is a cache.
         private static readonly HashSet<int> _elevatedPids = new HashSet<int>(); //sometimes I hate windows, truly. don't ask why this is necessary. fix it yourself & let me know.
+
+        private static readonly Dictionary<int, TimeCachedValue<bool>> _isElevated = new Dictionary<int, TimeCachedValue<bool>>();
 
         /// <summary>
         /// Checks if given process is still alive
@@ -144,52 +147,64 @@ namespace ProcessExtensions
             return false;
         }
 
-        public static bool IsProcessElevated(Process process)
+        public static bool IsProcessElevated(Process process, bool skipCache = false)
         {
             if (process == null)
                 return false;
 
-            //cache so we aren't always throwing exceptions (they are slow!)
-            if (_elevatedProcesses.Contains(process))
-                return true;
+         
 
-
-            if (_elevatedPids.Contains(process.Id))
-                return true;
-
-            try
-            {
-                if (process?.Modules != null)
-                    return false;
-            }
-            catch (Win32Exception win32ex) when (win32ex.NativeErrorCode == 5) //5 == access denied
-            {
-                try 
+            if (!_isElevated.TryGetValue(process.Id, out var cachedValue))
+                _isElevated[process.Id] = new TimeCachedValue<bool>()
                 {
-                    _elevatedProcesses.Add(process);
-                    _elevatedPids.Add(process.Id);
-                }
-                catch(Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    Log.WriteLine(ex.ToString());
-                }
-              
-                return true; 
-            }
-            catch (Win32Exception win32ex) when (win32ex.NativeErrorCode == 299) //299 = partial memory read/write - presumably 5 would've been thrown before this exception could be thrown if elevation was an issue.
-            {
-                Log.WriteLine(win32ex.ToString());
-                Console.WriteLine(win32ex.ToString());
-            }
-            catch(Exception ex)
-            {
-                Log.WriteLine(ex.ToString());
-                Console.WriteLine(ex.ToString());
-                throw ex;
-            }
+                    UpdateValue = new Func<bool>(() =>
+                    {
+                        //cache so we aren't always throwing exceptions (they are slow!)
+                        if (_elevatedProcesses.Contains(process))
+                            return true;
 
-            return false;
+
+                        if (_elevatedPids.Contains(process.Id))
+                            return true;
+
+                        try
+                        {
+                            if (process?.Modules != null)
+                                return false;
+                        }
+                        catch (Win32Exception win32ex) when (win32ex.NativeErrorCode == 5) //5 == access denied
+                        {
+                            try
+                            {
+                                _elevatedProcesses.Add(process);
+                                _elevatedPids.Add(process.Id);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                                Log.WriteLine(ex.ToString());
+                            }
+
+                            return true;
+                        }
+                        catch (Win32Exception win32ex) when (win32ex.NativeErrorCode == 299) //299 = partial memory read/write - presumably 5 would've been thrown before this exception could be thrown if elevation was an issue.
+                        {
+                            // do literally nothing - we can do nothing about this exception & it clogs up the log.
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.WriteLine(ex.ToString());
+                            Console.WriteLine(ex.ToString());
+                            throw ex;
+                        }
+
+                        return false;
+                    }),
+                    RefreshCooldown = 10
+                };
+
+
+            return _isElevated[process.Id].Get(skipCache);
         }
 
         public static bool IsAnyCoDProcessRunning()

@@ -1,8 +1,6 @@
 ﻿using CurtLog;
-using ShadyPool;
 using System;
 using System.IO;
-using System.Text;
 using System.Windows.Forms;
 
 namespace CoDUO_FoV_Changer

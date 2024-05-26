@@ -520,7 +520,10 @@ namespace CoDUO_FoV_Changer
                 finally { Pool.Free(ref sb); }
 
                
+                var startGameLog = "Calling " + nameof(GameStarter.StartGame) + " with args: " + settings.SelectedExecutablePath + Environment.NewLine + LaunchParametersTB.Text + Environment.NewLine + forceStartArgs;
 
+                Log.WriteLine(startGameLog);
+                Console.WriteLine(startGameLog);
 
                 GameStarter.StartGame(settings.SelectedExecutablePath, LaunchParametersTB.Text, forceStartArgs);
             });
@@ -814,7 +817,7 @@ namespace CoDUO_FoV_Changer
             {
                 var isRunning = MemorySelection?.IsRunning() ?? false;
 
-                if ((MemorySelection?.ProcMemory?.RequiresElevation() ?? false))
+                if (MemorySelection?.ProcMemory?.RequiresElevation() ?? false)
                 {
                     SetLabelText(StatusLabel, "Status: Game requires elevation!");
 
@@ -1123,7 +1126,7 @@ namespace CoDUO_FoV_Changer
         {
             MemorySelection = GamePIDBox.GetMemoryFromIndex(GamePIDBox.SelectedIndex);
 
-            BitmapHelper.ScalePictureBox(CoDPictureBox, (IsUOMemory() || (ProcessExtension.IsAnyProcessRunning("CoDUOMP") && (!ProcessExtension.IsAnyProcessRunning("mohaa") && !ProcessExtension.IsAnyProcessRunning("codmp")))) ? Properties.Resources.CoDUO : Properties.Resources.CoD1);
+            BitmapHelper.ScalePictureBox(CoDPictureBox, (IsUOMemory() || (ProcessExtension.IsAnyProcessRunning("CoDUOMP") && !ProcessExtension.IsAnyProcessRunning("mohaa") && !ProcessExtension.IsAnyProcessRunning("codmp"))) ? Properties.Resources.CoDUO : Properties.Resources.CoD1);
         }
 
         private void AdminLaunchButton_Click(object sender, EventArgs e) => TryRestartAsAdmin();
