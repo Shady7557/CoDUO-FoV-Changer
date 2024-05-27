@@ -17,6 +17,7 @@ using System.Threading;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
 using CoDUO_FoV_Changer.Util;
+using StringExtension;
 
 namespace CoDUO_FoV_Changer
 {
@@ -292,7 +293,7 @@ namespace CoDUO_FoV_Changer
                     for (int i = 0; i < cmdArgs.Length; i++)
                     {
                         var arg = cmdArgs[i];
-                        if (arg.IndexOf(Application.ProductName, StringComparison.OrdinalIgnoreCase) >= 0 || arg.IndexOf(Application.StartupPath, StringComparison.OrdinalIgnoreCase) >= 0) 
+                        if (arg.Contains(Application.ProductName, StringComparison.OrdinalIgnoreCase) || arg.Contains(Application.StartupPath, StringComparison.OrdinalIgnoreCase)) 
                             continue;
 
                         if (arg.Equals("-launch", StringComparison.OrdinalIgnoreCase))
@@ -319,7 +320,7 @@ namespace CoDUO_FoV_Changer
 
 
 
-                        if (arg.IndexOf("-fov=", StringComparison.OrdinalIgnoreCase) >= 0 && decimal.TryParse(arg.Split('=')[1], out decimal FoV))
+                        if (arg.Contains("-fov=", StringComparison.OrdinalIgnoreCase) && decimal.TryParse(arg.Split('=')[1], out decimal FoV))
                             SetFoVNumeric(FoV);
 
                         argsSB.Append(arg).Append(" ");
@@ -1163,13 +1164,16 @@ namespace CoDUO_FoV_Changer
                     FileName = fileNameDir
                 };
 
-                try { Process.Start(startInfo); }
+                try 
+                { 
+                    Process.Start(startInfo);
+                    Close();
+                }
                 catch (System.ComponentModel.Win32Exception win32ex) when (win32ex.NativeErrorCode == 1223)
                 {
                     Log.WriteLine("User canceled UAC prompt (" + win32ex.Message + " )");
                     return false;
                 }
-                finally { Close(); }
 
             }
 

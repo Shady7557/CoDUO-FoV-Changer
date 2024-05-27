@@ -73,7 +73,7 @@ namespace CoDUO_FoV_Changer
                         var startInfo = new ProcessStartInfo
                         {
                             Verb = "runas",
-                            Arguments = "-hotkeys",
+                            Arguments = "-multi -hotkeys",
                             WorkingDirectory = Application.StartupPath,
                             FileName = fileNameDir
                         };
@@ -124,7 +124,7 @@ namespace CoDUO_FoV_Changer
                         var startInfo = new ProcessStartInfo
                         {
                             Verb = "runas",
-                            Arguments = "-cdkeymanager",
+                            Arguments = "-multi -cdkeymanager",
                             WorkingDirectory = Application.StartupPath,
                             FileName = fileNameDir
                         };

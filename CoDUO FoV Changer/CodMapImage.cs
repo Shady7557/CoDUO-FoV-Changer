@@ -1,6 +1,7 @@
 ﻿using CoDUO_FoV_Changer.Util;
 using CurtLog;
 using Newtonsoft.Json;
+using StringExtension;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -14,14 +15,16 @@ namespace CoDUO_FoV_Changer
 {
     internal class CodMapImage
     {
+        private const string APP_NAME_DASH = "CoDUO-FoV-Changer";
+        private const string BASE_USER_AGENT = APP_NAME_DASH + "/{version} ({os}; {architecture})";
+
         private const string COD_PM_STOCK_MAP_IMAGE_URL = "https://cod.pm/mp_maps/cod1+coduo/stock/{map}.png";
         private const string COD_PM_CUSTOM_MAP_IMAGE_URL = "https://cod.pm/mp_maps/cod1+coduo/custom/{map}.png";
+
         private static readonly Dictionary<string, Image> _mapNameToImage = new Dictionary<string, Image>();
         private static readonly HashSet<string> _mapsWithoutImages = new HashSet<string>();
 
         private static readonly string _noImgCachePath = Path.Combine(PathInfos.CachePath, "noimgcache.json");
-
-        private const string BASE_USER_AGENT = "CoDUO FoV Changer/{version}";
 
         private static string _userAgent = string.Empty;
         private static string UserAgent
@@ -29,15 +32,20 @@ namespace CoDUO_FoV_Changer
             get
             {
                 if (string.IsNullOrWhiteSpace(_userAgent))
-                    _userAgent = StringBuilderCache.GetStringAndRelease(StringBuilderCache.Acquire(25)
+                    _userAgent = StringBuilderCache.GetStringAndRelease(StringBuilderCache.Acquire(56)
                     .Clear()
                     .Append(BASE_USER_AGENT)
-                    .Replace("{version}", Application.ProductVersion));
+                    .Replace("{version}", Application.ProductVersion)
+                    .Replace("{os}", Environment.OSVersion.ToString().Replace(" ", "-"))
+                    .Replace("{architecture}", Environment.Is64BitOperatingSystem ? "x64" : "x86"));
                 
 
                 return _userAgent;
             }
         }
+
+        private static readonly HttpClient _httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(5) };
+
 
         // A class for serializing/deserializing into JSON.
         // This will be stored in the cache directory, it will have
@@ -56,7 +64,6 @@ namespace CoDUO_FoV_Changer
             public void SetLastAttempt(string mapName) => LastMapAttempt[mapName] = DateTime.UtcNow;
         }
 
-        private static readonly HttpClient _httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(5) };
 
         private static NoImageCache NoImgCache { get; set; }
 
@@ -110,12 +117,12 @@ namespace CoDUO_FoV_Changer
 
             try
             {
-                // Set the User-Agent header
+                // Set the User-Agent header if necessary
 
                 var hasHeader = false;
                 foreach (var headerValue in _httpClient.DefaultRequestHeaders.UserAgent)
                 {
-                    if (headerValue.Product.Name.IndexOf("CoDUO FoV Changer", StringComparison.OrdinalIgnoreCase) == -1)
+                    if ((headerValue?.Product?.Name ?? string.Empty).Contains(APP_NAME_DASH, StringComparison.OrdinalIgnoreCase))
                     {
                         hasHeader = true;
                         break;
@@ -213,14 +220,14 @@ namespace CoDUO_FoV_Changer
             {
                 // File did not exist on disk or was not a valid image file, so now we'll attempt to download it.
 
-                var sb = StringBuilderCache.Acquire(mapName.Length)
+                var filteredMapName = StringBuilderCache.GetStringAndRelease(
+                    StringBuilderCache.Acquire(mapName.Length)
                     .Append(mapName)
                     .Replace("_uo", string.Empty)
                     .Replace("uo_", "mp_")
                     .Replace("ctf_", "mp_")
-                    .Replace("_ctf", string.Empty);
+                    .Replace("_ctf", string.Empty));
 
-                var filteredMapName = StringBuilderCache.GetStringAndRelease(sb);
 
                 image = await GetImageAsync(GetMapImageURL(filteredMapName))
                      ?? await GetImageAsync(GetMapImageURL(mapName))

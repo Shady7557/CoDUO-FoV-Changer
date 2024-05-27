@@ -1,4 +1,5 @@
 ﻿using CurtLog;
+using StringExtension;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -40,7 +41,7 @@ namespace CoDUO_FoV_Changer
 
             string steamPath;
 
-            if (gamePath.IndexOf("steam", StringComparison.OrdinalIgnoreCase) >= 0 && gamePath.IndexOf("steamapps", StringComparison.OrdinalIgnoreCase) >= 0)
+            if (gamePath.Contains("steam", StringComparison.OrdinalIgnoreCase) && gamePath.Contains("steamapps", StringComparison.OrdinalIgnoreCase))
                 steamPath = DirectoryExtensions.DirectoryExtension.GetParentDirectory(gamePath, 4);
             else steamPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam");
 
@@ -79,7 +80,7 @@ namespace CoDUO_FoV_Changer
 
             string steamPath;
 
-            if (executablePath.IndexOf("steam", StringComparison.OrdinalIgnoreCase) >= 0 && executablePath.IndexOf("steamapps", StringComparison.OrdinalIgnoreCase) >= 0)
+            if (executablePath.Contains("steam", StringComparison.OrdinalIgnoreCase) && executablePath.Contains("steamapps", StringComparison.OrdinalIgnoreCase))
                 steamPath = DirectoryExtensions.DirectoryExtension.GetParentDirectory(executablePath, 4);
             else steamPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam");
 
@@ -165,7 +166,16 @@ namespace CoDUO_FoV_Changer
             Console.WriteLine(injectLog);
             Log.WriteLine(injectLog);
 
-            Injector.Instance.Inject(processId, overlayDllPath);
+            var res = Injector.Instance.Inject(processId, overlayDllPath);
+
+            if (res != DllInjectionResult.Success)
+            {
+                var logMsg = "Failed to inject overlay DLL: " + overlayDllPath + " into process ID: " + processId + ". Result: " + res;
+                Console.WriteLine(logMsg);
+                Log.WriteLine(logMsg);
+
+                return;
+            }
 
             var injectedLog = "Ran Injector.Jnject for Overlay DLL: " + overlayDllPath + " into process ID: " + processId;
 

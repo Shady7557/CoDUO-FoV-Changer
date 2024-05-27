@@ -1,5 +1,6 @@
 ﻿using CurtLog;
 using ShadyPool;
+using StringExtension;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -28,7 +29,7 @@ namespace CoDUO_FoV_Changer
                 var launchFileName = Path.GetFileName(exePath);
 
                 var oldCfg = string.Empty;
-                var gameType = (launchFileName.IndexOf("coduo", StringComparison.OrdinalIgnoreCase) >= 0) ? GameConfig.GameType.CoDUOMP : GameConfig.GameType.CoDMP;
+                var gameType = launchFileName.Contains("coduo", StringComparison.OrdinalIgnoreCase) ? GameConfig.GameType.CoDUOMP : GameConfig.GameType.CoDMP;
 
                 var useSteam = GameConfig.ShouldUseSteam(exePath);
 
@@ -55,12 +56,12 @@ namespace CoDUO_FoV_Changer
                         .Append(" ")
                         .Append(optionalArgs);
 
-                   
+
                     var startInfo = new ProcessStartInfo
                     {
-                        Arguments = argSb.Length > 0 ? argSb.ToString() : string.Empty,
+                        Arguments = argSb.ToString(),
                         FileName = exePath,
-                        WorkingDirectory = launchFileName,
+                        WorkingDirectory = exeDirectory,
                     };
 
                     var gameProc = Process.Start(startInfo);
