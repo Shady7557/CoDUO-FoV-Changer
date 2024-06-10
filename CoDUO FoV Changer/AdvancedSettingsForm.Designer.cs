@@ -32,6 +32,7 @@
             this.GameTimeCheckbox = new System.Windows.Forms.CheckBox();
             this.CancelCloseButton = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
+            this.useSteamOverlayCheckbox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // startIfChangeCheckbox
@@ -64,7 +65,7 @@
             // 
             this.CancelCloseButton.BackColor = System.Drawing.Color.DarkGray;
             this.CancelCloseButton.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.CancelCloseButton.Location = new System.Drawing.Point(3, 106);
+            this.CancelCloseButton.Location = new System.Drawing.Point(3, 132);
             this.CancelCloseButton.Name = "CancelCloseButton";
             this.CancelCloseButton.Size = new System.Drawing.Size(167, 22);
             this.CancelCloseButton.TabIndex = 20;
@@ -76,7 +77,7 @@
             // 
             this.SaveButton.BackColor = System.Drawing.Color.DarkGray;
             this.SaveButton.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.SaveButton.Location = new System.Drawing.Point(3, 77);
+            this.SaveButton.Location = new System.Drawing.Point(3, 103);
             this.SaveButton.Name = "SaveButton";
             this.SaveButton.Size = new System.Drawing.Size(167, 23);
             this.SaveButton.TabIndex = 18;
@@ -84,13 +85,27 @@
             this.SaveButton.UseVisualStyleBackColor = false;
             this.SaveButton.Click += new System.EventHandler(this.SaveRestartAppButton_Click);
             // 
+            // useSteamOverlayCheckbox
+            // 
+            this.useSteamOverlayCheckbox.AutoSize = true;
+            this.useSteamOverlayCheckbox.BackColor = System.Drawing.Color.Transparent;
+            this.useSteamOverlayCheckbox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.useSteamOverlayCheckbox.ForeColor = System.Drawing.Color.Black;
+            this.useSteamOverlayCheckbox.Location = new System.Drawing.Point(3, 71);
+            this.useSteamOverlayCheckbox.Name = "useSteamOverlayCheckbox";
+            this.useSteamOverlayCheckbox.Size = new System.Drawing.Size(146, 17);
+            this.useSteamOverlayCheckbox.TabIndex = 23;
+            this.useSteamOverlayCheckbox.Text = "Ensure Steam overlay";
+            this.useSteamOverlayCheckbox.UseVisualStyleBackColor = false;
+            // 
             // AdvancedSettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
-            this.ClientSize = new System.Drawing.Size(177, 136);
+            this.ClientSize = new System.Drawing.Size(176, 166);
             this.ControlBox = false;
+            this.Controls.Add(this.useSteamOverlayCheckbox);
             this.Controls.Add(this.startIfChangeCheckbox);
             this.Controls.Add(this.GameTimeCheckbox);
             this.Controls.Add(this.CancelCloseButton);
@@ -112,5 +127,6 @@
         internal System.Windows.Forms.Button CancelCloseButton;
         internal System.Windows.Forms.Button SaveButton;
         internal System.Windows.Forms.CheckBox startIfChangeCheckbox;
+        internal System.Windows.Forms.CheckBox useSteamOverlayCheckbox;
     }
 }

@@ -15,8 +15,7 @@ namespace CoDUO_FoV_Changer
 {
     internal class CodMapImage
     {
-        private const string APP_NAME_DASH = "CoDUO-FoV-Changer";
-        private const string BASE_USER_AGENT = APP_NAME_DASH + "/{version} ({os}; {architecture})";
+       
 
         private const string COD_PM_STOCK_MAP_IMAGE_URL = "https://cod.pm/mp_maps/cod1+coduo/stock/{map}.png";
         private const string COD_PM_CUSTOM_MAP_IMAGE_URL = "https://cod.pm/mp_maps/cod1+coduo/custom/{map}.png";
@@ -26,23 +25,7 @@ namespace CoDUO_FoV_Changer
 
         private static readonly string _noImgCachePath = Path.Combine(PathInfos.CachePath, "noimgcache.json");
 
-        private static string _userAgent = string.Empty;
-        private static string UserAgent
-        {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(_userAgent))
-                    _userAgent = StringBuilderCache.GetStringAndRelease(StringBuilderCache.Acquire(56)
-                    .Clear()
-                    .Append(BASE_USER_AGENT)
-                    .Replace("{version}", Application.ProductVersion)
-                    .Replace("{os}", Environment.OSVersion.ToString().Replace(" ", "-"))
-                    .Replace("{architecture}", Environment.Is64BitOperatingSystem ? "x64" : "x86"));
-                
-
-                return _userAgent;
-            }
-        }
+       
 
         private static readonly HttpClient _httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(5) };
 
@@ -119,18 +102,10 @@ namespace CoDUO_FoV_Changer
             {
                 // Set the User-Agent header if necessary
 
-                var hasHeader = false;
-                foreach (var headerValue in _httpClient.DefaultRequestHeaders.UserAgent)
-                {
-                    if ((headerValue?.Product?.Name ?? string.Empty).Contains(APP_NAME_DASH, StringComparison.OrdinalIgnoreCase))
-                    {
-                        hasHeader = true;
-                        break;
-                    }
-                }
+                var hasHeader = UserAgent.ContainsUserAgent(_httpClient.DefaultRequestHeaders.UserAgent);
 
                 if (!hasHeader)
-                    _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
+                    _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent.UserAgentString);
 
                 var getRequest = await _httpClient.GetAsync(url);
 

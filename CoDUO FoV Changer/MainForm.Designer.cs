@@ -61,7 +61,7 @@ namespace CoDUO_FoV_Changer
             this.LaunchParametersLB = new System.Windows.Forms.Label();
             this.HotKeyHandler = new System.Windows.Forms.Timer(this.components);
             this.GameTracker = new System.Windows.Forms.Timer(this.components);
-            this.CurSessionGT = new System.Windows.Forms.Label();
+            this.SessionLabel = new System.Windows.Forms.Label();
             this.GameTimeLabel = new System.Windows.Forms.Label();
             this.ProccessChecker = new System.Windows.Forms.Timer(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
@@ -71,6 +71,8 @@ namespace CoDUO_FoV_Changer
             this.GameTimeLabelTimer = new System.Windows.Forms.Timer(this.components);
             this.GamePIDBox = new CoDUO_FoV_Changer.ProcessMemoryBox();
             this.CoDPictureBox = new System.Windows.Forms.PictureBox();
+            this.SessionTimeLabel = new System.Windows.Forms.Label();
+            this.GameTimeCountLabel = new System.Windows.Forms.Label();
             this.rcStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FoVNumeric)).BeginInit();
             this.FoVMenuStrip.SuspendLayout();
@@ -352,16 +354,16 @@ namespace CoDUO_FoV_Changer
             this.GameTracker.Interval = 5000;
             this.GameTracker.Tick += new System.EventHandler(this.GameTracker_Tick);
             // 
-            // CurSessionGT
+            // SessionLabel
             // 
-            this.CurSessionGT.AutoSize = true;
-            this.CurSessionGT.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.CurSessionGT.ForeColor = System.Drawing.Color.Black;
-            this.CurSessionGT.Location = new System.Drawing.Point(147, 74);
-            this.CurSessionGT.Name = "CurSessionGT";
-            this.CurSessionGT.Size = new System.Drawing.Size(115, 13);
-            this.CurSessionGT.TabIndex = 74;
-            this.CurSessionGT.Text = "Session Time: None";
+            this.SessionLabel.AutoSize = true;
+            this.SessionLabel.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.SessionLabel.ForeColor = System.Drawing.Color.Black;
+            this.SessionLabel.Location = new System.Drawing.Point(147, 74);
+            this.SessionLabel.Name = "SessionLabel";
+            this.SessionLabel.Size = new System.Drawing.Size(85, 13);
+            this.SessionLabel.TabIndex = 74;
+            this.SessionLabel.Text = "Session Time:";
             // 
             // GameTimeLabel
             // 
@@ -370,9 +372,9 @@ namespace CoDUO_FoV_Changer
             this.GameTimeLabel.ForeColor = System.Drawing.Color.Black;
             this.GameTimeLabel.Location = new System.Drawing.Point(147, 61);
             this.GameTimeLabel.Name = "GameTimeLabel";
-            this.GameTimeLabel.Size = new System.Drawing.Size(97, 13);
+            this.GameTimeLabel.Size = new System.Drawing.Size(67, 13);
             this.GameTimeLabel.TabIndex = 73;
-            this.GameTimeLabel.Text = "Game Time: None";
+            this.GameTimeLabel.Text = "Game Time:";
             // 
             // ProccessChecker
             // 
@@ -441,16 +443,40 @@ namespace CoDUO_FoV_Changer
             this.CoDPictureBox.TabIndex = 67;
             this.CoDPictureBox.TabStop = false;
             // 
+            // SessionTimeLabel
+            // 
+            this.SessionTimeLabel.AutoSize = true;
+            this.SessionTimeLabel.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.SessionTimeLabel.ForeColor = System.Drawing.Color.Black;
+            this.SessionTimeLabel.Location = new System.Drawing.Point(229, 74);
+            this.SessionTimeLabel.Name = "SessionTimeLabel";
+            this.SessionTimeLabel.Size = new System.Drawing.Size(31, 13);
+            this.SessionTimeLabel.TabIndex = 78;
+            this.SessionTimeLabel.Text = "None";
+            // 
+            // GameTimeCountLabel
+            // 
+            this.GameTimeCountLabel.AutoSize = true;
+            this.GameTimeCountLabel.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.GameTimeCountLabel.ForeColor = System.Drawing.Color.Black;
+            this.GameTimeCountLabel.Location = new System.Drawing.Point(211, 61);
+            this.GameTimeCountLabel.Name = "GameTimeCountLabel";
+            this.GameTimeCountLabel.Size = new System.Drawing.Size(31, 13);
+            this.GameTimeCountLabel.TabIndex = 79;
+            this.GameTimeCountLabel.Text = "None";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
             this.ClientSize = new System.Drawing.Size(420, 216);
+            this.Controls.Add(this.GameTimeCountLabel);
+            this.Controls.Add(this.SessionTimeLabel);
             this.Controls.Add(this.checkBoxDesktopRes);
             this.Controls.Add(this.AdminLaunchButton);
             this.Controls.Add(this.GamePIDBox);
-            this.Controls.Add(this.CurSessionGT);
+            this.Controls.Add(this.SessionLabel);
             this.Controls.Add(this.GameTimeLabel);
             this.Controls.Add(this.LaunchParametersTB);
             this.Controls.Add(this.LaunchParametersLB);
@@ -505,7 +531,7 @@ namespace CoDUO_FoV_Changer
         internal System.Windows.Forms.Label LaunchParametersLB;
         internal System.Windows.Forms.Timer HotKeyHandler;
         internal System.Windows.Forms.Timer GameTracker;
-        internal System.Windows.Forms.Label CurSessionGT;
+        internal System.Windows.Forms.Label SessionLabel;
         internal System.Windows.Forms.Label GameTimeLabel;
         private ProcessMemoryBox GamePIDBox;
         internal System.Windows.Forms.Timer ProccessChecker;
@@ -522,6 +548,8 @@ namespace CoDUO_FoV_Changer
         internal CheckBox checkBoxDesktopRes;
         private ContextMenuStrip startGameStrip;
         private ToolStripMenuItem serversToolStripMenuItem;
+        internal Label SessionTimeLabel;
+        internal Label GameTimeCountLabel;
     }
 }
 

@@ -6,9 +6,8 @@ using System.IO;
 
 namespace CoDUO_FoV_Changer
 {
-    internal class SteamHack
+    internal class SteamUtil
     {
-        // No, not that kind of hack.
         // This is not a "hack". It's a hacky workaround in the technical sense.
         // We are not hacking anything. There's no cheating. Please read the code.
 
@@ -26,6 +25,58 @@ namespace CoDUO_FoV_Changer
         // This also now injects the Steam overlay into the game process, to ensure there's no
         // apparent difference between launching the game through this app or through Steam itself.
 
+        public static string GetSteamDirectory(string gamePath = "")
+        {
+            var steamPath = string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(gamePath))
+            {
+                if (gamePath.Contains("steam", StringComparison.OrdinalIgnoreCase) && gamePath.Contains("steamapps", StringComparison.OrdinalIgnoreCase))
+                {
+                    for (int i = 0; i < 10; i++)
+                    {
+                        steamPath = DirectoryExtensions.DirectoryExtension.GetParentDirectory(gamePath, i);
+
+                        if (steamPath.EndsWith("steam", StringComparison.OrdinalIgnoreCase))
+                            break;
+
+                    }
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(steamPath) || !Directory.Exists(steamPath))
+            {
+                steamPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam");
+
+                if (!Directory.Exists(steamPath))
+                    steamPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Steam");
+
+            }
+
+            return steamPath;
+        }
+
+        public static string GetSteamExecutablePath(string gamePath = "")
+        {
+            var steamPath = GetSteamDirectory(gamePath);
+
+            return Path.Combine(steamPath, "Steam.exe");
+        }
+
+        public static bool TryGetSteamDirectory(out string steamPath, string gamePath = "")
+        {
+            steamPath = GetSteamDirectory(gamePath);
+
+            return !string.IsNullOrWhiteSpace(steamPath) && Directory.Exists(steamPath);
+        }
+
+        public static bool TryGetSteamExecutablePath(out string steamExePath, string gamePath = "")
+        {
+            steamExePath = GetSteamExecutablePath(gamePath);
+
+            return !string.IsNullOrWhiteSpace(steamExePath) && File.Exists(steamExePath);
+        }
+
         public static bool HasSteamDll(string gamePath)
         {
             if (string.IsNullOrWhiteSpace(gamePath))
@@ -39,17 +90,9 @@ namespace CoDUO_FoV_Changer
             if (HasSteamDll(gamePath))
                 return;
 
-            string steamPath;
+            var steamPath = GetSteamDirectory();
 
-            if (gamePath.Contains("steam", StringComparison.OrdinalIgnoreCase) && gamePath.Contains("steamapps", StringComparison.OrdinalIgnoreCase))
-                steamPath = DirectoryExtensions.DirectoryExtension.GetParentDirectory(gamePath, 4);
-            else steamPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam");
-
-            if (!Directory.Exists(steamPath))
-                steamPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Steam");
-            
-
-            if (!Directory.Exists(steamPath))
+            if (string.IsNullOrWhiteSpace(steamPath) || !Directory.Exists(steamPath))
                 return; // Could not find steam anywhere!
 
             var steamDllPath = Path.Combine(steamPath, "steam.dll");
@@ -78,17 +121,9 @@ namespace CoDUO_FoV_Changer
 
             var executablePath = process.MainModule.FileName;
 
-            string steamPath;
+            var steamPath = GetSteamDirectory();
 
-            if (executablePath.Contains("steam", StringComparison.OrdinalIgnoreCase) && executablePath.Contains("steamapps", StringComparison.OrdinalIgnoreCase))
-                steamPath = DirectoryExtensions.DirectoryExtension.GetParentDirectory(executablePath, 4);
-            else steamPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam");
-
-            if (!Directory.Exists(steamPath))
-                steamPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Steam");
-
-
-            if (!Directory.Exists(steamPath))
+            if (string.IsNullOrWhiteSpace(steamPath) || !Directory.Exists(steamPath))
             {
                 var logMsg = "Could not find Steam, final path: " + steamPath;
 

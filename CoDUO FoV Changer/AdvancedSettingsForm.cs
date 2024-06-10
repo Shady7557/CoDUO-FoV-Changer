@@ -15,12 +15,14 @@ namespace CoDUO_FoV_Changer
         {
             GameTimeCheckbox.Checked = settings.TrackGameTime;
             startIfChangeCheckbox.Checked = settings.LaunchWhenSelectedExeChanged;
+            useSteamOverlayCheckbox.Checked = settings.UseSteamOverlay;
         }
 
         private void SaveRestartAppButton_Click(object sender, EventArgs e)
         {
             settings.TrackGameTime = GameTimeCheckbox.Checked;
             settings.LaunchWhenSelectedExeChanged = startIfChangeCheckbox.Checked;
+            settings.UseSteamOverlay = useSteamOverlayCheckbox.Checked;
 
             if (settings.HasChanged)
                 Settings.SaveInstanceToDisk();

@@ -15,6 +15,7 @@ namespace CoDUO_FoV_Changer
 {
     internal class PathScanner
     {
+        [ThreadStatic]
         private static readonly StringBuilder _stringBuilder = new StringBuilder();
 
         private static List<string> GetPotentialPathsFromSubkey(string subKey, RegistryKey regKey, bool recursive = false)

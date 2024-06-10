@@ -18,6 +18,7 @@ using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
 using CoDUO_FoV_Changer.Util;
 using StringExtension;
+using System.Net.Http;
 
 namespace CoDUO_FoV_Changer
 {
@@ -224,8 +225,10 @@ namespace CoDUO_FoV_Changer
         private void ToggleGameTracking(bool desired)
         {
             GameTimeLabel.Visible = desired;
-            CurSessionGT.Visible = desired;
+            SessionLabel.Visible = desired;
             GameTracker.Enabled = desired;
+            GameTimeCountLabel.Visible = desired;
+            SessionTimeLabel.Visible = desired;
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -340,7 +343,7 @@ namespace CoDUO_FoV_Changer
                 }
                 finally { Pool.Free(ref argsSB); }
 
-                StartUpdateChecking();
+                Task.Run(() => StartUpdateChecking());
 
                 Task.Run(() =>
                 {
@@ -457,7 +460,7 @@ namespace CoDUO_FoV_Changer
         }
      
 
-        public void StartGame(bool forceSelectionDialog = false, string additionalArgs = "")
+        public async void StartGame(bool forceSelectionDialog = false, string additionalArgs = "")
         {
             var shiftMod = ModifierKeys == Keys.Shift;
 
@@ -473,7 +476,7 @@ namespace CoDUO_FoV_Changer
                 if (ipFDialog.ShowDialog() != DialogResult.OK)
                     return;
 
-                if (!ipFDialog.FileName.EndsWith(".exe"))
+                if (!ipFDialog.FileName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                 {
                     MessageBox.Show("Selected file is not an executable.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
@@ -491,7 +494,7 @@ namespace CoDUO_FoV_Changer
 
             settings.CommandLine = LaunchParametersTB.Text;
 
-            Task.Run(() =>
+            await Task.Run(() =>
             {
                 var forceStartArgs = string.Empty;
 
@@ -499,9 +502,10 @@ namespace CoDUO_FoV_Changer
 
                 try
                 {
+                    sb.Clear();
+
                     if (checkBoxDesktopRes.Checked)
                         sb
-                           .Clear()
                            .Append("+set r_mode -1 +set r_customwidth ")
                            .Append(DesktopWidth)
                            .Append(" +set r_customheight ")
@@ -525,7 +529,23 @@ namespace CoDUO_FoV_Changer
                 Log.WriteLine(startGameLog);
                 Console.WriteLine(startGameLog);
 
-                GameStarter.StartGame(settings.SelectedExecutablePath, LaunchParametersTB.Text, forceStartArgs);
+                var startStatus = GameStarter.StartGame(settings.SelectedExecutablePath, LaunchParametersTB.Text, forceStartArgs);
+
+                if (startStatus is GameStarter.StartStatus.SteamNotRunning)
+                {
+
+                    var msgBoxMsg = string.Empty;
+
+                    if (SteamUtil.TryGetSteamExecutablePath(out var steamExe, settings.BaseGamePath))
+                    {
+                        msgBoxMsg = "An attempt to start Steam has been made. Wait until it has started and try launching the game again.";
+                        Process.Start(steamExe);
+                    }
+                    else msgBoxMsg = "Please start Steam and try launching the game again.";
+
+                    MessageBox.Show("Steam not running." + Environment.NewLine + msgBoxMsg, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
             });
 
            
@@ -700,23 +720,20 @@ namespace CoDUO_FoV_Changer
             }
         }
 
-        private void StartUpdateChecking()
+        private async void StartUpdateChecking()
         {
-            Task.Run(() =>
+            _needsUpdate = await CheckUpdates();
+
+            if (!IsDev)
             {
-                _needsUpdate = CheckUpdates();
+                if (UpdateButton.InvokeRequired) UpdateButton.BeginInvoke((MethodInvoker)delegate { UpdateButton.Visible = _needsUpdate; });
+                else UpdateButton.Visible = _needsUpdate;
+            }
 
-                if (!IsDev)
-                {
-                    if (UpdateButton.InvokeRequired) UpdateButton.BeginInvoke((MethodInvoker)delegate { UpdateButton.Visible = _needsUpdate; });
-                    else UpdateButton.Visible = _needsUpdate;
-                }
-
-                SetLabelText(CheckUpdatesLabel, _needsUpdate ? "Updates available!" : "No updates found. Click to check again.");
-            });
+            SetLabelText(CheckUpdatesLabel, _needsUpdate ? "Updates available!" : "No updates found. Click to check again.");
         }
 
-        private bool CheckUpdates()
+        private async Task<bool> CheckUpdates()
         {
             try
             {
@@ -727,14 +744,11 @@ namespace CoDUO_FoV_Changer
 
                 try
                 {
-                    using (var wc = new WebClient())
+
+                    using (var httpClient = new HttpClient())
                     {
-                        wc.Headers.Add("user-agent", sb.Clear().Append("CoDUO FoV Changer/").Append(Application.ProductVersion).ToString());
-                        using (var reader = new StreamReader(wc.OpenRead(UPDATE_URI)))
-                        {
-                            try { version = reader?.ReadToEnd() ?? string.Empty; }
-                            finally { reader.Close(); }
-                        }
+                        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent.UserAgentString);
+                        version = await httpClient.GetStringAsync(UPDATE_URI);
                     }
                 }
                 finally { Pool.Free(ref sb); }
@@ -878,7 +892,7 @@ namespace CoDUO_FoV_Changer
             }
 
             CheckUpdatesLabel.Text = "Checking for updates...";
-            StartUpdateChecking();
+            Task.Run(() => StartUpdateChecking());
             _lastUpdateCheck = now;
         }
 
@@ -897,12 +911,21 @@ namespace CoDUO_FoV_Changer
                 var totalMinutesCur = Math.Floor(spanCurrent.TotalMinutes);
                 var totalHoursCur = Math.Floor(spanCurrent.TotalHours);
 
-                if (settings.GameTime >= 1 && totalMinutes < 1) GameTimeLabel.Text = "Game Time: " + settings.GameTime.ToString("N0") + " seconds";
-                if (totalMinutes >= 1 && totalHours < 1) GameTimeLabel.Text = "Game Time: " + totalMinutes.ToString("N0") + " minutes";
-                if (totalHours >= 1) GameTimeLabel.Text = "Game Time: " + totalHours.ToString("N0") + " hours";
-                if (spanCurrent.TotalSeconds > 0 && totalMinutesCur < 1) CurSessionGT.Text = "Session Time: " + spanCurrent.TotalSeconds.ToString("N0") + " seconds";
-                if (totalMinutesCur >= 1 && totalHoursCur < 1) CurSessionGT.Text = "Session Time: " + totalMinutesCur.ToString("N0") + " minutes";
-                if (totalHoursCur >= 1) CurSessionGT.Text = "Session Time: " + totalHoursCur.ToString("N0") + " hours";
+                var gameTimeTxt = string.Empty;
+                var sessionTimeTxt = string.Empty;
+              
+
+                if (settings.GameTime >= 1 && totalMinutes < 1) gameTimeTxt = settings.GameTime.ToString("N0") + " seconds";
+                if (totalMinutes >= 1 && totalHours < 1) gameTimeTxt = totalMinutes.ToString("N0") + " minutes";
+                if (totalHours >= 1) gameTimeTxt = totalHours.ToString("N0") + " hours";
+
+                GameTimeCountLabel.Text = gameTimeTxt;
+
+                if (spanCurrent.TotalSeconds > 0 && totalMinutesCur < 1) sessionTimeTxt = spanCurrent.TotalSeconds.ToString("N0") + " seconds";
+                if (totalMinutesCur >= 1 && totalHoursCur < 1) sessionTimeTxt = totalMinutesCur.ToString("N0") + " minutes";
+                if (totalHoursCur >= 1) sessionTimeTxt = totalHoursCur.ToString("N0") + " hours";
+
+                SessionTimeLabel.Text = sessionTimeTxt;
             }
             catch (Exception ex)
             {

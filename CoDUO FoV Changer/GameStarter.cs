@@ -1,17 +1,35 @@
 ﻿using CurtLog;
-using ShadyPool;
+using ProcessExtensions;
 using StringExtension;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace CoDUO_FoV_Changer
 {
     internal class GameStarter
     {
-        public static bool StartGame(string exePath, string optionalArgs = "", string forcedArgs = "")
+
+        [ThreadStatic]
+        private static readonly ProcessStartInfo _startInfo = new ProcessStartInfo();
+
+        [ThreadStatic]
+        private static readonly StringBuilder _stringBuilder = new StringBuilder();
+
+        // enum for result of StartGame:
+
+        public enum StartStatus
+        {
+            GenericFailure,
+            Success,
+            SteamNotRunning,
+            FileNotFound
+        }
+
+        public static StartStatus StartGame(string exePath, string optionalArgs = "", string forcedArgs = "")
         {
             if (string.IsNullOrWhiteSpace(exePath))
                 throw new ArgumentNullException(nameof(exePath));
@@ -19,7 +37,7 @@ namespace CoDUO_FoV_Changer
             try
             {
                 if (!File.Exists(exePath))
-                    return false;
+                    return StartStatus.FileNotFound;
 
                 var exeDirectory = Path.GetDirectoryName(exePath);
 
@@ -33,53 +51,48 @@ namespace CoDUO_FoV_Changer
 
                 var useSteam = GameConfig.ShouldUseSteam(exePath);
 
-                var sb = Pool.Get<StringBuilder>();
 
                 try
                 {
-
-                    try 
+                    if (useSteam)
                     {
-                        if (useSteam)
-                            SteamHack.EnsureSteamDll(exeDirectory);
+                        SteamUtil.EnsureSteamDll(exeDirectory);
+
+                        if (!ProcessExtension.IsAnyProcessRunning("steam"))
+                            return StartStatus.SteamNotRunning;
+
                     }
-                    catch(Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                        Log.WriteLine(ex.ToString());
-                    }
-                   
-
-                    var argSb = sb
-                        .Clear()
-                        .Append(forcedArgs)
-                        .Append(" ")
-                        .Append(optionalArgs);
-
-
-                    var startInfo = new ProcessStartInfo
-                    {
-                        Arguments = argSb.ToString(),
-                        FileName = exePath,
-                        WorkingDirectory = exeDirectory,
-                    };
-
-                    var gameProc = Process.Start(startInfo);
-
-                    try 
-                    {
-                        if (useSteam)
-                            SteamHack.EnsureSteamOverlay(gameProc.Id, gameType);
-                    }
-                    catch(Exception ex)
-                    {
-                        Console.Write(ex.ToString());
-                        Log.WriteLine(ex.ToString());
-                    }
-                    
                 }
-                finally { Pool.Free(ref sb); }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    Log.WriteLine(ex.ToString());
+                }
 
+
+                var argSb = _stringBuilder
+                  .Clear()
+                  .Append(forcedArgs)
+                  .Append(" ")
+                  .Append(optionalArgs);
+
+
+                _startInfo.Arguments = argSb.ToString();
+                _startInfo.FileName = exePath;
+                _startInfo.WorkingDirectory = exeDirectory;
+
+                var gameProc = Process.Start(_startInfo);
+
+                try
+                {
+                    if (useSteam && Settings.Instance.UseSteamOverlay)
+                        SteamUtil.EnsureSteamOverlay(gameProc.Id, gameType);
+                }
+                catch (Exception ex)
+                {
+                    Console.Write(ex.ToString());
+                    Log.WriteLine(ex.ToString());
+                }
             }
             catch (Exception ex)
             {
@@ -88,7 +101,7 @@ namespace CoDUO_FoV_Changer
                 Log.WriteLine("Failed to start process game process: " + Environment.NewLine + ex.ToString());
             }
 
-            return false;
+            return StartStatus.Success;
         }
     }
 }

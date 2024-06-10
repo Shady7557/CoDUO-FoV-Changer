@@ -202,6 +202,13 @@ namespace CoDUO_FoV_Changer
             set { SetConfigField(ref _favoriteServers, value); }
         }
 
+        private bool _useSteamOverlay;
+        public bool UseSteamOverlay
+        {
+            get { return _useSteamOverlay; }
+            set { SetConfigField(ref _useSteamOverlay, value); }
+        }
+
         public string SelectedExecutablePath => Path.Combine(_baseGamePath, SelectedExecutable);
 
 
@@ -308,6 +315,7 @@ namespace CoDUO_FoV_Changer
             _launchWhenSelectedExeChanged = false;
             _gameExes = new List<string>();
             _favoriteServers = new List<FavoriteServer>();
+            _useSteamOverlay = true;
         }
 
         public static Settings Instance { get { return instance; } }

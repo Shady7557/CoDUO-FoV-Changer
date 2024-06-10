@@ -83,6 +83,7 @@
     <Compile Include="AdvancedSettingsForm.Designer.cs">
       <DependentUpon>AdvancedSettingsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="UserAgent.cs" />
     <Compile Include="Util\StringExtensions.cs" />
     <Compile Include="Util\BitmapExtensions.cs" />
     <Compile Include="CDKeyManagerForm.cs">
@@ -166,7 +167,7 @@
       <DependentUpon>SingleplayerForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\SplitButton.cs" />
-    <Compile Include="SteamHack.cs" />
+    <Compile Include="SteamUtil.cs" />
     <Compile Include="TimerEx.cs" />
     <Compile Include="Util\ScreenUtil.cs" />
     <Compile Include="Util\StringBuilderCache.cs" />

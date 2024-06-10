@@ -1,5 +1,6 @@
 ﻿using CurtLog;
 using ShadyPool;
+using StringExtension;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -321,7 +322,7 @@ namespace CoDUO_FoV_Changer
             if (string.IsNullOrWhiteSpace(exePath))
                 throw new ArgumentNullException(nameof(exePath));
 
-            return exePath.IndexOf("steamapps", StringComparison.OrdinalIgnoreCase) >= 0;
+            return exePath.Contains("steamapps", StringComparison.OrdinalIgnoreCase);
         }
 
     }

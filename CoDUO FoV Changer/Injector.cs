@@ -5,6 +5,8 @@ using System.Text;
 
 namespace CoDUO_FoV_Changer
 {
+    // Used for Steam Overlay injection / to make the Steam Overlay work.
+
     public enum DllInjectionResult
     {
         DllNotFound,
