@@ -4,11 +4,14 @@ Includes a Field of View (FoV) changer for Call of Duty and Call of Duty: United
 
 Useful for playing in widescreen resolutions in a game that only natively supports 4:3 aspect ratios. This allows you to set your FoV manually, to prevent your screen from being overly zoomed in when playing in widescreen. It also works as an FoV changer even if you want to keep the 4:3 resolution.
 
-This project uses another one of my public projects, a very simple lightweight console app by the name of "Mover". You can find it here: https://github.com/Shady7557/Mover
+This project uses another one of my public projects, a very simple lightweight console app by the name of "Mover". You can find it here: [Mover](https://github.com/Shady7557/Mover)
 Mover is used purely for updates since this app cannot update itself (executable would be in use).
 
 
-Official Download Link: https://github.com/Shady7557/CoDUO-FoV-Changer/releases/latest
+Official Download Link can be found under [Releases](https://github.com/Shady7557/CoDUO-FoV-Changer/releases/latest)
+
+Lastly, if you enjoy Call of Duty: United Offensive's multiplayer, you may be interested in my map archive. This map archive contains hundreds of custom, user-made maps. Many of these are now very hard to find online and a centralized repository for these maps is increasingly necessary. Find it here:
+[CoDUO Map Archive](https://github.com/Shady7557/CoDUO-Map-Archive)
 
 # License
 ```
