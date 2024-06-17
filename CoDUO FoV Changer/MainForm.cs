@@ -43,6 +43,8 @@ namespace CoDUO_FoV_Changer
 
         private const string GITHUB_RELEASES_URI = @"https://github.com/Shady7557/CoDUO-FoV-Changer/releases";
 
+        private const string GITHUB_MAP_ARCHIVE_URI = @"https://github.com/Shady7557/CoDUO-Map-Archive";
+
         public float CurrentFoV
         {
             get;
@@ -140,6 +142,9 @@ namespace CoDUO_FoV_Changer
             for (int i = 0; i < settings.GameExes.Count; i++)
             {
                 var exe = settings.GameExes[i];
+
+                if (exe.Contains("sp.exe", StringComparison.OrdinalIgnoreCase)) // Skip single player
+                    continue;
 
                 var exePath = Path.Combine(settings.BaseGamePath, exe);
 
@@ -241,16 +246,30 @@ namespace CoDUO_FoV_Changer
 
                 Text = Application.ProductName;
 
-                if (!string.IsNullOrWhiteSpace(settings?.BaseGamePath))
+                var basePathExists = !string.IsNullOrWhiteSpace(settings?.BaseGamePath) && Directory.Exists(settings.BaseGamePath);
+
+                if (basePathExists)
+                {
+                    // Update list of game exes from base path
                     UpdateGameExes(settings.BaseGamePath);
 
 
-                // Set the initial exe if one was not already selected.
-                if (settings?.GameExes != null && settings.GameExes.Count > 0 
-                    && (string.IsNullOrWhiteSpace(settings.SelectedExecutablePath) || !File.Exists(settings.SelectedExecutablePath)))
-                {
-                    settings.SelectedExecutable = settings.GameExes[0];
+                    // Set the initial exe if one was not already selected.
+
+                    if (settings?.GameExes != null && settings.GameExes.Count > 0
+                  && (string.IsNullOrWhiteSpace(settings.SelectedExecutablePath) || !File.Exists(settings.SelectedExecutablePath)))
+                    {
+                        var firstExe = settings.GameExes[0];
+
+                        var exePath = Path.Combine(settings.BaseGamePath, firstExe);
+
+                        if (File.Exists(exePath))
+                            settings.SelectedExecutable = settings.GameExes[0];
+                    }
                 }
+
+
+              
 
              
                 // Set the button to launch the last selected favorite server, if one was selected.
@@ -343,15 +362,11 @@ namespace CoDUO_FoV_Changer
                 }
                 finally { Pool.Free(ref argsSB); }
 
-                Task.Run(() => StartUpdateChecking());
-
                 Task.Run(() =>
                 {
                     try
                     {
-
-
-                        if (string.IsNullOrEmpty(settings.BaseGamePath) || !Directory.Exists(settings.BaseGamePath))
+                        if (!basePathExists)
                         {
                             var scannedPath = string.Empty;
 
@@ -362,10 +377,12 @@ namespace CoDUO_FoV_Changer
                                 Log.WriteLine(ex.ToString());
                             }
 
+                            var finalPath = string.Empty;
+
                             if (!string.IsNullOrEmpty(scannedPath))
                             {
-                                MessageBox.Show("Automatically detected game path: " + Environment.NewLine + scannedPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                settings.BaseGamePath = scannedPath;
+                                finalPath = Path.GetDirectoryName(scannedPath);
+                                MessageBox.Show("Automatically detected game path: " + Environment.NewLine + finalPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
                             else
                             {
@@ -377,15 +394,15 @@ namespace CoDUO_FoV_Changer
                                     return;
                                 }
 
-                                var selectedPath = ipDialog.SelectedPath;
-                                settings.BaseGamePath = selectedPath;
+                                finalPath = Path.GetDirectoryName(scannedPath);
 
-                                // Improve this, but it works for now:
-                                UpdateGameExes(selectedPath);
-                               
 
-                                MessageBox.Show("Set install path to: " + selectedPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                MessageBox.Show("Set install path to: " + finalPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
+
+                            UpdateGameExes(finalPath);
+                            settings.BaseGamePath = finalPath;
+
                         }
                     }
                     catch (Exception ex)
@@ -394,6 +411,8 @@ namespace CoDUO_FoV_Changer
                         Log.WriteLine("An exception happened on Install Path code:" + Environment.NewLine + ex.ToString());
                     }
                 });
+
+                Task.Run(() => StartUpdateChecking());
 
                 UpdateProcessBox();
 
@@ -538,12 +557,12 @@ namespace CoDUO_FoV_Changer
 
                     if (SteamUtil.TryGetSteamExecutablePath(out var steamExe, settings.BaseGamePath))
                     {
-                        msgBoxMsg = "An attempt to start Steam has been made. Wait until it has started and try launching the game again.";
+                        msgBoxMsg = "An attempt to start Steam has been made. Wait until it has fully started and try launching the game again.";
                         Process.Start(steamExe);
                     }
                     else msgBoxMsg = "Please start Steam and try launching the game again.";
 
-                    MessageBox.Show("Steam not running." + Environment.NewLine + msgBoxMsg, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Steam is not running." + Environment.NewLine + msgBoxMsg, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
             });
@@ -677,18 +696,18 @@ namespace CoDUO_FoV_Changer
                 TryParseKeys(settings.HotKeyUp, out var up);
                 TryParseKeys(settings.HotKeyDown, out var down);
 
-                if (HotkeyHandler.IsKeyPushedDown(modifier))
+                if (!HotkeyHandler.IsKeyPushedDown(modifier))
+                    return;
+
+                if (HotkeyHandler.IsKeyPushedDown(up))
                 {
-                    if (HotkeyHandler.IsKeyPushedDown(up))
-                    {
-                        SetFoVNumeric(FoVNumeric.Value + 1);
-                        _lastHotkey = now;
-                    }
-                    if (HotkeyHandler.IsKeyPushedDown(down))
-                    {
-                        SetFoVNumeric(FoVNumeric.Value - 1);
-                        _lastHotkey = now;
-                    }
+                    SetFoVNumeric(FoVNumeric.Value + 1);
+                    _lastHotkey = now;
+                }
+                if (HotkeyHandler.IsKeyPushedDown(down))
+                {
+                    SetFoVNumeric(FoVNumeric.Value - 1);
+                    _lastHotkey = now;
                 }
             });
         }
@@ -1208,9 +1227,9 @@ namespace CoDUO_FoV_Changer
 
         private void singleplayerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var ins = GetInstance<SingleplayerForm>();
+            var ins = GetInstance<GameFixesForm>();
 
-            if (ins == null) new SingleplayerForm() { Owner = this, AttachToOwner = true }.Show();
+            if (ins == null) new GameFixesForm() { Owner = this, AttachToOwner = true }.Show();
             else ins.UnminimizeAndSelect();
         }
 
@@ -1231,5 +1250,8 @@ namespace CoDUO_FoV_Changer
             if (ins == null) new ServersForm() { Owner = this, AttachToOwner = true }.Show();
             else ins.UnminimizeAndSelect();
         }
+
+        private void mapArchiveToolStripMenuItem_Click(object sender, EventArgs e) => Process.Start(GITHUB_MAP_ARCHIVE_URI);
+        
     }
 }

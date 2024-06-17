@@ -1,7 +1,6 @@
 ﻿using CoDUO_FoV_Changer.Util;
 using CurtLog;
 using Newtonsoft.Json;
-using StringExtension;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -9,7 +8,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace CoDUO_FoV_Changer
 {

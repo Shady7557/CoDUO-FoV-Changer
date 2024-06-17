@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ServersForm));
             this.RefreshButton = new System.Windows.Forms.Button();
             this.ServerListView = new CoDUO_FoV_Changer.Controls.ServerListView();
@@ -65,9 +66,12 @@
             this.ConnectServerButton = new System.Windows.Forms.Button();
             this.FavoriteServerCheckbox = new System.Windows.Forms.CheckBox();
             this.FavoritesButton = new System.Windows.Forms.Button();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.MaxPingNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.MapImageBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.CoDPictureBox)).BeginInit();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // RefreshButton
@@ -103,6 +107,7 @@
             this.ServerListView.View = System.Windows.Forms.View.Details;
             this.ServerListView.SelectedIndexChanged += new System.EventHandler(this.ServerListView_SelectedIndexChanged);
             this.ServerListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.ServerListView_MouseDoubleClick);
+            this.ServerListView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ServerListView_MouseDown);
             // 
             // columnHeader1
             // 
@@ -441,6 +446,20 @@
             this.FavoritesButton.UseVisualStyleBackColor = false;
             this.FavoritesButton.Click += new System.EventHandler(this.FavoritesButton_Click);
             // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItem1});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(204, 48);
+            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(203, 22);
+            this.toolStripMenuItem1.Text = "Copy {COLUMN_NAME}";
+            // 
             // ServersForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -484,6 +503,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.MaxPingNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.MapImageBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.CoDPictureBox)).EndInit();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -527,5 +547,7 @@
         private System.Windows.Forms.CheckBox FavoriteServerCheckbox;
         private System.Windows.Forms.Button FavoritesButton;
         private System.Windows.Forms.ColumnHeader columnHeader9;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
     }
 }

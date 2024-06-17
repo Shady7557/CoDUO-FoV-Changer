@@ -24,6 +24,8 @@ namespace CoDUO_FoV_Changer
             CoDUOMP
         }
 
+        public static bool ConfigFileExists(GameType gameType) => File.Exists(GetConfigPath(gameType));
+
         public static string GetConfigFileName(GameType gameType)
         {
             string configName;

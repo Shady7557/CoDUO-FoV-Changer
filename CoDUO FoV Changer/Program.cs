@@ -28,11 +28,22 @@ namespace CoDUO_FoV_Changer
             {
                 if (!_isElevated.HasValue)
                 {
-                    try { _isElevated = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator); } //unclear if this will ever throw an exception, but it's better to be safe, aye?
+                    try 
+                    { 
+                        _isElevated = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator); 
+                    } //unclear if this will ever throw an exception, but it's better to be safe, aye?
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.ToString());
-                        _isElevated = null;
+                        try 
+                        { 
+                            if (Log.IsInitialized)
+                                Log.WriteLine(ex.ToString());
+                        }
+                        finally
+                        {
+                            _isElevated = null;
+                            Console.WriteLine(ex.ToString());
+                        }
                     }
                 }
                 return _isElevated ?? false;
@@ -44,8 +55,23 @@ namespace CoDUO_FoV_Changer
         {
             get
             {
-                if (string.IsNullOrEmpty(_currentUserSID))
-                    _currentUserSID = WindowsIdentity.GetCurrent().User.Value;
+                try
+                {
+                    if (string.IsNullOrEmpty(_currentUserSID))
+                        _currentUserSID = WindowsIdentity.GetCurrent().User.Value;
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    try 
+                    {
+                        if (Log.IsInitialized)
+                            Log.WriteLine(ex.ToString());
+                    }
+                    catch(Exception ex2) { Console.WriteLine(ex2.ToString());}
+
+                }
+               
 
 
                 return _currentUserSID;
@@ -119,7 +145,6 @@ namespace CoDUO_FoV_Changer
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.ToString());
-                        MessageBox.Show(ex.ToString());
                         Application.Exit();
                     }
 
@@ -164,23 +189,42 @@ namespace CoDUO_FoV_Changer
 
                     using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(name))
                     {
-                        if (stream == null)
-                            throw new FileLoadException(name);
-
-                        var data = new byte[stream.Length];
-                        stream.Read(data, 0, data.Length);
-
                         try
                         {
-                            File.WriteAllBytes(sb.Clear().Append(appPath).Append("\\").Append(resName).ToString(), data);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.ToString());
-                            //what else are we gonna do, log it?
-                        }
+                            if (stream == null)
+                                throw new FileLoadException(name);
 
-                        return Assembly.Load(data);
+                            var data = new byte[stream.Length];
+                            stream.Read(data, 0, data.Length);
+
+                            try
+                            {
+                                var fileNamePath = sb.Clear().Append(appPath).Append("\\").Append(resName).ToString();
+                                File.WriteAllBytes(fileNamePath, data);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                                try
+                                {
+                                    if (Log.IsInitialized)
+                                        Log.WriteLine(ex.ToString());
+                                }
+                                catch (Exception ex2) { Console.WriteLine(ex2.ToString()); }
+
+                            }
+
+                            return Assembly.Load(data);
+                        }
+                        catch(Exception ex) 
+                        {
+                            Console.WriteLine(ex.ToString()); 
+                            try { 
+                                if (Log.IsInitialized) 
+                                    Log.WriteLine(ex.ToString()); 
+                            } 
+                            catch (Exception ex2) { Console.WriteLine(ex2.ToString());}
+                        }
                     }
 
                 }
@@ -191,7 +235,12 @@ namespace CoDUO_FoV_Changer
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                MessageBox.Show(ex.ToString(), Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                try
+                {
+                    if (Log.IsInitialized)
+                        Log.WriteLine(ex.ToString());
+                }
+                catch (Exception ex2) { Console.WriteLine(ex2.ToString()); }
             }
 
             return null;
@@ -245,7 +294,11 @@ namespace CoDUO_FoV_Changer
                         break;
 
                     }
-                    catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+                    catch (Exception ex) 
+                    { 
+                        Console.WriteLine(ex.ToString());
+                        Log.WriteLine(ex.ToString());
+                    }
                 }
             }
             catch(Exception ex)

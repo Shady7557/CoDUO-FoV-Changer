@@ -160,11 +160,11 @@
     <Compile Include="SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="SingleplayerForm.cs">
+    <Compile Include="GameFixesForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SingleplayerForm.Designer.cs">
-      <DependentUpon>SingleplayerForm.cs</DependentUpon>
+    <Compile Include="GameFixesForm.Designer.cs">
+      <DependentUpon>GameFixesForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\SplitButton.cs" />
     <Compile Include="SteamUtil.cs" />
@@ -205,8 +205,8 @@
       <DependentUpon>SettingsForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="SingleplayerForm.resx">
-      <DependentUpon>SingleplayerForm.cs</DependentUpon>
+    <EmbeddedResource Include="GameFixesForm.resx">
+      <DependentUpon>GameFixesForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

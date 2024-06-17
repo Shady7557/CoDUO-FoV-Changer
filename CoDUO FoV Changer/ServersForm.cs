@@ -3,6 +3,7 @@ using CoDUO_FoV_Changer.Util;
 using CurtLog;
 using ProcessExtensions;
 using ShadyPool;
+using StringExtension;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -277,6 +278,7 @@ namespace CoDUO_FoV_Changer
         private void ServersForm_Load(object sender, EventArgs e)
         {
             ServerListFilter = new ServerListViewFilter(ServerListView);
+            ServerListView.ContextMenuStrip = contextMenuStrip1;
 
             ServerListView.ColumnClick += new ColumnClickEventHandler(ColumnClick_SortHandler);
             PlayerListView.ColumnClick += new ColumnClickEventHandler(ColumnClick_SortHandler);
@@ -304,7 +306,15 @@ namespace CoDUO_FoV_Changer
                 {
                     var infos = await CodPmApi.GetMasterList(GameName, GameVersion);
 
-                    BeginInvoke((MethodInvoker)delegate { RefreshAllServers(infos); });
+                    BeginInvoke((MethodInvoker)async delegate 
+                    {
+                        try { await RefreshAllServers(infos); }
+                        catch(Exception ex) 
+                        {
+                            Console.WriteLine(ex.ToString());
+                            Log.WriteLine(ex.ToString());
+                        }
+                    });
                 }
                 catch (Exception ex)
                 {
@@ -1105,6 +1115,39 @@ namespace CoDUO_FoV_Changer
         private void UpdateFavoritesButtonText()
         {
             FavoritesButton.Text = ServerListFilter.OnlyFavorites ? "Show All" : "Show Favorites";
+        }
+
+        private void ServerListView_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right || ServerListView.Items.Count < 1)
+            {
+                contextMenuStrip1.Hide();
+                return;
+            }
+
+
+            var hitTestInfo = ServerListView.HitTest(e.X, e.Y);
+            var clickedItem = hitTestInfo.SubItem;
+            var clickedSubItemIndex = hitTestInfo.Item?.SubItems.IndexOf(hitTestInfo.SubItem) ?? -1;
+
+            if (clickedItem is null || clickedSubItemIndex < 0)
+            {
+                contextMenuStrip1.Hide();
+                return;
+            }
+
+            contextMenuStrip1.Items[0].Text = "Copy " + ServerListView.Columns[clickedSubItemIndex].Text;
+
+            Clipboard.SetText(clickedItem.Text);
+
+
+        }
+
+        private void contextMenuStrip1_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (ServerListView?.Items?.Count < 1 || (sender as ContextMenuStrip).Items[0].Text.Contains("COLUMN_NAME", StringComparison.OrdinalIgnoreCase))
+                e.Cancel = true;
+            
         }
     }
 }

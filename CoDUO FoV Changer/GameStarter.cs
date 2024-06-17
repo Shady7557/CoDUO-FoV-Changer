@@ -1,24 +1,17 @@
 ﻿using CurtLog;
 using ProcessExtensions;
+using ShadyPool;
 using StringExtension;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace CoDUO_FoV_Changer
 {
     internal class GameStarter
     {
-
-        [ThreadStatic]
-        private static readonly ProcessStartInfo _startInfo = new ProcessStartInfo();
-
-        [ThreadStatic]
-        private static readonly StringBuilder _stringBuilder = new StringBuilder();
-
         // enum for result of StartGame:
 
         public enum StartStatus
@@ -70,22 +63,34 @@ namespace CoDUO_FoV_Changer
                 }
 
 
-                var argSb = _stringBuilder
+                var sb = Pool.Get<StringBuilder>();
+
+                var argStr = string.Empty;
+                try
+                {
+                   argStr = sb
                   .Clear()
                   .Append(forcedArgs)
                   .Append(" ")
-                  .Append(optionalArgs);
+                  .Append(optionalArgs)
+                  .ToString();
+                }
+                finally { Pool.Free(ref sb); }
 
 
-                _startInfo.Arguments = argSb.ToString();
-                _startInfo.FileName = exePath;
-                _startInfo.WorkingDirectory = exeDirectory;
 
-                var gameProc = Process.Start(_startInfo);
+                var startInfo = new ProcessStartInfo
+                {
+                    Arguments = argStr,
+                    FileName = exePath,
+                    WorkingDirectory = exeDirectory
+                };
+
+                var gameProc = Process.Start(startInfo);
 
                 try
                 {
-                    if (useSteam && Settings.Instance.UseSteamOverlay)
+                    if (Settings.Instance.UseSteamOverlay)
                         SteamUtil.EnsureSteamOverlay(gameProc.Id, gameType);
                 }
                 catch (Exception ex)
@@ -97,8 +102,8 @@ namespace CoDUO_FoV_Changer
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                MessageBox.Show("Failed to start game: " + ex.Message + Environment.NewLine + " Please refer to the log for more info.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Log.WriteLine("Failed to start process game process: " + Environment.NewLine + ex.ToString());
+                MessageBox.Show("Failed to start game: " + ex.Message + Environment.NewLine + "Please refer to the log for more info.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Log.WriteLine("Failed to start process game process:" + Environment.NewLine + ex.ToString());
             }
 
             return StartStatus.Success;

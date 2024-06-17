@@ -1,4 +1,5 @@
 ﻿using CoDUO_FoV_Changer;
+using CurtLog;
 using Microsoft.Win32;
 using System;
 using System.Text;
@@ -31,6 +32,30 @@ namespace CoDRegistryExtensions
         public static bool TryGetRegistryValue<T>(string valueName, out T value, bool virtualStore = false, bool vCod = false)
         {
             return (value = (T)GetRegistryValue(valueName, virtualStore, vCod)) != null;
+        }
+
+        public static object SetRegistryValue(string valueName, object value, bool virtualStore = false, bool vCod = false)
+        {
+            if (string.IsNullOrWhiteSpace(valueName))
+                throw new ArgumentNullException(nameof(valueName));
+
+            Registry.SetValue(vCod ? (virtualStore ? RegistryPathCoDVirtualStore : RegistryPathCoD) : virtualStore ? RegistryPathVirtualStore : RegistryPath, valueName, value, RegistryValueKind.String);
+            return value;
+        }
+
+        public static bool TrySetRegistryValue(string valueName, object value, bool virtualStore = false, bool vCod = false)
+        {
+            try
+            {
+                SetRegistryValue(valueName, value, virtualStore, vCod);
+                return true;
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                Log.WriteLine(ex.ToString());
+                return false;
+            }
         }
 
         public static string GameVersion

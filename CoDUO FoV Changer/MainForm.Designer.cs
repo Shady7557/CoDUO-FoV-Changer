@@ -73,6 +73,7 @@ namespace CoDUO_FoV_Changer
             this.CoDPictureBox = new System.Windows.Forms.PictureBox();
             this.SessionTimeLabel = new System.Windows.Forms.Label();
             this.GameTimeCountLabel = new System.Windows.Forms.Label();
+            this.mapArchiveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.rcStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FoVNumeric)).BeginInit();
             this.FoVMenuStrip.SuspendLayout();
@@ -246,15 +247,15 @@ namespace CoDUO_FoV_Changer
             // InfoToolStripMenuItem
             // 
             this.InfoToolStripMenuItem.Name = "InfoToolStripMenuItem";
-            this.InfoToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.InfoToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.InfoToolStripMenuItem.Text = "About";
             this.InfoToolStripMenuItem.Click += new System.EventHandler(this.InfoToolStripMenuItem_Click);
             // 
             // singleplayerToolStripMenuItem
             // 
             this.singleplayerToolStripMenuItem.Name = "singleplayerToolStripMenuItem";
-            this.singleplayerToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
-            this.singleplayerToolStripMenuItem.Text = "Singleplayer";
+            this.singleplayerToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+            this.singleplayerToolStripMenuItem.Text = "Game Fixes/Solutions";
             this.singleplayerToolStripMenuItem.Click += new System.EventHandler(this.singleplayerToolStripMenuItem_Click);
             // 
             // ToolStripMenuItem1
@@ -262,7 +263,8 @@ namespace CoDUO_FoV_Changer
             this.ToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.serversToolStripMenuItem,
             this.SettingsToolStripMenuItem,
-            this.ChangelogToolStripMenuItem});
+            this.ChangelogToolStripMenuItem,
+            this.mapArchiveToolStripMenuItem});
             this.ToolStripMenuItem1.Name = "ToolStripMenuItem1";
             this.ToolStripMenuItem1.Size = new System.Drawing.Size(46, 20);
             this.ToolStripMenuItem1.Text = "Tools";
@@ -465,6 +467,13 @@ namespace CoDUO_FoV_Changer
             this.GameTimeCountLabel.TabIndex = 79;
             this.GameTimeCountLabel.Text = "None";
             // 
+            // mapArchiveToolStripMenuItem
+            // 
+            this.mapArchiveToolStripMenuItem.Name = "mapArchiveToolStripMenuItem";
+            this.mapArchiveToolStripMenuItem.Size = new System.Drawing.Size(190, 22);
+            this.mapArchiveToolStripMenuItem.Text = "Map Archive [GitHub]";
+            this.mapArchiveToolStripMenuItem.Click += new System.EventHandler(this.mapArchiveToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -550,6 +559,7 @@ namespace CoDUO_FoV_Changer
         private ToolStripMenuItem serversToolStripMenuItem;
         internal Label SessionTimeLabel;
         internal Label GameTimeCountLabel;
+        private ToolStripMenuItem mapArchiveToolStripMenuItem;
     }
 }
 
