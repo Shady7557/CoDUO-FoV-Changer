@@ -155,6 +155,7 @@ namespace CoDUO_FoV_Changer
 
                     var lm = LocalizationManager.CreateInstance();
 
+                    // this isn't right. we need to save the selected, desired culture in the settings file.
                     lm.LoadLocalization(CultureInfo.CurrentCulture.Name, false);
 
                     Application.EnableVisualStyles();

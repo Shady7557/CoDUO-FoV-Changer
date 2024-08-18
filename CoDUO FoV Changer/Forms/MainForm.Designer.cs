@@ -49,6 +49,9 @@ namespace CoDUO_FoV_Changer
             this.HelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.InfoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.singleplayerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.languageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.enUSToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.frFRToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.serversToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -74,9 +77,6 @@ namespace CoDUO_FoV_Changer
             this.CoDPictureBox = new System.Windows.Forms.PictureBox();
             this.SessionTimeLabel = new System.Windows.Forms.Label();
             this.GameTimeCountLabel = new System.Windows.Forms.Label();
-            this.languageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.enUSToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.frFRToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.rcStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FoVNumeric)).BeginInit();
             this.FoVMenuStrip.SuspendLayout();
@@ -261,6 +261,30 @@ namespace CoDUO_FoV_Changer
             this.singleplayerToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.singleplayerToolStripMenuItem.Text = "Game Fixes/Solutions";
             this.singleplayerToolStripMenuItem.Click += new System.EventHandler(this.singleplayerToolStripMenuItem_Click);
+            // 
+            // languageToolStripMenuItem
+            // 
+            this.languageToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.enUSToolStripMenuItem,
+            this.frFRToolStripMenuItem});
+            this.languageToolStripMenuItem.Name = "languageToolStripMenuItem";
+            this.languageToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+            this.languageToolStripMenuItem.Text = "Language";
+            // 
+            // enUSToolStripMenuItem
+            // 
+            this.enUSToolStripMenuItem.CheckOnClick = true;
+            this.enUSToolStripMenuItem.Name = "enUSToolStripMenuItem";
+            this.enUSToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.enUSToolStripMenuItem.Text = "en-US";
+            this.enUSToolStripMenuItem.Click += new System.EventHandler(this.enUSToolStripMenuItem_Click);
+            // 
+            // frFRToolStripMenuItem
+            // 
+            this.frFRToolStripMenuItem.Name = "frFRToolStripMenuItem";
+            this.frFRToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.frFRToolStripMenuItem.Text = "fr-FR";
+            this.frFRToolStripMenuItem.Click += new System.EventHandler(this.frFRToolStripMenuItem_Click);
             // 
             // ToolStripMenuItem1
             // 
@@ -477,29 +501,6 @@ namespace CoDUO_FoV_Changer
             this.GameTimeCountLabel.Size = new System.Drawing.Size(31, 13);
             this.GameTimeCountLabel.TabIndex = 79;
             this.GameTimeCountLabel.Text = "None";
-            // 
-            // languageToolStripMenuItem
-            // 
-            this.languageToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.enUSToolStripMenuItem,
-            this.frFRToolStripMenuItem});
-            this.languageToolStripMenuItem.Name = "languageToolStripMenuItem";
-            this.languageToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
-            this.languageToolStripMenuItem.Text = "Language";
-            // 
-            // enUSToolStripMenuItem
-            // 
-            this.enUSToolStripMenuItem.Name = "enUSToolStripMenuItem";
-            this.enUSToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.enUSToolStripMenuItem.Text = "en-US";
-            this.enUSToolStripMenuItem.Click += new System.EventHandler(this.enUSToolStripMenuItem_Click);
-            // 
-            // frFRToolStripMenuItem
-            // 
-            this.frFRToolStripMenuItem.Name = "frFRToolStripMenuItem";
-            this.frFRToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.frFRToolStripMenuItem.Text = "fr-FR";
-            this.frFRToolStripMenuItem.Click += new System.EventHandler(this.frFRToolStripMenuItem_Click);
             // 
             // MainForm
             // 

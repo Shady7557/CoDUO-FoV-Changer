@@ -21,6 +21,7 @@ using StringExtension;
 using System.Net.Http;
 using ControlExtensions;
 using Localization;
+using System.Globalization;
 
 namespace CoDUO_FoV_Changer
 {
@@ -431,6 +432,19 @@ namespace CoDUO_FoV_Changer
                 TimerEx.Every(3f, MemoryTimer_Tick);
 
                 UpdateButton.Visible = IsDev;
+
+                foreach (var obj in languageToolStripMenuItem.DropDownItems)
+                {
+                    if (!(obj is ToolStripMenuItem item))
+                        continue;
+
+                    if (LocalizationManager.Instance.CultureCode.Equals(item.Text, StringComparison.OrdinalIgnoreCase))
+                    {
+                        item.Checked = true;
+                        break;
+                    }
+                }
+
             }
             finally
             {
