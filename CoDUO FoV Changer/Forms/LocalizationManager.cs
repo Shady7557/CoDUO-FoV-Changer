@@ -1,7 +1,5 @@
 ﻿using CoDUO_FoV_Changer;
 using CoDUO_FoV_Changer.Util;
-using ControlExtensions;
-using CurtLog;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -13,6 +11,9 @@ namespace Localization
 {
     public class LocalizationManager
     {
+        /// <summary>
+        /// The path to the localization directory.
+        /// </summary>
         public static string LocalizationPath
         {
             get
@@ -21,6 +22,9 @@ namespace Localization
             }
         }
 
+        /// <summary>
+        ///  The full file path to the currently selected localization file.
+        /// </summary>
         public string SelectedLocalizationPath
         {
             get
@@ -62,12 +66,19 @@ namespace Localization
 
         public void SaveLocalization(CultureInfo culture)
         {
-            var filePath = Path.Combine(LocalizationPath, $"{culture.Name}.json");
+            if (culture is null)
+                throw new ArgumentNullException(nameof(culture));
 
             if (LocalizedStrings == null)
                 return;
 
+            var filePath = Path.Combine(LocalizationPath, $"{culture.Name}.json");
+
+
             var jsonContent = JsonConvert.SerializeObject(LocalizedStrings, Formatting.Indented);
+
+            new DirectoryInfo(LocalizationPath).Create();
+
             File.WriteAllText(filePath, jsonContent);
         }
 

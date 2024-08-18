@@ -155,7 +155,7 @@ namespace CoDUO_FoV_Changer
 
                     var lm = LocalizationManager.CreateInstance();
 
-                    lm.LoadLocalization("fr-FR", false);
+                    lm.LoadLocalization(CultureInfo.CurrentCulture.Name, false);
 
                     Application.EnableVisualStyles();
                     Application.SetCompatibleTextRenderingDefault(false);
