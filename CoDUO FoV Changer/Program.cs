@@ -1,7 +1,9 @@
 ﻿using CurtLog;
+using Localization;
 using ShadyPool;
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Net;
@@ -150,6 +152,10 @@ namespace CoDUO_FoV_Changer
 
                     if (!logInit)
                         return;
+
+                    var lm = LocalizationManager.CreateInstance();
+
+                    lm.LoadLocalization("fr-FR", false);
 
                     Application.EnableVisualStyles();
                     Application.SetCompatibleTextRenderingDefault(false);

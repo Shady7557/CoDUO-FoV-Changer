@@ -154,9 +154,9 @@
             this.Controls.Add(this.GameVersLabel);
             this.Controls.Add(this.AppVersLabel);
             this.Controls.Add(this.InformationLabel);
-            this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "SettingsForm";
             this.ShowIcon = false;
             this.Text = "Settings";

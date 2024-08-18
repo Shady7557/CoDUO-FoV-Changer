@@ -53,6 +53,7 @@ namespace CoDUO_FoV_Changer
             this.serversToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ChangelogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mapArchiveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ExitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.StatusLabel = new System.Windows.Forms.Label();
             this.ipDialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -73,7 +74,9 @@ namespace CoDUO_FoV_Changer
             this.CoDPictureBox = new System.Windows.Forms.PictureBox();
             this.SessionTimeLabel = new System.Windows.Forms.Label();
             this.GameTimeCountLabel = new System.Windows.Forms.Label();
-            this.mapArchiveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.languageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.enUSToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.frFRToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.rcStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FoVNumeric)).BeginInit();
             this.FoVMenuStrip.SuspendLayout();
@@ -239,7 +242,8 @@ namespace CoDUO_FoV_Changer
             // 
             this.HelpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.InfoToolStripMenuItem,
-            this.singleplayerToolStripMenuItem});
+            this.singleplayerToolStripMenuItem,
+            this.languageToolStripMenuItem});
             this.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem";
             this.HelpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.HelpToolStripMenuItem.Text = "Help";
@@ -272,23 +276,30 @@ namespace CoDUO_FoV_Changer
             // serversToolStripMenuItem
             // 
             this.serversToolStripMenuItem.Name = "serversToolStripMenuItem";
-            this.serversToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.serversToolStripMenuItem.Size = new System.Drawing.Size(190, 22);
             this.serversToolStripMenuItem.Text = "Servers";
             this.serversToolStripMenuItem.Click += new System.EventHandler(this.serversToolStripMenuItem_Click);
             // 
             // SettingsToolStripMenuItem
             // 
             this.SettingsToolStripMenuItem.Name = "SettingsToolStripMenuItem";
-            this.SettingsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.SettingsToolStripMenuItem.Size = new System.Drawing.Size(190, 22);
             this.SettingsToolStripMenuItem.Text = "Settings";
             this.SettingsToolStripMenuItem.Click += new System.EventHandler(this.SettingsToolStripMenuItem_Click);
             // 
             // ChangelogToolStripMenuItem
             // 
             this.ChangelogToolStripMenuItem.Name = "ChangelogToolStripMenuItem";
-            this.ChangelogToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.ChangelogToolStripMenuItem.Size = new System.Drawing.Size(190, 22);
             this.ChangelogToolStripMenuItem.Text = "Changelog [GitHub]";
             this.ChangelogToolStripMenuItem.Click += new System.EventHandler(this.ChangelogToolStripMenuItem_Click);
+            // 
+            // mapArchiveToolStripMenuItem
+            // 
+            this.mapArchiveToolStripMenuItem.Name = "mapArchiveToolStripMenuItem";
+            this.mapArchiveToolStripMenuItem.Size = new System.Drawing.Size(190, 22);
+            this.mapArchiveToolStripMenuItem.Text = "Map Archive [GitHub]";
+            this.mapArchiveToolStripMenuItem.Click += new System.EventHandler(this.mapArchiveToolStripMenuItem_Click);
             // 
             // ExitToolStripMenuItem
             // 
@@ -304,9 +315,9 @@ namespace CoDUO_FoV_Changer
             this.StatusLabel.ForeColor = System.Drawing.Color.Orange;
             this.StatusLabel.Location = new System.Drawing.Point(9, 175);
             this.StatusLabel.Name = "StatusLabel";
-            this.StatusLabel.Size = new System.Drawing.Size(289, 13);
+            this.StatusLabel.Size = new System.Drawing.Size(121, 13);
             this.StatusLabel.TabIndex = 69;
-            this.StatusLabel.Text = "Status: not found or failed to write to memory!";
+            this.StatusLabel.Text = "Status: Not running";
             // 
             // ipDialog
             // 
@@ -467,12 +478,28 @@ namespace CoDUO_FoV_Changer
             this.GameTimeCountLabel.TabIndex = 79;
             this.GameTimeCountLabel.Text = "None";
             // 
-            // mapArchiveToolStripMenuItem
+            // languageToolStripMenuItem
             // 
-            this.mapArchiveToolStripMenuItem.Name = "mapArchiveToolStripMenuItem";
-            this.mapArchiveToolStripMenuItem.Size = new System.Drawing.Size(190, 22);
-            this.mapArchiveToolStripMenuItem.Text = "Map Archive [GitHub]";
-            this.mapArchiveToolStripMenuItem.Click += new System.EventHandler(this.mapArchiveToolStripMenuItem_Click);
+            this.languageToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.enUSToolStripMenuItem,
+            this.frFRToolStripMenuItem});
+            this.languageToolStripMenuItem.Name = "languageToolStripMenuItem";
+            this.languageToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+            this.languageToolStripMenuItem.Text = "Language";
+            // 
+            // enUSToolStripMenuItem
+            // 
+            this.enUSToolStripMenuItem.Name = "enUSToolStripMenuItem";
+            this.enUSToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.enUSToolStripMenuItem.Text = "en-US";
+            this.enUSToolStripMenuItem.Click += new System.EventHandler(this.enUSToolStripMenuItem_Click);
+            // 
+            // frFRToolStripMenuItem
+            // 
+            this.frFRToolStripMenuItem.Name = "frFRToolStripMenuItem";
+            this.frFRToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.frFRToolStripMenuItem.Text = "fr-FR";
+            this.frFRToolStripMenuItem.Click += new System.EventHandler(this.frFRToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -560,6 +587,9 @@ namespace CoDUO_FoV_Changer
         internal Label SessionTimeLabel;
         internal Label GameTimeCountLabel;
         private ToolStripMenuItem mapArchiveToolStripMenuItem;
+        private ToolStripMenuItem languageToolStripMenuItem;
+        private ToolStripMenuItem enUSToolStripMenuItem;
+        private ToolStripMenuItem frFRToolStripMenuItem;
     }
 }
 

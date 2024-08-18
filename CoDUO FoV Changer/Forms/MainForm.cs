@@ -19,6 +19,8 @@ using System.Runtime.InteropServices;
 using CoDUO_FoV_Changer.Util;
 using StringExtension;
 using System.Net.Http;
+using ControlExtensions;
+using Localization;
 
 namespace CoDUO_FoV_Changer
 {
@@ -115,20 +117,20 @@ namespace CoDUO_FoV_Changer
             var sb = Pool.Get<StringBuilder>();
             try
             {
-                var newTxt = sb.Clear().Append("Start Game");
+                var newText = LocalizationManager.Instance.GetLocalizedString(StartGameButton);
 
-                if (!string.IsNullOrWhiteSpace(gameProcName))
-                    newTxt.Append(" (").Append(gameProcName).Append(")").Replace(".exe", string.Empty);
+               // var gameName = string.IsNullOrWhiteSpace(gameProcName) ? string.Empty : sb.Clear().Append(" (").Append(gameProcName).Append(")").ToString();
+                var newSb = sb.Clear().Append(newText).Replace("{LAST_GAME}", gameProcName.Replace(".exe", string.Empty));
 
                 // Truncate if too long
 
-                if (newTxt.Length > 21)
+                if (newSb.Length > 21)
                 {
-                    newTxt.Length = 21;
-                    newTxt.Append("...");
+                    newSb.Length = 21;
+                    newSb.Append("...");
                 }
 
-                StartGameButton.Text = newTxt.ToString();
+                StartGameButton.Text = newSb.ToString();
 
             }
             finally { Pool.Free(ref sb); }
@@ -513,7 +515,7 @@ namespace CoDUO_FoV_Changer
 
             settings.CommandLine = LaunchParametersTB.Text;
 
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 var forceStartArgs = string.Empty;
 
@@ -548,7 +550,7 @@ namespace CoDUO_FoV_Changer
                 Log.WriteLine(startGameLog);
                 Console.WriteLine(startGameLog);
 
-                var startStatus = GameStarter.StartGame(settings.SelectedExecutablePath, LaunchParametersTB.Text, forceStartArgs);
+                var startStatus = await GameStarter.StartGame(settings.SelectedExecutablePath, LaunchParametersTB.Text, forceStartArgs);
 
                 if (startStatus is GameStarter.StartStatus.SteamNotRunning)
                 {
@@ -749,7 +751,7 @@ namespace CoDUO_FoV_Changer
                 else UpdateButton.Visible = _needsUpdate;
             }
 
-            SetLabelText(CheckUpdatesLabel, _needsUpdate ? "Updates available!" : "No updates found. Click to check again.");
+            SetLabelText(CheckUpdatesLabel, _needsUpdate ? "Updates available!" : "No updates found. Click to check again.", _needsUpdate ? 1 : 0);
         }
 
         private async Task<bool> CheckUpdates()
@@ -790,12 +792,15 @@ namespace CoDUO_FoV_Changer
 
 
 
-        private void SetLabelText(Label label, string text)
+        private void SetLabelText(Label label, string text, int index = 0)
         {
             if (label == null) throw new ArgumentNullException(nameof(label));
 
             if (label.InvokeRequired) label.BeginInvoke((MethodInvoker)delegate () { label.Text = text; });
             else label.Text = text;
+
+            label.ApplyLocalization(index);
+
         }
 
         private bool TryParseKeys(string text, out Keys value) => Enum.TryParse(text, out value);
@@ -852,7 +857,7 @@ namespace CoDUO_FoV_Changer
 
                 if (MemorySelection?.ProcMemory?.RequiresElevation() ?? false)
                 {
-                    SetLabelText(StatusLabel, "Status: Game requires elevation!");
+                    SetLabelText(StatusLabel, "Status: Game requires elevation!", 2);
 
                     StatusLabel.BeginInvoke((MethodInvoker)delegate
                     {
@@ -866,7 +871,7 @@ namespace CoDUO_FoV_Changer
                 var address = !isRunning ? -1 : !IsUOMemory() ? MemoryAddresses.COD_FOV_ADDRESS : (isRunning ? (MemorySelection.ProcMemory.DllImageAddress(MemoryAddresses.UO_CGAME_MP_DLL) + MemoryAddresses.UO_FOV_OFFSET) : -1);
                 if (!isRunning || address <= 0)
                 {
-                    SetLabelText(StatusLabel, "Status: Not running");
+                    SetLabelText(StatusLabel, "Status: Not running", 0);
                     StatusLabel.BeginInvoke((MethodInvoker)delegate
                     {
                         toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!");
@@ -876,7 +881,7 @@ namespace CoDUO_FoV_Changer
                 else
                 {
                     MemorySelection.ProcMemory.WriteFloat(address, CurrentFoV);
-                    SetLabelText(StatusLabel, "Status: Success!");
+                    SetLabelText(StatusLabel, "Status: Success!", 1);
                     StatusLabel.BeginInvoke((MethodInvoker)delegate ()
                     {
                         toolTip1.SetToolTip(StatusLabel, string.Empty);
@@ -938,13 +943,15 @@ namespace CoDUO_FoV_Changer
                 if (totalMinutes >= 1 && totalHours < 1) gameTimeTxt = totalMinutes.ToString("N0") + " minutes";
                 if (totalHours >= 1) gameTimeTxt = totalHours.ToString("N0") + " hours";
 
-                GameTimeCountLabel.Text = gameTimeTxt;
+                if (!string.IsNullOrEmpty(gameTimeTxt))
+                    GameTimeCountLabel.Text = gameTimeTxt;
 
                 if (spanCurrent.TotalSeconds > 0 && totalMinutesCur < 1) sessionTimeTxt = spanCurrent.TotalSeconds.ToString("N0") + " seconds";
                 if (totalMinutesCur >= 1 && totalHoursCur < 1) sessionTimeTxt = totalMinutesCur.ToString("N0") + " minutes";
                 if (totalHoursCur >= 1) sessionTimeTxt = totalHoursCur.ToString("N0") + " hours";
 
-                SessionTimeLabel.Text = sessionTimeTxt;
+                if (!string.IsNullOrWhiteSpace(sessionTimeTxt))
+                    SessionTimeLabel.Text = sessionTimeTxt;
             }
             catch (Exception ex)
             {
@@ -1252,6 +1259,15 @@ namespace CoDUO_FoV_Changer
         }
 
         private void mapArchiveToolStripMenuItem_Click(object sender, EventArgs e) => Process.Start(GITHUB_MAP_ARCHIVE_URI);
-        
+
+        private void enUSToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LocalizationManager.Instance.LoadLocalization("en-US");
+        }
+
+        private void frFRToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LocalizationManager.Instance.LoadLocalization("fr-FR");
+        }
     }
 }

@@ -53,11 +53,7 @@ namespace CoDUO_FoV_Changer
             if (string.IsNullOrWhiteSpace(jsonResponse))
                 throw new Exception(nameof(jsonResponse) + " was null");
 
-            var server = JsonConvert.DeserializeObject<ServerInfo>(jsonResponse);
-
-            Console.WriteLine(JsonConvert.SerializeObject(server, Formatting.Indented));
-
-            return server;
+            return JsonConvert.DeserializeObject<ServerInfo>(jsonResponse);
         }
 
        

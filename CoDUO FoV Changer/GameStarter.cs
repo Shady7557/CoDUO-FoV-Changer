@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CoDUO_FoV_Changer
@@ -22,7 +23,7 @@ namespace CoDUO_FoV_Changer
             FileNotFound
         }
 
-        public static StartStatus StartGame(string exePath, string optionalArgs = "", string forcedArgs = "")
+        public static async Task<StartStatus> StartGame(string exePath, string optionalArgs = "", string forcedArgs = "")
         {
             if (string.IsNullOrWhiteSpace(exePath))
                 throw new ArgumentNullException(nameof(exePath));
@@ -91,7 +92,8 @@ namespace CoDUO_FoV_Changer
                 try
                 {
                     if (Settings.Instance.UseSteamOverlay)
-                        SteamUtil.EnsureSteamOverlay(gameProc.Id, gameType);
+                        await SteamUtil.EnsureSteamOverlay(gameProc.Id, gameType, 5000);
+                    
                 }
                 catch (Exception ex)
                 {

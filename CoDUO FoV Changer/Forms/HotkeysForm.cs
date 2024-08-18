@@ -47,8 +47,8 @@ namespace CoDUO_FoV_Changer
 
             //transparent label backcolor
             var pos = PointToScreen(keyPbLabel.Location);
-            pos = pictureBox1.PointToClient(pos);
-            keyPbLabel.Parent = pictureBox1;
+            pos = hotkeyPictureBox.PointToClient(pos);
+            keyPbLabel.Parent = hotkeyPictureBox;
             keyPbLabel.Location = pos;
             keyPbLabel.BackColor = Color.Transparent;
         }
@@ -61,7 +61,7 @@ namespace CoDUO_FoV_Changer
 
             currentKeyCode = e.KeyValue;
             curKeyName = GetShortKeyString(e.KeyData);
-            keyLabel.Text = "Key: " + curKeyName;
+            hotkeyKeyLbl.Text = "Key: " + curKeyName;
             keyPbLabel.Text = curKeyName;
         }
 
@@ -142,17 +142,17 @@ namespace CoDUO_FoV_Changer
 
         private void FoVUp_CheckedChanged(object sender, EventArgs e)
         {
-            if (FoVUpRadioButton.Checked && !string.IsNullOrEmpty(settings.HotKeyUp)) keyLabel.Text = "Key: " + GetKeyString(GetKeyFromString(settings.HotKeyUp)) + " (current)";
+            if (FoVUpRadioButton.Checked && !string.IsNullOrEmpty(settings.HotKeyUp)) hotkeyKeyLbl.Text = "Key: " + GetKeyString(GetKeyFromString(settings.HotKeyUp)) + " (current)";
         }
 
         private void FoVDown_CheckedChanged(object sender, EventArgs e)
         {
-            if (FoVDownRadioButton.Checked && !string.IsNullOrEmpty(settings.HotKeyDown)) keyLabel.Text = "Key: " + GetKeyString(GetKeyFromString(settings.HotKeyDown)) + " (current)";
+            if (FoVDownRadioButton.Checked && !string.IsNullOrEmpty(settings.HotKeyDown)) hotkeyKeyLbl.Text = "Key: " + GetKeyString(GetKeyFromString(settings.HotKeyDown)) + " (current)";
         }
 
         private void FoVModifier_CheckedChanged(object sender, EventArgs e)
         {
-            if (FoVModifierRadioButton.Checked && !string.IsNullOrEmpty(settings.HotKeyModifier)) keyLabel.Text = "Key: " + GetKeyString(GetKeyFromString(settings.HotKeyModifier)) + " (current)";
+            if (FoVModifierRadioButton.Checked && !string.IsNullOrEmpty(settings.HotKeyModifier)) hotkeyKeyLbl.Text = "Key: " + GetKeyString(GetKeyFromString(settings.HotKeyModifier)) + " (current)";
         }
 
         private void Label2_TextChanged(object sender, EventArgs e)

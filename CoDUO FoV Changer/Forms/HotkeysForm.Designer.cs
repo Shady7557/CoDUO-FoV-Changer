@@ -28,27 +28,27 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.keyLabel = new System.Windows.Forms.Label();
+            this.hotkeyKeyLbl = new System.Windows.Forms.Label();
             this.FoVUpRadioButton = new System.Windows.Forms.RadioButton();
             this.FoVDownRadioButton = new System.Windows.Forms.RadioButton();
             this.FoVModifierRadioButton = new System.Windows.Forms.RadioButton();
             this.applyKeyButton = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
+            this.hotkeySaveExitButton = new System.Windows.Forms.Button();
+            this.hotkeySaveWithoutExitButton = new System.Windows.Forms.Button();
             this.keyPbLabel = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.hotkeyPictureBox = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.hotkeyPictureBox)).BeginInit();
             this.SuspendLayout();
             // 
-            // keyLabel
+            // hotkeyKeyLbl
             // 
-            this.keyLabel.AutoSize = true;
-            this.keyLabel.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.keyLabel.Location = new System.Drawing.Point(8, 50);
-            this.keyLabel.Name = "keyLabel";
-            this.keyLabel.Size = new System.Drawing.Size(45, 19);
-            this.keyLabel.TabIndex = 0;
-            this.keyLabel.Text = "Key:";
+            this.hotkeyKeyLbl.AutoSize = true;
+            this.hotkeyKeyLbl.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.hotkeyKeyLbl.Location = new System.Drawing.Point(8, 50);
+            this.hotkeyKeyLbl.Name = "hotkeyKeyLbl";
+            this.hotkeyKeyLbl.Size = new System.Drawing.Size(45, 19);
+            this.hotkeyKeyLbl.TabIndex = 0;
+            this.hotkeyKeyLbl.Text = "Key:";
             // 
             // FoVUpRadioButton
             // 
@@ -101,29 +101,29 @@
             this.applyKeyButton.UseVisualStyleBackColor = false;
             this.applyKeyButton.Click += new System.EventHandler(this.button1_Click);
             // 
-            // button2
+            // hotkeySaveExitButton
             // 
-            this.button2.BackColor = System.Drawing.Color.DarkGray;
-            this.button2.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button2.Location = new System.Drawing.Point(113, 221);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(132, 25);
-            this.button2.TabIndex = 7;
-            this.button2.Text = "Save and exit";
-            this.button2.UseVisualStyleBackColor = false;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.hotkeySaveExitButton.BackColor = System.Drawing.Color.DarkGray;
+            this.hotkeySaveExitButton.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.hotkeySaveExitButton.Location = new System.Drawing.Point(113, 221);
+            this.hotkeySaveExitButton.Name = "hotkeySaveExitButton";
+            this.hotkeySaveExitButton.Size = new System.Drawing.Size(132, 25);
+            this.hotkeySaveExitButton.TabIndex = 7;
+            this.hotkeySaveExitButton.Text = "Save and exit";
+            this.hotkeySaveExitButton.UseVisualStyleBackColor = false;
+            this.hotkeySaveExitButton.Click += new System.EventHandler(this.button2_Click);
             // 
-            // button3
+            // hotkeySaveWithoutExitButton
             // 
-            this.button3.BackColor = System.Drawing.Color.DarkGray;
-            this.button3.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button3.Location = new System.Drawing.Point(113, 252);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(132, 25);
-            this.button3.TabIndex = 8;
-            this.button3.Text = "Exit without saving";
-            this.button3.UseVisualStyleBackColor = false;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.hotkeySaveWithoutExitButton.BackColor = System.Drawing.Color.DarkGray;
+            this.hotkeySaveWithoutExitButton.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.hotkeySaveWithoutExitButton.Location = new System.Drawing.Point(113, 252);
+            this.hotkeySaveWithoutExitButton.Name = "hotkeySaveWithoutExitButton";
+            this.hotkeySaveWithoutExitButton.Size = new System.Drawing.Size(132, 25);
+            this.hotkeySaveWithoutExitButton.TabIndex = 8;
+            this.hotkeySaveWithoutExitButton.Text = "Exit without saving";
+            this.hotkeySaveWithoutExitButton.UseVisualStyleBackColor = false;
+            this.hotkeySaveWithoutExitButton.Click += new System.EventHandler(this.button3_Click);
             // 
             // keyPbLabel
             // 
@@ -136,14 +136,14 @@
             this.keyPbLabel.TabIndex = 10;
             this.keyPbLabel.TextChanged += new System.EventHandler(this.Label2_TextChanged);
             // 
-            // pictureBox1
+            // hotkeyPictureBox
             // 
-            this.pictureBox1.Image = global::CoDUO_FoV_Changer.Properties.Resources.empty_key_big_3;
-            this.pictureBox1.Location = new System.Drawing.Point(163, 81);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(64, 64);
-            this.pictureBox1.TabIndex = 9;
-            this.pictureBox1.TabStop = false;
+            this.hotkeyPictureBox.Image = global::CoDUO_FoV_Changer.Properties.Resources.empty_key_big_3;
+            this.hotkeyPictureBox.Location = new System.Drawing.Point(163, 81);
+            this.hotkeyPictureBox.Name = "hotkeyPictureBox";
+            this.hotkeyPictureBox.Size = new System.Drawing.Size(64, 64);
+            this.hotkeyPictureBox.TabIndex = 9;
+            this.hotkeyPictureBox.TabStop = false;
             // 
             // HotkeysForm
             // 
@@ -152,24 +152,24 @@
             this.BackColor = System.Drawing.Color.DimGray;
             this.ClientSize = new System.Drawing.Size(249, 289);
             this.Controls.Add(this.keyPbLabel);
-            this.Controls.Add(this.pictureBox1);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
+            this.Controls.Add(this.hotkeyPictureBox);
+            this.Controls.Add(this.hotkeySaveWithoutExitButton);
+            this.Controls.Add(this.hotkeySaveExitButton);
             this.Controls.Add(this.applyKeyButton);
             this.Controls.Add(this.FoVModifierRadioButton);
             this.Controls.Add(this.FoVDownRadioButton);
             this.Controls.Add(this.FoVUpRadioButton);
-            this.Controls.Add(this.keyLabel);
-            this.DoubleBuffered = true;
+            this.Controls.Add(this.hotkeyKeyLbl);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.KeyPreview = true;
             this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "HotkeysForm";
             this.ShowIcon = false;
             this.Text = "Hotkeys";
             this.Load += new System.EventHandler(this.Hotkeys_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Hotkeys_KeyDown);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.hotkeyPictureBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -177,14 +177,14 @@
 
         #endregion
 
-        private System.Windows.Forms.Label keyLabel;
+        private System.Windows.Forms.Label hotkeyKeyLbl;
         private System.Windows.Forms.RadioButton FoVUpRadioButton;
         private System.Windows.Forms.RadioButton FoVDownRadioButton;
         private System.Windows.Forms.RadioButton FoVModifierRadioButton;
         private System.Windows.Forms.Button applyKeyButton;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Button hotkeySaveExitButton;
+        private System.Windows.Forms.Button hotkeySaveWithoutExitButton;
+        private System.Windows.Forms.PictureBox hotkeyPictureBox;
         private System.Windows.Forms.Label keyPbLabel;
     }
 }

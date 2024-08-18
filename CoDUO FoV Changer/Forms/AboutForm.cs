@@ -45,5 +45,15 @@ namespace CoDUO_FoV_Changer
         private void discordPicBox_MouseEnter(object sender, EventArgs e) => Cursor = Cursors.Hand;
 
         private void discordPicBox_MouseLeave(object sender, EventArgs e) => Cursor = Cursors.Default;
+
+        private void codpmLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start("https://cod.pm/");
+        }
+
+        private void linkLabel1_LinkClicked_1(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start("https://cod.pm/faq#f42e");
+        }
     }
 }

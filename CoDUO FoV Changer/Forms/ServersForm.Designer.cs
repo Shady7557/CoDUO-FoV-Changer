@@ -43,7 +43,6 @@
             this.HideNoPingCheckbox = new System.Windows.Forms.CheckBox();
             this.SearchFilterTextbox = new System.Windows.Forms.TextBox();
             this.GameVersionBox = new System.Windows.Forms.ComboBox();
-            this.GameVersionLabel = new System.Windows.Forms.Label();
             this.SearchFilterLabel = new System.Windows.Forms.Label();
             this.MapLabel = new System.Windows.Forms.Label();
             this.MapNameLabel = new System.Windows.Forms.Label();
@@ -80,9 +79,9 @@
             this.RefreshButton.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.RefreshButton.Location = new System.Drawing.Point(12, 323);
             this.RefreshButton.Name = "RefreshButton";
-            this.RefreshButton.Size = new System.Drawing.Size(446, 35);
+            this.RefreshButton.Size = new System.Drawing.Size(102, 35);
             this.RefreshButton.TabIndex = 0;
-            this.RefreshButton.Text = "Refresh all servers";
+            this.RefreshButton.Text = "Refresh all";
             this.RefreshButton.UseVisualStyleBackColor = false;
             this.RefreshButton.Click += new System.EventHandler(this.RefreshButton_Click);
             // 
@@ -101,7 +100,7 @@
             this.ServerListView.HideSelection = false;
             this.ServerListView.Location = new System.Drawing.Point(12, 12);
             this.ServerListView.Name = "ServerListView";
-            this.ServerListView.Size = new System.Drawing.Size(578, 210);
+            this.ServerListView.Size = new System.Drawing.Size(470, 210);
             this.ServerListView.TabIndex = 1;
             this.ServerListView.UseCompatibleStateImageBehavior = false;
             this.ServerListView.View = System.Windows.Forms.View.Details;
@@ -170,9 +169,9 @@
             this.HideNoPingCheckbox.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.HideNoPingCheckbox.Location = new System.Drawing.Point(64, 276);
             this.HideNoPingCheckbox.Name = "HideNoPingCheckbox";
-            this.HideNoPingCheckbox.Size = new System.Drawing.Size(320, 19);
+            this.HideNoPingCheckbox.Size = new System.Drawing.Size(236, 19);
             this.HideNoPingCheckbox.TabIndex = 4;
-            this.HideNoPingCheckbox.Text = "Hide servers that didn\'t respond to a ping";
+            this.HideNoPingCheckbox.Text = "Hide servers without ping info";
             this.HideNoPingCheckbox.UseVisualStyleBackColor = true;
             this.HideNoPingCheckbox.CheckedChanged += new System.EventHandler(this.HideNoPingCheckbox_CheckedChanged);
             // 
@@ -201,21 +200,11 @@
             "CoD (1.3)",
             "CoD (1.2)",
             "CoD (1.1)"});
-            this.GameVersionBox.Location = new System.Drawing.Point(469, 336);
+            this.GameVersionBox.Location = new System.Drawing.Point(123, 372);
             this.GameVersionBox.Name = "GameVersionBox";
             this.GameVersionBox.Size = new System.Drawing.Size(121, 22);
             this.GameVersionBox.TabIndex = 6;
             this.GameVersionBox.SelectedIndexChanged += new System.EventHandler(this.GameVersionBox_SelectedIndexChanged);
-            // 
-            // GameVersionLabel
-            // 
-            this.GameVersionLabel.AutoSize = true;
-            this.GameVersionLabel.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.GameVersionLabel.Location = new System.Drawing.Point(466, 318);
-            this.GameVersionLabel.Name = "GameVersionLabel";
-            this.GameVersionLabel.Size = new System.Drawing.Size(42, 15);
-            this.GameVersionLabel.TabIndex = 7;
-            this.GameVersionLabel.Text = "Game:";
             // 
             // SearchFilterLabel
             // 
@@ -231,7 +220,7 @@
             // 
             this.MapLabel.AutoSize = true;
             this.MapLabel.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.MapLabel.Location = new System.Drawing.Point(593, 12);
+            this.MapLabel.Location = new System.Drawing.Point(485, 11);
             this.MapLabel.Name = "MapLabel";
             this.MapLabel.Size = new System.Drawing.Size(35, 15);
             this.MapLabel.TabIndex = 10;
@@ -241,7 +230,7 @@
             // 
             this.MapNameLabel.AutoSize = true;
             this.MapNameLabel.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.MapNameLabel.Location = new System.Drawing.Point(625, 12);
+            this.MapNameLabel.Location = new System.Drawing.Point(517, 11);
             this.MapNameLabel.Name = "MapNameLabel";
             this.MapNameLabel.Size = new System.Drawing.Size(77, 15);
             this.MapNameLabel.TabIndex = 11;
@@ -249,7 +238,7 @@
             // 
             // MapImageBox
             // 
-            this.MapImageBox.Location = new System.Drawing.Point(596, 30);
+            this.MapImageBox.Location = new System.Drawing.Point(488, 29);
             this.MapImageBox.Name = "MapImageBox";
             this.MapImageBox.Size = new System.Drawing.Size(320, 133);
             this.MapImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -260,7 +249,7 @@
             // 
             this.ServersLabel.AutoSize = true;
             this.ServersLabel.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ServersLabel.Location = new System.Drawing.Point(485, 225);
+            this.ServersLabel.Location = new System.Drawing.Point(120, 246);
             this.ServersLabel.Name = "ServersLabel";
             this.ServersLabel.Size = new System.Drawing.Size(63, 15);
             this.ServersLabel.TabIndex = 12;
@@ -270,7 +259,7 @@
             // 
             this.CountServersLabel.AutoSize = true;
             this.CountServersLabel.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.CountServersLabel.Location = new System.Drawing.Point(545, 225);
+            this.CountServersLabel.Location = new System.Drawing.Point(179, 246);
             this.CountServersLabel.Name = "CountServersLabel";
             this.CountServersLabel.Size = new System.Drawing.Size(28, 15);
             this.CountServersLabel.TabIndex = 13;
@@ -294,7 +283,7 @@
             this.CloseButton.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.CloseButton.Location = new System.Drawing.Point(12, 364);
             this.CloseButton.Name = "CloseButton";
-            this.CloseButton.Size = new System.Drawing.Size(446, 35);
+            this.CloseButton.Size = new System.Drawing.Size(102, 35);
             this.CloseButton.TabIndex = 15;
             this.CloseButton.Text = "Close";
             this.CloseButton.UseVisualStyleBackColor = false;
@@ -310,9 +299,9 @@
             this.PlayerListView.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.PlayerListView.FullRowSelect = true;
             this.PlayerListView.HideSelection = false;
-            this.PlayerListView.Location = new System.Drawing.Point(599, 219);
+            this.PlayerListView.Location = new System.Drawing.Point(491, 218);
             this.PlayerListView.Name = "PlayerListView";
-            this.PlayerListView.Size = new System.Drawing.Size(307, 139);
+            this.PlayerListView.Size = new System.Drawing.Size(317, 139);
             this.PlayerListView.TabIndex = 16;
             this.PlayerListView.UseCompatibleStateImageBehavior = false;
             this.PlayerListView.View = System.Windows.Forms.View.Details;
@@ -336,7 +325,7 @@
             // 
             this.PlayersTxtLabel.AutoSize = true;
             this.PlayersTxtLabel.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.PlayersTxtLabel.Location = new System.Drawing.Point(593, 201);
+            this.PlayersTxtLabel.Location = new System.Drawing.Point(488, 200);
             this.PlayersTxtLabel.Name = "PlayersTxtLabel";
             this.PlayersTxtLabel.Size = new System.Drawing.Size(63, 15);
             this.PlayersTxtLabel.TabIndex = 17;
@@ -346,7 +335,7 @@
             // 
             this.FilterPlayerNamesCheckbox.AutoSize = true;
             this.FilterPlayerNamesCheckbox.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FilterPlayerNamesCheckbox.Location = new System.Drawing.Point(599, 364);
+            this.FilterPlayerNamesCheckbox.Location = new System.Drawing.Point(491, 363);
             this.FilterPlayerNamesCheckbox.Name = "FilterPlayerNamesCheckbox";
             this.FilterPlayerNamesCheckbox.Size = new System.Drawing.Size(222, 19);
             this.FilterPlayerNamesCheckbox.TabIndex = 18;
@@ -358,7 +347,7 @@
             // 
             this.FilterBotPlayersCheckbox.AutoSize = true;
             this.FilterBotPlayersCheckbox.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FilterBotPlayersCheckbox.Location = new System.Drawing.Point(599, 383);
+            this.FilterBotPlayersCheckbox.Location = new System.Drawing.Point(491, 382);
             this.FilterBotPlayersCheckbox.Name = "FilterBotPlayersCheckbox";
             this.FilterBotPlayersCheckbox.Size = new System.Drawing.Size(103, 19);
             this.FilterBotPlayersCheckbox.TabIndex = 19;
@@ -370,7 +359,7 @@
             // 
             this.PlayerCountLabel.AutoSize = true;
             this.PlayerCountLabel.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.PlayerCountLabel.Location = new System.Drawing.Point(650, 201);
+            this.PlayerCountLabel.Location = new System.Drawing.Point(546, 200);
             this.PlayerCountLabel.Name = "PlayerCountLabel";
             this.PlayerCountLabel.Size = new System.Drawing.Size(28, 15);
             this.PlayerCountLabel.TabIndex = 20;
@@ -380,7 +369,7 @@
             // 
             this.RefreshServerButton.BackColor = System.Drawing.Color.DarkGray;
             this.RefreshServerButton.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.RefreshServerButton.Location = new System.Drawing.Point(803, 192);
+            this.RefreshServerButton.Location = new System.Drawing.Point(695, 191);
             this.RefreshServerButton.Name = "RefreshServerButton";
             this.RefreshServerButton.Size = new System.Drawing.Size(113, 22);
             this.RefreshServerButton.TabIndex = 21;
@@ -403,7 +392,7 @@
             // CoDPictureBox
             // 
             this.CoDPictureBox.Image = global::CoDUO_FoV_Changer.Properties.Resources.CoD1_UO_icon;
-            this.CoDPictureBox.Location = new System.Drawing.Point(510, 311);
+            this.CoDPictureBox.Location = new System.Drawing.Point(123, 343);
             this.CoDPictureBox.Name = "CoDPictureBox";
             this.CoDPictureBox.Size = new System.Drawing.Size(23, 23);
             this.CoDPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -414,7 +403,7 @@
             // 
             this.ConnectServerButton.BackColor = System.Drawing.Color.DarkGray;
             this.ConnectServerButton.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ConnectServerButton.Location = new System.Drawing.Point(803, 169);
+            this.ConnectServerButton.Location = new System.Drawing.Point(695, 168);
             this.ConnectServerButton.Name = "ConnectServerButton";
             this.ConnectServerButton.Size = new System.Drawing.Size(113, 22);
             this.ConnectServerButton.TabIndex = 69;
@@ -426,7 +415,7 @@
             // 
             this.FavoriteServerCheckbox.AutoSize = true;
             this.FavoriteServerCheckbox.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FavoriteServerCheckbox.Location = new System.Drawing.Point(596, 169);
+            this.FavoriteServerCheckbox.Location = new System.Drawing.Point(488, 168);
             this.FavoriteServerCheckbox.Name = "FavoriteServerCheckbox";
             this.FavoriteServerCheckbox.Size = new System.Drawing.Size(131, 19);
             this.FavoriteServerCheckbox.TabIndex = 70;
@@ -437,10 +426,10 @@
             // FavoritesButton
             // 
             this.FavoritesButton.BackColor = System.Drawing.Color.DarkGray;
-            this.FavoritesButton.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FavoritesButton.Location = new System.Drawing.Point(480, 249);
+            this.FavoritesButton.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.FavoritesButton.Location = new System.Drawing.Point(12, 243);
             this.FavoritesButton.Name = "FavoritesButton";
-            this.FavoritesButton.Size = new System.Drawing.Size(113, 22);
+            this.FavoritesButton.Size = new System.Drawing.Size(102, 22);
             this.FavoritesButton.TabIndex = 71;
             this.FavoritesButton.Text = "Show Favorites";
             this.FavoritesButton.UseVisualStyleBackColor = false;
@@ -451,7 +440,7 @@
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem1});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(204, 48);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(204, 26);
             this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
             // 
             // toolStripMenuItem1
@@ -465,7 +454,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
-            this.ClientSize = new System.Drawing.Size(918, 402);
+            this.ClientSize = new System.Drawing.Size(809, 402);
             this.Controls.Add(this.FavoritesButton);
             this.Controls.Add(this.FavoriteServerCheckbox);
             this.Controls.Add(this.ConnectServerButton);
@@ -485,7 +474,6 @@
             this.Controls.Add(this.MapLabel);
             this.Controls.Add(this.MapImageBox);
             this.Controls.Add(this.SearchFilterLabel);
-            this.Controls.Add(this.GameVersionLabel);
             this.Controls.Add(this.GameVersionBox);
             this.Controls.Add(this.SearchFilterTextbox);
             this.Controls.Add(this.HideNoPingCheckbox);
@@ -523,7 +511,6 @@
         private System.Windows.Forms.CheckBox HideNoPingCheckbox;
         private System.Windows.Forms.TextBox SearchFilterTextbox;
         private System.Windows.Forms.ComboBox GameVersionBox;
-        private System.Windows.Forms.Label GameVersionLabel;
         private System.Windows.Forms.Label SearchFilterLabel;
         private System.Windows.Forms.PictureBox MapImageBox;
         private System.Windows.Forms.Label MapLabel;

@@ -20,6 +20,7 @@ public class PathInfos
     public static string LogsPath => Path.Combine(AppDataFoV, "Logs");
     public static string SettingsPath => Path.Combine(AppDataFoV, "settings.json");
     public static string CachePath => Path.Combine(AppTemp, "cache");
+    public static string LocalizationPath => Path.Combine(AppDataFoV, "Localization");
 
     public static HashSet<string> GAME_PROCESS_NAMES = new HashSet<string>(5) { CODSP_PROCESS_NAME, CODMP_PROCESS_NAME, CODUOSP_PROCESS_NAME, CODUOMP_PROCESS_NAME, MOHAA_PROCESS_NAME };
 

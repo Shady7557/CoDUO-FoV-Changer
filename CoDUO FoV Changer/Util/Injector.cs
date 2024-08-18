@@ -2,6 +2,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CoDUO_FoV_Changer
 {
@@ -46,13 +47,16 @@ namespace CoDUO_FoV_Changer
       
         private Injector() { }
 
-        public DllInjectionResult Inject(int processId, string dllPath)
+        public async Task<DllInjectionResult> Inject(int processId, string dllPath, int msDelay = 0)
         {
             if (string.IsNullOrWhiteSpace(dllPath))
                 throw new ArgumentNullException(nameof(dllPath));
 
             if (!File.Exists(dllPath))
                 return DllInjectionResult.DllNotFound;
+
+            if (msDelay > 0)
+                await Task.Delay(msDelay);
 
             return Inject((uint)processId, dllPath) ? DllInjectionResult.Success : DllInjectionResult.InjectionFailed;
 

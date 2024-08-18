@@ -71,25 +71,27 @@
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AboutForm.cs">
+    <Compile Include="Forms\AboutForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AboutForm.Designer.cs">
+    <Compile Include="Forms\AboutForm.Designer.cs">
       <DependentUpon>AboutForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="AdvancedSettingsForm.cs">
+    <Compile Include="Forms\AdvancedSettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AdvancedSettingsForm.Designer.cs">
+    <Compile Include="Forms\AdvancedSettingsForm.Designer.cs">
       <DependentUpon>AdvancedSettingsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\ControlLocalizationExtension.cs" />
+    <Compile Include="Forms\LocalizationManager.cs" />
     <Compile Include="UserAgent.cs" />
     <Compile Include="Util\StringExtensions.cs" />
     <Compile Include="Util\BitmapExtensions.cs" />
-    <Compile Include="CDKeyManagerForm.cs">
+    <Compile Include="Forms\CDKeyManagerForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CDKeyManagerForm.Designer.cs">
+    <Compile Include="Forms\CDKeyManagerForm.Designer.cs">
       <DependentUpon>CDKeyManagerForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Util\ClampEx.cs" />
@@ -101,10 +103,10 @@
     <Compile Include="GameConfig.cs" />
     <Compile Include="GameStarter.cs" />
     <Compile Include="HotfixVersion.cs" />
-    <Compile Include="HotkeysForm.cs">
+    <Compile Include="Forms\HotkeysForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="HotkeysForm.Designer.cs">
+    <Compile Include="Forms\HotkeysForm.Designer.cs">
       <DependentUpon>HotkeysForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\LinkPictureBox.cs">
@@ -113,7 +115,7 @@
     <Compile Include="Controls\LinkPictureBox.Designer.cs">
       <DependentUpon>LinkPictureBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="Injector.cs" />
+    <Compile Include="Util\Injector.cs" />
     <Compile Include="Pool\Pool.cs" />
     <Compile Include="ProcMemoryBox.cs">
       <SubType>Component</SubType>
@@ -122,10 +124,10 @@
     <Compile Include="DatabaseFile.cs" />
     <Compile Include="DirectoryExtensions.cs" />
     <Compile Include="HotkeyHandler.cs" />
-    <Compile Include="MainForm.cs">
+    <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.cs">
+    <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Memory.cs" />
@@ -143,10 +145,10 @@
     <Compile Include="ReadWriteMemory.cs" />
     <Compile Include="CoDRegistryExtensions.cs" />
     <Compile Include="MasterServerInfo.cs" />
-    <Compile Include="ServersForm.cs">
+    <Compile Include="Forms\ServersForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ServersForm.Designer.cs">
+    <Compile Include="Forms\ServersForm.Designer.cs">
       <DependentUpon>ServersForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ServerUtil.cs" />
@@ -154,16 +156,16 @@
     <Compile Include="OldSettings.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="SettingsExt.cs" />
-    <Compile Include="SettingsForm.cs">
+    <Compile Include="Forms\SettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SettingsForm.Designer.cs">
+    <Compile Include="Forms\SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="GameFixesForm.cs">
+    <Compile Include="Forms\GameFixesForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="GameFixesForm.Designer.cs">
+    <Compile Include="Forms\GameFixesForm.Designer.cs">
       <DependentUpon>GameFixesForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\SplitButton.cs" />
@@ -172,24 +174,24 @@
     <Compile Include="Util\ScreenUtil.cs" />
     <Compile Include="Util\StringBuilderCache.cs" />
     <Compile Include="Util\TimeCachedValue.cs" />
-    <EmbeddedResource Include="AboutForm.resx">
+    <EmbeddedResource Include="Forms\AboutForm.resx">
       <DependentUpon>AboutForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="AdvancedSettingsForm.resx">
+    <EmbeddedResource Include="Forms\AdvancedSettingsForm.resx">
       <DependentUpon>AdvancedSettingsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="CDKeyManagerForm.resx">
+    <EmbeddedResource Include="Forms\CDKeyManagerForm.resx">
       <DependentUpon>CDKeyManagerForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="HotkeysForm.resx">
+    <EmbeddedResource Include="Forms\HotkeysForm.resx">
       <DependentUpon>HotkeysForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\LinkPictureBox.resx">
       <DependentUpon>LinkPictureBox.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
+    <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -198,14 +200,14 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="ServersForm.resx">
+    <EmbeddedResource Include="Forms\ServersForm.resx">
       <DependentUpon>ServersForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="SettingsForm.resx">
+    <EmbeddedResource Include="Forms\SettingsForm.resx">
       <DependentUpon>SettingsForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="GameFixesForm.resx">
+    <EmbeddedResource Include="Forms\GameFixesForm.resx">
       <DependentUpon>GameFixesForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
@@ -245,6 +247,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

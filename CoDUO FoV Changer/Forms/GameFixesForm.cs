@@ -1,6 +1,9 @@
-﻿using CurtLog;
+﻿using CoDUO_FoV_Changer.Util;
+using CurtLog;
 using Microsoft.Win32;
+using StringExtension;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,6 +15,9 @@ namespace CoDUO_FoV_Changer
     {
 
         private const string APP_COMPAT_FLAGS_PATH = "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers";
+        private const string DPI_FIX_REGISTRY_VALUE = "~ DISABLEDXMAXIMIZEDWINDOWEDMODE PERPROCESSSYSTEMDPIFORCEOFF HIGHDPIAWARE";
+
+        private const string PCGAMINGWIKI_URL = "https://www.pcgamingwiki.com/wiki/Call_of_Duty";
 
         public bool IsClosingOrClosed
         {
@@ -148,7 +154,20 @@ namespace CoDUO_FoV_Changer
                         continue;
                     // TODO: Parse existing value & do not remove/modify existing value (ones we didn't apply).
 
-                    Registry.SetValue(APP_COMPAT_FLAGS_PATH, exePath, "~ DISABLEDXMAXIMIZEDWINDOWEDMODE PERPROCESSSYSTEMDPIFORCEOFF HIGHDPIAWARE", RegistryValueKind.String);
+                    var existingRegistryValue = Registry.GetValue(APP_COMPAT_FLAGS_PATH, exePath, string.Empty)?.ToString() ?? string.Empty;
+
+                    if (existingRegistryValue.Contains(DPI_FIX_REGISTRY_VALUE, StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    var hasTilde = existingRegistryValue.StartsWith("~", StringComparison.OrdinalIgnoreCase);
+                    var newVal = StringBuilderCache.Acquire(existingRegistryValue.Length + DPI_FIX_REGISTRY_VALUE.Length + 2)
+                        .Append(existingRegistryValue)
+                        .Append(!hasTilde ? "~" : string.Empty)
+                        .Append(" ")
+                        .Append(DPI_FIX_REGISTRY_VALUE)
+                        .ToString();
+
+                    Registry.SetValue(APP_COMPAT_FLAGS_PATH, exePath, DPI_FIX_REGISTRY_VALUE, RegistryValueKind.String);
                 }
                 catch (Exception ex)
                 {
@@ -174,9 +193,16 @@ namespace CoDUO_FoV_Changer
 
                     if (!File.Exists(exePath))
                         continue;
-                    // TODO: Parse existing value & do not remove/modify existing value (ones we didn't apply).
 
-                    Registry.SetValue(APP_COMPAT_FLAGS_PATH, exePath, string.Empty, RegistryValueKind.String);
+                    var existingValue = Registry.GetValue(APP_COMPAT_FLAGS_PATH, exePath, string.Empty)?.ToString() ?? string.Empty;
+
+                    var newVal = string.Empty;
+
+                    if (!string.IsNullOrWhiteSpace(existingValue))
+                        newVal = existingValue.Replace(DPI_FIX_REGISTRY_VALUE, string.Empty);
+
+
+                    Registry.SetValue(APP_COMPAT_FLAGS_PATH, newVal, string.Empty, RegistryValueKind.String);
                 }
                 catch (Exception ex)
                 {
@@ -193,5 +219,8 @@ namespace CoDUO_FoV_Changer
         {
             IsClosingOrClosed = true;
         }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => Process.Start(PCGAMINGWIKI_URL);
+        
     }
 }

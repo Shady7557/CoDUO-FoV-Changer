@@ -287,7 +287,9 @@ namespace CoDUO_FoV_Changer
 
                 // No need to write the changes to the disk for the new settings - that will be done automatically when the app closes.
 
-                File.Move(oldSettingsFile, oldSettingsFile.Replace(".xml", ".old"));
+                var replaced = oldSettingsFile.Replace(".xml", ".old");
+                if (!File.Exists(replaced))
+                    File.Move(oldSettingsFile, oldSettingsFile.Replace(".xml", ".old"));
             }
             else if (File.Exists(settingsFile))
             {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Localization;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
@@ -9,7 +10,6 @@ namespace CoDUO_FoV_Changer
     {
 
         private static readonly Dictionary<Type, ExtendedForm> _instances = new Dictionary<Type, ExtendedForm>();
-
         
         protected ExtendedForm()
         {
@@ -25,6 +25,7 @@ namespace CoDUO_FoV_Changer
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             SetStyle(ControlStyles.UserPaint, true);
+            UpdateStyles(); // Unsure if UpdateStyles() is necessary
         }
 
 
@@ -32,6 +33,22 @@ namespace CoDUO_FoV_Changer
         {
             if (AttachToOwner)
                 SetOwnerOffsetPosition();
+
+            LoadAllLocalization();
+
+        }
+
+        public void LoadAllLocalization()
+        {
+            foreach (var control in Controls)
+            {
+                if (!(control is Control ctrl))
+                    continue;
+
+                // 'pre-load' any that don't have indexes (multiple text options)
+                if (LocalizationManager.Instance.GetControlIndexCount(ctrl) <= 1)
+                    LocalizationManager.Instance.ApplyLocalization(ctrl, 0);
+            }
         }
 
         private void OnExtendedForm_Close(object sender, EventArgs e)
@@ -62,18 +79,21 @@ namespace CoDUO_FoV_Changer
             }
         }
 
-        //makes the loading look smoother (?)
-        //cannot seemingly be used here; breaks designer. using SetStyle instead.
-        /*/
+        // Makes the loading look smoother        
         protected override CreateParams CreateParams
         {
             get
             {
                 CreateParams cp = base.CreateParams;
+
+                if (DesignMode)
+                    return cp;
+
                 cp.ExStyle |= 0x02000000;  // Turn on WS_EX_COMPOSITED
+
                 return cp;
             }
-        } /*/
+        } 
 
         private void ParentForm_LocationChanged(object sender, EventArgs e) { SetOwnerOffsetPosition(); }
 

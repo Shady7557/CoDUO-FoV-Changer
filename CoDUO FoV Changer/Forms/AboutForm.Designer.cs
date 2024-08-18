@@ -40,6 +40,11 @@
             this.createdByLbl = new System.Windows.Forms.Label();
             this.discordPicBox = new CoDUO_FoV_Changer.LinkPictureBox();
             this.bmcPicBox = new CoDUO_FoV_Changer.LinkPictureBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.codpmLinkLabel = new System.Windows.Forms.LinkLabel();
+            this.label4 = new System.Windows.Forms.Label();
+            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)(this.discordPicBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.bmcPicBox)).BeginInit();
             this.SuspendLayout();
@@ -48,7 +53,7 @@
             // 
             this.gameVersionLbl.AutoSize = true;
             this.gameVersionLbl.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gameVersionLbl.Location = new System.Drawing.Point(340, 419);
+            this.gameVersionLbl.Location = new System.Drawing.Point(366, 534);
             this.gameVersionLbl.Name = "gameVersionLbl";
             this.gameVersionLbl.Size = new System.Drawing.Size(37, 13);
             this.gameVersionLbl.TabIndex = 8;
@@ -58,7 +63,7 @@
             // 
             this.appVersionLbl.AutoSize = true;
             this.appVersionLbl.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.appVersionLbl.Location = new System.Drawing.Point(370, 398);
+            this.appVersionLbl.Location = new System.Drawing.Point(396, 513);
             this.appVersionLbl.Name = "appVersionLbl";
             this.appVersionLbl.Size = new System.Drawing.Size(79, 13);
             this.appVersionLbl.TabIndex = 7;
@@ -68,7 +73,7 @@
             // 
             this.displayGameVerLbl.AutoSize = true;
             this.displayGameVerLbl.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.displayGameVerLbl.Location = new System.Drawing.Point(246, 419);
+            this.displayGameVerLbl.Location = new System.Drawing.Point(272, 534);
             this.displayGameVerLbl.Name = "displayGameVerLbl";
             this.displayGameVerLbl.Size = new System.Drawing.Size(97, 13);
             this.displayGameVerLbl.TabIndex = 6;
@@ -78,7 +83,7 @@
             // 
             this.displayAppVerLbl.AutoSize = true;
             this.displayAppVerLbl.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.displayAppVerLbl.Location = new System.Drawing.Point(246, 398);
+            this.displayAppVerLbl.Location = new System.Drawing.Point(272, 513);
             this.displayAppVerLbl.Name = "displayAppVerLbl";
             this.displayAppVerLbl.Size = new System.Drawing.Size(127, 13);
             this.displayAppVerLbl.TabIndex = 5;
@@ -124,7 +129,7 @@
             this.closeButton.ForeColor = System.Drawing.Color.Black;
             this.closeButton.Location = new System.Drawing.Point(12, 396);
             this.closeButton.Name = "closeButton";
-            this.closeButton.Size = new System.Drawing.Size(210, 33);
+            this.closeButton.Size = new System.Drawing.Size(463, 33);
             this.closeButton.TabIndex = 0;
             this.closeButton.Text = "Close";
             this.closeButton.UseVisualStyleBackColor = false;
@@ -137,16 +142,16 @@
             this.createdByLbl.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
             this.createdByLbl.Location = new System.Drawing.Point(9, 25);
             this.createdByLbl.Name = "createdByLbl";
-            this.createdByLbl.Size = new System.Drawing.Size(280, 15);
+            this.createdByLbl.Size = new System.Drawing.Size(287, 15);
             this.createdByLbl.TabIndex = 10;
-            this.createdByLbl.Text = "Created with the love of PRISM by Shady";
+            this.createdByLbl.Text = "Created with the love of PRISM by Shady.";
             // 
             // discordPicBox
             // 
             this.discordPicBox.Image = global::CoDUO_FoV_Changer.Properties.Resources.discord_500x;
             this.discordPicBox.Location = new System.Drawing.Point(243, 303);
             this.discordPicBox.Name = "discordPicBox";
-            this.discordPicBox.Size = new System.Drawing.Size(211, 56);
+            this.discordPicBox.Size = new System.Drawing.Size(232, 56);
             this.discordPicBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.discordPicBox.TabIndex = 9;
             this.discordPicBox.TabStop = false;
@@ -163,12 +168,71 @@
             this.bmcPicBox.TabStop = false;
             this.bmcPicBox.UrlResource = "https://buymeacoffee.com/shady757";
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(12, 441);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(415, 13);
+            this.label1.TabIndex = 11;
+            this.label1.Text = "This application makes use of the cod.pm API for its server browser.";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(12, 457);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(415, 26);
+            this.label3.TabIndex = 12;
+            this.label3.Text = "Without obligation, I want to thank them for their work. Thank you. \r\nFind their " +
+    "site here:";
+            // 
+            // codpmLinkLabel
+            // 
+            this.codpmLinkLabel.AutoSize = true;
+            this.codpmLinkLabel.Location = new System.Drawing.Point(12, 483);
+            this.codpmLinkLabel.Name = "codpmLinkLabel";
+            this.codpmLinkLabel.Size = new System.Drawing.Size(78, 13);
+            this.codpmLinkLabel.TabIndex = 13;
+            this.codpmLinkLabel.TabStop = true;
+            this.codpmLinkLabel.Text = "https://cod.pm";
+            this.codpmLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.codpmLinkLabel_LinkClicked);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(12, 500);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(253, 26);
+            this.label4.TabIndex = 14;
+            this.label4.Text = "If you wish to consider supporting them, \r\ninfo on donating can be found in the F" +
+    "AQ:";
+            // 
+            // linkLabel1
+            // 
+            this.linkLabel1.AutoSize = true;
+            this.linkLabel1.Location = new System.Drawing.Point(12, 527);
+            this.linkLabel1.Name = "linkLabel1";
+            this.linkLabel1.Size = new System.Drawing.Size(126, 13);
+            this.linkLabel1.TabIndex = 15;
+            this.linkLabel1.TabStop = true;
+            this.linkLabel1.Text = "https://cod.pm/faq#f42e";
+            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked_1);
+            // 
             // AboutForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
-            this.ClientSize = new System.Drawing.Size(461, 441);
+            this.ClientSize = new System.Drawing.Size(483, 551);
+            this.Controls.Add(this.linkLabel1);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.codpmLinkLabel);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.createdByLbl);
             this.Controls.Add(this.discordPicBox);
             this.Controls.Add(this.gameVersionLbl);
@@ -207,5 +271,10 @@
         private System.Windows.Forms.Label appVersionLbl;
         private LinkPictureBox discordPicBox;
         private System.Windows.Forms.Label createdByLbl;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.LinkLabel codpmLinkLabel;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.LinkLabel linkLabel1;
     }
 }

@@ -769,6 +769,13 @@ namespace CoDUO_FoV_Changer
                 Console.WriteLine(ex.ToString());
             }
 
+            try { ToggleControl(RefreshServerButton, 5f); }
+            catch (Exception ex)
+            {
+                Log.WriteLine(ex.ToString());
+                Console.WriteLine(ex.ToString());
+            }
+
         }
 
         private void UpdatePlayersListViewAndLabel(Server server)

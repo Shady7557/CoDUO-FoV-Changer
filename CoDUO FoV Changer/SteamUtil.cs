@@ -3,6 +3,7 @@ using StringExtension;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace CoDUO_FoV_Changer
 {
@@ -107,7 +108,7 @@ namespace CoDUO_FoV_Changer
             File.Copy(steamDllPath, Path.Combine(gamePath, "steam.dll"));
         }
 
-        public static void EnsureSteamOverlay(int processId, GameConfig.GameType gameType)
+        public static async Task EnsureSteamOverlay(int processId, GameConfig.GameType gameType, int injectionDelayMs = 0)
         {
             var ensureLogMsg = nameof(EnsureSteamOverlay) + " called for process with ID " + processId + ", " + nameof(gameType) + ": " + gameType;
 
@@ -201,7 +202,7 @@ namespace CoDUO_FoV_Changer
             Console.WriteLine(injectLog);
             Log.WriteLine(injectLog);
 
-            var res = Injector.Instance.Inject(processId, overlayDllPath);
+            var res = await Injector.Instance.Inject(processId, overlayDllPath, injectionDelayMs);
 
             if (res != DllInjectionResult.Success)
             {

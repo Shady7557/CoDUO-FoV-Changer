@@ -23,8 +23,44 @@ namespace CoDUO_FoV_Changer
 
         private static readonly string _noImgCachePath = Path.Combine(PathInfos.CachePath, "noimgcache.json");
 
-       
-
+        private static readonly HashSet<string> _stockMapNames = new HashSet<string>()
+{
+    "mp_arnhem",
+    "mp_berlin",
+    "mp_bocage",
+    "mp_brecourt",
+    "mp_carentan",
+    "mp_uo_carentan",
+    "mp_cassino",
+    "mp_chateau",
+    "mp_dawnville",
+    "mp_uo_dawnville",
+    "mp_depot",
+    "mp_uo_depot",
+    "mp_foy",
+    "mp_harbor",
+    "mp_uo_harbor",
+    "mp_hurtgen",
+    "mp_uo_hurtgen",
+    "mp_italy",
+    "mp_kharkov",
+    "mp_kursk",
+    "mp_neuville",
+    "mp_pavlov",
+    "mp_peaks",
+    "mp_ponyri",
+    "mp_powcamp",
+    "mp_uo_powcamp",
+    "mp_railyard",
+    "mp_rhinevalley",
+    "mp_rocket",
+    "mp_ship",
+    "mp_sicily",
+    "mp_stalingrad",
+    "mp_streets",
+    "mp_tigertown",
+    "mp_uo_stanjel"
+};
         private static readonly HttpClient _httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(5) };
 
 
@@ -193,6 +229,7 @@ namespace CoDUO_FoV_Changer
             {
                 // File did not exist on disk or was not a valid image file, so now we'll attempt to download it.
 
+
                 var filteredMapName = StringBuilderCache.GetStringAndRelease(
                     StringBuilderCache.Acquire(mapName.Length)
                     .Append(mapName)
@@ -201,11 +238,18 @@ namespace CoDUO_FoV_Changer
                     .Replace("ctf_", "mp_")
                     .Replace("_ctf", string.Empty));
 
+                var isStock = _stockMapNames.Contains(mapName) || _stockMapNames.Contains(filteredMapName);
 
-                image = await GetImageAsync(GetMapImageURL(filteredMapName))
-                     ?? await GetImageAsync(GetMapImageURL(mapName))
-                     ?? await GetImageAsync(GetMapImageURL(mapName, false));
+                image = await GetImageAsync(GetMapImageURL(filteredMapName, isStock))
+                    ?? await GetImageAsync(GetMapImageURL(mapName, isStock));
 
+                // Was "stock", but image is still null. Try again without isStock true.
+                if (image is null && isStock)
+                {
+                      image = await GetImageAsync(GetMapImageURL(mapName, false))
+                        ?? await GetImageAsync(GetMapImageURL(filteredMapName, false));
+                }
+                  
             }
 
 

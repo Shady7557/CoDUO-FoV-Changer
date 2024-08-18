@@ -120,10 +120,10 @@
   <data name="aboutTextLabel.Text" xml:space="preserve">
     <value>
 This application is designed to help players comfortably play Call of Duty (2003) and Call of Duty: United Offensive while using a widescreen resolution.
-You are able to change your Field of View ("FoV") and reduce the side effects of the stretched image that occurs because these games are too old to understand what a widescreen is.
+You can change your Field of View ("FoV") and reduce the side effects of the stretched image that occurs because these games are too old to understand what widescreen is.
 
 
-This tool is not necessary if you are playing single player. If you wish to change your FoV in single player, please see "How do I change my FoV in SP?".
+This tool is not necessary if you are playing single player. If you wish to change your FoV in single player, please see the "Game Fixes/Solutions" option under 'Help'.
 
 Both games run at 80 FoV at non-wide aspect ratios and this cannot be changed. However, the real FoV is lower than 80 when using widescreen aspect ratios because the game does not know how to handle them.
 This results in everything being stretched and zoomed in.
