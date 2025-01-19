@@ -443,10 +443,8 @@ namespace CoDUO_FoV_Changer
             // If we can't get the server from the dictionary, it does not already exist. We'll have to add it!
 
             if (SelectedServer != null && SelectedServer.Id == server.Id)
-            {
-                Console.WriteLine("!! server id !! match !! updating selected");
                 SelectedServer = server;
-            }
+            
 
             try
             {
@@ -554,8 +552,6 @@ namespace CoDUO_FoV_Changer
             Console.WriteLine(nameof(RefreshAllServers));
             if (string.IsNullOrWhiteSpace(GameName) || string.IsNullOrWhiteSpace(GameVersion))
                 return;
-
-            Console.WriteLine("RefreshAll, gamename version: " + GameName + ", " + GameVersion);
 
             OnRefresh();
 
@@ -738,53 +734,54 @@ namespace CoDUO_FoV_Changer
         {
             // Try to parse game name and version from the selected combobox item.
 
-            Console.WriteLine(nameof(GameVersionBox_SelectedIndexChanged));
-
             var selected = GameVersionBox?.SelectedItem?.ToString() ?? string.Empty;
-
-            Console.WriteLine("selected: " + selected);
 
             if (!selected.Contains("(") || !selected.Contains(")"))
                 return;
 
 
-            try
+            Task.Run(() =>
             {
-                var sb = StringBuilderCache.Acquire(selected.Length);
-                sb
-                    .Append(selected)
-                    .Replace(")", string.Empty)
-                    .Replace(":", string.Empty);
-
-
-                var split = StringBuilderCache.GetStringAndRelease(sb).Split('(');
-
-                var gameVersion = split[1];
-                var gameName = split[0].Trim().ToLower();
-
-                GameVersion = gameVersion;
-                GameName = gameName.ToLower();
-
-                Console.WriteLine("gamev, name: " + GameVersion + ", " + GameName);
-
-                if (HasLoaded)
+                try
                 {
-                    ClearServerList();
-                    RefreshAllServers();
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.WriteLine(ex.ToString());
-                Console.WriteLine(ex.ToString());
-            }
+                    var sb = StringBuilderCache.Acquire(selected.Length);
+                    sb
+                        .Append(selected)
+                        .Replace(")", string.Empty)
+                        .Replace(":", string.Empty);
 
-            try { CoDPictureBox.Image = GameName == "coduo" ? Properties.Resources.CoDUO : Properties.Resources.CoD1; }
-            catch (Exception ex)
-            {
-                Log.WriteLine(ex.ToString());
-                Console.WriteLine(ex.ToString());
-            }
+
+                    var split = StringBuilderCache.GetStringAndRelease(sb).Split('(');
+
+                    var gameVersion = split[1];
+                    var gameName = split[0].Trim().ToLower();
+
+                    GameVersion = gameVersion;
+                    GameName = gameName.ToLower();
+
+                    BeginInvoke((MethodInvoker)delegate
+                    {
+                        try { CoDPictureBox.Image = GameName == "coduo" ? Properties.Resources.CoDUO : Properties.Resources.CoD1; }
+                        catch (Exception ex)
+                        {
+                            Log.WriteLine(ex.ToString());
+                            Console.WriteLine(ex.ToString());
+                        }
+                    });
+
+                    if (HasLoaded)
+                        BeginInvoke((MethodInvoker)async delegate
+                        {
+                            ClearServerList();
+                            await RefreshAllServers();
+                        });
+                }
+                catch (Exception ex)
+                {
+                    Log.WriteLine(ex.ToString());
+                    Console.WriteLine(ex.ToString());
+                }
+            });
         }
 
         /// <summary>
@@ -814,15 +811,12 @@ namespace CoDUO_FoV_Changer
                 Console.WriteLine(ex.ToString());
             }
 
-            Console.WriteLine("SelectedServer is null?!: " + (SelectedServer is null));
-
             // update selected server by getting the "new" server with the same ID:
-            // may not work/be uyseless
+            // may not work/be uyseless - todo: testing.
             if (SelectedServer != null)
             {
                 var updated = ServerListView.GetServer(SelectedServer.Id);
 
-                Console.WriteLine("updated is null?!: " + (updated is null));
 
                 if (updated != null)
                     SelectedServer = updated;
@@ -1233,7 +1227,6 @@ namespace CoDUO_FoV_Changer
 
             Task.Run(() =>
             {
-                Console.WriteLine("refresh timer tick!! hi!!");
 
                 try
                 {
@@ -1259,7 +1252,6 @@ namespace CoDUO_FoV_Changer
                     // create a method that handles when a server is updated instead of copy/pasting these things?
                     if (SelectedServer != null)
                     {
-                        // Console.WriteLine("selected server not null, updating!!!!, mapname: " + SelectedServer.MapName);
 
                         BeginInvoke((MethodInvoker)delegate
                         {
@@ -1267,17 +1259,12 @@ namespace CoDUO_FoV_Changer
 
                             UpdatePlayersListViewAndLabel(SelectedServer);
 
-
-                            // Console.WriteLine("updated players list view and label");
-
                             BeginMapImageLoad(SelectedServer.MapName);
 
-                            //Console.WriteLine("called map image load");
                         });
                        
 
                     }
-                    else Console.WriteLine("selected server null?!?!??!");
                 }
                 catch(Exception ex) { Console.WriteLine(ex.ToString()); }
                

@@ -86,6 +86,7 @@
     <Compile Include="Forms\ControlLocalizationExtension.cs" />
     <Compile Include="Forms\LocalizationManager.cs" />
     <Compile Include="UserAgent.cs" />
+    <Compile Include="Util\EmergencyLogger.cs" />
     <Compile Include="Util\FovCalculator.cs" />
     <Compile Include="Util\RModeToResolutionMapping.cs" />
     <Compile Include="Util\StringExtensions.cs" />

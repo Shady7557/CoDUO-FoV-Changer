@@ -1,6 +1,6 @@
-﻿using CurtLog;
+﻿using CoDUO_FoV_Changer.Util;
+using CurtLog;
 using Localization;
-using ShadyPool;
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -30,16 +30,15 @@ namespace CoDUO_FoV_Changer
             {
                 if (!_isElevated.HasValue)
                 {
-                    try 
-                    { 
-                        _isElevated = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator); 
+                    try
+                    {
+                        _isElevated = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
                     } //unclear if this will ever throw an exception, but it's better to be safe, aye?
                     catch (Exception ex)
                     {
-                        try 
-                        { 
-                            if (Log.IsInitialized)
-                                Log.WriteLine(ex.ToString());
+                        try
+                        {
+                            EmergencyLogger.WriteException(ex);
                         }
                         finally
                         {
@@ -62,19 +61,11 @@ namespace CoDUO_FoV_Changer
                     if (string.IsNullOrEmpty(_currentUserSID))
                         _currentUserSID = WindowsIdentity.GetCurrent().User.Value;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
-                    try 
-                    {
-                        if (Log.IsInitialized)
-                            Log.WriteLine(ex.ToString());
-                    }
-                    catch(Exception ex2) { Console.WriteLine(ex2.ToString());}
-
+                    EmergencyLogger.WriteException(ex);
                 }
-               
-
 
                 return _currentUserSID;
             }
@@ -82,17 +73,25 @@ namespace CoDUO_FoV_Changer
 
         private static void InitLog()
         {
-            var sb = Pool.Get<StringBuilder>();
 
             try
             {
-                sb.Clear();
 
-                Log.Settings.CustomLogHeader = sb.Clear().Append("===========").Append(Application.ProductName).Append(" Log File===========").ToString();
+
+                Log.Settings.CustomLogHeader = StringBuilderCache.GetStringAndRelease(StringBuilderCache.Acquire(360)
+                    .Append("===========")
+                    .Append(Application.ProductName)
+                    .Append(" Log File==========="));
+
                 Log.Settings.PerformanceOptions = Log.Performance.StandardPerformance;
                 Log.Settings.LogHeaderOptions = Log.LogHeader.CustomHeader;
 
-                var logLocation = sb.Clear().Append(PathInfos.LogsPath).Append(@"\CFC_").Append(DateTime.Now.ToString("d")).Replace("/", "-").Append(".log").ToString();
+                var logLocation = StringBuilderCache.GetStringAndRelease(StringBuilderCache.Acquire(360)
+                    .Append(PathInfos.LogsPath)
+                    .Append(@"\CFC_")
+                    .Append(DateTime.Now.ToString("d")).Replace("/", "-")
+                    .Append(".log"));
+
                 Log.InitializeLogger(logLocation);
 
                 var settings = Settings.Instance;
@@ -101,21 +100,30 @@ namespace CoDUO_FoV_Changer
                 if (settings.LastLogFile != logLocation)
                 {
                     try { if (File.Exists(settings.LastLogFile)) File.Delete(settings.LastLogFile); }
-                    catch (Exception ex) { Log.WriteLine(sb.Append("Failed to delete: ").Append(settings.LastLogFile).Append(Environment.NewLine).Append(ex.ToString()).ToString()); }
+                    catch (Exception ex)
+                    {
+                        Log.WriteLine(StringBuilderCache.GetStringAndRelease(StringBuilderCache.Acquire(360)
+                            .Append("Failed to delete: ")
+                            .Append(settings.LastLogFile)
+                            .Append(Environment.NewLine)
+                            .Append(ex.ToString())));
+                    }
                 }
 
                 settings.LastLogFile = logLocation;
             }
-            finally { Pool.Free(ref sb); }
-
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                EmergencyLogger.WriteException(ex);
+            }
         }
-
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
         private static void Main(string[] args)
-        { 
+        {
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(AssemblyResolve);
 
             var isMultiInstance = false;
@@ -131,7 +139,7 @@ namespace CoDUO_FoV_Changer
 
             using (var mutex = new Mutex(true, MUTEX_NAME, out var createdNew))
             {
-               
+
                 if (createdNew || isMultiInstance)
                 {
                     // No other instance is running, start the application
@@ -147,6 +155,7 @@ namespace CoDUO_FoV_Changer
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.ToString());
+                        EmergencyLogger.WriteException(ex);
                         Application.Exit();
                     }
 
@@ -167,11 +176,11 @@ namespace CoDUO_FoV_Changer
                 }
                 else
                     BringRunningInstanceToFront();
-                
-                
+
+
             }
 
-           
+
         }
 
         // The code below is used to try and resolve assemblies from the app's 'Resources' if necessary.
@@ -179,78 +188,69 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
+                // Debug info about which assembly is trying to be resolved:
+
+                Console.WriteLine($"Attempting to resolve assembly: {e.Name}");
+                Console.WriteLine($"Requesting assembly: {e.RequestingAssembly?.FullName}");
+
                 if (sender == null || e == null)
-                    return null;
-
-
-                var sb = Pool.Get<StringBuilder>();
-                try 
                 {
-                    var name = sb.Clear()
-                        .Append(typeof(Program).Namespace)
-                        .Append(".Resources.")
-                        .Append(new AssemblyName(e.Name).Name)
-                        .Append(".dll").ToString();
-
-                    var appPath = AppDomain.CurrentDomain.BaseDirectory;
-
-                    var resName = sb.Clear().Append(e.Name.Split(',')[0]).Append(".dll").ToString();
+                    Console.WriteLine("!! returning null for sender or e null!!");
+                    return null;
+                }
 
 
-                    using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(name))
+                var name = StringBuilderCache.GetStringAndRelease(StringBuilderCache.Acquire(360)
+                      .Append(typeof(Program).Namespace)
+                      .Append(".Resources.")
+                      .Append(new AssemblyName(e.Name).Name)
+                      .Append(".dll"));
+
+                var appPath = AppDomain.CurrentDomain.BaseDirectory;
+
+                var resName = StringBuilderCache.GetStringAndRelease(
+                    StringBuilderCache.Acquire(360)
+                    .Append(e.Name.Split(',')[0]).Append(".dll"));
+
+
+                using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(name))
+                {
+                    try
                     {
+                        if (stream == null)
+                            throw new FileLoadException(name);
+
+                        var data = new byte[stream.Length];
+                        stream.Read(data, 0, data.Length);
+
                         try
                         {
-                            if (stream == null)
-                                throw new FileLoadException(name);
+                            var fileNamePath = StringBuilderCache.GetStringAndRelease(
+                                StringBuilderCache.Acquire(360)
+                                .Append(appPath).Append("\\").Append(resName));
 
-                            var data = new byte[stream.Length];
-                            stream.Read(data, 0, data.Length);
-
-                            try
-                            {
-                                var fileNamePath = sb.Clear().Append(appPath).Append("\\").Append(resName).ToString();
-                                File.WriteAllBytes(fileNamePath, data);
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine(ex.ToString());
-                                try
-                                {
-                                    if (Log.IsInitialized)
-                                        Log.WriteLine(ex.ToString());
-                                }
-                                catch (Exception ex2) { Console.WriteLine(ex2.ToString()); }
-
-                            }
-
-                            return Assembly.Load(data);
+                            File.WriteAllBytes(fileNamePath, data);
                         }
-                        catch(Exception ex) 
+                        catch (Exception ex)
                         {
-                            Console.WriteLine(ex.ToString()); 
-                            try { 
-                                if (Log.IsInitialized) 
-                                    Log.WriteLine(ex.ToString()); 
-                            } 
-                            catch (Exception ex2) { Console.WriteLine(ex2.ToString());}
+                            Console.WriteLine(ex.ToString());
+                            EmergencyLogger.WriteException(ex);
                         }
+
+                        return Assembly.Load(data);
                     }
-
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        EmergencyLogger.WriteException(ex);
+                    }
                 }
-                finally { Pool.Free(ref sb); }
 
-                
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                try
-                {
-                    if (Log.IsInitialized)
-                        Log.WriteLine(ex.ToString());
-                }
-                catch (Exception ex2) { Console.WriteLine(ex2.ToString()); }
+                EmergencyLogger.WriteException(ex);
             }
 
             return null;
@@ -267,10 +267,10 @@ namespace CoDUO_FoV_Changer
                     accessor.Write(0, (byte)1); // Write a signal byte to indicate a subsequent instance
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                Log.WriteLine(ex.ToString());
+                EmergencyLogger.WriteException(ex);
             }
 
             try
@@ -304,20 +304,20 @@ namespace CoDUO_FoV_Changer
                         break;
 
                     }
-                    catch (Exception ex) 
-                    { 
+                    catch (Exception ex)
+                    {
                         Console.WriteLine(ex.ToString());
-                        Log.WriteLine(ex.ToString());
+                        EmergencyLogger.WriteException(ex);
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                Log.WriteLine(ex.ToString());
+                EmergencyLogger.WriteException(ex);
             }
 
-           
+
         }
 
         // Windows API constants and functions
