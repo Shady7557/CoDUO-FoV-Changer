@@ -94,6 +94,9 @@ namespace Localization
                 var jsonContent = File.ReadAllText(filePath);
                 LocalizedStrings = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<int, string>>>(jsonContent);
             }
+
+            Settings.Instance.SelectedCultureCode = culture.Name;
+
             // we don't need an else here to fall back onto en-US because if a culture is picked and does not have translations,
             // it will simply use english by default.
         }
@@ -108,6 +111,9 @@ namespace Localization
 
         public void LoadLocalization(string cultureCode, bool restartApp = true)
         {
+            if (string.IsNullOrWhiteSpace(cultureCode))
+                throw new ArgumentNullException(nameof(cultureCode));
+
             Console.WriteLine(nameof(LoadLocalization) + " : " + cultureCode);
             var cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
 
@@ -153,8 +159,11 @@ namespace Localization
 
         public void ApplyLocalization(Control control, int index = 0)
         {
-            if (string.IsNullOrWhiteSpace(control?.Text))
-                return;
+            if (control is null)
+                throw new ArgumentNullException(nameof(control));
+
+            if (control.IsDisposed || control.Disposing || string.IsNullOrWhiteSpace(control?.Text))
+                    return;
 
             var localized = GetLocalizedString(control, index);
 

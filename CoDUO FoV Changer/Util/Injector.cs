@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CurtLog;
+using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -58,8 +59,17 @@ namespace CoDUO_FoV_Changer
             if (msDelay > 0)
                 await Task.Delay(msDelay);
 
-            return Inject((uint)processId, dllPath) ? DllInjectionResult.Success : DllInjectionResult.InjectionFailed;
+            try 
+            {
+                return Inject((uint)processId, dllPath) ? DllInjectionResult.Success : DllInjectionResult.InjectionFailed; 
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                Log.WriteLine(ex.ToString());
 
+                return DllInjectionResult.InjectionFailed;
+            }
         }
 
         private bool Inject(uint processId, string dllPath)

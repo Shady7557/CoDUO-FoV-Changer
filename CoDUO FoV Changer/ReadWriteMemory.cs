@@ -185,6 +185,11 @@ namespace ReadWriteMemory
             ReadProcessMemory(ProcessHandle, lpBaseAddress, buffer, pSize, 0);
             return buffer;
         }
+        public float ReadFloat(int pOffset)
+        {
+            byte[] buffer = ReadMem(pOffset, 4);
+            return BitConverter.ToSingle(buffer, 0);
+        }
         #endregion
         #region Writing
         public void WriteByte(int pOffset, byte pBytes) => WriteMem(pOffset, BitConverter.GetBytes(pBytes));

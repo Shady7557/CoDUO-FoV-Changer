@@ -5,9 +5,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace CoDUO_FoV_Changer
+namespace CoDUO_FoV_Changer.Util
 {
-    internal class SteamUtil
+    internal static class SteamUtil
     {
         // This is not a "hack". It's a hacky workaround in the technical sense.
         // We are not hacking anything. There's no cheating. Please read the code.
@@ -110,17 +110,8 @@ namespace CoDUO_FoV_Changer
 
         public static async Task EnsureSteamOverlay(int processId, GameConfig.GameType gameType, int injectionDelayMs = 0)
         {
-            var ensureLogMsg = nameof(EnsureSteamOverlay) + " called for process with ID " + processId + ", " + nameof(gameType) + ": " + gameType;
-
-            Console.WriteLine(ensureLogMsg);
-            Log.WriteLine(ensureLogMsg);
-
             if (gameType != GameConfig.GameType.CoDMP && gameType != GameConfig.GameType.CoDUOMP)
                 return;
-
-            var process = Process.GetProcessById(processId);
-
-            var executablePath = process.MainModule.FileName;
 
             var steamPath = GetSteamDirectory();
 
@@ -133,12 +124,6 @@ namespace CoDUO_FoV_Changer
 
                 return;
             }
-
-            var steamPathLog = "Steam path: " + steamPath;
-
-            Console.WriteLine(steamPathLog);
-            Log.WriteLine(steamPathLog);
-
 
             var overlayExecutablePath = Path.Combine(steamPath, "GameOverlayUI.exe");
 
@@ -177,7 +162,7 @@ namespace CoDUO_FoV_Changer
 
             var steamProcId = steamProcesses[0]?.Id;
 
-            if (steamProcId is null)
+            if (!steamProcId.HasValue)
             {
                 var logMsg = "Could not get Steam process ID.";
 
@@ -193,14 +178,15 @@ namespace CoDUO_FoV_Changer
             {
                 FileName = overlayExecutablePath,
                 WorkingDirectory = steamPath,
-                Arguments = "-pid " + processId + " -steampid " + steamProcId.Value + " -manuallyclearframes 0 -gameid " + steamAppId,
+                Arguments = StringBuilderCache.GetStringAndRelease(StringBuilderCache.Acquire(360)
+                .Append("-pid ")
+                .Append(processId)
+                .Append("-steampid ")
+                .Append(steamProcId.Value)
+                .Append(" -manuallyclearframes 0 ")
+                .Append("-gameid ")
+                .Append(steamAppId))
             };
-
-
-            var injectLog = "Injecting overlay DLL: " + overlayDllPath + " into process ID: " + processId;
-
-            Console.WriteLine(injectLog);
-            Log.WriteLine(injectLog);
 
             var res = await Injector.Instance.Inject(processId, overlayDllPath, injectionDelayMs);
 
@@ -213,24 +199,7 @@ namespace CoDUO_FoV_Changer
                 return;
             }
 
-            var injectedLog = "Ran Injector.Jnject for Overlay DLL: " + overlayDllPath + " into process ID: " + processId;
-
-            Console.WriteLine(injectedLog);
-            Log.WriteLine(injectedLog);
-
-            var procLog = "Starting Steam overlay executable: " + procInfo.FileName + " " + procInfo.Arguments;
-
-            Console.WriteLine(procLog);
-            Log.WriteLine(procLog);
-
-            var overlayProcess = Process.Start(procInfo);
-
-            var startedLog = "Started Steam overlay process: " + overlayProcess.Id;
-
-            Console.WriteLine(startedLog);
-            Log.WriteLine(startedLog);
-         
-
+            Process.Start(procInfo);
         }
 
     }

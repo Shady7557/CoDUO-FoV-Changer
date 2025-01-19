@@ -195,6 +195,20 @@ namespace CoDUO_FoV_Changer
             set { SetConfigField(ref _serverListShowFavorites, value); }
         }
 
+        private int _serverListAutoRefreshSetting;
+        public int ServerListAutoRefreshSetting
+        {
+            get => _serverListAutoRefreshSetting;
+            set => SetConfigField(ref _serverListAutoRefreshSetting, value);    
+        }
+
+        private bool _useDesktopRes;
+        public bool UseDesktopRes
+        {
+            get { return _useDesktopRes; }
+            set { SetConfigField(ref _useDesktopRes, value); }
+        }
+
         private List<FavoriteServer> _favoriteServers;
         public List<FavoriteServer> FavoriteServers
         {
@@ -207,6 +221,13 @@ namespace CoDUO_FoV_Changer
         {
             get { return _useSteamOverlay; }
             set { SetConfigField(ref _useSteamOverlay, value); }
+        }
+
+        private string _selectedCultureCode;
+        public string SelectedCultureCode
+        {
+            get { return _selectedCultureCode; }
+            set { SetConfigField(ref _selectedCultureCode, value); }
         }
 
         public string SelectedExecutablePath => Path.Combine(_baseGamePath, SelectedExecutable);

@@ -1,4 +1,5 @@
-﻿using CurtLog;
+﻿using CoDUO_FoV_Changer.Util;
+using CurtLog;
 using ProcessExtensions;
 using ShadyPool;
 using StringExtension;

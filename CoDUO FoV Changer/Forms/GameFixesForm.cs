@@ -27,7 +27,7 @@ namespace CoDUO_FoV_Changer
 
         public float GetCurrentFov()
         {
-            return GetInstance<MainForm>()?.CurrentFoV ?? -1;
+            return GetInstance<MainForm>()?.CgFov ?? -1;
         }
 
         public GameFixesForm()

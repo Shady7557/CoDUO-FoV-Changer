@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace CoDUO_FoV_Changer
 {
-    internal class GameConfig
+    internal static class GameConfig
     {
 
         public static Regex ConfigRegex { get; } = new Regex(@"(?=\+)", RegexOptions.Compiled);

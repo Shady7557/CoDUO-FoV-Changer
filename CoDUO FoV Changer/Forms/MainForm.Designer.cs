@@ -53,10 +53,10 @@ namespace CoDUO_FoV_Changer
             this.enUSToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.frFRToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.serversToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ChangelogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mapArchiveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.serverBrowserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ExitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.StatusLabel = new System.Windows.Forms.Label();
             this.ipDialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -77,6 +77,7 @@ namespace CoDUO_FoV_Changer
             this.CoDPictureBox = new System.Windows.Forms.PictureBox();
             this.SessionTimeLabel = new System.Windows.Forms.Label();
             this.GameTimeCountLabel = new System.Windows.Forms.Label();
+            this.selectedProcessLabel = new System.Windows.Forms.Label();
             this.rcStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FoVNumeric)).BeginInit();
             this.FoVMenuStrip.SuspendLayout();
@@ -149,11 +150,6 @@ namespace CoDUO_FoV_Changer
             this.FoVNumeric.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FoVNumeric.ForeColor = System.Drawing.Color.Transparent;
             this.FoVNumeric.Location = new System.Drawing.Point(99, 6);
-            this.FoVNumeric.Maximum = new decimal(new int[] {
-            120,
-            0,
-            0,
-            0});
             this.FoVNumeric.Minimum = new decimal(new int[] {
             80,
             0,
@@ -231,6 +227,7 @@ namespace CoDUO_FoV_Changer
             this.FoVMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.HelpToolStripMenuItem,
             this.ToolStripMenuItem1,
+            this.serverBrowserToolStripMenuItem,
             this.ExitToolStripMenuItem});
             this.FoVMenuStrip.Location = new System.Drawing.Point(0, 192);
             this.FoVMenuStrip.Name = "FoVMenuStrip";
@@ -251,14 +248,14 @@ namespace CoDUO_FoV_Changer
             // InfoToolStripMenuItem
             // 
             this.InfoToolStripMenuItem.Name = "InfoToolStripMenuItem";
-            this.InfoToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+            this.InfoToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.InfoToolStripMenuItem.Text = "About";
             this.InfoToolStripMenuItem.Click += new System.EventHandler(this.InfoToolStripMenuItem_Click);
             // 
             // singleplayerToolStripMenuItem
             // 
             this.singleplayerToolStripMenuItem.Name = "singleplayerToolStripMenuItem";
-            this.singleplayerToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+            this.singleplayerToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.singleplayerToolStripMenuItem.Text = "Game Fixes/Solutions";
             this.singleplayerToolStripMenuItem.Click += new System.EventHandler(this.singleplayerToolStripMenuItem_Click);
             // 
@@ -268,41 +265,33 @@ namespace CoDUO_FoV_Changer
             this.enUSToolStripMenuItem,
             this.frFRToolStripMenuItem});
             this.languageToolStripMenuItem.Name = "languageToolStripMenuItem";
-            this.languageToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+            this.languageToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.languageToolStripMenuItem.Text = "Language";
             // 
             // enUSToolStripMenuItem
             // 
             this.enUSToolStripMenuItem.CheckOnClick = true;
             this.enUSToolStripMenuItem.Name = "enUSToolStripMenuItem";
-            this.enUSToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.enUSToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
             this.enUSToolStripMenuItem.Text = "en-US";
-            this.enUSToolStripMenuItem.Click += new System.EventHandler(this.enUSToolStripMenuItem_Click);
+            this.enUSToolStripMenuItem.Click += new System.EventHandler(this.EnUSToolStripMenuItem_Click);
             // 
             // frFRToolStripMenuItem
             // 
             this.frFRToolStripMenuItem.Name = "frFRToolStripMenuItem";
-            this.frFRToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.frFRToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
             this.frFRToolStripMenuItem.Text = "fr-FR";
-            this.frFRToolStripMenuItem.Click += new System.EventHandler(this.frFRToolStripMenuItem_Click);
+            this.frFRToolStripMenuItem.Click += new System.EventHandler(this.FrFRToolStripMenuItem_Click);
             // 
             // ToolStripMenuItem1
             // 
             this.ToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.serversToolStripMenuItem,
             this.SettingsToolStripMenuItem,
             this.ChangelogToolStripMenuItem,
             this.mapArchiveToolStripMenuItem});
             this.ToolStripMenuItem1.Name = "ToolStripMenuItem1";
-            this.ToolStripMenuItem1.Size = new System.Drawing.Size(46, 20);
+            this.ToolStripMenuItem1.Size = new System.Drawing.Size(47, 20);
             this.ToolStripMenuItem1.Text = "Tools";
-            // 
-            // serversToolStripMenuItem
-            // 
-            this.serversToolStripMenuItem.Name = "serversToolStripMenuItem";
-            this.serversToolStripMenuItem.Size = new System.Drawing.Size(190, 22);
-            this.serversToolStripMenuItem.Text = "Servers";
-            this.serversToolStripMenuItem.Click += new System.EventHandler(this.serversToolStripMenuItem_Click);
             // 
             // SettingsToolStripMenuItem
             // 
@@ -323,12 +312,19 @@ namespace CoDUO_FoV_Changer
             this.mapArchiveToolStripMenuItem.Name = "mapArchiveToolStripMenuItem";
             this.mapArchiveToolStripMenuItem.Size = new System.Drawing.Size(190, 22);
             this.mapArchiveToolStripMenuItem.Text = "Map Archive [GitHub]";
-            this.mapArchiveToolStripMenuItem.Click += new System.EventHandler(this.mapArchiveToolStripMenuItem_Click);
+            this.mapArchiveToolStripMenuItem.Click += new System.EventHandler(this.MapArchiveToolStripMenuItem_Click);
+            // 
+            // serverBrowserToolStripMenuItem
+            // 
+            this.serverBrowserToolStripMenuItem.Name = "serverBrowserToolStripMenuItem";
+            this.serverBrowserToolStripMenuItem.Size = new System.Drawing.Size(96, 20);
+            this.serverBrowserToolStripMenuItem.Text = "Server Browser";
+            this.serverBrowserToolStripMenuItem.Click += new System.EventHandler(this.ServerBrowserToolStripMenuItem_Click);
             // 
             // ExitToolStripMenuItem
             // 
             this.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem";
-            this.ExitToolStripMenuItem.Size = new System.Drawing.Size(38, 20);
+            this.ExitToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.ExitToolStripMenuItem.Text = "Exit";
             this.ExitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
             // 
@@ -435,6 +431,7 @@ namespace CoDUO_FoV_Changer
             this.toolTip1.SetToolTip(this.checkBoxDesktopRes, "Toggle whether we should use the desktop resolution when launching the game.\r\nOnl" +
         "y affects game launches via \'Start Game\' button.");
             this.checkBoxDesktopRes.UseVisualStyleBackColor = false;
+            this.checkBoxDesktopRes.CheckedChanged += new System.EventHandler(this.CheckBoxDesktopRes_CheckedChanged);
             // 
             // AdminLaunchButton
             // 
@@ -469,6 +466,7 @@ namespace CoDUO_FoV_Changer
             this.GamePIDBox.Size = new System.Drawing.Size(116, 21);
             this.GamePIDBox.TabIndex = 75;
             this.GamePIDBox.SelectedIndexChanged += new System.EventHandler(this.GamePIDBox_SelectedIndexChanged);
+            this.GamePIDBox.VisibleChanged += new System.EventHandler(this.GamePIDBox_VisibleChanged);
             // 
             // CoDPictureBox
             // 
@@ -502,12 +500,25 @@ namespace CoDUO_FoV_Changer
             this.GameTimeCountLabel.TabIndex = 79;
             this.GameTimeCountLabel.Text = "None";
             // 
+            // selectedProcessLabel
+            // 
+            this.selectedProcessLabel.AutoSize = true;
+            this.selectedProcessLabel.BackColor = System.Drawing.Color.Transparent;
+            this.selectedProcessLabel.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.selectedProcessLabel.ForeColor = System.Drawing.Color.Black;
+            this.selectedProcessLabel.Location = new System.Drawing.Point(300, 151);
+            this.selectedProcessLabel.Name = "selectedProcessLabel";
+            this.selectedProcessLabel.Size = new System.Drawing.Size(109, 13);
+            this.selectedProcessLabel.TabIndex = 80;
+            this.selectedProcessLabel.Text = "Selected Process:";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
             this.ClientSize = new System.Drawing.Size(420, 216);
+            this.Controls.Add(this.selectedProcessLabel);
             this.Controls.Add(this.GameTimeCountLabel);
             this.Controls.Add(this.SessionTimeLabel);
             this.Controls.Add(this.checkBoxDesktopRes);
@@ -584,13 +595,14 @@ namespace CoDUO_FoV_Changer
         private System.Windows.Forms.ToolStripMenuItem singleplayerToolStripMenuItem;
         internal CheckBox checkBoxDesktopRes;
         private ContextMenuStrip startGameStrip;
-        private ToolStripMenuItem serversToolStripMenuItem;
         internal Label SessionTimeLabel;
         internal Label GameTimeCountLabel;
         private ToolStripMenuItem mapArchiveToolStripMenuItem;
         private ToolStripMenuItem languageToolStripMenuItem;
         private ToolStripMenuItem enUSToolStripMenuItem;
         private ToolStripMenuItem frFRToolStripMenuItem;
+        private ToolStripMenuItem serverBrowserToolStripMenuItem;
+        internal Label selectedProcessLabel;
     }
 }
 

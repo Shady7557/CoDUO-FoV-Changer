@@ -21,7 +21,6 @@ using StringExtension;
 using System.Net.Http;
 using ControlExtensions;
 using Localization;
-using System.Globalization;
 
 namespace CoDUO_FoV_Changer
 {
@@ -47,12 +46,13 @@ namespace CoDUO_FoV_Changer
         private const string GITHUB_RELEASES_URI = @"https://github.com/Shady7557/CoDUO-FoV-Changer/releases";
 
         private const string GITHUB_MAP_ARCHIVE_URI = @"https://github.com/Shady7557/CoDUO-Map-Archive";
-
-        public float CurrentFoV
+        public float CgFov
         {
             get;
             private set;
         }
+
+        public decimal RealFov => FoVNumeric.Value;
 
         private int DesktopHeight => ScreenUtil.GetPrimaryDisplayResolution().Height;
         private int DesktopWidth => ScreenUtil.GetPrimaryDisplayResolution().Width;
@@ -247,7 +247,12 @@ namespace CoDUO_FoV_Changer
             {
                 watch.Restart();
 
+                if (!Debugger.IsAttached)
+                    languageToolStripMenuItem.Visible = false;
+
                 Text = Application.ProductName;
+                LaunchParametersTB.Text = settings.CommandLine;
+                checkBoxDesktopRes.Checked = settings.UseDesktopRes;
 
                 var basePathExists = !string.IsNullOrWhiteSpace(settings?.BaseGamePath) && Directory.Exists(settings.BaseGamePath);
 
@@ -424,7 +429,7 @@ namespace CoDUO_FoV_Changer
                 SetFoVNumeric(settings.FoV);
 
                 MinimizeCheckBox.Checked = settings.MinimizeToTray;
-                LaunchParametersTB.Text = settings.CommandLine;
+              
 
                 if (settings.TrackGameTime) AccessGameTimeLabel();
                 else ToggleGameTracking(false);
@@ -622,10 +627,11 @@ namespace CoDUO_FoV_Changer
         {
             FoVNumeric.DecimalPlaces = FoVNumeric.Value != (int)FoVNumeric.Value ? 1 : 0; //decimal places if the value isn't an int
 
-
             Task.Run(() =>
             {
-                CurrentFoV = Convert.ToSingle(FoVNumeric.Value);
+                var desiredCgFov = FovCalculator.CalculateCgFov((double)FoVNumeric.Value, GetGameAspectRatio());
+
+                CgFov = Convert.ToSingle(desiredCgFov);
                 settings.FoV = FoVNumeric.Value;
                 DoFoV();
             });
@@ -705,7 +711,7 @@ namespace CoDUO_FoV_Changer
 
                 //we can be super responsive when someone is tapping +- while not accidentally moving it up or down twice by doing manual checks while having the timer at ~5-10ms
                 if (_lastHotkey == null) _lastHotkey = now;
-                else if ((now - _lastHotkey).TotalMilliseconds < 100) return;
+                else if ((now - _lastHotkey).TotalMilliseconds < 75) return;
 
                 TryParseKeys(settings.HotKeyModifier, out var modifier);
 
@@ -827,37 +833,80 @@ namespace CoDUO_FoV_Changer
         }
 
         #endregion
+
         #region Memory
+
+       
+
+
+        // move:
+
+        private double GetGameAspectRatio()
+        {
+            if (MemorySelection is null || !MemorySelection.IsRunning() || MemorySelection.ProcMemory.RequiresElevation())
+                return 0;
+
+            var mode = MemorySelection.ReadIntAddress(MemoryAddresses.UO_R_MODE_ADDRESS, 0x20);
+
+            var width = 0;
+            var height = 0;
+
+            if (mode < 0)
+            {
+                width = MemorySelection.ReadIntAddress(MemoryAddresses.UO_R_WIDTH_ADDRESS, 0x20);
+                height = MemorySelection.ReadIntAddress(MemoryAddresses.UO_R_HEIGHT_ADDRESS, 0x20);
+            }
+            else if (mode >= 3 && mode <= 10)
+            {
+                var res = RModeToResolutionMapping.GetResolutionFromMode(mode);
+                width = res.Width;
+                height = res.Height;
+            }
+
+
+            if (width <= 0 || height <= 0)
+            {
+                Log.WriteLine("Got bad width/height: " + width + ", " + height);
+                return 0;
+            }
+
+            return width / (double)height;
+        }
+
         private void DoRAChecks() //this is where we do aspect ratio checks to ensure we limit FoV at non-widescreen values to reduce potential for any 'cheating' (this affects only non-widescreen resolutions & the advantage gained from significantly higher FoV is *incredibly* minor, but we still do not want to encourage this)
         {
-            if (MemorySelection == null || !MemorySelection.IsRunning() || MemorySelection.ProcMemory.RequiresElevation() || CurrentSession == null || CurrentSession.GetSessionTime().TotalSeconds < 30) return; //if you do aspect ratio checks too soon, they'll return invalid values
+            if (MemorySelection == null || !MemorySelection.IsRunning() || MemorySelection.ProcMemory.RequiresElevation() || CurrentSession == null) return;
 
             try
             {
-                var mode = MemorySelection.ReadIntAddress(MemoryAddresses.UO_R_MODE_ADDRESS, 0x20);
-                var ratio = 0d;
 
 
-                if (mode <= -1)
+                var ratio = GetGameAspectRatio();
+
+                if (ratio <= 0)
                 {
-                    var width = MemorySelection.ReadIntAddress(MemoryAddresses.UO_R_WIDTH_ADDRESS, 0x20);
-                    var height = MemorySelection.ReadIntAddress(MemoryAddresses.UO_R_HEIGHT_ADDRESS, 0x20);
-
-                    if (width <= 0 || height <= 0)
-                    {
-                        Log.WriteLine("Got bad width/height: " + width + ", " + height);
-                        return;
-                    }
-
-                    ratio = width / (double)height;
+                    Log.WriteLine($"!! Ratio was <= 0: {ratio}");
+                    return;
                 }
 
 
-                var maxFoV = (mode != -1 || (ratio < 1.7 && mode == -1)) ? 105 : 120; //"120" is not real 120! remember: the screen is literally stretched in wide screen. this is equivalent to ~107 'real' FoV in a game; still lower than a common max value of (real) 120.
+                var maxFoV = ratio >= 2.3 ? 100 : 95; // allow 100 fov for ultra wide, 95 for "regular" wide/anything below ultra wide.
+                var minFoV = (int)Math.Round(FovCalculator.NormalizeCgFov(80, ratio), MidpointRounding.AwayFromZero);
 
-                if (FoVNumeric.InvokeRequired) FoVNumeric.Invoke((MethodInvoker)delegate () { FoVNumeric.Maximum = maxFoV; });
-                else FoVNumeric.Maximum = maxFoV;
 
+                if (FoVNumeric.InvokeRequired)
+                {
+                    FoVNumeric.Invoke((MethodInvoker)delegate () 
+                    { 
+                        FoVNumeric.Maximum = maxFoV;
+                        FoVNumeric.Minimum = minFoV;
+                    });
+                }
+                else
+                {
+                    FoVNumeric.Maximum = maxFoV;
+                    FoVNumeric.Minimum = minFoV;
+                }
                 SetFoVNumeric(FoVNumeric.Value); //will set it to the value if it can, if not, falls back on maximum
             }
             catch (Exception ex) { Log.WriteLine("An exception happened while trying to get current game resolution:" + Environment.NewLine + ex.ToString()); }
@@ -894,7 +943,15 @@ namespace CoDUO_FoV_Changer
                 }
                 else
                 {
-                    MemorySelection.ProcMemory.WriteFloat(address, CurrentFoV);
+
+                    var desiredCgFov = FovCalculator.CalculateCgFov((double)FoVNumeric.Value, GetGameAspectRatio());
+
+                    CgFov = (float)desiredCgFov;
+
+                    // Ensure internal cg_fov variable (not the scaled number!) is never more than 140 and never less than 80.
+                    var fovToUse = ClampEx.Clamp(CgFov, 80, 140);
+
+                    MemorySelection.ProcMemory.WriteFloat(address, fovToUse);
                     SetLabelText(StatusLabel, "Status: Success!", 1);
                     StatusLabel.BeginInvoke((MethodInvoker)delegate ()
                     {
@@ -1272,16 +1329,37 @@ namespace CoDUO_FoV_Changer
             else ins.UnminimizeAndSelect();
         }
 
-        private void mapArchiveToolStripMenuItem_Click(object sender, EventArgs e) => Process.Start(GITHUB_MAP_ARCHIVE_URI);
+        private void MapArchiveToolStripMenuItem_Click(object sender, EventArgs e) => Process.Start(GITHUB_MAP_ARCHIVE_URI);
 
-        private void enUSToolStripMenuItem_Click(object sender, EventArgs e)
+        private void EnUSToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LocalizationManager.Instance.LoadLocalization("en-US");
         }
 
-        private void frFRToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FrFRToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LocalizationManager.Instance.LoadLocalization("fr-FR");
+        }
+
+        private void CheckBoxDesktopRes_CheckedChanged(object sender, EventArgs e)
+        {
+            settings.UseDesktopRes = checkBoxDesktopRes.Checked;
+        }
+
+        private void ServerBrowserToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var ins = GetInstance<ServersForm>();
+
+            if (ins == null) new ServersForm() { Owner = this, AttachToOwner = true }.Show();
+            else ins.UnminimizeAndSelect();
+        }
+
+        private void GamePIDBox_VisibleChanged(object sender, EventArgs e)
+        {
+            if (!(sender is ComboBox box))
+                return;
+
+            selectedProcessLabel.Visible = box.Visible;
         }
     }
 }

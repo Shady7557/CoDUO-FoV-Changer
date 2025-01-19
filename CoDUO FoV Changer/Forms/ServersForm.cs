@@ -31,7 +31,7 @@ namespace CoDUO_FoV_Changer
         // Please don't think twice about it
 
         public ServersForm() => InitializeComponent();
-       
+
         private Settings Settings => Settings.Instance;
 
         public bool HasLoaded { get; private set; } = false;
@@ -45,11 +45,13 @@ namespace CoDUO_FoV_Changer
 
         private const string PING_DATA = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
+        private string PingData => PING_DATA;
+
         private byte[] _pingBuffer = null;
         private byte[] GetPingBuffer()
         {
             if (_pingBuffer == null)
-                _pingBuffer = Encoding.ASCII.GetBytes(PING_DATA);
+                _pingBuffer = Encoding.ASCII.GetBytes(PingData);
 
             return _pingBuffer;
         }
@@ -69,6 +71,7 @@ namespace CoDUO_FoV_Changer
             public string MapNameFilter { get; set; } = string.Empty;
             public string GameTypeFilter { get; set; } = string.Empty;
             public string HostnameFilter { get; set; } = string.Empty;
+            public string IpAddressFilter { get; set; } = string.Empty;
 
             public bool OnlyFavorites { get; set; } = false;
 
@@ -78,7 +81,7 @@ namespace CoDUO_FoV_Changer
             /// All items in the list view. Not the filtered list.
             /// </summary>
             public List<ListViewItem> ListViewItems { get; private set; } = new List<ListViewItem>();
-            
+
 
             public ServerListViewFilter(ServerListView listView)
             {
@@ -110,7 +113,7 @@ namespace CoDUO_FoV_Changer
                     return true;
                 else if (FilterNoPing && ping != null && ping.HasValue && ping.Value <= 0)
                     return true;
-                
+
 
 
                 if (FilterEmptyServers && server.Clients < 1)
@@ -139,7 +142,8 @@ namespace CoDUO_FoV_Changer
 
                 if (server.Hostname.IndexOf(HostnameFilter, StringComparison.OrdinalIgnoreCase) == -1
                                            && server.MapName.IndexOf(MapNameFilter, StringComparison.OrdinalIgnoreCase) == -1
-                                                                  && server.GameType.IndexOf(GameTypeFilter, StringComparison.OrdinalIgnoreCase) == -1)
+                                                                  && server.GameType.IndexOf(GameTypeFilter, StringComparison.OrdinalIgnoreCase) == -1
+                                                                  && server.Ip.IndexOf(IpAddressFilter, StringComparison.OrdinalIgnoreCase) == -1)
                     return true;
 
                 return false;
@@ -167,7 +171,7 @@ namespace CoDUO_FoV_Changer
 
                     if (server != null && ShouldFilter(server, ping))
                         items.Remove(item);
-                  
+
                 }
 
             }
@@ -257,7 +261,7 @@ namespace CoDUO_FoV_Changer
 
                 if (xText.Contains("/"))
                     xText = xText.Split('/')[0];
-                
+
                 if (yText.Contains("/"))
                     yText = yText.Split('/')[0];
 
@@ -265,7 +269,7 @@ namespace CoDUO_FoV_Changer
                 // Numeric comparison
                 if (double.TryParse(xText, out double xValue) && double.TryParse(yText, out double yValue))
                     return sortOrder == SortOrder.Ascending ? xValue.CompareTo(yValue) : yValue.CompareTo(xValue);
-                
+
 
                 // Text comparison
                 return sortOrder == SortOrder.Ascending ? string.Compare(xText, yText) : string.Compare(yText, xText);
@@ -283,7 +287,9 @@ namespace CoDUO_FoV_Changer
             ServerListView.ColumnClick += new ColumnClickEventHandler(ColumnClick_SortHandler);
             PlayerListView.ColumnClick += new ColumnClickEventHandler(ColumnClick_SortHandler);
 
-            ServerListView.ListViewItemSorter = new ListViewItemComparer(4, SortOrder.Ascending);
+            // '2' is the players column - the most likely default.
+            // it was '4', for ping. it was ascending (lowest to highest ping). now it's descending (most to least players)
+            ServerListView.ListViewItemSorter = new ListViewItemComparer(2, SortOrder.Descending);
             PlayerListView.ListViewItemSorter = new ListViewItemComparer(1, SortOrder.Descending);
 
             MapNameLabel.Text = string.Empty;
@@ -298,7 +304,12 @@ namespace CoDUO_FoV_Changer
 
             ServerListFilter.OnlyFavorites = Settings?.ServerListShowFavorites ?? false;
 
+            AutoRefreshSettingComboBox.SelectedIndex = Settings?.ServerListAutoRefreshSetting ?? 0;
+
             UpdateFavoritesButtonText();
+            UpdateFormText();
+
+
 
             Task.Run(async () =>
             {
@@ -306,10 +317,10 @@ namespace CoDUO_FoV_Changer
                 {
                     var infos = await CodPmApi.GetMasterList(GameName, GameVersion);
 
-                    BeginInvoke((MethodInvoker)async delegate 
+                    BeginInvoke((MethodInvoker)async delegate
                     {
                         try { await RefreshAllServers(infos); }
-                        catch(Exception ex) 
+                        catch (Exception ex)
                         {
                             Console.WriteLine(ex.ToString());
                             Log.WriteLine(ex.ToString());
@@ -335,7 +346,7 @@ namespace CoDUO_FoV_Changer
             if (control.IsDisposed || control.Disposing)
                 return;
 
-           if (control.InvokeRequired)
+            if (control.InvokeRequired)
                 control.BeginInvoke((MethodInvoker)delegate { control.Enabled = !control.Enabled; });
             else control.Enabled = !control.Enabled;
 
@@ -410,12 +421,12 @@ namespace CoDUO_FoV_Changer
                 if (SelectedServer != null)
                     UpdatePlayersListViewAndLabel(SelectedServer);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
                 Log.WriteLine(ex.ToString());
             }
-        
+
         }
 
         /// <summary>
@@ -431,7 +442,13 @@ namespace CoDUO_FoV_Changer
 
             // If we can't get the server from the dictionary, it does not already exist. We'll have to add it!
 
-            try 
+            if (SelectedServer != null && SelectedServer.Id == server.Id)
+            {
+                Console.WriteLine("!! server id !! match !! updating selected");
+                SelectedServer = server;
+            }
+
+            try
             {
 
                 var item = ServerListView?.GetItem(server.Id);
@@ -457,14 +474,18 @@ namespace CoDUO_FoV_Changer
                     // Whether we should add it to the displayed items.
                     if (addToActiveItems)
                         ServerListView.Items.Add(item);
-                    
 
-                //    await PingServer(server, item);
+
+                    //    await PingServer(server, item);
 
                     return;
                 }
 
+                if (!ServerListFilter.ListViewItems.Contains(item))
+                    ServerListFilter.ListViewItems.Add(item);
 
+                if (!ServerListView.Items.Contains(item))
+                    ServerListView.Items.Add(item);
 
                 ServerListView.SetItemToServer(item, server);
 
@@ -483,13 +504,13 @@ namespace CoDUO_FoV_Changer
                 //PingServer(server, item);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
                 Log.WriteLine(ex.ToString());
             }
 
-            
+
         }
 
         private async Task<long> PingServer(Server server, ListViewItem item)
@@ -528,10 +549,13 @@ namespace CoDUO_FoV_Changer
             throw new NotImplementedException();
         }
 
-        private async void RefreshAllServers()
+        private async Task RefreshAllServers()
         {
+            Console.WriteLine(nameof(RefreshAllServers));
             if (string.IsNullOrWhiteSpace(GameName) || string.IsNullOrWhiteSpace(GameVersion))
                 return;
+
+            Console.WriteLine("RefreshAll, gamename version: " + GameName + ", " + GameVersion);
 
             OnRefresh();
 
@@ -569,6 +593,8 @@ namespace CoDUO_FoV_Changer
 
             if (infos?.Servers.Count < 1)
                 return;
+
+            Console.WriteLine(nameof(RefreshAllServers) + " infos count: " + infos.Servers.Count);
 
             OnRefresh();
 
@@ -619,13 +645,13 @@ namespace CoDUO_FoV_Changer
 
 
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         Console.WriteLine(ex.ToString());
                         Log.WriteLine(ex.ToString());
                     }
                 });
-                
+
             }
             await Task.WhenAll(pingTasks);
 
@@ -672,7 +698,7 @@ namespace CoDUO_FoV_Changer
         private void HideNoPingCheckbox_CheckedChanged(object sender, EventArgs e)
         {
 
-            try 
+            try
             {
                 ServerListFilter.FilterNoPing = HideNoPingCheckbox.Checked;
                 ServerListFilter.ApplyFilters();
@@ -689,13 +715,19 @@ namespace CoDUO_FoV_Changer
         {
             try
             {
+                // we could add another property that is just a single string
+                // i.e "Filter" - then all the logic
+                // can be handled in the actual filter, rather than having to 
+                // set each one of these to the same value lol
+
                 ServerListFilter.GameTypeFilter = SearchFilterTextbox.Text;
                 ServerListFilter.MapNameFilter = SearchFilterTextbox.Text;
                 ServerListFilter.HostnameFilter = SearchFilterTextbox.Text;
+                ServerListFilter.IpAddressFilter = SearchFilterTextbox.Text;
                 ServerListFilter.ApplyFilters();
                 UpdateListedServersCountLabel();
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Log.WriteLine(ex.ToString());
                 Console.WriteLine(ex.ToString());
@@ -706,13 +738,17 @@ namespace CoDUO_FoV_Changer
         {
             // Try to parse game name and version from the selected combobox item.
 
+            Console.WriteLine(nameof(GameVersionBox_SelectedIndexChanged));
+
             var selected = GameVersionBox?.SelectedItem?.ToString() ?? string.Empty;
+
+            Console.WriteLine("selected: " + selected);
 
             if (!selected.Contains("(") || !selected.Contains(")"))
                 return;
 
 
-            try 
+            try
             {
                 var sb = StringBuilderCache.Acquire(selected.Length);
                 sb
@@ -729,20 +765,22 @@ namespace CoDUO_FoV_Changer
                 GameVersion = gameVersion;
                 GameName = gameName.ToLower();
 
+                Console.WriteLine("gamev, name: " + GameVersion + ", " + GameName);
+
                 if (HasLoaded)
                 {
                     ClearServerList();
                     RefreshAllServers();
                 }
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 Log.WriteLine(ex.ToString());
                 Console.WriteLine(ex.ToString());
             }
 
-            try  { CoDPictureBox.Image = GameName == "coduo" ? Properties.Resources.CoDUO : Properties.Resources.CoD1; }
-            catch(Exception ex)
+            try { CoDPictureBox.Image = GameName == "coduo" ? Properties.Resources.CoDUO : Properties.Resources.CoD1; }
+            catch (Exception ex)
             {
                 Log.WriteLine(ex.ToString());
                 Console.WriteLine(ex.ToString());
@@ -756,7 +794,7 @@ namespace CoDUO_FoV_Changer
         private void OnRefresh(Server server = null)
         {
             try { ToggleControl(GameVersionBox, 5f); }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.WriteLine(ex.ToString());
                 Console.WriteLine(ex.ToString());
@@ -774,6 +812,21 @@ namespace CoDUO_FoV_Changer
             {
                 Log.WriteLine(ex.ToString());
                 Console.WriteLine(ex.ToString());
+            }
+
+            Console.WriteLine("SelectedServer is null?!: " + (SelectedServer is null));
+
+            // update selected server by getting the "new" server with the same ID:
+            // may not work/be uyseless
+            if (SelectedServer != null)
+            {
+                var updated = ServerListView.GetServer(SelectedServer.Id);
+
+                Console.WriteLine("updated is null?!: " + (updated is null));
+
+                if (updated != null)
+                    SelectedServer = updated;
+
             }
 
         }
@@ -902,7 +955,7 @@ namespace CoDUO_FoV_Changer
 
             ClearCurrentMap();
             ClearPlayersList();
-          
+
 
             UpdateListedServersCountLabel();
         }
@@ -989,6 +1042,9 @@ namespace CoDUO_FoV_Changer
             Settings.ServerListHideEmpty = HideEmptyCheckbox.Checked;
             Settings.ServerListHideNoPing = HideNoPingCheckbox.Checked;
             Settings.ServerListMaxPing = (int)MaxPingNumeric.Value;
+            Settings.ServerListAutoRefreshSetting = AutoRefreshSettingComboBox.SelectedIndex;
+            Settings.ServerListFilterBots = FilterBotPlayersCheckbox.Checked;
+            Settings.ServerListFilterPlayerNames = FilterPlayerNamesCheckbox.Checked;
 
             // Hide the form instead of closing it, so we don't allow the user
             // To repeatedly open & close and refresh the server list too quickly.
@@ -1004,8 +1060,6 @@ namespace CoDUO_FoV_Changer
 
         private void FilterPlayerNamesCheckbox_CheckedChanged(object sender, EventArgs e)
         {
-            Settings.ServerListFilterPlayerNames = FilterPlayerNamesCheckbox.Checked;
-
             if (SelectedServer is null)
                 return;
 
@@ -1014,8 +1068,6 @@ namespace CoDUO_FoV_Changer
 
         private void FilterBotPlayersCheckbox_CheckedChanged(object sender, EventArgs e)
         {
-            Settings.ServerListFilterBots = FilterBotPlayersCheckbox.Checked;
-
             if (SelectedServer is null)
                 return;
 
@@ -1027,11 +1079,14 @@ namespace CoDUO_FoV_Changer
             if (SelectedServer is null)
                 return;
 
-            RefreshServer(SelectedServer);
-            BeginMapImageLoad(SelectedServer.MapName);
+            Task.Run(async () =>
+            {
+                await RefreshServer(SelectedServer);
+                BeginMapImageLoad(SelectedServer.MapName);
+            });
         }
 
-        private async void RefreshServer(Server server)
+        private async Task RefreshServer(Server server)
         {
             if (server is null)
                 throw new ArgumentNullException(nameof(server));
@@ -1057,7 +1112,8 @@ namespace CoDUO_FoV_Changer
                 Url = newInfo.Server.Url,
                 Hostname = newInfo.Server.Hostname,
                 GameType = newInfo.Server.GameType,
-                PlayerInfo = newInfo.PlayerInfo
+                PlayerInfo = newInfo.PlayerInfo,
+                Clients = newInfo.Server.Clients
             };
 
             AddOrUpdateServerListItem(newServer);
@@ -1114,15 +1170,19 @@ namespace CoDUO_FoV_Changer
             Settings.ServerListShowFavorites = ServerListFilter.OnlyFavorites;
 
             UpdateFavoritesButtonText();
+            UpdateFormText();
 
             ServerListFilter.ApplyFilters();
             UpdateListedServersCountLabel();
         }
 
-        private void UpdateFavoritesButtonText()
-        {
+        private void UpdateFavoritesButtonText() =>
             FavoritesButton.Text = ServerListFilter.OnlyFavorites ? "Show All" : "Show Favorites";
-        }
+
+
+        private void UpdateFormText() =>
+            Text = "Server List" + (ServerListFilter.OnlyFavorites ? " (Favorites)" : string.Empty);
+
 
         private void ServerListView_MouseDown(object sender, MouseEventArgs e)
         {
@@ -1146,15 +1206,86 @@ namespace CoDUO_FoV_Changer
             contextMenuStrip1.Items[0].Text = "Copy " + ServerListView.Columns[clickedSubItemIndex].Text;
 
             Clipboard.SetText(clickedItem.Text);
-
-
         }
 
         private void contextMenuStrip1_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (ServerListView?.Items?.Count < 1 || (sender as ContextMenuStrip).Items[0].Text.Contains("COLUMN_NAME", StringComparison.OrdinalIgnoreCase))
                 e.Cancel = true;
-            
         }
+
+        private void RefreshSelectedCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            RefreshTimer.Enabled = AutoRefreshCheckBox.Checked;
+
+            if (AutoRefreshSettingComboBox.SelectedIndex <= 0 && AutoRefreshCheckBox.Checked)
+                AutoRefreshSettingComboBox.SelectedIndex = 1;
+            else if (!AutoRefreshCheckBox.Checked)
+                AutoRefreshSettingComboBox.SelectedIndex = 0;
+        }
+
+        private void RefreshTimer_Tick(object sender, EventArgs e)
+        {
+            var selIndex = AutoRefreshSettingComboBox.SelectedIndex;
+
+            if (selIndex <= 0)
+                return;
+
+            Task.Run(() =>
+            {
+                Console.WriteLine("refresh timer tick!! hi!!");
+
+                try
+                {
+
+                    BeginInvoke((MethodInvoker)async delegate
+                    {
+
+                        try 
+                        {
+                            if (selIndex == 2)
+                                await RefreshAllServers();
+                            else if (selIndex == 1 && SelectedServer != null)
+                                await RefreshServer(SelectedServer);
+                        }
+                        catch(Exception ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                            Log.WriteLine(ex.ToString());
+                        }
+
+                    });
+
+                    // create a method that handles when a server is updated instead of copy/pasting these things?
+                    if (SelectedServer != null)
+                    {
+                        // Console.WriteLine("selected server not null, updating!!!!, mapname: " + SelectedServer.MapName);
+
+                        BeginInvoke((MethodInvoker)delegate
+                        {
+                            MapNameLabel.Text = ServerUtil.GetPrettyMapName(SelectedServer.MapName);
+
+                            UpdatePlayersListViewAndLabel(SelectedServer);
+
+
+                            // Console.WriteLine("updated players list view and label");
+
+                            BeginMapImageLoad(SelectedServer.MapName);
+
+                            //Console.WriteLine("called map image load");
+                        });
+                       
+
+                    }
+                    else Console.WriteLine("selected server null?!?!??!");
+                }
+                catch(Exception ex) { Console.WriteLine(ex.ToString()); }
+               
+            });
+        }
+
+        private void AutoRefreshSettingComboBox_SelectedIndexChanged(object sender, EventArgs e) =>
+            AutoRefreshCheckBox.Checked = AutoRefreshSettingComboBox.SelectedIndex > 0;
+        
     }
 }

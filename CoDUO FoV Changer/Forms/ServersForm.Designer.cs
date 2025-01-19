@@ -67,6 +67,9 @@
             this.FavoritesButton = new System.Windows.Forms.Button();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.AutoRefreshCheckBox = new System.Windows.Forms.CheckBox();
+            this.RefreshTimer = new System.Windows.Forms.Timer(this.components);
+            this.AutoRefreshSettingComboBox = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.MaxPingNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.MapImageBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.CoDPictureBox)).BeginInit();
@@ -449,12 +452,47 @@
             this.toolStripMenuItem1.Size = new System.Drawing.Size(203, 22);
             this.toolStripMenuItem1.Text = "Copy {COLUMN_NAME}";
             // 
+            // AutoRefreshCheckBox
+            // 
+            this.AutoRefreshCheckBox.AutoSize = true;
+            this.AutoRefreshCheckBox.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.AutoRefreshCheckBox.Location = new System.Drawing.Point(250, 375);
+            this.AutoRefreshCheckBox.Name = "AutoRefreshCheckBox";
+            this.AutoRefreshCheckBox.Size = new System.Drawing.Size(117, 19);
+            this.AutoRefreshCheckBox.TabIndex = 73;
+            this.AutoRefreshCheckBox.Text = "Auto Refresh:";
+            this.AutoRefreshCheckBox.UseVisualStyleBackColor = true;
+            this.AutoRefreshCheckBox.CheckedChanged += new System.EventHandler(this.RefreshSelectedCheckbox_CheckedChanged);
+            // 
+            // RefreshTimer
+            // 
+            this.RefreshTimer.Interval = 15000;
+            this.RefreshTimer.Tick += new System.EventHandler(this.RefreshTimer_Tick);
+            // 
+            // AutoRefreshSettingComboBox
+            // 
+            this.AutoRefreshSettingComboBox.BackColor = System.Drawing.Color.DarkGray;
+            this.AutoRefreshSettingComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.AutoRefreshSettingComboBox.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.AutoRefreshSettingComboBox.FormattingEnabled = true;
+            this.AutoRefreshSettingComboBox.Items.AddRange(new object[] {
+            "None",
+            "Selected",
+            "All"});
+            this.AutoRefreshSettingComboBox.Location = new System.Drawing.Point(364, 371);
+            this.AutoRefreshSettingComboBox.Name = "AutoRefreshSettingComboBox";
+            this.AutoRefreshSettingComboBox.Size = new System.Drawing.Size(89, 22);
+            this.AutoRefreshSettingComboBox.TabIndex = 74;
+            this.AutoRefreshSettingComboBox.SelectedIndexChanged += new System.EventHandler(this.AutoRefreshSettingComboBox_SelectedIndexChanged);
+            // 
             // ServersForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
-            this.ClientSize = new System.Drawing.Size(809, 402);
+            this.ClientSize = new System.Drawing.Size(809, 403);
+            this.Controls.Add(this.AutoRefreshSettingComboBox);
+            this.Controls.Add(this.AutoRefreshCheckBox);
             this.Controls.Add(this.FavoritesButton);
             this.Controls.Add(this.FavoriteServerCheckbox);
             this.Controls.Add(this.ConnectServerButton);
@@ -536,5 +574,8 @@
         private System.Windows.Forms.ColumnHeader columnHeader9;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.CheckBox AutoRefreshCheckBox;
+        private System.Windows.Forms.Timer RefreshTimer;
+        private System.Windows.Forms.ComboBox AutoRefreshSettingComboBox;
     }
 }

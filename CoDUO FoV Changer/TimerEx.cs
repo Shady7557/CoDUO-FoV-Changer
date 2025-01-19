@@ -8,7 +8,7 @@ namespace TimerExtensions
     public static class TimerEx
     {
         // HashSet to keep track of all timers - this was seemingly necessary to keep them from being GC'd/otherwise not firing off.
-        private static readonly HashSet<Timer> _timers = new HashSet<Timer>();
+        private static readonly HashSet<Timer> _timers = new HashSet<Timer>(1024);
         public static Timer Once(int seconds, Action action)
         {
             Timer t = null;
@@ -16,7 +16,7 @@ namespace TimerExtensions
             t = new Timer(p =>
             {
                 try { action.Invoke(); }
-                finally { _timers?.Remove(t); }
+                finally { _timers?.Remove(t);}
 
             }, null, seconds * 1000, Timeout.Infinite);
 
