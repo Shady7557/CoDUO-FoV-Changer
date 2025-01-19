@@ -819,7 +819,7 @@ namespace CoDUO_FoV_Changer
             if (label.InvokeRequired) label.BeginInvoke((MethodInvoker)delegate () { label.Text = text; });
             else label.Text = text;
 
-            label.ApplyLocalization(index);
+          //  label.ApplyLocalization(index);
 
         }
 

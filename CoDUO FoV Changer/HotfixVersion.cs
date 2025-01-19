@@ -2,6 +2,6 @@
 {
     internal class HotfixVersion
     {
-        public const decimal HOTFIX = 8.1M;
+        public const decimal HOTFIX = 8.2M;
     }
 }
