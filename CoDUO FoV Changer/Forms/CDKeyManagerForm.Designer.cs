@@ -144,7 +144,7 @@
             // 
             this.refreshKeysButton.BackColor = System.Drawing.Color.DarkGray;
             this.refreshKeysButton.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.refreshKeysButton.ForeColor = System.Drawing.Color.Transparent;
+            this.refreshKeysButton.ForeColor = System.Drawing.Color.Black;
             this.refreshKeysButton.Location = new System.Drawing.Point(12, 298);
             this.refreshKeysButton.Name = "refreshKeysButton";
             this.refreshKeysButton.Size = new System.Drawing.Size(248, 32);
@@ -157,7 +157,7 @@
             // 
             this.saveExitButton.BackColor = System.Drawing.Color.DarkGray;
             this.saveExitButton.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.saveExitButton.ForeColor = System.Drawing.Color.Transparent;
+            this.saveExitButton.ForeColor = System.Drawing.Color.Black;
             this.saveExitButton.Location = new System.Drawing.Point(12, 336);
             this.saveExitButton.Name = "saveExitButton";
             this.saveExitButton.Size = new System.Drawing.Size(248, 32);
@@ -170,7 +170,7 @@
             // 
             this.exitButton.BackColor = System.Drawing.Color.DarkGray;
             this.exitButton.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.exitButton.ForeColor = System.Drawing.Color.Transparent;
+            this.exitButton.ForeColor = System.Drawing.Color.Black;
             this.exitButton.Location = new System.Drawing.Point(12, 374);
             this.exitButton.Name = "exitButton";
             this.exitButton.Size = new System.Drawing.Size(248, 32);
