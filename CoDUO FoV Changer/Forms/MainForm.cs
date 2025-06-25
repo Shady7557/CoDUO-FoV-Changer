@@ -19,7 +19,6 @@ using System.Runtime.InteropServices;
 using CoDUO_FoV_Changer.Util;
 using StringExtension;
 using System.Net.Http;
-using ControlExtensions;
 using Localization;
 
 namespace CoDUO_FoV_Changer
@@ -370,16 +369,17 @@ namespace CoDUO_FoV_Changer
                 }
                 finally { Pool.Free(ref argsSB); }
 
-                Task.Run(() =>
+                if (!basePathExists)
                 {
-                    try
+
+                    Task.Run(() =>
                     {
-                        if (!basePathExists)
+                        try
                         {
                             var scannedPath = string.Empty;
 
                             try { scannedPath = PathScanner.ScanForGamePath(); }
-                            catch(Exception ex)
+                            catch (Exception ex)
                             {
                                 Console.WriteLine(ex.ToString());
                                 Log.WriteLine(ex.ToString());
@@ -389,8 +389,13 @@ namespace CoDUO_FoV_Changer
 
                             if (!string.IsNullOrEmpty(scannedPath))
                             {
-                                finalPath = Path.GetDirectoryName(scannedPath);
-                                MessageBox.Show("Automatically detected game path: " + Environment.NewLine + finalPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+
+                                finalPath = File.Exists(scannedPath) ? Path.GetDirectoryName(scannedPath) : scannedPath;
+                                BeginInvoke((MethodInvoker)delegate
+                                {
+                                    MessageBox.Show("Automatically detected game path: " + Environment.NewLine + finalPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                });
                             }
                             else
                             {
@@ -411,14 +416,34 @@ namespace CoDUO_FoV_Changer
                             UpdateGameExes(finalPath);
                             settings.BaseGamePath = finalPath;
 
+                            BeginInvoke((MethodInvoker)delegate
+                            {
+                                UpdateStartGameButtonContextOptions();
+                            });
+
+                            // from here to above the catch,
+                            // we need to consolidate code. this is repeated, this is copied from code above and should be used
+                            // temporarily only.
+                            var firstExe = settings.GameExes[0];
+
+                            var exePath = Path.Combine(settings.BaseGamePath, firstExe);
+
+                            // this should always select UO first.
+                            if (File.Exists(exePath))
+                                settings.SelectedExecutable = settings.GameExes[0];
+
+                            BeginInvoke((MethodInvoker)delegate 
+                            {
+                                UpdateStartGameButtonText(settings.SelectedExecutable);
+                            });
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("An error has occurred: " + ex.Message + Environment.NewLine + "Please refer to the log for more information.");
-                        Log.WriteLine("An exception happened on Install Path code:" + Environment.NewLine + ex.ToString());
-                    }
-                });
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("An error has occurred: " + ex.Message + Environment.NewLine + "Please refer to the log for more information.");
+                            Log.WriteLine("An exception happened on Install Path code:" + Environment.NewLine + ex.ToString());
+                        }
+                    });
+                }
 
                 Task.Run(() => StartUpdateChecking());
 
@@ -948,7 +973,7 @@ namespace CoDUO_FoV_Changer
 
                     CgFov = (float)desiredCgFov;
 
-                    // Ensure internal cg_fov variable (not the scaled number!) is never more than 140 and never less than 80.
+                        // Ensure internal cg_fov variable (not the scaled number!) is never more than 140 and never less than 80.
                     var fovToUse = ClampEx.Clamp(CgFov, 80, 140);
 
                     MemorySelection.ProcMemory.WriteFloat(address, fovToUse);

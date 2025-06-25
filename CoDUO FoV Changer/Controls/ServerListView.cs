@@ -6,13 +6,13 @@ namespace CoDUO_FoV_Changer.Controls
 {
     public class ServerListView : ListView
     {
-        private Dictionary<ListViewItem, int> ItemToServerID { get; set; } = new Dictionary<ListViewItem, int>();
-        private Dictionary<int, ListViewItem> ServerIdToItem { get; set; } = new Dictionary<int, ListViewItem>();
-        private Dictionary<int, Server> ServerIdToServer { get; set; } = new Dictionary<int, Server>();
+        private Dictionary<ListViewItem, string> ItemToServerID { get; set; } = new Dictionary<ListViewItem, string>();
+        private Dictionary<string, ListViewItem> ServerIdToItem { get; set; } = new Dictionary<string, ListViewItem>();
+        private Dictionary<string, Server> ServerIdToServer { get; set; } = new Dictionary<string, Server>();
 
-        public Server GetServer(int serverId)
+        public Server GetServer(string serverId)
         {
-            if (serverId < 0)
+            if (string.IsNullOrWhiteSpace(serverId))
                 throw new ArgumentOutOfRangeException(nameof(serverId));
 
             ServerIdToServer.TryGetValue(serverId, out var server);
@@ -28,16 +28,16 @@ namespace CoDUO_FoV_Changer.Controls
             return GetServer(serverId);
         }
 
-        public ListViewItem GetItem(int serverId)
+        public ListViewItem GetItem(string serverId)
         {
-            if (serverId < 0)
+            if (string.IsNullOrWhiteSpace(serverId))
                 throw new ArgumentOutOfRangeException(nameof(serverId));
 
             ServerIdToItem.TryGetValue(serverId, out var item);
             return item;
         }
 
-        public int GetServerId(ListViewItem item)
+        public string GetServerId(ListViewItem item)
         {
             if (item is null)
                 throw new ArgumentNullException(nameof(item));

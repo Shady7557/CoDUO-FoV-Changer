@@ -148,7 +148,7 @@ namespace CoDUO_FoV_Changer
             // 
             this.FoVNumeric.BackColor = System.Drawing.Color.DarkGray;
             this.FoVNumeric.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FoVNumeric.ForeColor = System.Drawing.Color.Transparent;
+            this.FoVNumeric.ForeColor = System.Drawing.Color.Black;
             this.FoVNumeric.Location = new System.Drawing.Point(99, 6);
             this.FoVNumeric.Minimum = new decimal(new int[] {
             80,
@@ -208,7 +208,7 @@ namespace CoDUO_FoV_Changer
             // 
             // UpdateButton
             // 
-            this.UpdateButton.BackColor = System.Drawing.Color.DarkGray;
+            this.UpdateButton.BackColor = System.Drawing.Color.DeepSkyBlue;
             this.UpdateButton.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.UpdateButton.ForeColor = System.Drawing.Color.Black;
             this.UpdateButton.Location = new System.Drawing.Point(179, 33);

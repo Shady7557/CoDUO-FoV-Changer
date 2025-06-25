@@ -7,8 +7,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Management;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Forms;
 //This wasn't written by me. I found it on stackoverflow and nobody seems to have claimed "ownership" of it. I've increasingly made modifications to it.
 namespace ProcessExtensions
 {
@@ -124,6 +126,11 @@ namespace ProcessExtensions
             if (string.IsNullOrEmpty(processName))
                 throw new ArgumentNullException(nameof(processName));
 
+            var isRunningWmi = WmiIsProcessRunning(processName);
+
+            if (isRunningWmi)
+                return true;
+
             var procs = Process.GetProcessesByName(processName);
             if (procs == null || procs.Length < 1)
                 return false;
@@ -145,6 +152,23 @@ namespace ProcessExtensions
             }
 
             return false;
+        }
+
+        private static bool WmiIsProcessRunning(string processName)
+        {
+            if (string.IsNullOrWhiteSpace(processName))
+                throw new ArgumentNullException(nameof(processName));
+
+            const string baseQuery = "SELECT * FROM Win32_Process WHERE Name LIKE '{processName}.exe'";
+
+            var query = StringBuilderCache.GetStringAndRelease(StringBuilderCache
+                .Acquire(52 + processName.Length)
+                .Append(baseQuery)
+                .Replace("{processName}", processName)
+                .Replace(".exe.exe", ".exe"));
+
+            using (var searcher = new ManagementObjectSearcher(query))
+                return searcher.Get().Count > 0;
         }
 
         public static bool IsProcessElevated(Process process, bool skipCache = false)

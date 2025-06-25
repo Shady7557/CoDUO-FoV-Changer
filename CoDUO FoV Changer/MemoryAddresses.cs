@@ -10,7 +10,6 @@
 
         public const int UO_FOV_OFFSET = 0x52F7C8;
 
-
         // Multiplayer:
         public const string UO_CGAME_MP_DLL = "uo_cgame_mp_x86.dll";
         public const string UO_UI_MP_DLL = "uo_ui_mp_x86.dll";

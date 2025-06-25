@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Windows.Forms;
 
 namespace CoDUO_FoV_Changer
 {
@@ -250,11 +249,7 @@ namespace CoDUO_FoV_Changer
             }
             catch (Exception ex)
             {
-                try { Log.WriteLine($"Failed to create {nameof(applicationDataDirectory)} ({applicationDataDirectory}){Environment.NewLine}{ex}"); }
-                catch (Exception ex2)
-                {
-                    MessageBox.Show(ex2.ToString(), Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                Log.WriteLine($"Failed to create {nameof(applicationDataDirectory)} ({applicationDataDirectory}){Environment.NewLine}{ex}");
             }
 
 
@@ -271,20 +266,25 @@ namespace CoDUO_FoV_Changer
             {
                 var readFile = File.ReadAllText(oldSettingsFile);
 
-                var sb = Pool.Get<StringBuilder>();
-                try
+                if (!readFile.Contains("OldSettings"))
                 {
-                    var oldRead = readFile;
+                    var sb = Pool.Get<StringBuilder>();
+                    try
+                    {
+                        var oldRead = readFile;
 
-                    var newRead = sb.Clear()
-                        .Append(readFile)
-                        .Replace("Settings", "OldSettings")
-                        .ToString();
+                        var newRead = sb.Clear()
+                            .Append(readFile)
+                            .Replace("Settings", "OldSettings")
+                            .ToString();
 
-                    if (oldRead != newRead)
-                        File.WriteAllText(oldSettingsFile, newRead);
+                        if (oldRead != newRead)
+                            File.WriteAllText(oldSettingsFile, newRead);
+                    }
+                    finally { Pool.Free(ref sb); }
                 }
-                finally { Pool.Free(ref sb); }
+
+               
 
                 var oldSettings = DatabaseFile.Read<OldSettings>(oldSettingsFile);
 
@@ -309,8 +309,10 @@ namespace CoDUO_FoV_Changer
                 // No need to write the changes to the disk for the new settings - that will be done automatically when the app closes.
 
                 var replaced = oldSettingsFile.Replace(".xml", ".old");
+
                 if (!File.Exists(replaced))
-                    File.Move(oldSettingsFile, oldSettingsFile.Replace(".xml", ".old"));
+                    File.Move(oldSettingsFile, replaced);
+                else File.Move(oldSettingsFile, $"{replaced.Replace(".old", string.Empty)}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.old");
             }
             else if (File.Exists(settingsFile))
             {

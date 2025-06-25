@@ -1,7 +1,5 @@
-﻿using CurtLog;
-using System;
+﻿using System;
 using System.IO;
-using System.Windows.Forms;
 
 namespace CoDUO_FoV_Changer
 {
@@ -36,25 +34,10 @@ namespace CoDUO_FoV_Changer
 
             settingsFile = Path.Combine(applicationDataDirectory, "settings.xml");
 
-            try
-            {
-                if (!Directory.Exists(applicationDataDirectory))
-                    Directory.CreateDirectory(applicationDataDirectory);
-            }
-            catch(Exception ex)
-            {
-                try { Log.WriteLine($"Failed to create {nameof(applicationDataDirectory)} ({applicationDataDirectory}){Environment.NewLine}{ex}"); }
-                catch(Exception ex2)
-                {
-                    MessageBox.Show(ex2.ToString(), Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-          
-
             if (!File.Exists(settingsFile))
             {
-                instance = new OldSettings();
-                DatabaseFile.Write(instance, settingsFile);
+            //    instance = new OldSettings();
+          //      DatabaseFile.Write(instance, settingsFile);
 
                 return;
             }

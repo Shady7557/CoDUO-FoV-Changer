@@ -573,6 +573,15 @@ namespace CoDUO_FoV_Changer
 
             // TODO: If currently only showing favorites - only refresh favorites:
 
+            if (ServerListFilter.OnlyFavorites)
+            {
+                // filter infos to only show favorites.
+
+                infos.Servers = infos.Servers
+                    .Where(x => SettingsExt.IsFavoriteServer(x))
+                    .ToList();
+
+            }
 
             await RefreshAllServers(infos);
         }

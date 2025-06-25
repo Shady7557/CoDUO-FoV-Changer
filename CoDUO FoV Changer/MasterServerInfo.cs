@@ -135,7 +135,7 @@ namespace CoDUO_FoV_Changer
     public class Server
     {
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [JsonProperty("ip")]
         public string Ip { get; set; }

@@ -177,7 +177,10 @@ namespace CoDUO_FoV_Changer
                         try
                         {
                             var fileName = Path.GetFileName(filesInStartup[i]);
-                            if (fileName.Equals("CoDUOMP.exe", StringComparison.OrdinalIgnoreCase) || fileName.Equals("CoDMP.exe", StringComparison.OrdinalIgnoreCase) || fileName.Equals("mohaa.exe", StringComparison.OrdinalIgnoreCase)) return Application.StartupPath;
+                            if (fileName.Equals("CoDUOMP.exe", StringComparison.OrdinalIgnoreCase) 
+                                || fileName.Equals("CoDMP.exe", StringComparison.OrdinalIgnoreCase) 
+                                || fileName.Equals("mohaa.exe", StringComparison.OrdinalIgnoreCase)) 
+                                return Application.StartupPath;
                         }
                         catch (Exception ex)
                         {
@@ -206,7 +209,10 @@ namespace CoDUO_FoV_Changer
                     registryInstallPath = Registry.GetValue(CodRex.RegistryPathCoDVirtualStore, "InstallPath", string.Empty)?.ToString() ?? string.Empty;
 
                 if (!string.IsNullOrWhiteSpace(registryInstallPath))
+                {
+                    Console.WriteLine("returning: " + registryInstallPath);
                     return registryInstallPath;
+                }
             }
             catch (Exception ex)
             {
