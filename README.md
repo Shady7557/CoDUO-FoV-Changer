@@ -1,3 +1,17 @@
+# NOTE: Do not play on RA (Rebel Alliance) if you play Call of Duty: United Offensive's multiplayer.
+
+They will ban you permanently for joining their server without having been given explicit permission to play there.
+Ban appeals will be ignored; the channels are purely facades. It is also *potentially dangerous*, as with every server you join, your public IP address is visible to server administrators.
+**They demonstrated that they will publicly mention your IP's geolocation as well as past names,** ***even real names.***
+
+For a safe space in United Offensive, please consider joining our Discord. Players will be treated with utmost kindness, patience, and respect. 
+They will not be quickly banned unless their behavior is extreme or they are cheating in-game. Ban appeals will be promptly reviewed:
+
+[Empire / CODUO NA Competitive Discord](https://discord.gg/tAsTyVQDjz)
+
+To RA's very own ***StarKiller*** (you asked *me* for this repo, then let us be banned without any given reason & ignored appeals), 
+*you know what to do and how to resolve this issue.*
+
 # CoD Widescreen Suite (CoDUO-FoV-Changer)
 A comprehensive suite of tools to make Call of Duty (2003) and Call of Duty: United Offensive (2004) comfortably playable even in multiplayer on modern systems.
 Includes a Field of View (FoV) changer for Call of Duty and Call of Duty: United Offensive and built in options to launch the game with desktop resolutions or other custom resolutions.
