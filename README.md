@@ -1,8 +1,14 @@
-# NOTE: Do not play on RA (Rebel Alliance) if you play Call of Duty: United Offensive's multiplayer.
+# WARNING: Concerning the RA (Rebel Alliance) server, please read if you play Call of Duty: United Offensive's multiplayer.
 
-They will ban you permanently for joining their server without having been given explicit permission to play there.
-Ban appeals will be ignored; the channels are purely facades. It is also *potentially dangerous*, as with every server you join, your public IP address is visible to server administrators.
+There are other *(secure!)* servers than RA to play on. They are not all compromised, and the game itself is ultimately alive and safe to play.
+Sadly, most servers will have fewer players active than RA. Alternatives are sprouting up, and it is ultimately our goal to keep the game alive, well, and **safe.**
+Please exercise caution and beware that not all servers have well-meaning administrators and that, worse than banning you, they may take things a step further (see below).
+
+They will likely ban you permanently for joining their server without having been given explicit permission to play there.
+Ban appeals will be ignored; the channels are purely facades. Recently, they disabled all invites to Discord and thus ***making an appeal is impossible***. It is also *potentially dangerous*, as with every server you join, your public IP address is visible to server administrators.
 **They demonstrated that they will publicly mention your IP's geolocation as well as past names,** ***even real names.***
+Users who join with a VPN active will be coerced into ultimately giving up some sort of identity at the threat of being banned. 
+They're quick to do this because their ban list is extensive, and **they suspect people are ban evading simply for using a VPN.**
 
 For a safe space in United Offensive, please consider joining our Discord. Players will be treated with utmost kindness, patience, and respect. 
 They will not be quickly banned unless their behavior is extreme or they are cheating in-game. Ban appeals will be promptly reviewed:
