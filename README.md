@@ -9,7 +9,7 @@ They will not be quickly banned unless their behavior is extreme or they are che
 
 [Empire / CODUO NA Competitive Discord](https://discord.gg/tAsTyVQDjz)
 
-To RA's very own ***StarKiller*** (you asked *me* for this repo, then let us be banned without any given reason & ignored appeals), 
+To RA's very own ***StarKiller*** (you asked *me* for the map repo, then let us be banned without any given reason & ignored appeals), 
 *you know what to do and how to resolve this issue.*
 
 # CoD Widescreen Suite (CoDUO-FoV-Changer)
