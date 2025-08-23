@@ -1,3 +1,8 @@
+# The ONLY Official Download Links can be found under [Releases.](https://github.com/Shady7557/CoDUO-FoV-Changer/releases/latest) 
+# Concerning Windows Defender and similar:
+It is beyond common that unsigned applications, such as this one, will be flagged by Windows Smartscreen and/or Windows Defender. It ranges from warning you that the file unsigned to showing a false positive.
+It is entirely up to you whether or not you trust running the prebuilt executable. You are always free to download the source code, review it, and build it yourself.
+**Any such warnings are normal and expected, and you may need to permit the application to run**.
 # WARNING: Concerning the RA (Rebel Alliance) server, please read if you play Call of Duty: United Offensive's multiplayer.
 
 There are other *(secure!)* servers than RA to play on. They are not all compromised, and the game itself is ultimately alive and safe to play.
@@ -13,18 +18,18 @@ They're quick to do this because their ban list is extensive, and **they suspect
 For a safe space in United Offensive, please consider joining our Discord. Players will be treated with utmost kindness, patience, and respect. 
 They will not be quickly banned unless their behavior is extreme or they are cheating in-game. Ban appeals will be promptly reviewed:
 
-[Empire / CODUO NA Competitive Discord](https://discord.gg/tAsTyVQDjz)
+[Empire Discord](https://discord.gg/tWMRqKpWy7)
 
 To RA's very own ***StarKiller*** (you asked *me* for the map repo, then let us be banned without any given reason & ignored appeals), 
 *you know what to do and how to resolve this issue.*
 
 # CoD Widescreen Suite (CoDUO-FoV-Changer)
 A comprehensive suite of tools to make Call of Duty (2003) and Call of Duty: United Offensive (2004) comfortably playable even in multiplayer on modern systems.
-Includes a Field of View (FoV) changer for Call of Duty and Call of Duty: United Offensive and built in options to launch the game with desktop resolutions or other custom resolutions.
+Includes a Field of View (FoV) changer for Call of Duty and Call of Duty: United Offensive, and built-in options to launch the game with desktop resolutions or other custom resolutions.
 
 Useful for playing in widescreen resolutions in a game that only natively supports 4:3 aspect ratios. This allows you to set your FoV manually, to prevent your screen from being overly zoomed in when playing in widescreen. It also works as an FoV changer even if you want to keep the 4:3 resolution.
 
-This project uses another one of my public projects, a very simple lightweight console app by the name of "Mover". You can find it here: [Mover](https://github.com/Shady7557/Mover)
+This project uses another one of my public projects, a very simple, lightweight console app by the name of "Mover". You can find it here: [Mover](https://github.com/Shady7557/Mover)
 Mover is used purely for updates since this app cannot update itself (executable would be in use).
 
 
