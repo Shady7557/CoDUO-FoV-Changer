@@ -8,7 +8,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading;
@@ -58,7 +57,6 @@ namespace CoDUO_FoV_Changer
 
         public static ServerListViewFilter ServerListFilter { get; private set; }
 
-        private readonly HttpClient _httpClient = new HttpClient();
 
         public class ServerListViewFilter
         {
@@ -119,7 +117,7 @@ namespace CoDUO_FoV_Changer
                 if (FilterEmptyServers && server.Clients < 1)
                     return true;
 
-                if (FilterBotServers)
+                if (FilterBotServers && server.PlayerInfo != null)
                 {
                     for (int j = 0; j < server.PlayerInfo.Count; j++)
                     {
@@ -127,9 +125,9 @@ namespace CoDUO_FoV_Changer
                         if (player is null || string.IsNullOrWhiteSpace(player.Name))
                             continue;
 
-                        if (player.Ping >= 999 && player.Name.StartsWith("bot", StringComparison.OrdinalIgnoreCase))
+                        // Match the bot detection logic used in UpdatePlayersListViewAndLabel
+                        if ((player.Ping <= 0 || player.Ping >= 999) && player.Name.StartsWith("bot", StringComparison.OrdinalIgnoreCase))
                             return true;
-
                     }
                 }
 
@@ -140,10 +138,10 @@ namespace CoDUO_FoV_Changer
 
                 // Therefore, we need to check if NONE of the first 3 subitems contain any of the filter text.
 
-                if (server.Hostname.IndexOf(HostnameFilter, StringComparison.OrdinalIgnoreCase) == -1
-                                           && server.MapName.IndexOf(MapNameFilter, StringComparison.OrdinalIgnoreCase) == -1
-                                                                  && server.GameType.IndexOf(GameTypeFilter, StringComparison.OrdinalIgnoreCase) == -1
-                                                                  && server.Ip.IndexOf(IpAddressFilter, StringComparison.OrdinalIgnoreCase) == -1)
+                if ((server.Hostname ?? string.Empty).IndexOf(HostnameFilter, StringComparison.OrdinalIgnoreCase) == -1
+                                           && (server.MapName ?? string.Empty).IndexOf(MapNameFilter, StringComparison.OrdinalIgnoreCase) == -1
+                                                                  && (server.GameType ?? string.Empty).IndexOf(GameTypeFilter, StringComparison.OrdinalIgnoreCase) == -1
+                                                                  && (server.Ip ?? string.Empty).IndexOf(IpAddressFilter, StringComparison.OrdinalIgnoreCase) == -1)
                     return true;
 
                 return false;
@@ -165,15 +163,14 @@ namespace CoDUO_FoV_Changer
 
                     int? ping;
 
-                    if (int.TryParse(item.SubItems[4].Text, out var fakePing))
+                    if (item.SubItems.Count > 4 && int.TryParse(item.SubItems[4].Text, out var fakePing))
                         ping = fakePing;
                     else ping = -1;
 
-                    if (server != null && ShouldFilter(server, ping))
-                        items.Remove(item);
-
+                    // Add items that should NOT be filtered (i.e., items that pass the filter)
+                    if (server != null && !ShouldFilter(server, ping))
+                        items.Add(item);
                 }
-
             }
 
             public void ClearAll()
@@ -199,34 +196,82 @@ namespace CoDUO_FoV_Changer
                 if (ListView.IsDisposed || ListView.Disposing)
                     return;
 
-                if (ListView.InvokeRequired)
-                    ListView.BeginInvoke((MethodInvoker)delegate { ListView.Items.Clear(); });
-                else ListView.Items.Clear();
-
-
-                var newItems = Pool.GetList<ListViewItem>();
-
-                try
+                // Build a set of items that should be filtered out (hidden)
+                var filteredOutItems = new HashSet<ListViewItem>();
+                for (int i = 0; i < ListViewItems.Count; i++)
                 {
+                    var item = ListViewItems[i];
+                    var server = ListView.GetServer(item);
 
-                    for (int i = 0; i < ListViewItems.Count; i++)
+                    int? ping = null;
+                    if (item.SubItems.Count > 4 && int.TryParse(item.SubItems[4].Text, out var fakePing))
+                        ping = fakePing;
+                    else
+                        ping = -1;
+
+                    if (server != null && ShouldFilter(server, ping))
+                        filteredOutItems.Add(item);
+                }
+
+                // Build a set of currently visible items for O(1) lookup
+                var currentItems = new HashSet<ListViewItem>();
+                for (int i = 0; i < ListView.Items.Count; i++)
+                    currentItems.Add(ListView.Items[i]);
+
+                // Collect items to remove and add
+                var itemsToRemove = new List<ListViewItem>();
+                var itemsToAdd = new List<ListViewItem>();
+
+                // Find items to remove (currently visible but should be filtered)
+                for (int i = 0; i < ListView.Items.Count; i++)
+                {
+                    var item = ListView.Items[i];
+                    if (filteredOutItems.Contains(item))
+                        itemsToRemove.Add(item);
+                }
+
+                // Find items to add (should be visible but not currently in the list)
+                for (int i = 0; i < ListViewItems.Count; i++)
+                {
+                    var item = ListViewItems[i];
+                    if (!filteredOutItems.Contains(item) && !currentItems.Contains(item))
+                        itemsToAdd.Add(item);
+                }
+
+                // Apply changes with BeginUpdate/EndUpdate to prevent flickering
+                if (ListView.InvokeRequired)
+                {
+                    ListView.BeginInvoke((MethodInvoker)delegate
                     {
-                        var item = ListViewItems[i];
-                        newItems.Add(item);
+                        ListView.BeginUpdate();
+                        try
+                        {
+                            foreach (var item in itemsToRemove)
+                                ListView.Items.Remove(item);
+                            foreach (var item in itemsToAdd)
+                                ListView.Items.Add(item);
+                        }
+                        finally
+                        {
+                            ListView.EndUpdate();
+                        }
+                    });
+                }
+                else
+                {
+                    ListView.BeginUpdate();
+                    try
+                    {
+                        foreach (var item in itemsToRemove)
+                            ListView.Items.Remove(item);
+                        foreach (var item in itemsToAdd)
+                            ListView.Items.Add(item);
                     }
-
-                    GetFilteredItemsNoAlloc(ref newItems);
-
-                    for (int i = 0; i < newItems.Count; i++)
+                    finally
                     {
-                        var item = newItems[i];
-                        if (ListView.InvokeRequired)
-                            ListView.BeginInvoke((MethodInvoker)delegate { ListView.Items.Add(item); });
-                        else ListView.Items.Add(item);
+                        ListView.EndUpdate();
                     }
                 }
-                finally { Pool.FreeList(ref newItems); }
-
             }
 
         }
@@ -276,21 +321,31 @@ namespace CoDUO_FoV_Changer
             }
         }
 
-        private ColumnHeader lastSortColumn;
-        private SortOrder lastSortOrder;
+        // Track sort order per ListView, per column index
+        private readonly Dictionary<ListView, Dictionary<int, SortOrder>> _columnSortOrders =
+            new Dictionary<ListView, Dictionary<int, SortOrder>>();
+
+        // Track the currently active sort column per ListView
+        private readonly Dictionary<ListView, int> _currentSortColumn =
+            new Dictionary<ListView, int>();
 
         private void ServersForm_Load(object sender, EventArgs e)
         {
             ServerListFilter = new ServerListViewFilter(ServerListView);
             ServerListView.ContextMenuStrip = contextMenuStrip1;
 
-            ServerListView.ColumnClick += new ColumnClickEventHandler(ColumnClick_SortHandler);
-            PlayerListView.ColumnClick += new ColumnClickEventHandler(ColumnClick_SortHandler);
+            ServerListView.ColumnClick += ColumnClick_SortHandler;
+            PlayerListView.ColumnClick += ColumnClick_SortHandler;
 
-            // '2' is the players column - the most likely default.
-            // it was '4', for ping. it was ascending (lowest to highest ping). now it's descending (most to least players)
+            // Initialize default sorting: Players (col 2) descending, Score (col 1) descending
             ServerListView.ListViewItemSorter = new ListViewItemComparer(2, SortOrder.Descending);
             PlayerListView.ListViewItemSorter = new ListViewItemComparer(1, SortOrder.Descending);
+
+            // Initialize sort tracking to match default sorting
+            _columnSortOrders[ServerListView] = new Dictionary<int, SortOrder> { { 2, SortOrder.Descending } };
+            _columnSortOrders[PlayerListView] = new Dictionary<int, SortOrder> { { 1, SortOrder.Descending } };
+            _currentSortColumn[ServerListView] = 2;
+            _currentSortColumn[PlayerListView] = 1;
 
             MapNameLabel.Text = string.Empty;
 
@@ -354,30 +409,50 @@ namespace CoDUO_FoV_Changer
                 TimerEx.Once(reToggleAfterSeconds, () => ToggleControl(control));
         }
 
+        /// <summary>
+        /// Gets the "most favorable" default sort order for a column.
+        /// Players/Score columns default to Descending (highest first).
+        /// All other columns (including Ping) default to Ascending.
+        /// </summary>
+        private SortOrder GetFavorableDefaultSortOrder(ListView listView, int columnIndex)
+        {
+            // ServerListView: col 2 = Players (most players first)
+            // PlayerListView: col 1 = Score (highest score first)
+            if ((listView == ServerListView && columnIndex == 2) ||
+                (listView == PlayerListView && columnIndex == 1))
+                return SortOrder.Descending;
+
+            return SortOrder.Ascending;
+        }
+
         private void ColumnClick_SortHandler(object sender, ColumnClickEventArgs e)
         {
             if (!(sender is ListView listView))
                 return;
 
-            // Determine the new sort order.
-            SortOrder sortOrder;
-            if (lastSortColumn == listView.Columns[e.Column])
+            var clickColumn = listView.Columns[e.Column];
+
+            if (clickColumn.Text == "IP")
+                return;
+
+            if (!_columnSortOrders.TryGetValue(listView, out var columnOrders))
             {
-                // Switch the sort order.
-                sortOrder = lastSortOrder == SortOrder.Ascending ? SortOrder.Descending : SortOrder.Ascending;
-            }
-            else
-            {
-                // Set the sort order to ascending by default.
-                sortOrder = SortOrder.Ascending;
+                columnOrders = new Dictionary<int, SortOrder>();
+                _columnSortOrders[listView] = columnOrders;
             }
 
-            // Update the last sort column and order.
-            lastSortColumn = listView.Columns[e.Column];
-            lastSortOrder = sortOrder;
+            _currentSortColumn.TryGetValue(listView, out var activeColumn);
+            columnOrders.TryGetValue(e.Column, out var currentOrder);
 
-            // Set the ListViewItemSorter property to a new ListViewItemComparer object.
-            listView.ListViewItemSorter = new ListViewItemComparer(e.Column, sortOrder);
+            // Same column: toggle sort order. Different column: use favorable default.
+            var newOrder = activeColumn == e.Column
+                ? (currentOrder == SortOrder.Ascending ? SortOrder.Descending : SortOrder.Ascending)
+                : GetFavorableDefaultSortOrder(listView, e.Column);
+
+            columnOrders[e.Column] = newOrder;
+            _currentSortColumn[listView] = e.Column;
+
+            listView.ListViewItemSorter = new ListViewItemComparer(e.Column, newOrder);
             listView.Sort();
         }
 
@@ -482,7 +557,7 @@ namespace CoDUO_FoV_Changer
                 if (!ServerListFilter.ListViewItems.Contains(item))
                     ServerListFilter.ListViewItems.Add(item);
 
-                if (!ServerListView.Items.Contains(item))
+                if (addToActiveItems && !ServerListView.Items.Contains(item))
                     ServerListView.Items.Add(item);
 
                 ServerListView.SetItemToServer(item, server);
@@ -495,7 +570,7 @@ namespace CoDUO_FoV_Changer
                 item.SubItems[5].Text = ServerUtil.GetIpAndPort(server);
 
                 // Update the item in the list view.
-                item.ListView?.Refresh();
+                 // TODO TEMP: item.ListView?.Refresh();
 
                 //UpdatePlayersListViewAndLabel(server);
 
@@ -514,24 +589,33 @@ namespace CoDUO_FoV_Changer
         private async Task<long> PingServer(Server server, ListViewItem item)
         {
             if (server is null)
-                throw new ArgumentNullException(nameof(Server));
+                throw new ArgumentNullException(nameof(server));
 
             if (string.IsNullOrWhiteSpace(server.Ip))
                 throw new Exception("Server IP was null or empty.");
 
             try
             {
-                var pinger = new Ping();
-                var pingBuffer = GetPingBuffer();
-                var response = await pinger.SendPingAsync(server.Ip, 1500, pingBuffer, PingOptions);
-
-                BeginInvoke((MethodInvoker)delegate
+                using (var pinger = new Ping())
                 {
-                    item.SubItems[4].Text = (response.Status == IPStatus.Success) ? response.RoundtripTime.ToString("N0") : "*";
-                });
+                    var pingBuffer = GetPingBuffer();
+                    var response = await pinger.SendPingAsync(server.Ip, 1500, pingBuffer, PingOptions);
 
-                return response?.RoundtripTime ?? -1;
+                    if (IsDisposed || Disposing)
+                        return response?.RoundtripTime ?? -1;
 
+                    BeginInvoke((MethodInvoker)delegate
+                    {
+                        if (item.SubItems.Count > 4)
+                            item.SubItems[4].Text = (response.Status == IPStatus.Success) ? response.RoundtripTime.ToString("N0") : "*";
+                    });
+
+                    return response?.RoundtripTime ?? -1;
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                // Form was disposed while ping was in progress
             }
             catch (Exception ex)
             {
@@ -542,18 +626,13 @@ namespace CoDUO_FoV_Changer
             return -1;
         }
 
-        private void RefreshAllFavorites()
-        {
-            throw new NotImplementedException();
-        }
-
         private async Task RefreshAllServers()
         {
             Console.WriteLine(nameof(RefreshAllServers));
             if (string.IsNullOrWhiteSpace(GameName) || string.IsNullOrWhiteSpace(GameVersion))
                 return;
 
-            OnRefresh();
+           // OnRefresh();
 
             var infos = await CodPmApi.GetMasterList(GameName, GameVersion);
 
@@ -609,12 +688,14 @@ namespace CoDUO_FoV_Changer
 
                 var shouldFilter = ServerListFilter?.ShouldFilter(server) ?? false;
 
+                Console.WriteLine($"{server.Hostname}: ShouldFilter: {shouldFilter}");
+
                 AddOrUpdateServerListItem(server, !shouldFilter);
             }
 
-            UpdateListedServersCountLabel();
+           // UpdateListedServersCountLabel();
 
-            var pingTasks = new Task[ServerListFilter.ListViewItems.Count];
+            var pingTasks = new List<Task>(ServerListFilter.ListViewItems.Count);
 
             for (int i = 0; i < ServerListFilter.ListViewItems.Count; i++)
             {
@@ -625,7 +706,7 @@ namespace CoDUO_FoV_Changer
                 if (server is null)
                     continue;
 
-                pingTasks[i] = Task.Run(async () =>
+                pingTasks.Add(Task.Run(async () =>
                 {
                     try
                     {
@@ -634,12 +715,15 @@ namespace CoDUO_FoV_Changer
                         if (!ServerListFilter.ShouldFilter(server, (int)latency))
                             return;
 
+                        if (ServerListFilter.ListView.IsDisposed || ServerListFilter.ListView.Disposing)
+                            return;
+
                         ServerListFilter.ListView.BeginInvoke((MethodInvoker)delegate
                         {
                             try
                             {
                                 ServerListFilter.ListView.Items.Remove(item);
-                                UpdateListedServersCountLabel();
+                                // UpdateListedServersCountLabel();
                             }
                             catch (Exception ex)
                             {
@@ -655,12 +739,13 @@ namespace CoDUO_FoV_Changer
                         Console.WriteLine(ex.ToString());
                         Log.WriteLine(ex.ToString());
                     }
-                });
+                }));
 
             }
-            await Task.WhenAll(pingTasks);
 
+            await Task.WhenAll(pingTasks);
             UpdateListedServersCountLabel();
+
             ServerListView.Sort();
         }
 
@@ -841,6 +926,12 @@ namespace CoDUO_FoV_Changer
 
             PlayerListView.Items.Clear();
 
+            if (server.PlayerInfo is null)
+            {
+                PlayerCountLabel.Text = ServerUtil.GetPlayersString(server);
+                return;
+            }
+
             var filterNames = FilterPlayerNamesCheckbox.Checked;
             var filterBots = FilterBotPlayersCheckbox.Checked;
 
@@ -907,8 +998,9 @@ namespace CoDUO_FoV_Changer
 
             if (MapImageLoadTask != null)
             {
-                // Cancel the existing task
-                MapImageLoadCancellationToken.Cancel();
+                // Cancel and dispose the existing token source
+                MapImageLoadCancellationToken?.Cancel();
+                MapImageLoadCancellationToken?.Dispose();
                 MapImageLoadTask = null;
             }
 
@@ -1055,7 +1147,13 @@ namespace CoDUO_FoV_Changer
             // CloseReason must be UserClosing, otherwise we should not interrupt the closing call.
 
             if (e.CloseReason != CloseReason.UserClosing)
+            {
+                // Cleanup resources when actually closing
+                MapImageLoadCancellationToken?.Cancel();
+                MapImageLoadCancellationToken?.Dispose();
+                MapImageLoadCancellationToken = null;
                 return;
+            }
 
             e.Cancel = true;
             Hide();
@@ -1099,6 +1197,12 @@ namespace CoDUO_FoV_Changer
             // Refresh the server's info.
             var newInfo = await CodPmApi.GetServer(server.Ip, server.Port);
 
+            if (newInfo?.Server is null)
+            {
+                Log.WriteLine($"Failed to refresh server {server.Ip}:{server.Port} - API returned null");
+                return;
+            }
+
             // We have to create a new 'Server' because when we get a snapshot of a single server,
             // The 'playerinfo' field is *not* inside of the 'serverinfo' field like it is for master servers.
             // So we copy all properties from the singular ServerInfo we acquired and put it into a new 'Server':
@@ -1119,7 +1223,10 @@ namespace CoDUO_FoV_Changer
                 Clients = newInfo.Server.Clients
             };
 
-            AddOrUpdateServerListItem(newServer);
+            var shouldFilter = ServerListFilter?.ShouldFilter(newServer) ?? false;
+
+
+            AddOrUpdateServerListItem(newServer, !shouldFilter);
 
             var item = ServerListView.GetItem(newServer.Id);
             if (item != null)
@@ -1234,49 +1341,57 @@ namespace CoDUO_FoV_Changer
             if (selIndex <= 0)
                 return;
 
-            Task.Run(() =>
+            Task.Run(async () =>
             {
-
                 try
                 {
-
-                    BeginInvoke((MethodInvoker)async delegate
+                    if (selIndex == 2)
                     {
-
-                        try 
+                        await Task.Run(async () =>
                         {
-                            if (selIndex == 2)
+                            if (InvokeRequired)
+                            {
+                                await Task.Factory.FromAsync(
+                                    BeginInvoke((MethodInvoker)async delegate { await RefreshAllServers(); }),
+                                    EndInvoke);
+                            }
+                            else
                                 await RefreshAllServers();
-                            else if (selIndex == 1 && SelectedServer != null)
-                                await RefreshServer(SelectedServer);
-                        }
-                        catch(Exception ex)
-                        {
-                            Console.WriteLine(ex.ToString());
-                            Log.WriteLine(ex.ToString());
-                        }
-
-                    });
-
-                    // create a method that handles when a server is updated instead of copy/pasting these things?
-                    if (SelectedServer != null)
+                        });
+                    }
+                    else if (selIndex == 1 && SelectedServer != null)
                     {
+                        await RefreshServer(SelectedServer);
+                    }
 
+                    // Update UI after refresh completes
+                    if (SelectedServer != null && !IsDisposed && !Disposing)
+                    {
                         BeginInvoke((MethodInvoker)delegate
                         {
-                            MapNameLabel.Text = ServerUtil.GetPrettyMapName(SelectedServer.MapName);
-
-                            UpdatePlayersListViewAndLabel(SelectedServer);
-
-                            BeginMapImageLoad(SelectedServer.MapName);
-
+                            try
+                            {
+                                MapNameLabel.Text = ServerUtil.GetPrettyMapName(SelectedServer.MapName);
+                                UpdatePlayersListViewAndLabel(SelectedServer);
+                                BeginMapImageLoad(SelectedServer.MapName);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                                Log.WriteLine(ex.ToString());
+                            }
                         });
-                       
-
                     }
                 }
-                catch(Exception ex) { Console.WriteLine(ex.ToString()); }
-               
+                catch (ObjectDisposedException)
+                {
+                    // Form was disposed
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    Log.WriteLine(ex.ToString());
+                }
             });
         }
 

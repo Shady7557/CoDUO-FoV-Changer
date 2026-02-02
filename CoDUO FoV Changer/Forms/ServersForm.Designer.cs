@@ -32,12 +32,12 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ServersForm));
             this.RefreshButton = new System.Windows.Forms.Button();
             this.ServerListView = new CoDUO_FoV_Changer.Controls.ServerListView();
-            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader9 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.hostnameColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.mapColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.playersColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.gameTypeColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.pingColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ipColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.MaxPingNumeric = new System.Windows.Forms.NumericUpDown();
             this.MaxPingLabel = new System.Windows.Forms.Label();
             this.HideNoPingCheckbox = new System.Windows.Forms.CheckBox();
@@ -92,12 +92,12 @@
             // 
             this.ServerListView.BackColor = System.Drawing.Color.DarkGray;
             this.ServerListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1,
-            this.columnHeader2,
-            this.columnHeader3,
-            this.columnHeader4,
-            this.columnHeader5,
-            this.columnHeader9});
+            this.hostnameColumnHeader,
+            this.mapColumnHeader,
+            this.playersColumnHeader,
+            this.gameTypeColumnHeader,
+            this.pingColumnHeader,
+            this.ipColumnHeader});
             this.ServerListView.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ServerListView.FullRowSelect = true;
             this.ServerListView.HideSelection = false;
@@ -111,35 +111,35 @@
             this.ServerListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.ServerListView_MouseDoubleClick);
             this.ServerListView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ServerListView_MouseDown);
             // 
-            // columnHeader1
+            // hostnameColumnHeader
             // 
-            this.columnHeader1.Text = "Hostname";
-            this.columnHeader1.Width = 160;
+            this.hostnameColumnHeader.Text = "Hostname";
+            this.hostnameColumnHeader.Width = 160;
             // 
-            // columnHeader2
+            // mapColumnHeader
             // 
-            this.columnHeader2.Text = "Map";
-            this.columnHeader2.Width = 92;
+            this.mapColumnHeader.Text = "Map";
+            this.mapColumnHeader.Width = 92;
             // 
-            // columnHeader3
+            // playersColumnHeader
             // 
-            this.columnHeader3.Text = "Players";
-            this.columnHeader3.Width = 61;
+            this.playersColumnHeader.Text = "Players";
+            this.playersColumnHeader.Width = 61;
             // 
-            // columnHeader4
+            // gameTypeColumnHeader
             // 
-            this.columnHeader4.Text = "Game Type";
-            this.columnHeader4.Width = 75;
+            this.gameTypeColumnHeader.Text = "Game Type";
+            this.gameTypeColumnHeader.Width = 75;
             // 
-            // columnHeader5
+            // pingColumnHeader
             // 
-            this.columnHeader5.Text = "Ping";
-            this.columnHeader5.Width = 40;
+            this.pingColumnHeader.Text = "Ping";
+            this.pingColumnHeader.Width = 40;
             // 
-            // columnHeader9
+            // ipColumnHeader
             // 
-            this.columnHeader9.Text = "IP";
-            this.columnHeader9.Width = 139;
+            this.ipColumnHeader.Text = "IP";
+            this.ipColumnHeader.Width = 139;
             // 
             // MaxPingNumeric
             // 
@@ -466,7 +466,7 @@
             // 
             // RefreshTimer
             // 
-            this.RefreshTimer.Interval = 15000;
+            this.RefreshTimer.Interval = 20000;
             this.RefreshTimer.Tick += new System.EventHandler(this.RefreshTimer_Tick);
             // 
             // AutoRefreshSettingComboBox
@@ -539,11 +539,11 @@
 
         private System.Windows.Forms.Button RefreshButton;
         private CoDUO_FoV_Changer.Controls.ServerListView ServerListView;
-        private System.Windows.Forms.ColumnHeader columnHeader1;
-        private System.Windows.Forms.ColumnHeader columnHeader2;
-        private System.Windows.Forms.ColumnHeader columnHeader3;
-        private System.Windows.Forms.ColumnHeader columnHeader4;
-        private System.Windows.Forms.ColumnHeader columnHeader5;
+        private System.Windows.Forms.ColumnHeader hostnameColumnHeader;
+        private System.Windows.Forms.ColumnHeader mapColumnHeader;
+        private System.Windows.Forms.ColumnHeader playersColumnHeader;
+        private System.Windows.Forms.ColumnHeader gameTypeColumnHeader;
+        private System.Windows.Forms.ColumnHeader pingColumnHeader;
         private System.Windows.Forms.NumericUpDown MaxPingNumeric;
         private System.Windows.Forms.Label MaxPingLabel;
         private System.Windows.Forms.CheckBox HideNoPingCheckbox;
@@ -571,7 +571,7 @@
         private System.Windows.Forms.Button ConnectServerButton;
         private System.Windows.Forms.CheckBox FavoriteServerCheckbox;
         private System.Windows.Forms.Button FavoritesButton;
-        private System.Windows.Forms.ColumnHeader columnHeader9;
+        private System.Windows.Forms.ColumnHeader ipColumnHeader;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.CheckBox AutoRefreshCheckBox;
