@@ -1,4 +1,6 @@
 ﻿using CoDUO_FoV_Changer.Util;
+using CoDUO_FoV_Changer.Forms;
+using Localization;
 using CurtLog;
 using ProcessExtensions;
 using ShadyPool;
@@ -105,7 +107,7 @@ namespace CoDUO_FoV_Changer
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                MessageBox.Show("Failed to start game: " + ex.Message + Environment.NewLine + "Please refer to the log for more info.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LocalizedMessageBox.ShowError(StringKeys.ErrorFailedToStartGame, ex.Message);
                 Log.WriteLine("Failed to start process game process:" + Environment.NewLine + ex.ToString());
             }
 

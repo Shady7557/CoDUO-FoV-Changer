@@ -20,6 +20,8 @@ using CoDUO_FoV_Changer.Util;
 using StringExtension;
 using System.Net.Http;
 using Localization;
+using ControlExtensions;
+using CoDUO_FoV_Changer.Forms;
 
 namespace CoDUO_FoV_Changer
 {
@@ -394,7 +396,7 @@ namespace CoDUO_FoV_Changer
                                 finalPath = File.Exists(scannedPath) ? Path.GetDirectoryName(scannedPath) : scannedPath;
                                 BeginInvoke((MethodInvoker)delegate
                                 {
-                                    MessageBox.Show("Automatically detected game path: " + Environment.NewLine + finalPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                    LocalizedMessageBox.ShowInfo(StringKeys.InfoAutoDetectedPath, finalPath);
                                 });
                             }
                             else
@@ -410,7 +412,7 @@ namespace CoDUO_FoV_Changer
                                 finalPath = Path.GetDirectoryName(scannedPath);
 
 
-                                MessageBox.Show("Set install path to: " + finalPath, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                LocalizedMessageBox.ShowInfo(StringKeys.InfoSetInstallPath, finalPath);
                             }
 
                             UpdateGameExes(finalPath);
@@ -439,7 +441,7 @@ namespace CoDUO_FoV_Changer
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show("An error has occurred: " + ex.Message + Environment.NewLine + "Please refer to the log for more information.");
+                            LocalizedMessageBox.ShowError(StringKeys.ErrorGenericError, ex.Message);
                             Log.WriteLine("An exception happened on Install Path code:" + Environment.NewLine + ex.ToString());
                         }
                     });
@@ -535,15 +537,15 @@ namespace CoDUO_FoV_Changer
                 ipFDialog.DefaultExt = ".exe";
                 ipFDialog.Filter = "|*.exe";
 
-                if (!shiftMod && !forceSelectionDialog) 
-                    MessageBox.Show("Please select the exe to launch (this will be saved)", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (!shiftMod && !forceSelectionDialog)
+                    LocalizedMessageBox.ShowInfo(StringKeys.InfoSelectExePrompt);
 
                 if (ipFDialog.ShowDialog() != DialogResult.OK)
                     return;
 
                 if (!ipFDialog.FileName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                 {
-                    MessageBox.Show("Selected file is not an executable.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    LocalizedMessageBox.ShowError(StringKeys.ErrorSelectedNotExecutable);
                     return;
                 }
 
@@ -554,7 +556,7 @@ namespace CoDUO_FoV_Changer
 
                 UpdateStartGameButtonText(settings.SelectedExecutable);
 
-                MessageBox.Show("Selected: " + settings.SelectedExecutable + Environment.NewLine + "You can change this again at any time.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LocalizedMessageBox.ShowInfo(StringKeys.InfoSelectedExecutable, settings.SelectedExecutable);
             }
 
             settings.CommandLine = LaunchParametersTB.Text;
@@ -598,17 +600,19 @@ namespace CoDUO_FoV_Changer
 
                 if (startStatus is GameStarter.StartStatus.SteamNotRunning)
                 {
-
-                    var msgBoxMsg = string.Empty;
+                    string msgKey;
 
                     if (SteamUtil.TryGetSteamExecutablePath(out var steamExe, settings.BaseGamePath))
                     {
-                        msgBoxMsg = "An attempt to start Steam has been made. Wait until it has fully started and try launching the game again.";
+                        msgKey = StringKeys.ErrorSteamNotRunningStartAttempt;
                         Process.Start(steamExe);
                     }
-                    else msgBoxMsg = "Please start Steam and try launching the game again.";
+                    else
+                    {
+                        msgKey = StringKeys.ErrorSteamNotRunningPleaseStart;
+                    }
 
-                    MessageBox.Show("Steam is not running." + Environment.NewLine + msgBoxMsg, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    LocalizedMessageBox.ShowError(msgKey);
                 }
 
             });
@@ -705,7 +709,7 @@ namespace CoDUO_FoV_Changer
 
                 if (MemorySelection == null || !(MemorySelection?.ProcMemory?.RequiresElevation() ?? false) && !MemorySelection.IsRunning())
                 {
-                    SetLabelText(StatusLabel, "Status: Not running");
+                    StatusLabel.ApplyLocalization(StatusLabelState.NotRunning);
                     StatusLabel.BeginInvoke((MethodInvoker)delegate
                     {
                         toolTip1.SetToolTip(StatusLabel, "Process not found or failed to access memory!");
@@ -945,7 +949,7 @@ namespace CoDUO_FoV_Changer
 
                 if (MemorySelection?.ProcMemory?.RequiresElevation() ?? false)
                 {
-                    SetLabelText(StatusLabel, "Status: Game requires elevation!", 2);
+                    StatusLabel.ApplyLocalization(StatusLabelState.RequiresElevation);
 
                     StatusLabel.BeginInvoke((MethodInvoker)delegate
                     {
@@ -959,7 +963,7 @@ namespace CoDUO_FoV_Changer
                 var address = !isRunning ? -1 : !IsUOMemory() ? MemoryAddresses.COD_FOV_ADDRESS : (isRunning ? (MemorySelection.ProcMemory.DllImageAddress(MemoryAddresses.UO_CGAME_MP_DLL) + MemoryAddresses.UO_FOV_OFFSET) : -1);
                 if (!isRunning || address <= 0)
                 {
-                    SetLabelText(StatusLabel, "Status: Not running", 0);
+                    StatusLabel.ApplyLocalization(StatusLabelState.NotRunning);
                     StatusLabel.BeginInvoke((MethodInvoker)delegate
                     {
                         toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!");
@@ -977,7 +981,7 @@ namespace CoDUO_FoV_Changer
                     var fovToUse = ClampEx.Clamp(CgFov, 80, 140);
 
                     MemorySelection.ProcMemory.WriteFloat(address, fovToUse);
-                    SetLabelText(StatusLabel, "Status: Success!", 1);
+                    StatusLabel.ApplyLocalization(StatusLabelState.Success);
                     StatusLabel.BeginInvoke((MethodInvoker)delegate ()
                     {
                         toolTip1.SetToolTip(StatusLabel, string.Empty);
@@ -1006,7 +1010,7 @@ namespace CoDUO_FoV_Changer
                 var time = now - _lastUpdateCheck;
                 if (time.TotalSeconds < 30)
                 {
-                    MessageBox.Show("You're checking for updates too quickly!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LocalizedMessageBox.ShowInfo(StringKeys.InfoCheckingTooQuickly);
                     return;
                 }
             }
@@ -1100,7 +1104,7 @@ namespace CoDUO_FoV_Changer
 
                     if (string.IsNullOrEmpty(fileNameDir) || !File.Exists(fileNameDir))
                     {
-                        MessageBox.Show("Application path doesn't exist. Cannot update: " + fileNameDir, ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        LocalizedMessageBox.ShowError(StringKeys.ErrorAppPathNotExistUpdate, fileNameDir);
                         return;
                     }
 
@@ -1170,11 +1174,11 @@ namespace CoDUO_FoV_Changer
             {
                 Console.WriteLine(ex.ToString());
                 Log.WriteLine("An error happened while trying to update:" + Environment.NewLine + ex.ToString());
-                MessageBox.Show("An error happened while trying to update: " + Environment.NewLine + ex.Message + Environment.NewLine + "Please refer to the log for more info.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LocalizedMessageBox.ShowError(StringKeys.ErrorUpdateFailed, ex.Message);
             }
         }
 
-        private void UpdateButton_Click(object sender, EventArgs e) { if (MessageBox.Show("Are you sure you want to update now?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes) Task.Run(() => StartUpdater()); }
+        private void UpdateButton_Click(object sender, EventArgs e) { if (LocalizedMessageBox.ShowConfirm(StringKeys.ConfirmUpdateNow) == DialogResult.Yes) Task.Run(() => StartUpdater()); }
 
         private void UpdateProcessBox()
         {
@@ -1233,7 +1237,7 @@ namespace CoDUO_FoV_Changer
             catch (Exception ex)
             {
                 Log.WriteLine("An error happened while trying to get running Call of Duty/UO processes:" + Environment.NewLine + ex.ToString());
-                MessageBox.Show("An error happend while trying to get running Call of Duty/UO processes: " + ex.Message + Environment.NewLine + "Please refer to the log for more info.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LocalizedMessageBox.ShowError(StringKeys.ErrorProcessListFailed, ex.Message);
             }
             finally { GamePIDBox.EndUpdate(); }
         }

@@ -86,6 +86,9 @@
     </Compile>
     <Compile Include="Forms\ControlLocalizationExtension.cs" />
     <Compile Include="Forms\LocalizationManager.cs" />
+    <Compile Include="Forms\LocalizedMessageBox.cs" />
+    <Compile Include="Localization\StringKeys.cs" />
+    <Compile Include="Localization\ControlStates.cs" />
     <Compile Include="UserAgent.cs" />
     <Compile Include="Util\EmergencyLogger.cs" />
     <Compile Include="Util\FovCalculator.cs" />
@@ -250,6 +253,11 @@
     <None Include="Resources\empty_key_big_3.png" />
     <None Include="Resources\CoD1.png" />
     <None Include="Resources\CoDUO.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Localization\en-US.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">

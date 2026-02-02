@@ -1,0 +1,43 @@
+{
+  "Controls": {},
+  "Strings": {
+    "Error.FailedToStartGame": "Failed to start game: {0}\nPlease refer to the log for more info.",
+    "Error.SteamNotRunning.StartAttempt": "Steam is not running.\nAn attempt to start Steam has been made. Wait until it has fully started and try launching the game again.",
+    "Error.SteamNotRunning.PleaseStart": "Steam is not running.\nPlease start Steam and try launching the game again.",
+    "Error.AppPathNotExist": "Application path doesn't exist. Cannot start: {0}\nPlease manually run the program as an Admin if you wish to change your hotkeys.",
+    "Error.AppPathNotExistUpdate": "Application path doesn't exist. Cannot update: {0}",
+    "Error.FailedHotkeysForm": "Failed to start hot keys form: {0}\nPlease refer to the log for more info.",
+    "Error.FailedCDKeyForm": "Failed to start cd key manager form: {0}\nPlease refer to the log for more info.",
+    "Error.GenericError": "An error has occurred: {0}\nPlease refer to the log for more information.",
+    "Error.UpdateFailed": "An error happened while trying to update:\n{0}\nPlease refer to the log for more info.",
+    "Error.ProcessListFailed": "An error happened while trying to get running Call of Duty/UO processes: {0}\nPlease refer to the log for more info.",
+    "Error.SelectedNotExecutable": "Selected file is not an executable.",
+    "Error.UnableToDetermineGameName": "Unable to determine game name!",
+    "Error.UnableToDetermineGameVersion": "Unable to determine game version!",
+    "Error.FailedToGrabServerList": "Failed to grab server list!",
+    "Error.NoServersFound": "No servers were found.",
+    "Info.AutoDetectedPath": "Automatically detected game path:\n{0}",
+    "Info.SetInstallPath": "Set install path to: {0}",
+    "Info.SelectExePrompt": "Please select the exe to launch (this will be saved)",
+    "Info.SelectedExecutable": "Selected: {0}\nYou can change this again at any time.",
+    "Info.CheckingTooQuickly": "You're checking for updates too quickly!",
+    "Confirm.UpdateNow": "Are you sure you want to update now?",
+    "Confirm.CloseWithoutSaving": "Are you sure you want to close without saving?",
+    "Confirm.ConnectToServer": "Would you like to connect to this server?\n{0} ({1}:{2})",
+    "Hotkey.SetFoVUp": "Set FoV+ hotkey: {0}",
+    "Hotkey.SetFoVDown": "Set FoV- hotkey: {0}",
+    "Hotkey.SetModifier": "Set FoV modifier key: {0}",
+    "Tooltip.MainForm.MinimizeCheckBox": "Toggle whether or not this app should minimize to the tray",
+    "Tooltip.MainForm.checkBoxDesktopRes": "Toggle whether we should use the desktop resolution when launching the game.\nOnly affects game launches via 'Start Game' button.",
+    "Tooltip.MainForm.StatusLabel.NotFound": "Process not found or failed to access memory!",
+    "Tooltip.MainForm.StatusLabel.RequiresElevation": "Process requires elevation!",
+    "Tooltip.MainForm.StatusLabel.FailedWrite": "Process not found or failed to write to memory!"
+  },
+  "Metadata": {
+    "LanguageName": "English",
+    "LanguageNameNative": "English",
+    "CultureCode": "en-US",
+    "Version": "1.0",
+    "Author": "CoDUO FoV Changer Team"
+  }
+}

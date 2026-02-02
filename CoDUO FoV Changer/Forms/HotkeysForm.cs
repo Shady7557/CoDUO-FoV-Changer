@@ -2,6 +2,8 @@
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using CoDUO_FoV_Changer.Forms;
+using Localization;
 
 namespace CoDUO_FoV_Changer
 {
@@ -70,17 +72,17 @@ namespace CoDUO_FoV_Changer
             if (FoVUpRadioButton.Checked)
             {
                 settings.HotKeyUp = currentKeyCode.ToString();
-                MessageBox.Show("Set FoV+ hotkey: " + curKeyName);
+                LocalizedMessageBox.ShowInfo(StringKeys.HotkeySetFoVUp, curKeyName);
             }
             if (FoVDownRadioButton.Checked)
             {
                 settings.HotKeyDown = currentKeyCode.ToString();
-                MessageBox.Show("Set FoV- hotkey: " + curKeyName);
+                LocalizedMessageBox.ShowInfo(StringKeys.HotkeySetFoVDown, curKeyName);
             }
             if (FoVModifierRadioButton.Checked)
             {
                 settings.HotKeyModifier = currentKeyCode.ToString();
-                MessageBox.Show("Set FoV modifier key: " + curKeyName);
+                LocalizedMessageBox.ShowInfo(StringKeys.HotkeySetModifier, curKeyName);
             }
         }
 
@@ -92,7 +94,7 @@ namespace CoDUO_FoV_Changer
 
         private void button3_Click(object sender, EventArgs e)
         {
-            var closePrompt = MessageBox.Show("Are you sure you want to close without saving?", ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            var closePrompt = LocalizedMessageBox.ShowConfirm(StringKeys.ConfirmCloseWithoutSaving);
             if (closePrompt == DialogResult.Yes)
             {
                 settings.HasChanged = false;

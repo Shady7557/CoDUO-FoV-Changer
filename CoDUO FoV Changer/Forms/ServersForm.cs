@@ -14,6 +14,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TimerExtensions;
+using CoDUO_FoV_Changer.Forms;
+using Localization;
 using ListView = System.Windows.Forms.ListView;
 
 namespace CoDUO_FoV_Changer
@@ -460,13 +462,13 @@ namespace CoDUO_FoV_Changer
         {
             if (string.IsNullOrWhiteSpace(GameName))
             {
-                MessageBox.Show("Unable to determine game name!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LocalizedMessageBox.ShowError(StringKeys.ErrorUnableToDetermineGameName);
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(GameVersion))
             {
-                MessageBox.Show("Unable to determine game version!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LocalizedMessageBox.ShowError(StringKeys.ErrorUnableToDetermineGameVersion);
                 return;
             }
 
@@ -477,13 +479,13 @@ namespace CoDUO_FoV_Changer
 
                 if (infos?.Servers is null)
                 {
-                    MessageBox.Show("Failed to grab server list!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    LocalizedMessageBox.ShowError(StringKeys.ErrorFailedToGrabServerList);
                     return;
                 }
 
                 if (infos.Servers.Count < 1)
                 {
-                    MessageBox.Show("No servers were found.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    LocalizedMessageBox.ShowError(StringKeys.ErrorNoServersFound);
                     return;
                 }
 
@@ -639,13 +641,13 @@ namespace CoDUO_FoV_Changer
 
             if (infos?.Servers is null)
             {
-                MessageBox.Show("Failed to grab server list!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LocalizedMessageBox.ShowError(StringKeys.ErrorFailedToGrabServerList);
                 return;
             }
 
             if (infos.Servers.Count < 1)
             {
-                MessageBox.Show("No servers were found.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LocalizedMessageBox.ShowError(StringKeys.ErrorNoServersFound);
                 return;
             }
 
@@ -1122,8 +1124,7 @@ namespace CoDUO_FoV_Changer
             if (server is null)
                 return;
 
-            // Improve this message:
-            var msgBox = MessageBox.Show("Would you like to connect to this server?" + Environment.NewLine + ServerUtil.GetFilteredHostname(server.Hostname) + " (" + server.Ip + ": " + server.Port + ")", Application.ProductName, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+            var msgBox = LocalizedMessageBox.ShowConfirmWithCancel(StringKeys.ConfirmConnectToServer, ServerUtil.GetFilteredHostname(server.Hostname), server.Ip, server.Port);
 
             if (msgBox != DialogResult.Yes)
                 return;

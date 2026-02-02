@@ -6,6 +6,8 @@ using System.Diagnostics;
 using CurtLog;
 using CoDRegistryExtensions;
 using CoDUO_FoV_Changer.Util;
+using CoDUO_FoV_Changer.Forms;
+using Localization;
 
 namespace CoDUO_FoV_Changer
 {
@@ -65,7 +67,7 @@ namespace CoDUO_FoV_Changer
                     var fileNameDir = currentProc?.MainModule?.FileName ?? string.Empty;
                     if (string.IsNullOrEmpty(fileNameDir) || !File.Exists(fileNameDir))
                     {
-                        MessageBox.Show("Application path doesn't exist. Cannot start: " + fileNameDir + Environment.NewLine + " Please manually run the program as an Admin if you wish to change your hotkeys.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        LocalizedMessageBox.ShowError(StringKeys.ErrorAppPathNotExist, fileNameDir);
                         Close();
                     }
                     else
@@ -99,7 +101,7 @@ namespace CoDUO_FoV_Changer
             {
                 Log.WriteLine("Failed to start hotkeys form: " + ex.Message);
                 Log.WriteLine(ex.ToString());
-                MessageBox.Show("Failed to start hot keys form: " + ex.Message + Environment.NewLine + " please refer to the log for more info.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LocalizedMessageBox.ShowError(StringKeys.ErrorFailedHotkeysForm, ex.Message);
                 return;
             }
 
@@ -116,7 +118,7 @@ namespace CoDUO_FoV_Changer
                     var fileNameDir = currentProc?.MainModule?.FileName ?? string.Empty;
                     if (string.IsNullOrEmpty(fileNameDir) || !File.Exists(fileNameDir))
                     {
-                        MessageBox.Show("Application path doesn't exist. Cannot start: " + fileNameDir + Environment.NewLine + " Please manually run the program as an Admin if you wish to change your hotkeys.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        LocalizedMessageBox.ShowError(StringKeys.ErrorAppPathNotExist, fileNameDir);
                         Close();
                     }
                     else
@@ -150,7 +152,7 @@ namespace CoDUO_FoV_Changer
                 Log.WriteLine("Failed to start cd key manager form: " + ex.Message);
                 Log.WriteLine(ex.ToString());
                 Console.WriteLine(ex.ToString());
-                MessageBox.Show("Failed to start cd key manager form: " + ex.Message + Environment.NewLine + " please refer to the log for more info.", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LocalizedMessageBox.ShowError(StringKeys.ErrorFailedCDKeyForm, ex.Message);
                 return;
             }
 

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace CoDUO_FoV_Changer
@@ -10,7 +11,7 @@ namespace CoDUO_FoV_Changer
     {
 
         private static readonly Dictionary<Type, ExtendedForm> _instances = new Dictionary<Type, ExtendedForm>();
-        
+
         protected ExtendedForm()
         {
             if (DesignMode)
@@ -38,16 +39,153 @@ namespace CoDUO_FoV_Changer
 
         }
 
+        /// <summary>
+        /// Loads localization for all controls, menus, and tooltips in the form.
+        /// </summary>
         public void LoadAllLocalization()
         {
-            foreach (var control in Controls)
+            if (LocalizationManager.Instance == null)
+                return;
+
+            // Localize all controls recursively
+            LoadControlLocalization(this);
+
+            // Localize menu strips
+            LocalizeMenuStrips();
+
+            // Localize tooltips
+            LoadTooltipLocalization();
+        }
+
+        /// <summary>
+        /// Recursively localizes all controls within a parent control.
+        /// </summary>
+        /// <param name="parent">The parent control to start from.</param>
+        private void LoadControlLocalization(Control parent)
+        {
+            foreach (Control control in parent.Controls)
             {
-                if (!(control is Control ctrl))
+                if (string.IsNullOrWhiteSpace(control.Name))
                     continue;
 
-                // 'pre-load' any that don't have indexes (multiple text options)
-                if (LocalizationManager.Instance.GetControlIndexCount(ctrl) <= 1)
-                    LocalizationManager.Instance.ApplyLocalization(ctrl, 0);
+                // Apply localization to this control if it doesn't have multiple text variants
+                // (controls with multiple variants are handled manually in code)
+                if (LocalizationManager.Instance.GetControlIndexCount(control) <= 1)
+                    LocalizationManager.Instance.ApplyLocalization(control, 0);
+
+                // Recursively process nested controls (GroupBox, Panel, TabControl, SplitContainer, etc.)
+                if (control.HasChildren)
+                    LoadControlLocalization(control);
+            }
+        }
+
+        /// <summary>
+        /// Localizes all MenuStrip and ContextMenuStrip components in the form.
+        /// </summary>
+        private void LocalizeMenuStrips()
+        {
+            // Get all fields in the form class (including private)
+            var fields = GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+
+            foreach (var field in fields)
+            {
+                var value = field.GetValue(this);
+
+                if (value is MenuStrip menuStrip)
+                {
+                    LocalizeToolStripItems(menuStrip.Items);
+                }
+                else if (value is ContextMenuStrip contextMenu)
+                {
+                    LocalizeToolStripItems(contextMenu.Items);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Recursively localizes ToolStripItem collections (menus, context menus).
+        /// </summary>
+        /// <param name="items">The collection of ToolStripItems to localize.</param>
+        private void LocalizeToolStripItems(ToolStripItemCollection items)
+        {
+            foreach (ToolStripItem item in items)
+            {
+                if (string.IsNullOrWhiteSpace(item.Name) || string.IsNullOrWhiteSpace(item.Text))
+                    continue;
+
+                // Try to get localized string for this menu item
+                var key = $"{Name}.{item.Name}";
+                var localized = LocalizationManager.Instance.GetString(key);
+
+                // Only apply if we found a translation (not just the key back)
+                if (localized != key)
+                {
+                    item.Text = localized;
+                }
+                else
+                {
+                    // Register this menu item for localization
+                    LocalizationManager.Instance.RegisterMissingString(key, item.Text);
+                }
+
+                // Recursively localize dropdown items
+                if (item is ToolStripDropDownItem dropDown && dropDown.HasDropDownItems)
+                {
+                    LocalizeToolStripItems(dropDown.DropDownItems);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Localizes tooltip strings for controls that have tooltips assigned.
+        /// </summary>
+        private void LoadTooltipLocalization()
+        {
+            // Find all ToolTip components in the form
+            var fields = GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+
+            foreach (var field in fields)
+            {
+                if (field.GetValue(this) is ToolTip tooltip)
+                {
+                    LocalizeTooltipsForControls(tooltip, this);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Recursively localizes tooltips for all controls.
+        /// </summary>
+        /// <param name="tooltip">The ToolTip component.</param>
+        /// <param name="parent">The parent control to process.</param>
+        private void LocalizeTooltipsForControls(ToolTip tooltip, Control parent)
+        {
+            foreach (Control control in parent.Controls)
+            {
+                if (string.IsNullOrWhiteSpace(control.Name))
+                    continue;
+
+                var currentTip = tooltip.GetToolTip(control);
+                if (!string.IsNullOrWhiteSpace(currentTip))
+                {
+                    var key = $"Tooltip.{Name}.{control.Name}";
+                    var localized = LocalizationManager.Instance.GetString(key);
+
+                    if (localized != key)
+                    {
+                        // Apply localized tooltip
+                        tooltip.SetToolTip(control, localized);
+                    }
+                    else
+                    {
+                        // Register this tooltip for localization
+                        LocalizationManager.Instance.RegisterMissingString(key, currentTip);
+                    }
+                }
+
+                // Recursively process nested controls
+                if (control.HasChildren)
+                    LocalizeTooltipsForControls(tooltip, control);
             }
         }
 
