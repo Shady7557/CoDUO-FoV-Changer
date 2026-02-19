@@ -1,4 +1,4 @@
-﻿using CoDUO_FoV_Changer;
+using CoDUO_FoV_Changer;
 using CoDUO_FoV_Changer.Util;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Localization
@@ -16,13 +17,13 @@ namespace Localization
     public class LocalizationData
     {
         /// <summary>
-        /// Control-based strings keyed by "FormName.ControlName" with indexed variants.
+        /// Legacy control-based strings. Migrated to Strings on load.
         /// </summary>
         [JsonProperty("Controls")]
         public Dictionary<string, Dictionary<int, string>> Controls { get; set; } = new Dictionary<string, Dictionary<int, string>>();
 
         /// <summary>
-        /// Key-based strings for MessageBox messages, tooltips, and dynamic text.
+        /// Key-based strings for all translatable text.
         /// Supports {0}, {1} placeholders for string.Format().
         /// </summary>
         [JsonProperty("Strings")]
@@ -93,7 +94,7 @@ namespace Localization
         public LocalizationData Data { get; private set; } = new LocalizationData();
 
         /// <summary>
-        /// Control-based strings (backward compatible property).
+        /// Legacy control-based strings (backward compatible property).
         /// </summary>
         public Dictionary<string, Dictionary<int, string>> LocalizedStrings
         {
@@ -102,7 +103,7 @@ namespace Localization
         }
 
         /// <summary>
-        /// Key-based strings for MessageBox, tooltips, dynamic text.
+        /// Key-based strings for all translatable text.
         /// </summary>
         public Dictionary<string, string> Strings
         {
@@ -263,18 +264,81 @@ namespace Localization
                 Data.Metadata.CultureCode = culture.Name;
             }
 
+            // Migrate any legacy Controls entries to Strings
+            MigrateControlsToStrings();
+
             Settings.Instance.SelectedCultureCode = culture.Name;
 
             // we don't need an else here to fall back onto en-US because if a culture is picked and does not have translations,
             // it will simply use english by default.
         }
 
+        /// <summary>
+        /// Migrates legacy Controls dictionary entries into the Strings dictionary.
+        /// Called during LoadLocalization as a safety net for old format files.
+        /// </summary>
+        private void MigrateControlsToStrings()
+        {
+            if (LocalizedStrings == null || LocalizedStrings.Count == 0)
+                return;
+
+            var migrated = false;
+
+            foreach (var kvp in LocalizedStrings)
+            {
+                var controlKey = kvp.Key; // e.g. "MainForm.StatusLabel"
+
+                if (kvp.Value.Count == 1 && kvp.Value.ContainsKey(0))
+                {
+                    // Single-state control
+                    var stringsKey = $"Control.{controlKey}";
+                    if (!Strings.ContainsKey(stringsKey))
+                    {
+                        Strings[stringsKey] = kvp.Value[0];
+                        migrated = true;
+                    }
+                }
+                else
+                {
+                    // Multi-state control
+                    foreach (var stateKvp in kvp.Value)
+                    {
+                        var stringsKey = $"Control.{controlKey}.State{stateKvp.Key}";
+                        if (!Strings.ContainsKey(stringsKey))
+                        {
+                            Strings[stringsKey] = stateKvp.Value;
+                            migrated = true;
+                        }
+                    }
+                }
+            }
+
+            if (migrated)
+            {
+                LocalizedStrings.Clear();
+                SaveLocalization(Culture);
+            }
+        }
+
+        /// <summary>
+        /// Returns the count of multi-state Strings keys matching a control prefix.
+        /// Used by ExtendedForm to skip multi-state controls during auto-localization.
+        /// </summary>
         public int GetControlIndexCount(Control control)
         {
-            if (LocalizedStrings == null || !LocalizedStrings.TryGetValue(GetControlAndFormName(control), out var localized))
+            if (Strings == null || control == null)
                 return 0;
 
-            return localized.Count;
+            var prefix = $"Control.{GetControlAndFormName(control)}.";
+            var count = 0;
+
+            foreach (var key in Strings.Keys)
+            {
+                if (key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                    count++;
+            }
+
+            return count;
         }
 
         public void LoadLocalization(string cultureCode, bool restartApp = true)
@@ -307,24 +371,39 @@ namespace Localization
                 // improve restart handling later, we want to keep the arguments used to launch the app, for example.
 
                 Application.Restart();
-           
+
             }
         }
 
+        /// <summary>
+        /// Gets a localized string for a control using the Strings dictionary.
+        /// Key pattern: Control.{FormName}.{ControlName}
+        /// </summary>
         public string GetLocalizedString(Control control, int index = 0)
         {
             if (string.IsNullOrWhiteSpace(control?.Name))
                 throw new ArgumentNullException(nameof(control));
 
-            if (LocalizedStrings == null || !LocalizedStrings.TryGetValue(GetControlAndFormName(control), out var localized))
-                return control.Text;
+            var controlFormName = GetControlAndFormName(control);
+            var key = $"Control.{controlFormName}";
 
-            if (!localized.TryGetValue(index, out var localizedString))
-                return control.Text;
+            if (Strings != null && Strings.TryGetValue(key, out var localizedString))
+                return localizedString;
 
-            return localizedString;
+            // Fallback to legacy Controls dict
+            if (LocalizedStrings != null && LocalizedStrings.TryGetValue(controlFormName, out var localized))
+            {
+                if (localized.TryGetValue(index, out var legacyString))
+                    return legacyString;
+            }
+
+            return control.Text;
         }
 
+        /// <summary>
+        /// Applies localization to a single-state control using the Strings dictionary.
+        /// Key pattern: Control.{FormName}.{ControlName}
+        /// </summary>
         public void ApplyLocalization(Control control, int index = 0)
         {
             if (control is null)
@@ -333,6 +412,21 @@ namespace Localization
             if (control.IsDisposed || control.Disposing || string.IsNullOrWhiteSpace(control?.Text))
                     return;
 
+            var controlFormName = GetControlAndFormName(control);
+            var key = $"Control.{controlFormName}";
+
+            if (Strings != null && Strings.TryGetValue(key, out var localizedString))
+            {
+                if (control.Text != localizedString)
+                {
+                    if (control.InvokeRequired)
+                        control.BeginInvoke((MethodInvoker)delegate { control.Text = localizedString; });
+                    else control.Text = localizedString;
+                }
+                return;
+            }
+
+            // Fallback to legacy Controls dict
             var localized = GetLocalizedString(control, index);
 
             if (control.Text != localized)
@@ -343,37 +437,115 @@ namespace Localization
             }
             else
             {
-                // Else, we don't have localization for this one yet. Not even English.
-
-                var changes = false;
-
-
-                // Get the control and form name
-                var controlFormName = GetControlAndFormName(control);
-
-                // Check if the control form name exists in the LocalizedStrings dictionary
-                if (!LocalizedStrings.TryGetValue(controlFormName, out var localizedStrings))
+                // Auto-register this control's text for future localization
+                if (!Strings.ContainsKey(key))
                 {
-                    // If it doesn't exist, create a new dictionary for the control form name
-                    localizedStrings = new Dictionary<int, string>();
-                    LocalizedStrings[controlFormName] = localizedStrings;
-                    changes = true;
-                }
-
-                // Check if the localized string for the control and index exists
-                if (!LocalizedStrings[controlFormName].TryGetValue(index, out var localizedString))
-                {
-                    // If it doesn't exist, add the control text to the localized strings dictionary
-                    LocalizedStrings[controlFormName][index] = control.Text;
-                    changes = true;
-                }
-
-                // If there were changes made, save the localization
-                if (changes)
+                    Strings[key] = control.Text;
                     SaveLocalization(Culture);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Scans the Localization directory for available language files.
+        /// Returns a list of tuples with culture code, language name, and native name.
+        /// </summary>
+        public List<(string CultureCode, string LanguageName, string NativeName)> GetAvailableLanguages()
+        {
+            var languages = new List<(string, string, string)>();
+
+            try
+            {
+                var localizationDir = LocalizationPath;
+
+                if (!Directory.Exists(localizationDir))
+                    return languages;
+
+                var files = Directory.GetFiles(localizationDir, "*.json");
+
+                for (int i = 0; i < files.Length; i++)
+                {
+                    try
+                    {
+                        var jsonContent = File.ReadAllText(files[i]);
+                        var parsed = JObject.Parse(jsonContent);
+                        var metadata = parsed["Metadata"];
+
+                        if (metadata == null)
+                            continue;
+
+                        var cultureCode = metadata["CultureCode"]?.ToString() ?? Path.GetFileNameWithoutExtension(files[i]);
+                        var languageName = metadata["LanguageName"]?.ToString() ?? cultureCode;
+                        var nativeName = metadata["LanguageNameNative"]?.ToString() ?? languageName;
+
+                        languages.Add((cultureCode, languageName, nativeName));
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Failed to read language file {files[i]}: {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to scan for languages: {ex.Message}");
             }
 
+            return languages;
+        }
 
+        /// <summary>
+        /// Ensures the default en-US.json localization file exists in the AppData directory.
+        /// Copies from the application's build output directory if missing or outdated.
+        /// </summary>
+        public void EnsureDefaultLocalizationFiles()
+        {
+            try
+            {
+                var appDataDir = LocalizationPath;
+                var shippedDir = Path.Combine(Application.StartupPath, "Localization");
+
+                if (!Directory.Exists(shippedDir))
+                    return;
+
+                new DirectoryInfo(appDataDir).Create();
+
+                var shippedFiles = Directory.GetFiles(shippedDir, "*.json");
+
+                for (int i = 0; i < shippedFiles.Length; i++)
+                {
+                    var shippedFile = shippedFiles[i];
+                    var fileName = Path.GetFileName(shippedFile);
+                    var targetFile = Path.Combine(appDataDir, fileName);
+
+                    if (!File.Exists(targetFile))
+                    {
+                        File.Copy(shippedFile, targetFile);
+                        continue;
+                    }
+
+                    // Compare versions - copy if shipped version is newer
+                    try
+                    {
+                        var shippedJson = JObject.Parse(File.ReadAllText(shippedFile));
+                        var targetJson = JObject.Parse(File.ReadAllText(targetFile));
+
+                        var shippedVersion = shippedJson["Metadata"]?["Version"]?.ToString() ?? "0";
+                        var targetVersion = targetJson["Metadata"]?["Version"]?.ToString() ?? "0";
+
+                        if (string.Compare(shippedVersion, targetVersion, StringComparison.OrdinalIgnoreCase) > 0)
+                            File.Copy(shippedFile, targetFile, true);
+                    }
+                    catch (Exception)
+                    {
+                        // If we can't compare versions, leave existing file alone
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to ensure default localization files: {ex.Message}");
+            }
         }
 
         private static string GetControlAndFormName(Control control)

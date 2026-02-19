@@ -31,13 +31,36 @@
     "Tooltip.MainForm.checkBoxDesktopRes": "Toggle whether we should use the desktop resolution when launching the game.\nOnly affects game launches via 'Start Game' button.",
     "Tooltip.MainForm.StatusLabel.NotFound": "Process not found or failed to access memory!",
     "Tooltip.MainForm.StatusLabel.RequiresElevation": "Process requires elevation!",
-    "Tooltip.MainForm.StatusLabel.FailedWrite": "Process not found or failed to write to memory!"
+    "Tooltip.MainForm.StatusLabel.FailedWrite": "Process not found or failed to write to memory!",
+
+    "Control.MainForm.StatusLabel.NotRunning": "Status: Not running.",
+    "Control.MainForm.StatusLabel.Success": "Status: Successfully wrote to game memory.",
+    "Control.MainForm.StatusLabel.RequiresElevation": "Status: Requires elevation (run as Admin).",
+
+    "Control.MainForm.CheckUpdatesLabel.Checking": "Checking for updates...",
+    "Control.MainForm.CheckUpdatesLabel.NoUpdatesFound": "No updates found. Click to check again.",
+    "Control.MainForm.CheckUpdatesLabel.UpdatesAvailable": "Updates available!",
+
+    "Control.ServersForm.FavoritesButton.ShowFavorites": "Show Favorites",
+    "Control.ServersForm.FavoritesButton.ShowAll": "Show All",
+
+    "Time.Seconds": "{0} seconds",
+    "Time.Minutes": "{0} minutes",
+    "Time.Hours": "{0} hours",
+
+    "UI.MinimizedToTray.Title": "Minimized to Tray",
+    "UI.MinimizedToTray.Message": "{0} is minimized. Click to restore full-size.",
+    "UI.ServersForm.Title": "Server List",
+    "UI.ServersForm.TitleFavorites": "Server List (Favorites)",
+    "UI.Pinging": "Pinging...",
+    "UI.LocateInstallDirectory": "Locate your Call of Duty installation directory",
+    "UI.CopyColumn": "Copy {0}"
   },
   "Metadata": {
     "LanguageName": "English",
     "LanguageNameNative": "English",
     "CultureCode": "en-US",
-    "Version": "1.0",
+    "Version": "1.1",
     "Author": "CoDUO FoV Changer Team"
   }
 }

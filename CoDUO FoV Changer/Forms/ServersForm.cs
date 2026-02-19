@@ -1,5 +1,6 @@
 ﻿using CoDUO_FoV_Changer.Controls;
 using CoDUO_FoV_Changer.Util;
+using ControlExtensions;
 using CurtLog;
 using ProcessExtensions;
 using ShadyPool;
@@ -541,7 +542,7 @@ namespace CoDUO_FoV_Changer
                     item.SubItems.Add(ServerUtil.GetPlayersString(server));
 
                     item.SubItems.Add(server.GameType.ToUpper());
-                    item.SubItems.Add("Pinging...");
+                    item.SubItems.Add(LocalizationManager.L(StringKeys.UIPinging));
                     item.SubItems.Add(ServerUtil.GetIpAndPort(server));
 
                     ServerListFilter.ListViewItems.Add(item);
@@ -568,7 +569,7 @@ namespace CoDUO_FoV_Changer
                 item.SubItems[1].Text = ServerUtil.GetPrettyMapName(server.MapName);
                 item.SubItems[2].Text = ServerUtil.GetPlayersString(server);
                 item.SubItems[3].Text = server.GameType.ToUpper();
-                item.SubItems[4].Text = "Pinging...";
+                item.SubItems[4].Text = LocalizationManager.L(StringKeys.UIPinging);
                 item.SubItems[5].Text = ServerUtil.GetIpAndPort(server);
 
                 // Update the item in the list view.
@@ -1288,11 +1289,13 @@ namespace CoDUO_FoV_Changer
         }
 
         private void UpdateFavoritesButtonText() =>
-            FavoritesButton.Text = ServerListFilter.OnlyFavorites ? "Show All" : "Show Favorites";
+            FavoritesButton.ApplyLocalization(ServerListFilter.OnlyFavorites ? FavoritesButtonState.ShowAll : FavoritesButtonState.ShowFavorites);
 
 
         private void UpdateFormText() =>
-            Text = "Server List" + (ServerListFilter.OnlyFavorites ? " (Favorites)" : string.Empty);
+            Text = ServerListFilter.OnlyFavorites
+                ? LocalizationManager.L(StringKeys.UIServersFormTitleFavorites)
+                : LocalizationManager.L(StringKeys.UIServersFormTitle);
 
 
         private void ServerListView_MouseDown(object sender, MouseEventArgs e)
@@ -1314,7 +1317,7 @@ namespace CoDUO_FoV_Changer
                 return;
             }
 
-            contextMenuStrip1.Items[0].Text = "Copy " + ServerListView.Columns[clickedSubItemIndex].Text;
+            contextMenuStrip1.Items[0].Text = LocalizationManager.L(StringKeys.UICopyColumn, ServerListView.Columns[clickedSubItemIndex].Text);
 
             Clipboard.SetText(clickedItem.Text);
         }

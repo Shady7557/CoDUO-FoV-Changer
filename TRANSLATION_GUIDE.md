@@ -12,45 +12,72 @@ This guide explains how to create translations for the CoDUO FoV Changer applica
 
 3. Open the file in a text editor and translate the strings
 
-4. Restart the application and select your language from the Language menu
+4. Restart the application - your language will automatically appear in the Language menu
 
 ## JSON File Structure
 
-The localization file has three main sections:
-
-### Controls Section
-Contains UI control text. Keys are in format `FormName.ControlName`.
-Some controls have multiple states (0, 1, 2...) for different UI states.
-
-```json
-"Controls": {
-  "MainForm.StatusLabel": {
-    "0": "Status: Not running",
-    "1": "Status: Success!",
-    "2": "Status: Game requires elevation!"
-  }
-}
-```
+The localization file has two main sections:
 
 ### Strings Section
-Contains all other strings (messages, tooltips, confirmations, etc.).
+
+All translatable text lives in a single flat `Strings` dictionary using descriptive keys.
 Keys use dot notation for organization:
 
-- `Error.*` - Error messages
-- `Info.*` - Informational messages
-- `Confirm.*` - Confirmation dialogs
-- `Hotkey.*` - Hotkey-related messages
-- `Tooltip.*` - Tooltip strings
+| Type | Key Pattern | Example |
+|------|-------------|---------|
+| Single-state control | `Control.{Form}.{Control}` | `Control.MainForm.StartGameButton` |
+| Multi-state control | `Control.{Form}.{Control}.{State}` | `Control.MainForm.StatusLabel.Success` |
+| Error messages | `Error.*` | `Error.FailedToStartGame` |
+| Info messages | `Info.*` | `Info.AutoDetectedPath` |
+| Confirmations | `Confirm.*` | `Confirm.UpdateNow` |
+| Hotkeys | `Hotkey.*` | `Hotkey.SetFoVUp` |
+| Tooltips | `Tooltip.*` | `Tooltip.MainForm.StatusLabel.NotFound` |
+| Time units | `Time.*` | `Time.Seconds` |
+| UI strings | `UI.*` | `UI.MinimizedToTray.Title` |
+
+#### Multi-State Controls
+
+Some controls display different text depending on their state. These use named state keys:
 
 ```json
-"Strings": {
-  "Error.FailedToStartGame": "Failed to start game: {0}\nPlease refer to the log for more info.",
-  "Info.AutoDetectedPath": "Automatically detected game path:\n{0}",
-  "Confirm.UpdateNow": "Are you sure you want to update now?"
-}
+"Control.MainForm.StatusLabel.NotRunning": "Status: Not running.",
+"Control.MainForm.StatusLabel.Success": "Status: Successfully wrote to game memory.",
+"Control.MainForm.StatusLabel.RequiresElevation": "Status: Requires elevation (run as Admin).",
+
+"Control.MainForm.CheckUpdatesLabel.Checking": "Checking for updates...",
+"Control.MainForm.CheckUpdatesLabel.NoUpdatesFound": "No updates found. Click to check again.",
+"Control.MainForm.CheckUpdatesLabel.UpdatesAvailable": "Updates available!",
+
+"Control.ServersForm.FavoritesButton.ShowFavorites": "Show Favorites",
+"Control.ServersForm.FavoritesButton.ShowAll": "Show All"
+```
+
+#### Time Units
+
+Time strings use `{0}` as a placeholder for the numeric value:
+
+```json
+"Time.Seconds": "{0} seconds",
+"Time.Minutes": "{0} minutes",
+"Time.Hours": "{0} hours"
+```
+
+#### UI Strings
+
+General UI text that doesn't belong to a specific control:
+
+```json
+"UI.MinimizedToTray.Title": "Minimized to Tray",
+"UI.MinimizedToTray.Message": "{0} is minimized. Click to restore full-size.",
+"UI.ServersForm.Title": "Server List",
+"UI.ServersForm.TitleFavorites": "Server List (Favorites)",
+"UI.Pinging": "Pinging...",
+"UI.LocateInstallDirectory": "Locate your Call of Duty installation directory",
+"UI.CopyColumn": "Copy {0}"
 ```
 
 ### Metadata Section
+
 Information about your translation:
 
 ```json
@@ -88,6 +115,7 @@ This becomes: "Would you like to connect to this server?\nServer Name (192.168.1
 3. **Test your translation** in the app after making changes
 4. **Update the Metadata** section with your language info and your name as author
 5. **Keep punctuation consistent** with the original where appropriate
+6. **The `Controls` section** in the JSON file should remain as an empty object `{}` - all control text is in `Strings`
 
 ## Common Culture Codes
 

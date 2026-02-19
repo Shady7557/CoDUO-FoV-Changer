@@ -50,8 +50,6 @@ namespace CoDUO_FoV_Changer
             this.InfoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.singleplayerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.languageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.enUSToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.frFRToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.SettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ChangelogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -258,30 +256,12 @@ namespace CoDUO_FoV_Changer
             this.singleplayerToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.singleplayerToolStripMenuItem.Text = "Game Fixes/Solutions";
             this.singleplayerToolStripMenuItem.Click += new System.EventHandler(this.singleplayerToolStripMenuItem_Click);
-            // 
+            //
             // languageToolStripMenuItem
-            // 
-            this.languageToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.enUSToolStripMenuItem,
-            this.frFRToolStripMenuItem});
+            //
             this.languageToolStripMenuItem.Name = "languageToolStripMenuItem";
             this.languageToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.languageToolStripMenuItem.Text = "Language";
-            // 
-            // enUSToolStripMenuItem
-            // 
-            this.enUSToolStripMenuItem.CheckOnClick = true;
-            this.enUSToolStripMenuItem.Name = "enUSToolStripMenuItem";
-            this.enUSToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
-            this.enUSToolStripMenuItem.Text = "en-US";
-            this.enUSToolStripMenuItem.Click += new System.EventHandler(this.EnUSToolStripMenuItem_Click);
-            // 
-            // frFRToolStripMenuItem
-            // 
-            this.frFRToolStripMenuItem.Name = "frFRToolStripMenuItem";
-            this.frFRToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
-            this.frFRToolStripMenuItem.Text = "fr-FR";
-            this.frFRToolStripMenuItem.Click += new System.EventHandler(this.FrFRToolStripMenuItem_Click);
             // 
             // ToolStripMenuItem1
             // 
@@ -599,8 +579,6 @@ namespace CoDUO_FoV_Changer
         internal Label GameTimeCountLabel;
         private ToolStripMenuItem mapArchiveToolStripMenuItem;
         private ToolStripMenuItem languageToolStripMenuItem;
-        private ToolStripMenuItem enUSToolStripMenuItem;
-        private ToolStripMenuItem frFRToolStripMenuItem;
         private ToolStripMenuItem serverBrowserToolStripMenuItem;
         internal Label selectedProcessLabel;
     }

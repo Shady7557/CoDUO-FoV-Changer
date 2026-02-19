@@ -248,9 +248,6 @@ namespace CoDUO_FoV_Changer
             {
                 watch.Restart();
 
-                if (!Debugger.IsAttached)
-                    languageToolStripMenuItem.Visible = false;
-
                 Text = Application.ProductName;
                 LaunchParametersTB.Text = settings.CommandLine;
                 checkBoxDesktopRes.Checked = settings.UseDesktopRes;
@@ -401,7 +398,7 @@ namespace CoDUO_FoV_Changer
                             }
                             else
                             {
-                                ipDialog.Description = "Locate your Call of Duty installation directory";
+                                ipDialog.Description = LocalizationManager.L(StringKeys.UILocateInstallDir);
 
                                 if (ipDialog.ShowDialog() == DialogResult.Cancel)
                                 {
@@ -465,17 +462,7 @@ namespace CoDUO_FoV_Changer
 
                 UpdateButton.Visible = IsDev;
 
-                foreach (var obj in languageToolStripMenuItem.DropDownItems)
-                {
-                    if (!(obj is ToolStripMenuItem item))
-                        continue;
-
-                    if (LocalizationManager.Instance.CultureCode.Equals(item.Text, StringComparison.OrdinalIgnoreCase))
-                    {
-                        item.Checked = true;
-                        break;
-                    }
-                }
+                PopulateLanguageMenu();
 
             }
             finally
@@ -688,9 +675,11 @@ namespace CoDUO_FoV_Changer
 
             MinimizeIcon.Visible = true;
             MinimizeIcon.BalloonTipIcon = ToolTipIcon.Info;
-            MinimizeIcon.BalloonTipText = Application.ProductName + " is minimized. Double click to restore full-size.";
-            MinimizeIcon.BalloonTipTitle = "Minimized to Tray";
-            MinimizeIcon.ShowBalloonTip(4300, "Minimized to Tray", Application.ProductName + " is minimized. Click to restore full-size.", ToolTipIcon.Info);
+            var trayTitle = LocalizationManager.L(StringKeys.UIMinimizedToTrayTitle);
+            var trayMessage = LocalizationManager.L(StringKeys.UIMinimizedToTrayMessage, Application.ProductName);
+            MinimizeIcon.BalloonTipText = trayMessage;
+            MinimizeIcon.BalloonTipTitle = trayTitle;
+            MinimizeIcon.ShowBalloonTip(4300, trayTitle, trayMessage, ToolTipIcon.Info);
         }
 
         private void UnminimizeFromTray()
@@ -712,7 +701,7 @@ namespace CoDUO_FoV_Changer
                     StatusLabel.ApplyLocalization(StatusLabelState.NotRunning);
                     StatusLabel.BeginInvoke((MethodInvoker)delegate
                     {
-                        toolTip1.SetToolTip(StatusLabel, "Process not found or failed to access memory!");
+                        toolTip1.SetToolTip(StatusLabel, LocalizationManager.L(StringKeys.TooltipStatusNotFound));
                         StatusLabel.ForeColor = Color.Orange;
                     });
                 }
@@ -800,7 +789,7 @@ namespace CoDUO_FoV_Changer
                 else UpdateButton.Visible = _needsUpdate;
             }
 
-            SetLabelText(CheckUpdatesLabel, _needsUpdate ? "Updates available!" : "No updates found. Click to check again.", _needsUpdate ? 1 : 0);
+            CheckUpdatesLabel.ApplyLocalization(_needsUpdate ? CheckUpdatesLabelState.UpdatesAvailable : CheckUpdatesLabelState.NoUpdatesFound);
         }
 
         private async Task<bool> CheckUpdates()
@@ -840,17 +829,6 @@ namespace CoDUO_FoV_Changer
         }
 
 
-
-        private void SetLabelText(Label label, string text, int index = 0)
-        {
-            if (label == null) throw new ArgumentNullException(nameof(label));
-
-            if (label.InvokeRequired) label.BeginInvoke((MethodInvoker)delegate () { label.Text = text; });
-            else label.Text = text;
-
-          //  label.ApplyLocalization(index);
-
-        }
 
         private bool TryParseKeys(string text, out Keys value) => Enum.TryParse(text, out value);
 
@@ -953,7 +931,7 @@ namespace CoDUO_FoV_Changer
 
                     StatusLabel.BeginInvoke((MethodInvoker)delegate
                     {
-                        toolTip1.SetToolTip(StatusLabel, "Process requires elevation!");
+                        toolTip1.SetToolTip(StatusLabel, LocalizationManager.L(StringKeys.TooltipStatusRequiresElevation));
                         StatusLabel.ForeColor = Color.Orange;
                     });
 
@@ -966,7 +944,7 @@ namespace CoDUO_FoV_Changer
                     StatusLabel.ApplyLocalization(StatusLabelState.NotRunning);
                     StatusLabel.BeginInvoke((MethodInvoker)delegate
                     {
-                        toolTip1.SetToolTip(StatusLabel, "Process not found or failed to write to memory!");
+                        toolTip1.SetToolTip(StatusLabel, LocalizationManager.L(StringKeys.TooltipStatusFailedWrite));
                         StatusLabel.ForeColor = Color.Orange;
                     });
                 }
@@ -1015,7 +993,7 @@ namespace CoDUO_FoV_Changer
                 }
             }
 
-            CheckUpdatesLabel.Text = "Checking for updates...";
+            CheckUpdatesLabel.ApplyLocalization(CheckUpdatesLabelState.Checking);
             Task.Run(() => StartUpdateChecking());
             _lastUpdateCheck = now;
         }
@@ -1039,16 +1017,16 @@ namespace CoDUO_FoV_Changer
                 var sessionTimeTxt = string.Empty;
               
 
-                if (settings.GameTime >= 1 && totalMinutes < 1) gameTimeTxt = settings.GameTime.ToString("N0") + " seconds";
-                if (totalMinutes >= 1 && totalHours < 1) gameTimeTxt = totalMinutes.ToString("N0") + " minutes";
-                if (totalHours >= 1) gameTimeTxt = totalHours.ToString("N0") + " hours";
+                if (settings.GameTime >= 1 && totalMinutes < 1) gameTimeTxt = LocalizationManager.L(StringKeys.TimeSeconds, settings.GameTime.ToString("N0"));
+                if (totalMinutes >= 1 && totalHours < 1) gameTimeTxt = LocalizationManager.L(StringKeys.TimeMinutes, totalMinutes.ToString("N0"));
+                if (totalHours >= 1) gameTimeTxt = LocalizationManager.L(StringKeys.TimeHours, totalHours.ToString("N0"));
 
                 if (!string.IsNullOrEmpty(gameTimeTxt))
                     GameTimeCountLabel.Text = gameTimeTxt;
 
-                if (spanCurrent.TotalSeconds > 0 && totalMinutesCur < 1) sessionTimeTxt = spanCurrent.TotalSeconds.ToString("N0") + " seconds";
-                if (totalMinutesCur >= 1 && totalHoursCur < 1) sessionTimeTxt = totalMinutesCur.ToString("N0") + " minutes";
-                if (totalHoursCur >= 1) sessionTimeTxt = totalHoursCur.ToString("N0") + " hours";
+                if (spanCurrent.TotalSeconds > 0 && totalMinutesCur < 1) sessionTimeTxt = LocalizationManager.L(StringKeys.TimeSeconds, spanCurrent.TotalSeconds.ToString("N0"));
+                if (totalMinutesCur >= 1 && totalHoursCur < 1) sessionTimeTxt = LocalizationManager.L(StringKeys.TimeMinutes, totalMinutesCur.ToString("N0"));
+                if (totalHoursCur >= 1) sessionTimeTxt = LocalizationManager.L(StringKeys.TimeHours, totalHoursCur.ToString("N0"));
 
                 if (!string.IsNullOrWhiteSpace(sessionTimeTxt))
                     SessionTimeLabel.Text = sessionTimeTxt;
@@ -1360,14 +1338,26 @@ namespace CoDUO_FoV_Changer
 
         private void MapArchiveToolStripMenuItem_Click(object sender, EventArgs e) => Process.Start(GITHUB_MAP_ARCHIVE_URI);
 
-        private void EnUSToolStripMenuItem_Click(object sender, EventArgs e)
+        private void PopulateLanguageMenu()
         {
-            LocalizationManager.Instance.LoadLocalization("en-US");
-        }
+            languageToolStripMenuItem.DropDownItems.Clear();
+            var languages = LocalizationManager.Instance.GetAvailableLanguages();
+            var currentCulture = LocalizationManager.Instance.CultureCode;
 
-        private void FrFRToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            LocalizationManager.Instance.LoadLocalization("fr-FR");
+            foreach (var (CultureCode, LanguageName, NativeName) in languages)
+            {
+                var item = new ToolStripMenuItem($"{NativeName} ({CultureCode})")
+                {
+                    Tag = CultureCode,
+                    CheckOnClick = false,
+                    Checked = CultureCode.Equals(currentCulture, StringComparison.OrdinalIgnoreCase)
+                };
+                item.Click += (s, ev) =>
+                {
+                    LocalizationManager.Instance.LoadLocalization((string)((ToolStripMenuItem)s).Tag);
+                };
+                languageToolStripMenuItem.DropDownItems.Add(item);
+            }
         }
 
         private void CheckBoxDesktopRes_CheckedChanged(object sender, EventArgs e)

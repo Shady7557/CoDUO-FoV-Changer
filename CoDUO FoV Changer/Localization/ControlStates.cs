@@ -15,8 +15,9 @@ namespace Localization
     /// </summary>
     public enum CheckUpdatesLabelState
     {
-        NoUpdatesFound = 0,
-        UpdatesAvailable = 1
+        Checking = 0,
+        NoUpdatesFound = 1,
+        UpdatesAvailable = 2
     }
 
     /// <summary>
